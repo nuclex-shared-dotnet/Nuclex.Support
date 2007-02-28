@@ -25,7 +25,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Reparents all elements in the collection</summary>
     /// <param name="parent">New parent to take ownership of the items</param>
-    internal void Reparent(ParentType parent) {
+    protected void Reparent(ParentType parent) {
       this.parent = parent;
 
       for(int index = 0; index < Count; ++index)
@@ -35,7 +35,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Called when the asset needs to release its resources</summary>
     /// <param name="calledByUser">
     ///   Whether the mehod has been called from user code. If this argument
-    ///   is false, the object is being disposed by the garbage collection and
+    ///   is false, the object is being disposed by the garbage collector and
     ///   it mustn't access other objects (including the attempt to Dispose() them)
     ///   as these might have already been destroyed by the GC.
     /// </param>

@@ -18,16 +18,16 @@ namespace Nuclex.Support.Serialization {
       public int Dummy;
     }
 
-    /// <summary>Prepares some test data for the units test methods</summary>
+    /// <summary>Prepares some test data for the unit test methods</summary>
     [TestFixtureSetUp]
     public void Setup() {
     }
 
     /// <summary>
-    ///   Ensures that the ring buffer blocks write attempts that would exceed its capacity
+    ///   Tests wether a simple collection can be successfully saved and loaded again
     /// </summary>
     [Test]
-    public void TestTooLargeChunk() {
+    public void TestSimpleCollection() {
       MemoryStream buffer = new MemoryStream();
 
       // Fill and save
