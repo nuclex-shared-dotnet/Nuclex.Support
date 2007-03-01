@@ -59,7 +59,7 @@ namespace Nuclex.Support.Serialization {
         );
 
         // Let the blueprint load its own data and add it to the collection
-        ((IBinarySerializable)item).Load(reader);
+        (item as IBinarySerializable).Load(reader);
         collection.Add(item);
 
       } // for

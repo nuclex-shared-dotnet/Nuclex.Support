@@ -95,7 +95,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Release all resources owned by the instance explicitely</summary>
-    void IDisposable.Dispose() {
+    public void Dispose() {
       Dispose(true); // Called by user
     }
 
