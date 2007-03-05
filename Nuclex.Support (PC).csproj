@@ -65,6 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Collections\UnintrusivePriorityQueue.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>UnintrusivePriorityQueue</Name>
+    </Compile>
     <Compile Include="Source\Collections\Parentable.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>Parentable</Name>
@@ -77,6 +81,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>PriorityQueue</Name>
     </Compile>
+    <Compile Include="Source\Collections\PriorityQueue.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PriorityQueue.Test</Name>
+      <DependentUpon>PriorityQueue.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\RingMemoryStream.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>RingMemoryStream</Name>
@@ -86,6 +95,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>RingMemoryStream.Test</Name>
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\UnintrusivePriorityQueue.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>UnintrusivePriorityQueue.Test</Name>
+      <DependentUpon>UnintrusivePriorityQueue.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>

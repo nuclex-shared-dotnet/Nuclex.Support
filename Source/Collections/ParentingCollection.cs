@@ -14,14 +14,9 @@ namespace Nuclex.Support.Collections {
   /// </remarks>
   /// <typeparam name="ParentType">Type of the parent object to assign to items</typeparam>
   /// <typeparam name="ItemType">Type of the items being managed in the collection</typeparam>
-  public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>, IDisposable
+  public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>
     where ItemType : Parentable<ParentType>
     where ParentType : class {
-
-    /// <summary>Called when the object is garbage-collected</summary>
-    ~ParentingCollection() {
-      Dispose(false); // called from GC
-    }
 
     /// <summary>Reparents all elements in the collection</summary>
     /// <param name="parent">New parent to take ownership of the items</param>
@@ -30,37 +25,6 @@ namespace Nuclex.Support.Collections {
 
       for(int index = 0; index < Count; ++index)
         base[index].SetParent(parent);
-    }
-
-    /// <summary>Called when the asset needs to release its resources</summary>
-    /// <param name="calledByUser">
-    ///   Whether the mehod has been called from user code. If this argument
-    ///   is false, the object is being disposed by the garbage collector and
-    ///   it mustn't access other objects (including the attempt to Dispose() them)
-    ///   as these might have already been destroyed by the GC.
-    /// </param>
-    protected virtual void Dispose(bool calledByUser) {
-
-      // Only destroy the other resources when we're not being called from
-      // the garbage collector, otherwise we'd risk accessing objects that
-      // have already been disposed
-      if(calledByUser) {
-
-        // Have the items do their cleanup work
-        Reparent(null);
-
-        // Dispose of all the items in the collection
-        foreach(ItemType item in this) {
-          IDisposable disposable = item as IDisposable;
-          if(disposable != null)
-            disposable.Dispose();
-        }
-
-        // Remove all items from the collection
-        base.ClearItems();
-
-      }
-
     }
 
     /// <summary>Clears all elements from the collection</summary>
@@ -94,9 +58,32 @@ namespace Nuclex.Support.Collections {
       item.SetParent(this.parent);
     }
 
-    /// <summary>Release all resources owned by the instance explicitely</summary>
-    public void Dispose() {
-      Dispose(true); // Called by user
+    /// <summary>Disposes the collection and optionally all items contained therein</summary>
+    /// <param name="disposeItems">Whether to try calling Dispose() on all items</param>
+    /// <remarks>
+    ///   This method is intended to support collections that need to dispose their
+    ///   items. The ParentingCollection will first detach all items from the parent
+    ///   object and them call Dispose() on any item that implements IDisposable.
+    /// </remarks>
+    protected void InternalDispose(bool disposeItems) {
+
+      if(disposeItems) {
+
+        // Have the items do their cleanup work
+        Reparent(null);
+
+        // Dispose of all the items in the collection that implement IDisposable
+        foreach(ItemType item in this) {
+          IDisposable disposable = item as IDisposable;
+          if(disposable != null)
+            disposable.Dispose();
+        }
+
+      }
+
+      // Remove all items from the collection
+      base.ClearItems();
+
     }
 
     /// <summary>Parent this collection currently belongs to</summary>
