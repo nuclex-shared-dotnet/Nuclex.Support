@@ -152,7 +152,7 @@ namespace Nuclex.Support.Collections {
     private void bubbleUp(int index, ItemType item) {
       int parent = getParent(index);
 
-      // note: (index > 0) means there is a parent
+      // Note: (index > 0) means there is a parent
       while((index > 0) && (this.comparer.Compare(heap[parent], item) < 0)) {
         heap[index] = heap[parent];
         index = parent;

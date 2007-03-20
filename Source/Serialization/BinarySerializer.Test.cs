@@ -39,9 +39,7 @@ namespace Nuclex.Support.Serialization {
         serializables[0].Dummy = 123;
         serializables[1].Dummy = 456;
 
-        BinarySerializer<TestSerializable>.SaveCollection(
-          serializables, new BinaryWriter(buffer)
-        );
+        BinarySerializer.Save(new BinaryWriter(buffer), serializables);
         buffer.Position = 0;
       }
 
@@ -49,9 +47,7 @@ namespace Nuclex.Support.Serialization {
       {
         List<TestSerializable> serializables = new List<TestSerializable>();
 
-        BinarySerializer<TestSerializable>.LoadCollection(
-          serializables, new BinaryReader(buffer)
-        );
+        BinarySerializer.Load(new BinaryReader(buffer), serializables);
         
         Assert.AreEqual(2, serializables.Count);
         Assert.AreEqual(123, serializables[0].Dummy);

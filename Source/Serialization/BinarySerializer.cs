@@ -3,46 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
+using Microsoft.Xna.Framework;
+
 using Nuclex.Support.Serialization;
 
 namespace Nuclex.Support.Serialization {
 
-  /// <summary>Utility class for serialization objects into binary data</summary>
-  /// <typeparam name="BinarySerializableType">Data type to be serialized</typeparam>
-  public static class BinarySerializer<BinarySerializableType>
-    where BinarySerializableType : IBinarySerializable {
+  /// <summary>Utility class for serializating objects into binary data</summary>
+  public static class BinarySerializer {
 
-    /// <summary>Serializes a collection of binary serializable objects</summary>
-    /// <param name="collection">Collection to be serialized</param>
-    /// <param name="writer">BinaryWriter to serialize the collection into</param>
-    public static void SaveCollection(
-      ICollection<BinarySerializableType> collection, BinaryWriter writer
-    ) {
-
-      // Save the file format version so the loading routine can detect
-      // which version of the file format has to be loaded
-      writer.Write((int)1);
-
-      // Serialize all the blueprints in the collection
-      writer.Write((int)collection.Count);
-      foreach(BinarySerializableType item in collection) {
-
-        // Save the type name of the object so we can recreate it later
-        writer.Write(item.GetType().AssemblyQualifiedName);
-
-        // Let the object save its own data
-        ((IBinarySerializable)item).Save(writer);
-
-      } // foreach
-
-    }
+    #region System.Collections.Generic.ICollection
 
     /// <summary>Loads a collection from its serialized representation</summary>
-    /// <param name="collection">Collection to be deserialized into</param>
     /// <param name="reader">Reader to use for reading the collection</param>
-    public static void LoadCollection(
-      ICollection<BinarySerializableType> collection, BinaryReader reader
-    ) {
+    /// <param name="collection">Collection to be deserialized into</param>
+    public static void Load<BinarySerializableType>(
+      BinaryReader reader, ICollection<BinarySerializableType> collection
+    ) where BinarySerializableType : IBinarySerializable {
 
       // Read and verify the version of the file format this was saved in
       int version = reader.ReadInt32();
@@ -65,6 +42,153 @@ namespace Nuclex.Support.Serialization {
       } // for
 
     }
+
+    /// <summary>Serializes a collection of binary serializable objects</summary>
+    /// <param name="writer">BinaryWriter to serialize the collection into</param>
+    /// <param name="collection">Collection to be serialized</param>
+    public static void Save<BinarySerializableType>(
+      BinaryWriter writer, ICollection<BinarySerializableType> collection
+    ) where BinarySerializableType : IBinarySerializable {
+
+      // Save the file format version so the loading routine can detect
+      // which version of the file format has to be loaded
+      writer.Write((int)1);
+
+      // Serialize all the blueprints in the collection
+      writer.Write((int)collection.Count);
+      foreach(BinarySerializableType item in collection) {
+
+        // Save the type name of the object so we can recreate it later
+        writer.Write(item.GetType().AssemblyQualifiedName);
+
+        // Let the object save its own data
+        ((IBinarySerializable)item).Save(writer);
+
+      } // foreach
+
+    }
+
+    #endregion // System.Collections.Generic.ICollection
+
+    #region Microsoft.Xna.Framework.Matrix
+
+    /// <summary>Loads a matrix from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the matrix</param>
+    /// <param name="matrix">Matrix to be deserialized</param>
+    public static void Load(BinaryReader reader, out Matrix matrix) {
+      matrix.M11 = reader.ReadSingle();
+      matrix.M12 = reader.ReadSingle();
+      matrix.M13 = reader.ReadSingle();
+      matrix.M14 = reader.ReadSingle();
+
+      matrix.M21 = reader.ReadSingle();
+      matrix.M22 = reader.ReadSingle();
+      matrix.M23 = reader.ReadSingle();
+      matrix.M24 = reader.ReadSingle();
+
+      matrix.M31 = reader.ReadSingle();
+      matrix.M32 = reader.ReadSingle();
+      matrix.M33 = reader.ReadSingle();
+      matrix.M34 = reader.ReadSingle();
+
+      matrix.M41 = reader.ReadSingle();
+      matrix.M42 = reader.ReadSingle();
+      matrix.M43 = reader.ReadSingle();
+      matrix.M44 = reader.ReadSingle();
+    }
+
+    /// <summary>Serializes a matrix into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the matrix into</param>
+    /// <param name="matrix">Matrix to be serialized</param>
+    public static void Save(BinaryWriter writer, Matrix matrix) {
+      writer.Write(matrix.M11);
+      writer.Write(matrix.M12);
+      writer.Write(matrix.M13);
+      writer.Write(matrix.M14);
+
+      writer.Write(matrix.M21);
+      writer.Write(matrix.M22);
+      writer.Write(matrix.M23);
+      writer.Write(matrix.M24);
+
+      writer.Write(matrix.M31);
+      writer.Write(matrix.M32);
+      writer.Write(matrix.M33);
+      writer.Write(matrix.M34);
+
+      writer.Write(matrix.M41);
+      writer.Write(matrix.M42);
+      writer.Write(matrix.M43);
+      writer.Write(matrix.M44);
+    }
+
+    #endregion // Microsoft.Xna.Framework.Matrix
+
+    #region Microsoft.Xna.Framework.Vector2
+
+    /// <summary>Loads a vector from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the vector</param>
+    /// <param name="vector">Vector to be deserialized</param>
+    public static void Load(BinaryReader reader, out Vector2 vector) {
+      vector.X = reader.ReadSingle();
+      vector.Y = reader.ReadSingle();
+    }
+
+    /// <summary>Serializes a vector into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the vector into</param>
+    /// <param name="vector">Vector to be serialized</param>
+    public static void Save(BinaryWriter writer, Vector2 vector) {
+      writer.Write(vector.X);
+      writer.Write(vector.Y);
+    }
+
+    #endregion // Microsoft.Xna.Framework.Vector2
+
+    #region Microsoft.Xna.Framework.Vector3
+
+    /// <summary>Loads a vector from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the vector</param>
+    /// <param name="vector">Vector to be deserialized</param>
+    public static void Load(BinaryReader reader, out Vector3 vector) {
+      vector.X = reader.ReadSingle();
+      vector.Y = reader.ReadSingle();
+      vector.Z = reader.ReadSingle();
+    }
+
+    /// <summary>Serializes a vector into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the vector into</param>
+    /// <param name="vector">Vector to be serialized</param>
+    public static void Save(BinaryWriter writer, Vector3 vector) {
+      writer.Write(vector.X);
+      writer.Write(vector.Y);
+      writer.Write(vector.Z);
+    }
+
+    #endregion // Microsoft.Xna.Framework.Vector3
+
+    #region Microsoft.Xna.Framework.Vector4
+
+    /// <summary>Loads a vector from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the vector</param>
+    /// <param name="vector">Vector to be deserialized</param>
+    public static void Load(BinaryReader reader, out Vector4 vector) {
+      vector.X = reader.ReadSingle();
+      vector.Y = reader.ReadSingle();
+      vector.Z = reader.ReadSingle();
+      vector.W = reader.ReadSingle();
+    }
+
+    /// <summary>Serializes a vector into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the vector into</param>
+    /// <param name="vector">Vector to be serialized</param>
+    public static void Save(BinaryWriter writer, Vector4 vector) {
+      writer.Write(vector.X);
+      writer.Write(vector.Y);
+      writer.Write(vector.Z);
+      writer.Write(vector.W);
+    }
+
+    #endregion // Microsoft.Xna.Framework.Vector3
 
   } // class BinarySerializer
 
