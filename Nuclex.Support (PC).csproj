@@ -101,6 +101,15 @@
       <Name>UnintrusivePriorityQueue.Test</Name>
       <DependentUpon>UnintrusivePriorityQueue.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Licensing\LicenseKey.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>LicenseKey</Name>
+    </Compile>
+    <Compile Include="Source\Licensing\LicenseKey.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>LicenseKey.Test</Name>
+      <DependentUpon>LicenseKey.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>

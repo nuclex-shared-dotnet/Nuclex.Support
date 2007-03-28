@@ -61,9 +61,9 @@ namespace Nuclex.Support.Collections {
     /// <summary>Disposes the collection and optionally all items contained therein</summary>
     /// <param name="disposeItems">Whether to try calling Dispose() on all items</param>
     /// <remarks>
-    ///   This method is intended to support collections that need to dispose their
+    ///   This method is intended to support collections that need to dispose of their
     ///   items. The ParentingCollection will first detach all items from the parent
-    ///   object and them call Dispose() on any item that implements IDisposable.
+    ///   object and then call Dispose() on any item that implements IDisposable.
     /// </remarks>
     protected void InternalDispose(bool disposeItems) {
 
