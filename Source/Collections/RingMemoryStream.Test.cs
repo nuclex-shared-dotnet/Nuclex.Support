@@ -111,7 +111,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Tests whether the auto reset feature works (resets the buffer point to the
+    ///   Tests whether the auto reset feature works (resets the buffer pointer to the
     ///   left end of the buffer when it gets empty; mainly a performance feature).
     /// </summary>
     [Test]

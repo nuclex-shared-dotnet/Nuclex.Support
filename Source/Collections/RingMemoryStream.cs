@@ -15,6 +15,9 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Maximum amount of data that will fit into the ring memory stream</summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///   If the reduced capacity is too small for the ring buffer's current data
+    /// </exception>
     public long Capacity {
       get { return this.ringBuffer.Length; }
       set {
@@ -25,8 +28,9 @@ namespace Nuclex.Support.Collections {
           );
 
         // This could be done in a more efficient manner than just replacing
-        // the stream, but this operation will probably be called only once
-        // during the lifetime of the application -- if at all...
+        // the entire buffer, but since this operation will probably be only called
+        // once during the lifetime of the application, if at all, I don't see
+        // the need to optimize it...
         MemoryStream newBuffer = new MemoryStream((int)value);
 
         newBuffer.SetLength(value);
@@ -62,6 +66,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Current cursor position within the stream</summary>
+    /// <exception cref="NotSupportedException">Always</exception>
     public override long Position {
       get { throw new NotSupportedException("The ring buffer does not support seeking"); }
       set { throw new NotSupportedException("The ring buffer does not support seeking"); }
@@ -129,6 +134,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="buffer">Buffer containing the data to append</param>
     /// <param name="offset">Starting index of the data in the buffer</param>
     /// <param name="count">Number of bytes to write to the stream</param>
+    /// <exception cref="OverflowException">When the ring buffer is full</exception>
     public override void Write(byte[] buffer, int offset, int count) {
 
       // The end index lies behind the start index (usual case), so the
@@ -179,12 +185,14 @@ namespace Nuclex.Support.Collections {
     /// <param name="offset">Position to jump to</param>
     /// <param name="origin">Origin towards which to interpret the offset</param>
     /// <returns>The new offset within the stream</returns>
+    /// <exception cref="NotSupportedException">Always</exception>
     public override long Seek(long offset, SeekOrigin origin) {
       throw new NotSupportedException("The ring buffer does not support seeking");
     }
 
     /// <summary>Changes the length of the stream</summary>
     /// <param name="value">New length to resize the stream to</param>
+    /// <exception cref="NotSupportedException">Always</exception>
     public override void SetLength(long value) {
       throw new NotSupportedException("This operation is not supported");
     }

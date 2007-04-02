@@ -25,11 +25,48 @@ namespace Nuclex.Licensing {
     /// <summary>Parses the license key contained in a string</summary>
     /// <param name="key">String containing a license key that is to be parsed</param>
     /// <returns>The license key parsed from provided string</returns>
+    /// <exception cref="ArgumentException">
+    ///   When the provided string is not a license key
+    /// </exception>
     public static LicenseKey Parse(string key) {
-      LicenseKey newKey = new LicenseKey();
-      newKey.parse(key);
+      key = key.Replace(" ", string.Empty).Replace("-", string.Empty).ToUpper();
+      if(key.Length != 25)
+        throw new ArgumentException("This is not a license key");
 
-      return newKey;
+      BitArray bits = new BitArray(128);
+      uint sequence;
+
+      // Convert the first 4 sequences of 6 chars into 124 bits
+      for(int j = 0; j < 4; j++) {
+
+        sequence =
+          (uint)codeTable.IndexOf(key[j * 6 + 5]) * 60466176 +
+          (uint)codeTable.IndexOf(key[j * 6 + 4]) * 1679616 +
+          (uint)codeTable.IndexOf(key[j * 6 + 3]) * 46656 +
+          (uint)codeTable.IndexOf(key[j * 6 + 2]) * 1296 +
+          (uint)codeTable.IndexOf(key[j * 6 + 1]) * 36 +
+          (uint)codeTable.IndexOf(key[j * 6 + 0]);
+
+        for(int i = 0; i < 31; i++)
+          bits[j * 31 + i] = (sequence & powersOfTwo[i, 1]) != 0;
+
+      }
+
+      // Append the remaining character's 4 bits
+      sequence = (uint)codeTable.IndexOf(key[24]);
+      bits[124] = (sequence & powersOfTwo[4, 1]) != 0;
+      bits[125] = (sequence & powersOfTwo[3, 1]) != 0;
+      bits[126] = (sequence & powersOfTwo[2, 1]) != 0;
+      bits[127] = (sequence & powersOfTwo[1, 1]) != 0;
+
+      // Revert the mangling that was applied to the key when encoding...
+      unmangle(bits);
+
+      // ...and we've got our GUID back!
+      byte[] guidBytes = new byte[16];
+      bits.CopyTo(guidBytes, 0);
+
+      return new LicenseKey(new Guid(guidBytes));
     }
 
     /// <summary>Initializes a new, empty license key</summary>
@@ -38,26 +75,29 @@ namespace Nuclex.Licensing {
     /// <summary>Initializes the license key from a GUID</summary>
     /// <param name="source">GUID that is used to create the license key</param>
     public LicenseKey(Guid source) {
-      guid = source;
+      this.guid = source;
     }
 
     /// <summary>Accesses the four integer values within a license key</summary>
+    /// <exception cref="IndexOutOfRangeException">
+    ///   When the index lies outside of the key's fields
+    /// </exception>
     public int this[int index] {
       get {
         if((index < 0) || (index > 3))
           throw new IndexOutOfRangeException("Index out of range");
 
-        return BitConverter.ToInt32(guid.ToByteArray(), index * 4);
+        return BitConverter.ToInt32(this.guid.ToByteArray(), index * 4);
       }
       set {
         if((index < 0) || (index > 3))
           throw new IndexOutOfRangeException("Index out of range");
 
-        using(MemoryStream guidBytes = new MemoryStream(guid.ToByteArray())) {
+        using(MemoryStream guidBytes = new MemoryStream(this.guid.ToByteArray())) {
           guidBytes.Position = index * 4;
           new BinaryWriter(guidBytes).Write(value);
 
-          guid = new Guid(guidBytes.ToArray());
+          this.guid = new Guid(guidBytes.ToArray());
         }
       }
     }
@@ -65,13 +105,13 @@ namespace Nuclex.Licensing {
     /// <summary>Converts the license key into a GUID</summary>
     /// <returns>The GUID created from the license key</returns>
     public Guid ToGuid() {
-      return guid;
+      return this.guid;
     }
 
     /// <summary>Converts the license key into a byte array</summary>
     /// <returns>A byte array containing the converted license key</returns>
     public byte[] ToByteArray() {
-      return guid.ToByteArray();
+      return this.guid.ToByteArray();
     }
 
     /// <summary>Converts the license key to a string</summary>
@@ -80,7 +120,7 @@ namespace Nuclex.Licensing {
       StringBuilder resultBuilder = new StringBuilder();
 
       // Build a bit array from the input data
-      BitArray bits = new BitArray(guid.ToByteArray());
+      BitArray bits = new BitArray(this.guid.ToByteArray());
       mangle(bits);
 
       int sequence = 0;
@@ -150,49 +190,6 @@ namespace Nuclex.Licensing {
 
         bits[shuffle[i]] = temp[i];
       }
-    }
-
-    /// <summary>Parses a license key from a string</summary>
-    /// <param name="key">String the license key is read from</param>
-    /// <returns>The license key parsed from the provided string</returns>
-    private void parse(string key) {
-      key = key.Replace(" ", string.Empty).Replace("-", string.Empty).ToUpper();
-      if(key.Length != 25)
-        throw new ArgumentException("This is not a license key");
-
-      BitArray bits = new BitArray(128);
-      uint sequence;
-
-      // Convert the first 4 sequences of 6 chars into 124 bits
-      for(int j = 0; j < 4; j++) {
-
-        sequence =
-          (uint)codeTable.IndexOf(key[j * 6 + 5]) * 60466176 +
-          (uint)codeTable.IndexOf(key[j * 6 + 4]) * 1679616 +
-          (uint)codeTable.IndexOf(key[j * 6 + 3]) * 46656 +
-          (uint)codeTable.IndexOf(key[j * 6 + 2]) * 1296 +
-          (uint)codeTable.IndexOf(key[j * 6 + 1]) * 36 +
-          (uint)codeTable.IndexOf(key[j * 6 + 0]);
-
-        for(int i = 0; i < 31; i++)
-          bits[j * 31 + i] = (sequence & powersOfTwo[i, 1]) != 0;
-
-      }
-
-      // Append the remaining character's 4 bits
-      sequence = (uint)codeTable.IndexOf(key[24]);
-      bits[124] = (sequence & powersOfTwo[4, 1]) != 0;
-      bits[125] = (sequence & powersOfTwo[3, 1]) != 0;
-      bits[126] = (sequence & powersOfTwo[2, 1]) != 0;
-      bits[127] = (sequence & powersOfTwo[1, 1]) != 0;
-
-      // Revert the mangling that was applied to the key when encoding...
-      unmangle(bits);
-
-      // ...and we've got our GUID back!
-      byte[] guidBytes = new byte[16];
-      bits.CopyTo(guidBytes, 0);
-      guid = new Guid(guidBytes);
     }
 
     /// <summary>Table with the individual characters in a key</summary>

@@ -5,8 +5,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Base class for objects that can be parented to an owner</summary>
   /// <typeparam name="ParentType">Type of the parent object</typeparam>
-  public class Parentable<ParentType>
-    where ParentType : class {
+  public class Parentable<ParentType> where ParentType : class {
 
     /// <summary>Assigns a new parent to this instance</summary>
     internal void SetParent(ParentType parent) {

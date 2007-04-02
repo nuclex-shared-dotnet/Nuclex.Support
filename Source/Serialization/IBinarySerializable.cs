@@ -18,7 +18,7 @@ namespace Nuclex.Support.Serialization {
     /// <param name="reader">Reader to use for reading the object's state</param>
     void Load(BinaryReader reader);
     
-    /// <summary>Save the object's state into a serialized representation</summary>
+    /// <summary>Saves the object's state into a serialized representation</summary>
     /// <param name="writer">Writer to use for writing the object's state</param>
     void Save(BinaryWriter writer);
 

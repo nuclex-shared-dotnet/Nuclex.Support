@@ -78,21 +78,22 @@ namespace Nuclex.Support.Collections {
     /// <param name="comparer">Comparer to use for ordering the items</param>
     public PriorityQueue(IComparer<ItemType> comparer) {
       this.comparer = comparer;
-      capacity = 15; // 15 is equal to 4 complete levels
-      heap = new ItemType[capacity];
+      this.capacity = 15; // 15 is equal to 4 complete levels
+      this.heap = new ItemType[this.capacity];
     }
 
     /// <summary>Takes the item with the highest priority off from the queue</summary>
     /// <returns>The item with the highest priority in the list</returns>
+    /// <exception cref="InvalidOperationException">When the queue is empty</exception>
     public ItemType Dequeue() {
       if(count == 0)
         throw new InvalidOperationException("No items available to dequeue");
 
-      ItemType result = heap[0];
-      --count;
-      trickleDown(0, heap[count]);
+      ItemType result = this.heap[0];
+      --this.count;
+      trickleDown(0, heap[this.count]);
 
-      ++version;
+      ++this.version;
 
       return result;
     }
@@ -100,18 +101,18 @@ namespace Nuclex.Support.Collections {
     /// <summary>Puts an item into the priority queue</summary>
     /// <param name="item">Item to be queued</param>
     public void Enqueue(ItemType item) {
-      if(count == capacity)
+      if(this.count == capacity)
         growHeap();
 
-      ++count;
-      bubbleUp(count - 1, item);
-      ++version;
+      ++this.count;
+      bubbleUp(this.count - 1, item);
+      ++this.version;
     }
 
     /// <summary>Removes all items from the priority queue</summary>
     public void Clear() {
       this.count = 0;
-      ++version;
+      ++this.version;
     }
 
 
@@ -124,7 +125,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array to copy the priority queue into</param>
     /// <param name="index">Starting index for the destination array</param>
     public void CopyTo(Array array, int index) {
-      Array.Copy(heap, 0, array, index, count);
+      Array.Copy(heap, 0, array, index, this.count);
     }
 
     /// <summary>
@@ -153,27 +154,30 @@ namespace Nuclex.Support.Collections {
       int parent = getParent(index);
 
       // Note: (index > 0) means there is a parent
-      while((index > 0) && (this.comparer.Compare(heap[parent], item) < 0)) {
-        heap[index] = heap[parent];
+      while((index > 0) && (this.comparer.Compare(this.heap[parent], item) < 0)) {
+        this.heap[index] = this.heap[parent];
         index = parent;
         parent = getParent(index);
       }
 
-      heap[index] = item;
+      this.heap[index] = item;
     }
 
-    /// <summary>Moved the item downwards in the heap tree</summary>
+    /// <summary>Move the item downwards in the heap tree</summary>
     /// <param name="index">Index of the item to be moved</param>
     /// <param name="item">Item to be moved</param>
     private void trickleDown(int index, ItemType item) {
       int child = getLeftChild(index);
 
-      while(child < count) {
+      while(child < this.count) {
 
-        if(((child + 1) < count) && (this.comparer.Compare(heap[child], heap[child + 1]) < 0))
+        if(
+          ((child + 1) < this.count) &&
+          (this.comparer.Compare(heap[child], this.heap[child + 1]) < 0)
+        )
           ++child;
 
-        heap[index] = heap[child];
+        this.heap[index] = this.heap[child];
         index = child;
         child = getLeftChild(index);
       }
@@ -197,11 +201,11 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Increases the size of the priority collection's heap</summary>
     private void growHeap() {
-      capacity = (capacity * 2) + 1;
+      this.capacity = (capacity * 2) + 1;
 
-      ItemType[] newHeap = new ItemType[capacity];
-      Array.Copy(heap, 0, newHeap, 0, count);
-      heap = newHeap;
+      ItemType[] newHeap = new ItemType[this.capacity];
+      Array.Copy(this.heap, 0, newHeap, 0, this.count);
+      this.heap = newHeap;
     }
 
     /// <summary>Returns an enumerator for the priority queue</summary>
