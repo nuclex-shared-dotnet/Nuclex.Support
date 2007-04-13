@@ -49,9 +49,9 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
-    <Reference Include="nmock, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NMock2, Version=1.0.2657.18750, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\nmock\net-2.0\nmock.dll</HintPath>
+      <HintPath>References\nmock\net-2.0\NMock2.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.2.9.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -122,6 +122,30 @@
     <Compile Include="Source\Serialization\BinarySerializer.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\IAbortable.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IAbortable</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\MultiProgression.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MultiProgression</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\Operation.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Operation</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\Progression.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Progression</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\ProgressUpdateEventArgs.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ProgressUpdateEventArgs</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\ThreadedMethodOperation.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ThreadedMethodOperation</Name>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
