@@ -65,6 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Collections\ObservableCollection.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ObservableCollection</Name>
+    </Compile>
     <Compile Include="Source\Collections\UnintrusivePriorityQueue.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>UnintrusivePriorityQueue</Name>
@@ -138,6 +142,10 @@
     <Compile Include="Source\Tracking\Progression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>Progression</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\ProgressionCollection.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ProgressionCollection</Name>
     </Compile>
     <Compile Include="Source\Tracking\ProgressUpdateEventArgs.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>

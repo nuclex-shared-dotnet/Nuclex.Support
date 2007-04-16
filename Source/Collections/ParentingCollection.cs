@@ -15,8 +15,7 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="ParentType">Type of the parent object to assign to items</typeparam>
   /// <typeparam name="ItemType">Type of the items being managed in the collection</typeparam>
   public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>
-    where ItemType : Parentable<ParentType>
-    where ParentType : class {
+    where ItemType : Parentable<ParentType> {
 
     /// <summary>Reparents all elements in the collection</summary>
     /// <param name="parent">New parent to take ownership of the items</param>
@@ -30,7 +29,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Clears all elements from the collection</summary>
     protected override void ClearItems() {
       for(int index = 0; index < Count; ++index)
-        base[index].SetParent(null);
+        base[index].SetParent(default(ParentType));
 
       base.ClearItems();
     }
@@ -46,7 +45,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Removes an element from the collection</summary>
     /// <param name="index">Index of the element to remove</param>
     protected override void RemoveItem(int index) {
-      base[index].SetParent(null);
+      base[index].SetParent(default(ParentType));
       base.RemoveItem(index);
     }
 
@@ -70,7 +69,7 @@ namespace Nuclex.Support.Collections {
       if(disposeItems) {
 
         // Have the items do their cleanup work
-        Reparent(null);
+        Reparent(default(ParentType));
 
         // Dispose of all the items in the collection that implement IDisposable
         foreach(ItemType item in this) {
