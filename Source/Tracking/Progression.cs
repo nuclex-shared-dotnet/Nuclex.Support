@@ -10,13 +10,13 @@ namespace Nuclex.Support.Tracking {
   ///     a background thread in a class that's derived from Progression you can wait
   ///     for the completion of the operation and receive feedback on the achieved
   ///     progress. This is useful for displaying a progress bar, loading screen or
-  ///     some means of entertaining the user while he waits for the operation to
+  ///     some other means of entertaining the user while he waits for the operation to
   ///     complete. It is also possible to register callbacks which will be fired once
   ///     the progression has ended.
   ///   </para>
   ///   <para>
-  ///     This class deliberately does not provide an Execute() or similar method to
-  ///     clearly seperate the initiation of an operation from just monitoring it.
+  ///     This class deliberately does not provide an Execute() method or anything similar
+  ///     to clearly seperate the initiation of an operation from just monitoring it.
   ///     By omitting an Execute() method, it also becomes possible to construct a
   ///     progression just-in-time when it is explicitely asked for.
   ///   </para>
@@ -53,17 +53,24 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Whether the progression has ended already</summary>
     public virtual bool Ended {
-      get { return ended; }
+      get { return this.ended; }
     }
 
     /// <summary>WaitHandle that can be used to wait for the progression to end</summary>
     public WaitHandle WaitHandle {
       get {
-        lock(this) {
+        
+        // The WaitHandle will only be created when someone asks for it!
+        // See the Double-Check Locking idiom on why the condition is checked twice
+        // (primarily, it avoids an expensive lock when it isn't needed)
+        if(this.doneEvent == null) {
 
-          // The WaitHandle will only be created when someone asks for it!
-          if(this.doneEvent == null)
-            this.doneEvent = new ManualResetEvent(this.ended);
+          lock(this.syncRoot) {
+
+            if(this.doneEvent == null)
+              this.doneEvent = new ManualResetEvent(this.ended);
+
+          }
 
         }
 
@@ -102,9 +109,9 @@ namespace Nuclex.Support.Tracking {
     ///   seperately.
     /// </remarks>
     protected virtual void OnAsyncEnded() {
-      lock(this) {
-        ended = true;
+      this.ended = true;
 
+      lock(this.syncRoot) {
         if(this.doneEvent != null)
           this.doneEvent.Set();
       }
@@ -114,6 +121,8 @@ namespace Nuclex.Support.Tracking {
         copy(this, EventArgs.Empty);
     }
 
+    /// <summary>Used to synchronize multithreaded accesses to this object</summary>
+    private object syncRoot = new object();
     /// <summary>Event that will be set when the progression is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using

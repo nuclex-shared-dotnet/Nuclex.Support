@@ -131,9 +131,9 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>IAbortable</Name>
     </Compile>
-    <Compile Include="Source\Tracking\MultiProgression.cs">
+    <Compile Include="Source\Tracking\SetProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>MultiProgression</Name>
+      <Name>SetProgression</Name>
     </Compile>
     <Compile Include="Source\Tracking\Operation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
@@ -154,6 +154,14 @@
     <Compile Include="Source\Tracking\ThreadedMethodOperation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ThreadedMethodOperation</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\WeightedProgression.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>WeightedProgression</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\WeightedProgressionCollection.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>WeightedProgressionCollection</Name>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

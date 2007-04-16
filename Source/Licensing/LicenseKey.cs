@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Text;
 
-namespace Nuclex.Licensing {
+namespace Nuclex.Support.Licensing {
 
   /// <summary>Typical license key with 5x5 alphanumerical characters</summary>
   /// <remarks>
@@ -225,4 +225,4 @@ namespace Nuclex.Licensing {
 
   }
 
-} // namespace Nuclex.Licensing
+} // namespace Nuclex.Support.Licensing

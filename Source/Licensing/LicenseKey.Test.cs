@@ -5,7 +5,7 @@ using System.Collections;
 
 using NUnit.Framework;
 
-namespace Nuclex.Licensing {
+namespace Nuclex.Support.Licensing {
 
   /// <summary>Unit test for the license key class</summary>
   [TestFixture]
@@ -70,6 +70,6 @@ namespace Nuclex.Licensing {
 
   }
 
-} // namespace Nuclex.Licensing
+} // namespace Nuclex.Support.Licensing
 
 #endif // UNITTEST
