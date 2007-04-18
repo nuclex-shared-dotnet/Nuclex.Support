@@ -27,7 +27,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Ensures that the ring buffer still accepts write attempts what would fill the
+    ///   Ensures that the ring buffer still accepts write attempts that would fill the
     ///   entire buffer in one go.
     /// </summary>
     [Test]

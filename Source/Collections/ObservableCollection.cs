@@ -30,6 +30,21 @@ namespace Nuclex.Support.Collections {
 
     #endregion // class ItemEventArgs
 
+    /// <summary>
+    ///   Initializes a new instance of the ObservableCollection class that is empty.
+    /// </summary>
+    public ObservableCollection() : base() { }
+
+    /// <summary>
+    ///   Initializes a new instance of the ObservableCollection class as a wrapper
+    ///   for the specified list.
+    /// </summary>
+    /// <param name="list">The list that is wrapped by the new collection.</param>
+    /// <exception cref="System.ArgumentNullException">
+    ///    List is null.
+    /// </exception>
+    public ObservableCollection(IList<ItemType> list) : base(list) { }
+
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>

@@ -11,13 +11,19 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   public class PriorityQueueTest {
 
+    /// <summary>Comparer for two floating point values</summary>
     private class FloatComparer : IComparer<float> {
 
+      /// <summary>The default instance of this comparer</summary>
+      public static readonly FloatComparer Default = new FloatComparer();
+
+      /// <summary>Compares two floating points against each other</summary>
+      /// <param name="left">First float to compare</param>
+      /// <param name="right">Second float to compare</param>
+      /// <returns>The relationship of the two floats to each other</returns>
       public int Compare(float left, float right) {
         return Math.Sign(left - right);
       }
-
-      public static readonly FloatComparer Default = new FloatComparer();
 
     }
 

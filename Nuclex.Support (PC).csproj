@@ -69,6 +69,15 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ObservableCollection</Name>
     </Compile>
+    <Compile Include="Source\Collections\ObservableCollection.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ObservableCollection.Test</Name>
+      <DependentUpon>ObservableCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TransformingReadOnlyCollection</Name>
+    </Compile>
     <Compile Include="Source\Collections\UnintrusivePriorityQueue.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>UnintrusivePriorityQueue</Name>
@@ -127,15 +136,19 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer</Name>
     </Compile>
-    <Compile Include="Source\Tracking\IAbortable.cs">
+    <Compile Include="Source\Scheduling\IAbortable.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>IAbortable</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\Internal\ObservedProgression.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ObservedProgression</Name>
     </Compile>
     <Compile Include="Source\Tracking\SetProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>SetProgression</Name>
     </Compile>
-    <Compile Include="Source\Tracking\Operation.cs">
+    <Compile Include="Source\Scheduling\Operation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>Operation</Name>
     </Compile>
@@ -143,15 +156,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>Progression</Name>
     </Compile>
-    <Compile Include="Source\Tracking\ProgressionCollection.cs">
-      <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>ProgressionCollection</Name>
-    </Compile>
     <Compile Include="Source\Tracking\ProgressUpdateEventArgs.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ProgressUpdateEventArgs</Name>
     </Compile>
-    <Compile Include="Source\Tracking\ThreadedMethodOperation.cs">
+    <Compile Include="Source\Scheduling\ThreadedMethodOperation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ThreadedMethodOperation</Name>
     </Compile>
@@ -159,9 +168,9 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>WeightedProgression</Name>
     </Compile>
-    <Compile Include="Source\Tracking\WeightedProgressionCollection.cs">
+    <Compile Include="Source\Tracking\Internal\WeightedProgressionWrapperCollection.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>WeightedProgressionCollection</Name>
+      <Name>WeightedProgressionWrapperCollection</Name>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
