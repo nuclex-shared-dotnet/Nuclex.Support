@@ -49,35 +49,36 @@ namespace Nuclex.Support.Collections {
         new EventHandler<ObservableCollection<int>.ItemEventArgs>(
           this.mockedSubscriber.ItemRemoved
         );
+
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>Tests whether the Clearing event is fired</summary>
     [Test]
     public void TestClearingEvent() {
-
       Expect.Once.On(this.mockedSubscriber).
         Method("Clearing");
 
       this.observedCollection.Clear();
 
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>Tests whether the ItemAdded event is fired</summary>
     [Test]
     public void TestItemAddedEvent() {
-
       Expect.Once.On(this.mockedSubscriber).
         Method("ItemAdded").
         WithAnyArguments();
 
       this.observedCollection.Add(123);
 
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>Tests whether the ItemRemoved event is fired</summary>
     [Test]
     public void TestItemRemovedEvent() {
-
       Expect.Once.On(this.mockedSubscriber).
         Method("ItemAdded").
         WithAnyArguments();
@@ -89,6 +90,7 @@ namespace Nuclex.Support.Collections {
       this.observedCollection.Add(123);
       this.observedCollection.Remove(123);
 
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>Mock object factory</summary>

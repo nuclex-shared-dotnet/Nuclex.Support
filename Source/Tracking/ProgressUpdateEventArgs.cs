@@ -19,7 +19,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Achieved progress</summary>
-    protected float progress;
+    private float progress;
 
   }
 

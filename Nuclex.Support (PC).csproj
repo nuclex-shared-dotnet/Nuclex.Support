@@ -164,6 +164,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ThreadedMethodOperation</Name>
     </Compile>
+    <Compile Include="Source\Tracking\SetProgression.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SetProgression.Test</Name>
+      <DependentUpon>SetProgression.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Tracking\WeightedProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>WeightedProgression</Name>

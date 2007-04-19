@@ -52,17 +52,21 @@ namespace Nuclex.Support.Tracking {
     public event EventHandler AsyncEnded;
 
     /// <summary>Whether the progression has ended already</summary>
-    public virtual bool Ended {
+    public bool Ended {
       get { return this.ended; }
     }
 
     /// <summary>WaitHandle that can be used to wait for the progression to end</summary>
     public WaitHandle WaitHandle {
       get {
-        
+
         // The WaitHandle will only be created when someone asks for it!
         // See the Double-Check Locking idiom on why the condition is checked twice
         // (primarily, it avoids an expensive lock when it isn't needed)
+        //
+        // We can *not* optimize this lock away since we absolutely must not create
+        // two doneEvents -- someone might call .WaitOne() on the first one when only
+        // the second one is assigned to this.doneEvent and gets set in the end.
         if(this.doneEvent == null) {
 
           lock(this.syncRoot) {
@@ -109,16 +113,27 @@ namespace Nuclex.Support.Tracking {
     ///   seperately.
     /// </remarks>
     protected virtual void OnAsyncEnded() {
+
+      // TODO: Find a way around this. Interlocked.Exchange would be best!
+      // We do not lock here since we require this method to be called only once
+      // in the object's lifetime. If someone really badly wanted to break this
+      // he'd probably have a one-in-a-million chance of getting through.
+      if(this.ended)
+        throw new InvalidOperationException("The progression has already been ended");
+
       this.ended = true;
 
-      lock(this.syncRoot) {
-        if(this.doneEvent != null)
-          this.doneEvent.Set();
-      }
+      // Doesn't need a lock. If another thread wins the race and creates the event
+      // after we just saw it being null, it would be created in an already set
+      // state due to the ended flag (see above) being set to true beforehand!
+      if(this.doneEvent != null)
+        this.doneEvent.Set();
 
+      // Finally, fire the AsyncEnded event
       EventHandler copy = AsyncEnded;
       if(copy != null)
         copy(this, EventArgs.Empty);
+
     }
 
     /// <summary>Used to synchronize multithreaded accesses to this object</summary>

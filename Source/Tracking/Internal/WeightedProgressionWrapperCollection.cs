@@ -27,7 +27,7 @@ namespace Nuclex.Support.Tracking {
   ///     SetProgression or QueueOperation classes was created.
   ///   </para>
   /// </remarks>
-  internal class WeightedProgressionCollection<ProgressionType> :
+  internal class WeightedProgressionWrapperCollection<ProgressionType> :
     TransformingReadOnlyCollection<
       ObservedProgression<ProgressionType>, WeightedProgression<ProgressionType>
     >
@@ -35,7 +35,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Initializes a new weighted progression collection wrapper</summary>
     /// <param name="items">Items to be exposed as weighted progressions</param>
-    internal WeightedProgressionCollection(
+    internal WeightedProgressionWrapperCollection(
       IList<ObservedProgression<ProgressionType>> items
     )
       : base(items) { }
