@@ -113,15 +113,18 @@ namespace Nuclex.Support.Tracking {
     ///   seperately.
     /// </remarks>
     protected virtual void OnAsyncEnded() {
+ 
+      // Make sure the progression is not ended more than once. By guaranteeing that
+      // a progression can only be ended once, we allow users of this class to
+      // skip some safeguards against notifications arriving twice.
+      lock(this.syncRoot) {
 
-      // TODO: Find a way around this. Interlocked.Exchange would be best!
-      // We do not lock here since we require this method to be called only once
-      // in the object's lifetime. If someone really badly wanted to break this
-      // he'd probably have a one-in-a-million chance of getting through.
-      if(this.ended)
-        throw new InvalidOperationException("The progression has already been ended");
+        if(this.ended)
+          throw new InvalidOperationException("The progression has already been ended");
 
-      this.ended = true;
+        this.ended = true;
+
+      }
 
       // Doesn't need a lock. If another thread wins the race and creates the event
       // after we just saw it being null, it would be created in an already set

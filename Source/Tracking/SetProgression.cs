@@ -8,14 +8,16 @@ namespace Nuclex.Support.Tracking {
 
   /// <summary>Forms a single progression from a set of progressions</summary>
   /// <typeparam name="ProgressionType">Type of progressions to manage as a set</typeparam>
-  public class SetProgression<ProgressionType> : Progression
+  public class SetProgression<ProgressionType> : Progression, IDisposable
     where ProgressionType : Progression {
 
     /// <summary>Performs common initialization for the public constructors</summary>
     private SetProgression() {
       this.childs = new List<ObservedProgression<ProgressionType>>();
+
       this.asyncProgressUpdatedDelegate =
         new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated);
+
       this.asyncEndedDelegate =
         new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded);
     }
@@ -71,6 +73,23 @@ namespace Nuclex.Support.Tracking {
 
     }
 
+    /// <summary>Immediately releases all resources owned by the object</summary>
+    public void Dispose() {
+
+      if(this.childs != null) {
+
+        // Dispose all the observed progressions, disconnecting the events from the
+        // actual progressions so the GC can more easily collect this class
+        for(int index = 0; index < this.childs.Count; ++index)
+          this.childs[index].Dispose();
+
+        this.childs = null;
+        this.wrapper = null;
+
+      }
+
+    }
+
     /// <summary>Childs contained in the progression set</summary>
     public IList<WeightedProgression<ProgressionType>> Childs {
       get {
@@ -120,10 +139,13 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     private void asyncEnded() {
 
+      // If there's still at least one progression going, don't report that
+      // the SetProgression has finished yet.
       for(int index = 0; index < this.childs.Count; ++index)
         if(!this.childs[index].WeightedProgression.Progression.Ended)
           return;
 
+      // All child progressions have ended, so the set has now ended as well
       OnAsyncEnded();
 
     }

@@ -40,7 +40,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Immediately releases all resources owned by the object</summary>
     public void Dispose() {
-      disconnectEvents();
+      asyncDisconnectEvents();
     }
 
     /// <summary>Weighted progression being observed</summary>
@@ -57,11 +57,15 @@ namespace Nuclex.Support.Tracking {
     /// <param name="sender">Progression that has ended</param>
     /// <param name="e">Not used</param>
     private void asyncEnded(object sender, EventArgs e) {
+      ReportDelegate endedCallback = this.endedCallback;
+      ReportDelegate progressUpdateCallback = this.progressUpdateCallback;
+
+      asyncDisconnectEvents(); // We don't need those anymore!
+
       this.progress = 1.0f;
+      progressUpdateCallback();
 
-      disconnectEvents(); // We don't need those anymore!
-
-      this.progressUpdateCallback();
+      endedCallback();
     }
 
     /// <summary>Called when the progress of the observed progression changes</summary>
@@ -74,7 +78,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Unscribes from all events of the observed progression</summary>
-    private void disconnectEvents() {
+    private void asyncDisconnectEvents() {
 
       // Make use of the double check locking idiom to avoid the costly lock when
       // the events have already been unsubscribed

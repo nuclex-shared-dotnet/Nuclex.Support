@@ -104,9 +104,7 @@ namespace Nuclex.Support.Tracking {
     public void TestSummedProgress() {
       SetProgression<TestProgression> testSetProgression =
         new SetProgression<TestProgression>(
-          new TestProgression[] {
-            new TestProgression(), new TestProgression()
-          }
+          new TestProgression[] { new TestProgression(), new TestProgression() }
         );
 
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
@@ -184,9 +182,7 @@ namespace Nuclex.Support.Tracking {
     public void TestEndedEvent() {
       SetProgression<TestProgression> testSetProgression =
         new SetProgression<TestProgression>(
-          new TestProgression[] {
-            new TestProgression(), new TestProgression()
-          }
+          new TestProgression[] { new TestProgression(), new TestProgression() }
         );
 
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
