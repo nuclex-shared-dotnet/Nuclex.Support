@@ -144,6 +144,10 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ObservedProgression</Name>
     </Compile>
+    <Compile Include="Source\Tracking\ProgressionTracker.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ProgressionTracker</Name>
+    </Compile>
     <Compile Include="Source\Tracking\SetProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>SetProgression</Name>

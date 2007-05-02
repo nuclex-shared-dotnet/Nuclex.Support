@@ -8,7 +8,15 @@ namespace Nuclex.Support.Tracking {
   public abstract class Operation : Progression {
 
     /// <summary>Executes the operation</summary>
-    public abstract void Execute();
+    public abstract void Start();
+
+    /// <summary>
+    ///   Executes the operation synchronously, blocking the calling thread
+    /// </summary>
+    public virtual void Execute() {
+      Start();
+      WaitHandle.WaitOne();
+    }
 
   }
 

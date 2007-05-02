@@ -6,13 +6,29 @@ using System.Threading;
 
 namespace Nuclex.Support.Collections {
 
-  /// <summary>Collection transforming the contents of another collection.</summary>
+  /// <summary>Collection that transforms the contents of another collection.</summary>
   /// <typeparam name="ContainedItemType">
   ///   Type of the items contained in the wrapped collection.
   /// </typeparam>
   /// <typeparam name="ExposedItemType">
   ///   Type this collection exposes its items as.
   /// </typeparam>
+  /// <remarks>
+  ///   <para>
+  ///     This collection is useful if you want to expose the objects of an arbitrary
+  ///     collection under a different type. It can be used, for example, to construct
+  ///     wrappers for the items in a collection on-the-fly, eliminating the need to
+  ///     manage the wrappers in parallel to the real items and improving performance
+  ///     by only constructing a wrapper when an item is actually requested.
+  ///   </para>
+  ///   <para>
+  ///     Another common use would be if you have a private collection of a non-public
+  ///     type that's derived from some publicly visible type. By using this collection,
+  ///     you can return the items under the publicly visible type while still having
+  ///     your private collection under the non-public type, eliminating the need to
+  ///     downcast each time you need to access elements of the non-public type.
+  ///   </para>
+  /// </remarks>
   public abstract class TransformingReadOnlyCollection<ContainedItemType, ExposedItemType> :
     IList<ExposedItemType>, IList {
 
@@ -240,23 +256,6 @@ namespace Nuclex.Support.Collections {
     ///   not cache otherwise store the transformed items.
     /// </remarks>
     protected abstract ExposedItemType Transform(ContainedItemType item);
-
-    /// <summary>
-    ///   Determines whether the object is compatible to the collection's data type.
-    /// </summary>
-    /// <param name="value">Object to check for compatibility.</param>
-    /// <returns>
-    ///   True if the object is compatible to the collection's data type;
-    ///   otherwise false.
-    /// </returns>
-    private static bool IsCompatibleObject(object value) {
-      if(!(value is ExposedItemType)) {
-        if((value != null) || typeof(ExposedItemType).IsValueType) {
-          return false;
-        }
-      }
-      return true;
-    }
 
     #region IList<ExposedItemType> Members
 
