@@ -253,7 +253,7 @@ namespace Nuclex.Support.Collections {
     ///   This method is used to transform an item in the wrapped collection into
     ///   the exposed item type whenever the user accesses an item. Expect it to
     ///   be called frequently, because the TransformingReadOnlyCollection does
-    ///   not cache otherwise store the transformed items.
+    ///   not cache or otherwise store the transformed items.
     /// </remarks>
     protected abstract ExposedItemType Transform(ContainedItemType item);
 

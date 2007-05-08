@@ -62,8 +62,10 @@ namespace Nuclex.Support.Tracking {
 
       asyncDisconnectEvents(); // We don't need those anymore!
 
-      this.progress = 1.0f;
-      progressUpdateCallback();
+      if(this.progress != 1.0f) {
+        this.progress = 1.0f;
+        progressUpdateCallback();
+      }
 
       endedCallback();
     }

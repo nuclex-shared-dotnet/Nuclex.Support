@@ -14,12 +14,6 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Performs common initialization for the public constructors</summary>
     private SetProgression() {
       this.childs = new List<ObservedProgression<ProgressionType>>();
-
-      this.asyncProgressUpdatedDelegate =
-        new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated);
-
-      this.asyncEndedDelegate =
-        new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded);
     }
 
     /// <summary>Initializes a new set progression</summary>
@@ -36,7 +30,8 @@ namespace Nuclex.Support.Tracking {
         this.childs.Add(
           new ObservedProgression<ProgressionType>(
             new WeightedProgression<ProgressionType>(progression),
-            this.asyncProgressUpdatedDelegate, this.asyncEndedDelegate
+            new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
       }
@@ -60,7 +55,8 @@ namespace Nuclex.Support.Tracking {
         this.childs.Add(
           new ObservedProgression<ProgressionType>(
             progression,
-            this.asyncProgressUpdatedDelegate, this.asyncEndedDelegate
+            new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
 
@@ -159,12 +155,6 @@ namespace Nuclex.Support.Tracking {
     private volatile WeightedProgressionWrapperCollection<ProgressionType> wrapper;
     /// <summary>Summed weight of all progression in the set</summary>
     private float totalWeight;
-
-    /// <summary>Delegate for the asyncProgressUpdated() method</summary>
-    private ObservedProgression<ProgressionType>.ReportDelegate asyncProgressUpdatedDelegate;
-    /// <summary>Delegate for the asyncEnded() method</summary>
-    private ObservedProgression<ProgressionType>.ReportDelegate asyncEndedDelegate;
-
 
   }
 

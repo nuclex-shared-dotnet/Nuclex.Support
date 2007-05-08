@@ -4,6 +4,10 @@ using System.IO;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Specialized memory stream for ring buffers</summary>
+  /// <remarks>
+  ///   This ring buffer class is specialized for binary data and tries to achieve
+  ///   optimal efficiency for storing and retrieving chunks of multiple bytes at once.
+  /// </remarks>
   public class RingMemoryStream : Stream {
 
     /// <summary>Initializes a new ring memory stream</summary>
@@ -16,7 +20,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Maximum amount of data that will fit into the ring memory stream</summary>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///   If the reduced capacity is too small for the ring buffer's current data
+    ///   Thrown if the new capacity is too small for the data already contained
+    ///   in the ring buffer.
     /// </exception>
     public long Capacity {
       get { return this.ringBuffer.Length; }
