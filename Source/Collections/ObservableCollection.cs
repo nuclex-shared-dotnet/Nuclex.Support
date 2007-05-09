@@ -30,6 +30,13 @@ namespace Nuclex.Support.Collections {
 
     #endregion // class ItemEventArgs
 
+    /// <summary>Raised when an item has been added to the collection</summary>
+    public event EventHandler<ItemEventArgs> ItemAdded;
+    /// <summary>Raised when an item is removed from the collection</summary>
+    public event EventHandler<ItemEventArgs> ItemRemoved;
+    /// <summary>Raised the collection is about to be cleared</summary>
+    public event EventHandler Clearing;
+
     /// <summary>
     ///   Initializes a new instance of the ObservableCollection class that is empty.
     /// </summary>
@@ -44,13 +51,6 @@ namespace Nuclex.Support.Collections {
     ///    List is null.
     /// </exception>
     public ObservableCollection(IList<ItemType> list) : base(list) { }
-
-    /// <summary>Raised when an item has been added to the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemAdded;
-    /// <summary>Raised when an item is removed from the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemRemoved;
-    /// <summary>Raised the collection is about to be cleared</summary>
-    public event EventHandler Clearing;
 
     /// <summary>Removes all elements from the Collection</summary>
     protected override void ClearItems() {
