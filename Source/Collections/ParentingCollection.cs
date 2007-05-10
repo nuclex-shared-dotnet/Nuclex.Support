@@ -69,13 +69,18 @@ namespace Nuclex.Support.Collections {
       if(disposeItems) {
 
         // Have the items do their cleanup work
-        Reparent(default(ParentType));
+        //Reparent(default(ParentType));
 
         // Dispose of all the items in the collection that implement IDisposable
         foreach(ItemType item in this) {
           IDisposable disposable = item as IDisposable;
+
+          // If the item is disposable, we get rid of it
           if(disposable != null)
             disposable.Dispose();
+          /*else
+            Reparent(default(ParentType));*/
+          
         }
 
       }
