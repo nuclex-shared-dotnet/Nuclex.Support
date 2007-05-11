@@ -1,3 +1,22 @@
+#region CPL License
+/*
+Nuclex Framework
+Copyright (C) 2002-2007 Nuclex Development Labs
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the IBM Common Public License as
+published by the IBM Corporation; either version 1.0 of the
+License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+IBM Common Public License for more details.
+
+You should have received a copy of the IBM Common Public
+License along with this library
+*/
+#endregion
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -60,16 +79,25 @@ namespace Nuclex.Support.Collections {
     /// <summary>Disposes the collection and optionally all items contained therein</summary>
     /// <param name="disposeItems">Whether to try calling Dispose() on all items</param>
     /// <remarks>
-    ///   This method is intended to support collections that need to dispose of their
-    ///   items. The ParentingCollection will first detach all items from the parent
-    ///   object and then call Dispose() on any item that implements IDisposable.
+    ///   <para>
+    ///     This method is intended to support collections that need to dispose of their
+    ///     items. The ParentingCollection will first detach all items from the parent
+    ///     object and then call Dispose() on any item that implements IDisposable.
+    ///   </para>
+    ///   <para>
+    ///     The items contained in the collection are not disconnected from their parent
+    ///     (eg. Reparent()ed to null) because this is out of the scope for the
+    ///     ParentingCollection&lt;&gt; class to decide and provokes the potentially
+    ///     risky situation that an item, when it is Dispose()d, might try to disconnect
+    ///     some events or perform other maintenance work on its parent object that
+    ///     would then be no longer available. If you wish to disconnect the items from
+    ///     their parent prior to disposing them, add a Reparent(null); call before the
+    ///     line with InternalDispose(true); in your custom Dispose() method.
+    ///   </para>
     /// </remarks>
     protected void InternalDispose(bool disposeItems) {
 
       if(disposeItems) {
-
-        // Have the items do their cleanup work
-        //Reparent(default(ParentType));
 
         // Dispose of all the items in the collection that implement IDisposable
         foreach(ItemType item in this) {
@@ -78,9 +106,7 @@ namespace Nuclex.Support.Collections {
           // If the item is disposable, we get rid of it
           if(disposable != null)
             disposable.Dispose();
-          /*else
-            Reparent(default(ParentType));*/
-          
+
         }
 
       }

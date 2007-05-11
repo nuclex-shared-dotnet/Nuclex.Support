@@ -1,3 +1,22 @@
+#region CPL License
+/*
+Nuclex Framework
+Copyright (C) 2002-2007 Nuclex Development Labs
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the IBM Common Public License as
+published by the IBM Corporation; either version 1.0 of the
+License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+IBM Common Public License for more details.
+
+You should have received a copy of the IBM Common Public
+License along with this library
+*/
+#endregion
 using System;
 using System.IO;
 
@@ -5,8 +24,11 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Specialized memory stream for ring buffers</summary>
   /// <remarks>
-  ///   This ring buffer class is specialized for binary data and tries to achieve
-  ///   optimal efficiency for storing and retrieving chunks of multiple bytes at once.
+  ///   This ring buffer class is specialized for binary data and attempts to achieve
+  ///   optimal efficiency when storing and retrieving chunks of several bytes
+  ///   at once. Typical use cases include audio and network buffers where one party
+  ///   is responsible for refilling the buffer at regular intervals while the other
+  ///   constantly streams data out of it.
   /// </remarks>
   public class RingMemoryStream : Stream {
 
@@ -42,7 +64,7 @@ namespace Nuclex.Support.Collections {
         if(length > 0)
           Read(newBuffer.GetBuffer(), 0, length);
 
-        this.ringBuffer.Close();
+        this.ringBuffer.Close(); // Equals dispose of the old buffer
         this.ringBuffer = newBuffer;
         this.startIndex = 0;
         this.endIndex = length;
@@ -103,7 +125,7 @@ namespace Nuclex.Support.Collections {
         // If the end index lies before the start index, the data in the
         // ring memory stream is fragmented. Example: |#####>-------<#####|
       } else {
-        int linearAvailable = (int)(this.ringBuffer.Length - this.startIndex);
+        int linearAvailable = (int)this.ringBuffer.Length - this.startIndex;
 
         // Will this read process cross the end of the ring buffer, requiring us to
         // read the data in 2 steps?
