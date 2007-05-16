@@ -28,14 +28,14 @@ using NUnit.Framework;
 
 namespace Nuclex.Support.Packing {
 
-  /// <summary>Unit test for the cygon rectangle packer class</summary>
+  /// <summary>Unit test for the simple rectangle packer class</summary>
   [TestFixture]
-  public class CygonRectanglePackerTest : RectanglePackerTest {
+  public class SimpleRectanglePackerTest : RectanglePackerTest {
 
     /// <summary>Tests the packer's efficiency using a deterministic benchmark</summary>
     [Test]
     public void TestSpaceEfficiency() {
-      float efficiency = calculateEfficiency(new CygonRectanglePacker(70, 70));
+      float efficiency = calculateEfficiency(new SimpleRectanglePacker(70, 70));
       
       Assert.GreaterOrEqual(efficiency, 0.75, "Packer achieves 75% efficiency");
     }

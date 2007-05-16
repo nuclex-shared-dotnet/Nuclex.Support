@@ -150,6 +150,15 @@
       <Name>RectanglePacker.Test</Name>
       <DependentUpon>RectanglePacker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Packing\SimpleRectanglePacker.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimpleRectanglePacker</Name>
+    </Compile>
+    <Compile Include="Source\Packing\SimpleRectanglePacker.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimpleRectanglePacker.Test</Name>
+      <DependentUpon>SimpleRectanglePacker.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>

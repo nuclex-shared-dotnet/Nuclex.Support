@@ -86,9 +86,8 @@ namespace Nuclex.Support.Packing {
       /// <param name="right">Right anchor point that will be compared</param>
       /// <returns>The relation of the two anchor point's ranks to each other</returns>
       public int Compare(Point left, Point right) {
-        return 0;
         //return Math.Min(left.X, left.Y) - Math.Min(right.X, right.Y);
-        //return (left.X + left.Y) - (right.X + right.Y);
+        return (left.X + left.Y) - (right.X + right.Y);
       }
 
     }

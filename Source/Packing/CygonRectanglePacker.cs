@@ -24,20 +24,41 @@ using Microsoft.Xna.Framework;
 
 namespace Nuclex.Support.Packing {
 
-  /// <summary>Simplified packer for rectangles which don't vary greatly in size</summary>
-  /// <remarks>
-  ///   This is a highly performant packer that sacrifices space efficiency for
-  ///   low memory usage and runtime performance. It achieves good results with
-  ///   near-uniform sized rectangles but will waste lots of space with rectangles
-  ///   of varying dimensions.
-  /// </remarks>
+  /// <summary>Packer using a custom algorithm by Markus Ewald</summary>
   public class CygonRectanglePacker : RectanglePacker {
+
+    #region class SliceStartComparer
+
+    /// <summary>Compares the starting position of height slices</summary>
+    private class SliceStartComparer : IComparer<Point> {
+
+      /// <summary>Provides a default instance for the anchor rank comparer</summary>
+      public static SliceStartComparer Default = new SliceStartComparer();
+
+      /// <summary>Compares the starting position of two height slices</summary>
+      /// <param name="left">Left slice start that will be compared</param>
+      /// <param name="right">Right slice start that will be compared</param>
+      /// <returns>The relation of the two slice starts ranks to each other</returns>
+      public int Compare(Point left, Point right) {
+        return left.X - right.X;
+      }
+
+    }
+
+    #endregion
 
     /// <summary>Initializes a new rectangle packer</summary>
     /// <param name="maxPackingAreaWidth">Maximum width of the packing area</param>
     /// <param name="maxPackingAreaHeight">Maximum height of the packing area</param>
     public CygonRectanglePacker(int maxPackingAreaWidth, int maxPackingAreaHeight)
-      : base(maxPackingAreaWidth, maxPackingAreaHeight) { }
+      : base(maxPackingAreaWidth, maxPackingAreaHeight) {
+
+      this.heightSlices = new List<Point>();
+
+      // At the beginning, the packing area is a single slice of height 0
+      this.heightSlices.Add(new Point(0, 0));
+
+    }
 
     /// <summary>Tries to allocate space for a rectangle in the packing area</summary>
     /// <param name="rectangleWidth">Width of the rectangle to allocate</param>
@@ -47,45 +68,102 @@ namespace Nuclex.Support.Packing {
     public override bool TryAllocate(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
+      integrateRectangle(0, 1, 5);
+      integrateRectangle(20, 5, 30);
+      integrateRectangle(10, 10, 50);
+      integrateRectangle(10, 15, 25);
+      integrateRectangle(35, 20, 25);
+      integrateRectangle(40, 25, 15);
 
-      // If the rectangle is larger than the packing area in any dimension,
-      // it will never fit!
-      if(
-        (rectangleWidth > MaxPackingAreaWidth) || (rectangleHeight > MaxPackingAreaHeight)
-      ) {
-        placement = Point.Zero;
-        return false;
-      }
-
-      // Do we have to start a new line ?
-      if(this.column + rectangleWidth > MaxPackingAreaWidth) {
-        this.currentLine += this.lineHeight;
-        this.lineHeight = 0;
-        this.column = 0;
-      }
-
-      // If it doesn't fit vertically now, the packing area is considered full
-      if(this.currentLine + rectangleHeight > MaxPackingAreaHeight) {
-        placement = Point.Zero;
-        return false;
-      }
-
-      // The rectangle appears to fit at the current location
-      placement = new Point(this.column, this.currentLine);
-
-      this.column += rectangleWidth; // Can be larger than cache width till next run
-      if(rectangleHeight > this.lineHeight)
-        this.lineHeight = rectangleHeight;
-
-      return true;
+      placement = Point.Zero;
+      return false;
     }
 
-    /// <summary>Current packing line</summary>
-    private int currentLine;
-    /// <summary>Height of the current packing line</summary>
-    private int lineHeight;
-    /// <summary>Current column in the current packing line</summary>
-    private int column;
+    /// <summary>Integrates a new rectangle into the height slice table</summary>
+    /// <param name="left">Position of the rectangle's left side</param>
+    /// <param name="bottom">Position of the rectangle's lower side</param>
+    /// <param name="width">Width of the rectangle</param>
+    private void integrateRectangle(int left, int bottom, int width) {
+
+      // Find the first slice that is touched by the rectangle
+      int startSlice = this.heightSlices.BinarySearch(
+        new Point(left, 0), SliceStartComparer.Default
+      );
+      int firstSliceOriginalHeight;
+
+      // Did we score a direct hit on an existing slice start?
+      if(startSlice >= 0) {
+
+        // We scored a direct hit, so we can replace the slice we have hit
+        firstSliceOriginalHeight = this.heightSlices[startSlice].Y;
+        this.heightSlices[startSlice] = new Point(left, bottom);
+        ++startSlice;
+
+      } else { // No direct hit, slice starts inside another slice
+
+        // Add a new slice after the slice in which we start
+        startSlice = ~startSlice;
+        firstSliceOriginalHeight = this.heightSlices[startSlice - 1].Y;
+        this.heightSlices.Insert(startSlice, new Point(left, bottom));
+
+      }
+
+      // Special case, the rectangle was on the last slice, so we cannot
+      // use the start slice + 1 as start index for the binary search
+      if(startSlice >= this.heightSlices.Count) {
+      } else {
+        int right = left + width;
+
+        int endSlice = this.heightSlices.BinarySearch(
+          startSlice, this.heightSlices.Count - startSlice,
+          new Point(right, 0), SliceStartComparer.Default
+        );
+      }
+
+      //this.heightSlices.RemoveRange(startSlice, endSlice - startSlice);
+/*
+      int nextSlice = firstSlice + 1;
+      bool isLastSlice = (nextSlice >= this.heightSlices.Count);
+
+*/
+/*      
+
+
+        int nextSlice = firstSlice + 1;
+        bool isLastSlice = (nextSlice >= this.heightSlices.Count);
+
+        // 
+        bool endsInFirstSlice;
+        if(isLastSlice)
+          endsInFirstSlice = right < MaxPackingAreaWidth;
+        else
+          endsInFirstSlice = right < this.heightSlices[nextSlice].X;
+
+        if(endsInFirstSlice) {
+          this.heightSlices.Insert(
+            nextSlice, new Point(right, this.heightSlices[firstSlice].Y)
+          );
+          this.heightSlices[firstSlice] = new Point(left, bottom);
+          return;
+        } else { // Integrated rect continues beyond the discovered slice
+          this.heightSlices[firstSlice] = new Point(left, bottom);
+        }
+
+      } else {
+
+        firstSlice = ~firstSlice;
+
+        //firstSliceOriginalHeight = this.heightSlices[firstSlice].Y;
+
+        this.heightSlices.Insert(firstSlice, new Point(left, bottom));
+        ++firstSlice;
+
+      }
+*/
+    }
+
+    /// <summary>Stores the height silhouette of the rectangles</summary>
+    private List<Point> heightSlices;
 
   }
 
