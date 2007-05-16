@@ -123,6 +123,33 @@
       <Name>LicenseKey.Test</Name>
       <DependentUpon>LicenseKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Packing\ArevaloRectanglePacker.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ArevaloRectanglePacker</Name>
+    </Compile>
+    <Compile Include="Source\Packing\ArevaloRectanglePacker.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ArevaloRectanglePacker.Test</Name>
+      <DependentUpon>ArevaloRectanglePacker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Packing\CygonRectanglePacker.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CygonRectanglePacker</Name>
+    </Compile>
+    <Compile Include="Source\Packing\CygonRectanglePacker.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CygonRectanglePacker.Test</Name>
+      <DependentUpon>CygonRectanglePacker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Packing\RectanglePacker.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RectanglePacker</Name>
+    </Compile>
+    <Compile Include="Source\Packing\RectanglePacker.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RectanglePacker.Test</Name>
+      <DependentUpon>RectanglePacker.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>

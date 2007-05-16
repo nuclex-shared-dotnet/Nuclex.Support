@@ -19,11 +19,29 @@ License along with this library
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Nuclex.Support.Tracking {
-/*
-  public class ThreadedMethodOperation : Operation {
+using Microsoft.Xna.Framework;
+
+#if UNITTEST
+
+using NUnit.Framework;
+
+namespace Nuclex.Support.Packing {
+
+  /// <summary>Unit test for the arevalo rectangle packer class</summary>
+  [TestFixture]
+  public class ArevaloRectanglePackerTest : RectanglePackerTest {
+
+    /// <summary>Tests the packer's efficiency using a deterministic benchmark</summary>
+    [Test]
+    public void TestSpaceEfficiency() {
+      float efficiency = calculateEfficiency(new ArevaloRectanglePacker(70, 70));
+      
+      Assert.GreaterOrEqual(efficiency, 0.75, "Packer achieves 75% efficiency");
+    }
+
   }
-*/
-} // namespace Nuclex.Support.Tracking
+
+} // namespace Nuclex.Support.Packing
+
+#endif // UNITTEST

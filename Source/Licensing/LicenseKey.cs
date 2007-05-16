@@ -151,10 +151,9 @@ namespace Nuclex.Support.Licensing {
         for(int j = 0; j < 31; ++j)
           sequence |= (int)powersOfTwo[j, bits[i * 31 + j] ? 1 : 0];
 
-        // Using 7 bits, a number up to 2.147.483.648 can be represented,
+        // Using 31 bits, a number up to 2.147.483.648 can be represented,
         // while 6 alpha-numerical characters allow for 2.176.782.336 possible values,
-        // which is enough to fit 7 bits into each 6 alpha-numerical characters
-        // nun in 6 alphanumerische Zeichen zu verpacken.
+        // which means we can fit 31 bits into every 6 alpha-numerical characters.
         for(int j = 0; j < 6; ++j) {
           resultBuilder.Append(codeTable[sequence % 36]);
           sequence /= 36;
@@ -176,13 +175,11 @@ namespace Nuclex.Support.Licensing {
       );
 
       // Now build a nice, readable string from the decoded characters
-      string s = resultBuilder.ToString();
-      return
-        s.Substring(0, 5) + "-" +
-        s.Substring(5, 5) + "-" +
-        s.Substring(10, 5) + "-" +
-        s.Substring(15, 5) + "-" +
-        s.Substring(20, 5);
+      resultBuilder.Insert(5, '-');
+      resultBuilder.Insert(11, '-');
+      resultBuilder.Insert(17, '-');
+      resultBuilder.Insert(23, '-');
+      return resultBuilder.ToString();
     }
 
     /// <summary>Mangles a bit array</summary>
