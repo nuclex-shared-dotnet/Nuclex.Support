@@ -36,8 +36,8 @@ namespace Nuclex.Support.Packing {
     [Test]
     public void TestSpaceEfficiency() {
       float efficiency = calculateEfficiency(new CygonRectanglePacker(70, 70));
-      
-      Assert.GreaterOrEqual(efficiency, 0.75, "Packer achieves 75% efficiency");
+
+      Assert.GreaterOrEqual(efficiency, 0.75f, "Packer achieves 75% efficiency");
     }
 
   }
