@@ -54,8 +54,6 @@ namespace Nuclex.Support.Packing {
       return (float)areaCovered / 4900.0f;
     }
 
-
-
   }
 
 } // namespace Nuclex.Support.Packing
