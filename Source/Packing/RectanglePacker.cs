@@ -32,28 +32,28 @@ namespace Nuclex.Support.Packing {
   ///     performant one for a given job.
   ///   </para>
   ///   <para>
-  ///     An almost exhaustive list of rectangle packers can be found here:
+  ///     An almost exhaustive list of packing algorithms can be found here:
   ///     http://www.csc.liv.ac.uk/~epa/surveyhtml.html
   ///   </para>
   /// </remarks>
   public abstract class RectanglePacker {
 
     /// <summary>Initializes a new rectangle packer</summary>
-    /// <param name="maxPackingAreaWidth">Maximum width of the packing area</param>
-    /// <param name="maxPackingAreaHeight">Maximum height of the packing area</param>
-    protected RectanglePacker(int maxPackingAreaWidth, int maxPackingAreaHeight) {
-      this.maxPackingAreaWidth = maxPackingAreaWidth;
-      this.maxPackingAreaHeight = maxPackingAreaHeight;
+    /// <param name="packingAreaWidth">Width of the packing area</param>
+    /// <param name="packingAreaHeight">Height of the packing area</param>
+    protected RectanglePacker(int packingAreaWidth, int packingAreaHeight) {
+      this.packingAreaWidth = packingAreaWidth;
+      this.packingAreaHeight = packingAreaHeight;
     }
 
     /// <summary>Allocates space for a rectangle in the packing area</summary>
     /// <param name="rectangleWidth">Width of the rectangle to allocate</param>
     /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
     /// <returns>The location at which the rectangle has been placed</returns>
-    public virtual Point Allocate(int rectangleWidth, int rectangleHeight) {
+    public virtual Point Pack(int rectangleWidth, int rectangleHeight) {
       Point point;
 
-      if(!TryAllocate(rectangleWidth, rectangleHeight, out point))
+      if(!TryPack(rectangleWidth, rectangleHeight, out point))
         throw new Exception("Rectangle does not fit in packing area");
 
       return point;
@@ -64,24 +64,24 @@ namespace Nuclex.Support.Packing {
     /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
     /// <param name="placement">Output parameter receiving the rectangle's placement</param>
     /// <returns>True if space for the rectangle could be allocated</returns>
-    public abstract bool TryAllocate(
+    public abstract bool TryPack(
       int rectangleWidth, int rectangleHeight, out Point placement
     );
 
     /// <summary>Maximum width the packing area is allowed to have</summary>
-    protected int MaxPackingAreaWidth {
-      get { return this.maxPackingAreaWidth; }
+    protected int PackingAreaWidth {
+      get { return this.packingAreaWidth; }
     }
 
     /// <summary>Maximum height the packing area is allowed to have</summary>
-    protected int MaxPackingAreaHeight {
-      get { return this.maxPackingAreaHeight; }
+    protected int PackingAreaHeight {
+      get { return this.packingAreaHeight; }
     }
 
     /// <summary>Maximum allowed width of the packing area</summary>
-    private int maxPackingAreaWidth;
+    private int packingAreaWidth;
     /// <summary>Maximum allowed height of the packing area</summary>
-    private int maxPackingAreaHeight;
+    private int packingAreaHeight;
 
   }
 

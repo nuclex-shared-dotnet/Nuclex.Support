@@ -24,13 +24,20 @@ using Microsoft.Xna.Framework;
 
 namespace Nuclex.Support.Packing {
 
-  /// <summary>Packer using a custom algorithm by Markus Ewald</summary>
+  /// <summary>Packer using a custom algorithm by Markus 'Cygon' Ewald</summary>
   /// <remarks>
-  ///   This algorithms always places as close to the top as possible. So, for any new
-  ///   rectangle, the packer has to determine a X coordinate at which the rectangle
-  ///   can be placed at the highest point. To quickly discover these locations,
-  ///   the packer keeps a dynamically list of "height slices", which store the
-  ///   baseline of the rectangles that have been placed so far.
+  ///   <para>
+  ///     Algorithm conceived by Markus Ewald (cygon at nuclex dot org), thought
+  ///     I'm quite sure I'm not the first one to invent this algorithm :)
+  ///   </para>
+  ///   <para>
+  ///     This algorithm always places rectangles as low as possible. So, for any
+  ///     new rectangle that is to be added into the packing area, the packer has
+  ///     to determine the X coordinate at which the rectangle has the lowest height.
+  ///     To quickly discover these locations, the packer keeps a dynamically updated
+  ///     list of "height slices" which store the silhouette of the rectangles that
+  ///     have been placed so far.
+  ///   </para>
   /// </remarks>
   public class CygonRectanglePacker : RectanglePacker {
 
@@ -55,10 +62,10 @@ namespace Nuclex.Support.Packing {
     #endregion
 
     /// <summary>Initializes a new rectangle packer</summary>
-    /// <param name="maxPackingAreaWidth">Maximum width of the packing area</param>
-    /// <param name="maxPackingAreaHeight">Maximum height of the packing area</param>
-    public CygonRectanglePacker(int maxPackingAreaWidth, int maxPackingAreaHeight)
-      : base(maxPackingAreaWidth, maxPackingAreaHeight) {
+    /// <param name="packingAreaWidth">Maximum width of the packing area</param>
+    /// <param name="packingAreaHeight">Maximum height of the packing area</param>
+    public CygonRectanglePacker(int packingAreaWidth, int packingAreaHeight)
+      : base(packingAreaWidth, packingAreaHeight) {
 
       this.heightSlices = new List<Point>();
 
@@ -72,41 +79,37 @@ namespace Nuclex.Support.Packing {
     /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
     /// <param name="placement">Output parameter receiving the rectangle's placement</param>
     /// <returns>True if space for the rectangle could be allocated</returns>
-    public override bool TryAllocate(
+    public override bool TryPack(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
-      int sliceIndex = findBestPosition(rectangleWidth, rectangleHeight);
-
-      // TODO: Rectangle might not even fit there!
-      if(sliceIndex == -1) {
-
+      // If the rectangle is larger than the packing area in any dimension,
+      // it will never fit!
+      if(
+        (rectangleWidth > PackingAreaWidth) || (rectangleHeight > PackingAreaHeight)
+      ) {
         placement = Point.Zero;
         return false;
-
-      } else {
-
-        placement = this.heightSlices[sliceIndex];
-
-        integrateRectangle(
-          this.heightSlices[sliceIndex].X,
-          rectangleWidth,
-          this.heightSlices[sliceIndex].Y + rectangleHeight
-        );
-
-        return true;
-
       }
+
+      bool fits = findBestPosition(rectangleWidth, rectangleHeight, out placement);
+      if(fits)
+        integrateRectangle(placement.X, rectangleWidth, placement.Y + rectangleHeight);
+
+      return fits;
     }
 
     /// <summary>Finds the best position for a rectangle of the given width</summary>
     /// <param name="rectangleWidth">Width of the rectangle to find a position for</param>
     /// <param name="rectangleHeight">Height of the rectangle to find a position for</param>
     /// <returns>The best position for a rectangle with the specified width</returns>
-    private int findBestPosition(int rectangleWidth, int rectangleHeight) {
+    private bool findBestPosition(
+      int rectangleWidth, int rectangleHeight, out Point placement
+    ) {
 
-      // Index and score of the best slice we could find for the rectangle
-      int bestSliceIndex = -1;
-      int bestScore = MaxPackingAreaWidth * MaxPackingAreaHeight; // lower == better!
+      // Slice index, vertical position and score of the best placement we could find
+      int bestSliceIndex = -1; // Slice index where the best placement was found
+      int bestSliceY = 0; // Y position of the best placement found
+      int bestScore = PackingAreaWidth * PackingAreaHeight; // lower == better!
 
       // This is the counter for the currently checked position. The search works by
       // skipping from slice to slice, determining the suitability of the location for the
@@ -130,11 +133,11 @@ namespace Nuclex.Support.Packing {
           if(this.heightSlices[index].Y > highest)
             highest = this.heightSlices[index].Y;
 
-        if((highest + rectangleHeight < MaxPackingAreaHeight)) {
+        if((highest + rectangleHeight < PackingAreaHeight)) {
           int score = highest;
 
-          // TESTING --------------------------------------------------
-          /*
+          // WASTED AREA CALCULATION --------------------------------------------------
+          
           // Calculate the amount of space that would go to waste if the rectangle
           // would be placed at this location
           int wastedArea = 0;
@@ -149,14 +152,13 @@ namespace Nuclex.Support.Packing {
               this.heightSlices[rightSliceIndex - 1].X
             );
 
-          //score += Math.Sign(wastedArea);
-          //score += (int)Math.Sqrt((double)wastedArea);
-          //score = wastedArea;
-          */
-          // TESTING --------------------------------------------------
+          score += (int)Math.Sqrt((double)wastedArea) / 10;
+          
+          // WASTED AREA CALCULATION --------------------------------------------------
 
           if(score < bestScore) {
             bestSliceIndex = leftSliceIndex;
+            bestSliceY = highest;
             bestScore = score;
           }
         }
@@ -172,7 +174,7 @@ namespace Nuclex.Support.Packing {
         for(; rightSliceIndex <= this.heightSlices.Count; ++rightSliceIndex) {
           int rightSliceStart;
           if(rightSliceIndex == this.heightSlices.Count)
-            rightSliceStart = MaxPackingAreaWidth;
+            rightSliceStart = PackingAreaWidth;
           else
             rightSliceStart = this.heightSlices[rightSliceIndex].X;
 
@@ -190,7 +192,13 @@ namespace Nuclex.Support.Packing {
 
       // Return the index of the best slice we found for this rectangle. If the rectangle
       // didn't fit, this variable will still have its initialization value of -1.
-      return bestSliceIndex;
+      if(bestSliceIndex == -1) {
+        placement = Point.Zero;
+        return false;
+      } else {
+        placement = new Point(this.heightSlices[bestSliceIndex].X, bestSliceY);
+        return true;
+      }
 
     }
 
@@ -234,7 +242,7 @@ namespace Nuclex.Support.Packing {
         // If the slice ends within the last slice (usual case, unless it has the
         // exact same width the packing area has), add another slice to return to
         // the original height at the end of the rectangle.
-        if(right < MaxPackingAreaWidth)
+        if(right < PackingAreaWidth)
           this.heightSlices.Add(new Point(right, firstSliceOriginalHeight));
 
       } else { // The rectangle doesn't start on the last slice
@@ -264,7 +272,7 @@ namespace Nuclex.Support.Packing {
           // Remove all slices covered by the rectangle and begin a new slice at its end
           // to return back to the height of the slice on which the rectangle ends.
           this.heightSlices.RemoveRange(startSlice, endSlice - startSlice);
-          if(right < MaxPackingAreaWidth)
+          if(right < PackingAreaWidth)
             this.heightSlices.Insert(startSlice, new Point(right, returnHeight));
 
         }

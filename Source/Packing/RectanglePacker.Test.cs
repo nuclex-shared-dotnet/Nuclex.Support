@@ -47,7 +47,7 @@ namespace Nuclex.Support.Packing {
       for(int size = 24; size >= 1; --size) {
         Point placement;
 
-        if(packer.TryAllocate(size, size, out placement))
+        if(packer.TryPack(size, size, out placement))
           areaCovered += size * size;
       }
 

@@ -34,38 +34,38 @@ namespace Nuclex.Support.Packing {
   public class SimpleRectanglePacker : RectanglePacker {
 
     /// <summary>Initializes a new rectangle packer</summary>
-    /// <param name="maxPackingAreaWidth">Maximum width of the packing area</param>
-    /// <param name="maxPackingAreaHeight">Maximum height of the packing area</param>
-    public SimpleRectanglePacker(int maxPackingAreaWidth, int maxPackingAreaHeight)
-      : base(maxPackingAreaWidth, maxPackingAreaHeight) { }
+    /// <param name="packingAreaWidth">Maximum width of the packing area</param>
+    /// <param name="packingAreaHeight">Maximum height of the packing area</param>
+    public SimpleRectanglePacker(int packingAreaWidth, int packingAreaHeight)
+      : base(packingAreaWidth, packingAreaHeight) { }
 
     /// <summary>Tries to allocate space for a rectangle in the packing area</summary>
     /// <param name="rectangleWidth">Width of the rectangle to allocate</param>
     /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
     /// <param name="placement">Output parameter receiving the rectangle's placement</param>
     /// <returns>True if space for the rectangle could be allocated</returns>
-    public override bool TryAllocate(
+    public override bool TryPack(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
 
       // If the rectangle is larger than the packing area in any dimension,
       // it will never fit!
       if(
-        (rectangleWidth > MaxPackingAreaWidth) || (rectangleHeight > MaxPackingAreaHeight)
+        (rectangleWidth > PackingAreaWidth) || (rectangleHeight > PackingAreaHeight)
       ) {
         placement = Point.Zero;
         return false;
       }
 
       // Do we have to start a new line ?
-      if(this.column + rectangleWidth > MaxPackingAreaWidth) {
+      if(this.column + rectangleWidth > PackingAreaWidth) {
         this.currentLine += this.lineHeight;
         this.lineHeight = 0;
         this.column = 0;
       }
 
       // If it doesn't fit vertically now, the packing area is considered full
-      if(this.currentLine + rectangleHeight > MaxPackingAreaHeight) {
+      if(this.currentLine + rectangleHeight > PackingAreaHeight) {
         placement = Point.Zero;
         return false;
       }

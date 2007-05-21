@@ -27,6 +27,10 @@ namespace Nuclex.Support.Packing {
   /// <summary>Rectangle packer using an algorithm by Javier Arevalo</summary>
   /// <remarks>
   ///   <para>
+  ///     Original code by Javier Arevalo (jare at iguanademos dot com). Rewritten
+  ///     to C# / .NET by Markus Ewald (cygon at nuclex dot org).
+  ///   </para>
+  ///   <para>
   ///     You have a bunch of rectangular pieces. You need to arrange them in a 
   ///     rectangular surface so that they don't overlap, keeping the total area of the 
   ///     rectangle as small as possible. This is fairly common when arranging characters 
@@ -95,10 +99,10 @@ namespace Nuclex.Support.Packing {
     #endregion
 
     /// <summary>Initializes a new rectangle packer</summary>
-    /// <param name="maxPackingAreaWidth">Maximum width of the packing area</param>
-    /// <param name="maxPackingAreaHeight">Maximum height of the packing area</param>
-    public ArevaloRectanglePacker(int maxPackingAreaWidth, int maxPackingAreaHeight)
-      : base(maxPackingAreaWidth, maxPackingAreaHeight) {
+    /// <param name="packingAreaWidth">Maximum width of the packing area</param>
+    /// <param name="packingAreaHeight">Maximum height of the packing area</param>
+    public ArevaloRectanglePacker(int packingAreaWidth, int packingAreaHeight)
+      : base(packingAreaWidth, packingAreaHeight) {
 
       this.packedRectangles = new List<Rectangle>();
       this.anchors = new List<Point>();
@@ -113,7 +117,7 @@ namespace Nuclex.Support.Packing {
     /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
     /// <param name="placement">Output parameter receiving the rectangle's placement</param>
     /// <returns>True if space for the rectangle could be allocated</returns>
-    public override bool TryAllocate(
+    public override bool TryPack(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
 
@@ -181,8 +185,8 @@ namespace Nuclex.Support.Packing {
       // If we reach this point, the rectangle did not fit in the current packing
       // area and our only choice is to try and enlarge the packing area.
 
-      bool canEnlargeWidth = (packingAreaWidth < MaxPackingAreaWidth);
-      bool canEnlargeHeight = (packingAreaHeight < MaxPackingAreaHeight);
+      bool canEnlargeWidth = (packingAreaWidth < PackingAreaWidth);
+      bool canEnlargeHeight = (packingAreaHeight < PackingAreaHeight);
       
       // Try to enlarge the smaller of the two dimensions first (unless the smaller
       // dimension is already at its maximum size)
@@ -195,7 +199,7 @@ namespace Nuclex.Support.Packing {
         // Try to double the height of the packing area
         return selectAnchorRecursive(
           rectangleWidth, rectangleHeight,
-          packingAreaWidth, Math.Min(packingAreaHeight * 2, MaxPackingAreaHeight)
+          packingAreaWidth, Math.Min(packingAreaHeight * 2, PackingAreaHeight)
         );
 
       } else if(canEnlargeWidth) {
@@ -203,7 +207,7 @@ namespace Nuclex.Support.Packing {
         // Try to double the width of the packing area
         return selectAnchorRecursive(
           rectangleWidth, rectangleHeight,
-          Math.Min(packingAreaWidth * 2, MaxPackingAreaWidth), packingAreaHeight
+          Math.Min(packingAreaWidth * 2, PackingAreaWidth), packingAreaHeight
         );
 
       } else {
