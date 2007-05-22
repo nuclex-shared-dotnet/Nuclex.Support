@@ -78,6 +78,7 @@ namespace Nuclex.Support.Packing {
         this.lineHeight = rectangleHeight;
 
       return true;
+
     }
 
     /// <summary>Current packing line</summary>
