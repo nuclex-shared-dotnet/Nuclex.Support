@@ -27,6 +27,10 @@ namespace Nuclex.Support.Packing {
   /// <summary>Base class for unit testing the rectangle packers</summary>
   public abstract class RectanglePackerTest {
 
+    /// <summary>Delegate for a Rectangle Packer factory method</summary>
+    /// <returns>A new rectangle packer</returns>
+    protected delegate RectanglePacker BuildRectanglePacker();
+
     /// <summary>Determines the efficiency of a packer with a packing area of 70x70</summary>
     /// <param name="packer">Packer with a packing area of 70x70 units</param>
     /// <returns>The efficiency factor of the packer</returns>
@@ -37,7 +41,7 @@ namespace Nuclex.Support.Packing {
     ///   the efficiency rating is to 1.0, the better, with 0.99 being the
     ///   mathematically best rating achievable.
     /// </remarks>
-    public float calculateEfficiency(RectanglePacker packer) {
+    protected float CalculateEfficiency(RectanglePacker packer) {
       // If we take a 1x1 square, a 2x2 square, etc. up to a 24x24 square,
       // the sum of the areas of these squares is 4900, which is 70². This
       // is the only nontrivial sum of consecutive squares starting with
@@ -52,6 +56,44 @@ namespace Nuclex.Support.Packing {
       }
 
       return (float)areaCovered / 4900.0f;
+    }
+
+    /// <summary>Benchmarks the provided rectangle packer using random data</summary>
+    /// <param name="packerBuilder">
+    ///   Rectangle packer builder returning new rectangle packers
+    ///   with an area of 1024 x 1024
+    /// </param>
+    /// <returns>The achieved benchmark score</returns>
+    protected float Benchmark(BuildRectanglePacker packerBuilder) {
+      // How many runs to perform for getting a stable average
+      const int averagingRuns = 200;
+
+      // Generates the random number seeds. This is used so that each run produces
+      // the same number sequences and makes the comparison of different algorithms
+      // a little bit more stable.
+      Random seedGenerator = new Random(12345);
+      int rectanglesPacked = 0;
+
+      // Perform a number of  runs to get a semi-stable average score
+      for(int averagingRun = 0; averagingRun < averagingRuns; ++averagingRun) {
+        Random dimensionGenerator = new Random(seedGenerator.Next());
+        RectanglePacker packer = packerBuilder();
+
+        // Try to cramp as many rectangles into the packing area as possible
+        for(;; ++rectanglesPacked) {
+          Point placement;
+
+          int width = dimensionGenerator.Next(16, 64);
+          int height = dimensionGenerator.Next(16, 64);
+
+          // As soon as the packer rejects the first rectangle, the run is over
+          if(!packer.TryPack(width, height, out placement))
+            break;
+        }
+      }
+
+      // Return the average score achieved by the packer
+      return (float)rectanglesPacked / (float)averagingRuns;
     }
 
   }

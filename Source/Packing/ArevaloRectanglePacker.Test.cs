@@ -35,9 +35,21 @@ namespace Nuclex.Support.Packing {
     /// <summary>Tests the packer's efficiency using a deterministic benchmark</summary>
     [Test]
     public void TestSpaceEfficiency() {
-      float efficiency = calculateEfficiency(new ArevaloRectanglePacker(70, 70));
+      float efficiency = CalculateEfficiency(new ArevaloRectanglePacker(70, 70));
       
       Assert.GreaterOrEqual(efficiency, 0.75, "Packer achieves 75% efficiency");
+    }
+
+    /// <summary>Tests the packer's stability by running a complete benchmark</summary>
+    [Test]
+    public void TestStability() {
+      float score = Benchmark(
+        delegate() { return new ArevaloRectanglePacker(1024, 1024); }
+      );
+
+      // This is mainly a stability and performance test. It fails when the
+      // packer crashes on its own and is otherwise only there to tell how long
+      // it takes to complete the benchmark.
     }
 
   }

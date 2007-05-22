@@ -137,12 +137,30 @@ namespace Nuclex.Support.Packing {
 
       placement = this.anchors[anchorIndex];
 
+      // Move the rectangle either to the left or to the top until it collides with
+      // a neightbouring rectangle. This is done to combat the effect of lining up
+      // rectangles with gaps to the left or top of them because the anchor that
+      // would allow placement there has been blocked by another rectangle
+      optimizePlacement(ref placement, rectangleWidth, rectangleHeight);
+
       // Remove the used anchor and add new anchors at the upper right and lower left
       // positions of the new rectangle
-      this.anchors.RemoveAt(anchorIndex);
-      this.anchors.Add(new Point(placement.X + rectangleWidth, placement.Y));
-      this.anchors.Add(new Point(placement.X, placement.Y + rectangleHeight));
+      {
+        // The anchor is only removed if the placement optimization didn't
+        // move the rectangle so far that the anchor isn't used at all
+        bool blocksAnchor =
+          ((placement.X + rectangleWidth) > this.anchors[anchorIndex].X) &&
+          ((placement.Y + rectangleHeight) > this.anchors[anchorIndex].Y);
 
+        if(blocksAnchor)
+          this.anchors.RemoveAt(anchorIndex);
+
+        // Add new anchors at the upper right and lower left coordinates of the rectangle
+        this.anchors.Add(new Point(placement.X + rectangleWidth, placement.Y));
+        this.anchors.Add(new Point(placement.X, placement.Y + rectangleHeight));
+      }
+
+      // Finally, we can add the rectangle to our packed rectangles list
       this.packedRectangles.Add(
         new Rectangle(placement.X, placement.Y, rectangleWidth, rectangleHeight)
       );
@@ -152,54 +170,97 @@ namespace Nuclex.Support.Packing {
     }
 
     /// <summary>
+    ///   Optimizes the rectangle's placement by moving it either left or up to fill
+    ///   any gaps resulting from rectangles blocking the anchors of the most optimal
+    ///   placements.
+    /// </summary>
+    /// <param name="placement">Placement to be optimized</param>
+    /// <param name="rectangleWidth">Width of the rectangle to be optimized</param>
+    /// <param name="rectangleHeight">Height of the rectangle to be optimized</param>
+    private void optimizePlacement(
+      ref Point placement, int rectangleWidth, int rectangleHeight
+    ) {
+      Rectangle rectangle = new Rectangle(
+        placement.X, placement.Y, rectangleWidth, rectangleHeight
+      );
+
+      // Try to move the rectangle to the left as far as possible
+      int leftMost = placement.X;
+      while(isFree(ref rectangle, PackingAreaWidth, PackingAreaHeight)) {
+        leftMost = rectangle.X;
+        --rectangle.X;
+      }
+
+      // Reset rectangle to original position
+      rectangle.X = placement.X;
+
+      // Try to move the rectangle upwards as far as possible
+      int topMost = placement.Y;
+      while(isFree(ref rectangle, PackingAreaWidth, PackingAreaHeight)) {
+        topMost = rectangle.Y;
+        --rectangle.Y;
+      }
+
+      // Use the dimension in which the rectangle could be moved farther
+      if((leftMost - placement.X) > (topMost - placement.Y))
+        placement.X = leftMost;
+      else
+        placement.Y = topMost;
+    }
+
+    /// <summary>
     ///   Searches for a free anchor and enlarges the packing area if none can be found
     /// </summary>
     /// <param name="rectangleWidth">Width of the rectangle to be placed</param>
     /// <param name="rectangleHeight">Height of the rectangle to be placed</param>
-    /// <param name="packingAreaWidth">Total width of the packing area</param>
-    /// <param name="packingAreaHeight">Total height of the packing area</param>
+    /// <param name="testedPackingAreaWidth">Width of the tested packing area</param>
+    /// <param name="testedPackingAreaHeight">Height of the tested packing area</param>
     /// <returns>
     ///   Index of the anchor the rectangle is to be placed at or -1 if the rectangle
     ///   does not fit in the packing area anymore
     /// </returns>
     private int selectAnchorRecursive(
       int rectangleWidth, int rectangleHeight,
-      int packingAreaWidth, int packingAreaHeight
+      int testedPackingAreaWidth, int testedPackingAreaHeight
     ) {
 
       // Try to locate an anchor point where the rectangle fits in
       int freeAnchorIndex = findFirstFreeAnchor(
-        rectangleWidth, rectangleHeight, packingAreaWidth, packingAreaHeight
+        rectangleWidth, rectangleHeight, testedPackingAreaWidth, testedPackingAreaHeight
       );
 
       // If a the rectangle fits without resizing packing area (any further in case
       // of a recursive call), take over the new packing area size and return the
       // anchor at which the rectangle can be placed.
       if(freeAnchorIndex != -1) {
-        this.actualPackingAreaWidth = packingAreaWidth;
-        this.actualPackingAreaHeight = packingAreaHeight;
+        this.actualPackingAreaWidth = testedPackingAreaWidth;
+        this.actualPackingAreaHeight = testedPackingAreaHeight;
 
         return freeAnchorIndex;
       }
 
+      //
       // If we reach this point, the rectangle did not fit in the current packing
       // area and our only choice is to try and enlarge the packing area.
+      //
 
-      bool canEnlargeWidth = (packingAreaWidth < PackingAreaWidth);
-      bool canEnlargeHeight = (packingAreaHeight < PackingAreaHeight);
+      // For readability, determine whether the packing area can be enlarged
+      // any further in its width and in its height
+      bool canEnlargeWidth = (testedPackingAreaWidth < PackingAreaWidth);
+      bool canEnlargeHeight = (testedPackingAreaHeight < PackingAreaHeight);
       
       // Try to enlarge the smaller of the two dimensions first (unless the smaller
       // dimension is already at its maximum size)
       if(
-          (
-            (packingAreaHeight < packingAreaWidth) || !canEnlargeWidth
-          ) && canEnlargeHeight
-        ) {
+        canEnlargeHeight && (
+          (testedPackingAreaHeight < testedPackingAreaWidth) || !canEnlargeWidth
+        ) 
+      ) {
 
         // Try to double the height of the packing area
         return selectAnchorRecursive(
           rectangleWidth, rectangleHeight,
-          packingAreaWidth, Math.Min(packingAreaHeight * 2, PackingAreaHeight)
+          testedPackingAreaWidth, Math.Min(testedPackingAreaHeight * 2, PackingAreaHeight)
         );
 
       } else if(canEnlargeWidth) {
@@ -207,7 +268,7 @@ namespace Nuclex.Support.Packing {
         // Try to double the width of the packing area
         return selectAnchorRecursive(
           rectangleWidth, rectangleHeight,
-          Math.Min(packingAreaWidth * 2, PackingAreaWidth), packingAreaHeight
+          Math.Min(testedPackingAreaWidth * 2, PackingAreaWidth), testedPackingAreaHeight
         );
 
       } else {
@@ -262,14 +323,14 @@ namespace Nuclex.Support.Packing {
       ref Rectangle rectangle, int packingAreaWidth, int packingAreaHeight
     ) {
 
+      // If the rectangle is partially or completely outside of the packing
+      // area, it can't be placed at its current location
       bool leavesPackingArea =
         (rectangle.X < 0) ||
         (rectangle.Y < 0) ||
         (rectangle.Right >= packingAreaWidth) ||
         (rectangle.Bottom >= packingAreaHeight);
 
-      // If the rectangle is partially or completely outside of the packing
-      // area, it can't be placed at its current location
       if(leavesPackingArea)
         return false;
 
