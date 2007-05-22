@@ -29,7 +29,7 @@ namespace Nuclex.Support.Packing {
 
     /// <summary>Delegate for a Rectangle Packer factory method</summary>
     /// <returns>A new rectangle packer</returns>
-    protected delegate RectanglePacker BuildRectanglePacker();
+    protected delegate RectanglePacker RectanglePackerBuilder();
 
     /// <summary>Determines the efficiency of a packer with a packing area of 70x70</summary>
     /// <param name="packer">Packer with a packing area of 70x70 units</param>
@@ -59,14 +59,14 @@ namespace Nuclex.Support.Packing {
     }
 
     /// <summary>Benchmarks the provided rectangle packer using random data</summary>
-    /// <param name="packerBuilder">
-    ///   Rectangle packer builder returning new rectangle packers
+    /// <param name="buildPacker">
+    ///   Rectangle packer build method returning new rectangle packers
     ///   with an area of 1024 x 1024
     /// </param>
     /// <returns>The achieved benchmark score</returns>
-    protected float Benchmark(BuildRectanglePacker packerBuilder) {
+    protected float Benchmark(RectanglePackerBuilder buildPacker) {
       // How many runs to perform for getting a stable average
-      const int averagingRuns = 200;
+      const int averagingRuns = 1;
 
       // Generates the random number seeds. This is used so that each run produces
       // the same number sequences and makes the comparison of different algorithms
@@ -77,7 +77,7 @@ namespace Nuclex.Support.Packing {
       // Perform a number of  runs to get a semi-stable average score
       for(int averagingRun = 0; averagingRun < averagingRuns; ++averagingRun) {
         Random dimensionGenerator = new Random(seedGenerator.Next());
-        RectanglePacker packer = packerBuilder();
+        RectanglePacker packer = buildPacker();
 
         // Try to cramp as many rectangles into the packing area as possible
         for(;; ++rectanglesPacked) {

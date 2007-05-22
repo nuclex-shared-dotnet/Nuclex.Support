@@ -41,56 +41,6 @@ namespace Nuclex.Support.Packing {
   /// </remarks>
   public class CygonRectanglePacker : RectanglePacker {
 
-    #if USE_WASTED_AREA
-    // An optimization idea of mine. With this, the packer not only tries to place
-    // rectangles as low in the packing area as possible, it also tried to choose
-    // locations where it doesn't block gaps where other rectangles might still fit
-    // in. This turned out to be counter-productive and a marginal improvement in
-    // space efficiency could be achieved by deliberately choosing positions where
-    // gaps where blocked for future rectangles.
-    //
-    // These are the results of a benchmark with different wastedAreaScoreWeights
-    //
-    //      -10     579.315
-    //       -5     582.140
-    //       -4     582.886
-    //       -3     583.166
-    //       -2     583.792
-    //       -1     583.975 (best)
-    //        0     583.791
-    //        1     583.960
-    //        2     583.469
-    //        3     582.444
-    //        4     580.259
-    //        5     578.400
-    //       10     570.467
-    //
-    // Needless to say, I chose to disable this splendid optimization.
-
-    /// <summary>By how much the wasted area influences a placement's score</summary>
-    /// <remarks>
-    ///   <para>
-    ///     The score of a potential position for a new rectangle is how far the
-    ///     rectangle is from the lower end of the packing area. The lower the
-    ///     score, the better the position.
-    ///   </para>
-    ///   <para>
-    ///     Often, however, it's better to choose a position that's farther from
-    ///     the lower end of the packing area to not block a gap in which a future
-    ///     rectangle might still fit in. To account for this fact, the packer
-    ///     calculates a "wasted area factor", which is the amount of area that
-    ///     would forever go to waste in relation of the area the rectangle has.
-    ///   </para>
-    ///   <para>
-    ///     This value controls the weighting of this wasted area factor in the
-    ///     potential position's score. Finding a value that works well for typical
-    ///     packing problems is a matter of trial and error, as it seems :)
-    ///   </para>
-    /// </remarks>
-    private const int WastedAreaScoreWeight = 10;
-
-    #endif // USE_WASTED_AREA
-
     #region class SliceStartComparer
 
     /// <summary>Compares the starting position of height slices</summary>
@@ -188,32 +138,6 @@ namespace Nuclex.Support.Packing {
 
         if((highest + rectangleHeight < PackingAreaHeight)) {
           int score = highest;
-
-          #if USE_WASTED_AREA // --------------------------------------------------------
-
-          // Calculate the amount of space that would go to waste if the rectangle
-          // would be placed at this location
-          int wastedArea = 0;
-          for(int index = leftSliceIndex; index < rightSliceIndex - 1; ++index) {
-            int sliceWidth = this.heightSlices[index + 1].X - this.heightSlices[index].X;
-            wastedArea += (highest - this.heightSlices[index].Y) * sliceWidth;
-          }
-          wastedArea +=
-            (highest - this.heightSlices[rightSliceIndex - 1].Y) *
-            (
-              (this.heightSlices[leftSliceIndex].X + rectangleWidth) -
-              this.heightSlices[rightSliceIndex - 1].X
-            );
-
-          // Limit wasted area to the area taken up by the rectangle. This prevents
-          // a "build-up" of wasted area that become more expensive the higher the packing
-          // area is filled.
-          wastedArea = Math.Min(wastedArea, rectangleArea);
-
-          // Alter the score by the amount of wasted area in relation to
-          score += (wastedArea * WastedAreaScoreWeight / rectangleArea);
-
-          #endif // USE_WASTED_AREA -----------------------------------------------------
 
           if(score < bestScore) {
             bestSliceIndex = leftSliceIndex;
