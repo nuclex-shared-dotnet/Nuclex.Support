@@ -147,7 +147,7 @@ namespace Nuclex.Support.Packing {
       // positions of the new rectangle
       {
         // The anchor is only removed if the placement optimization didn't
-        // move the rectangle so far that the anchor isn't used at all
+        // move the rectangle so far that the anchor isn't blocked anymore
         bool blocksAnchor =
           ((placement.X + rectangleWidth) > this.anchors[anchorIndex].X) &&
           ((placement.Y + rectangleHeight) > this.anchors[anchorIndex].Y);
@@ -165,8 +165,8 @@ namespace Nuclex.Support.Packing {
         new Rectangle(placement.X, placement.Y, rectangleWidth, rectangleHeight)
       );
 
-      return true;      
-      
+      return true;
+
     }
 
     /// <summary>
@@ -209,7 +209,8 @@ namespace Nuclex.Support.Packing {
     }
 
     /// <summary>
-    ///   Searches for a free anchor and enlarges the packing area if none can be found
+    ///   Searches for a free anchor and recursively enlarges the packing area
+    ///   if none can be found.
     /// </summary>
     /// <param name="rectangleWidth">Width of the rectangle to be placed</param>
     /// <param name="rectangleHeight">Height of the rectangle to be placed</param>
@@ -217,7 +218,7 @@ namespace Nuclex.Support.Packing {
     /// <param name="testedPackingAreaHeight">Height of the tested packing area</param>
     /// <returns>
     ///   Index of the anchor the rectangle is to be placed at or -1 if the rectangle
-    ///   does not fit in the packing area anymore
+    ///   does not fit in the packing area anymore.
     /// </returns>
     private int selectAnchorRecursive(
       int rectangleWidth, int rectangleHeight,
@@ -248,13 +249,13 @@ namespace Nuclex.Support.Packing {
       // any further in its width and in its height
       bool canEnlargeWidth = (testedPackingAreaWidth < PackingAreaWidth);
       bool canEnlargeHeight = (testedPackingAreaHeight < PackingAreaHeight);
-      
+
       // Try to enlarge the smaller of the two dimensions first (unless the smaller
       // dimension is already at its maximum size)
       if(
         canEnlargeHeight && (
           (testedPackingAreaHeight < testedPackingAreaWidth) || !canEnlargeWidth
-        ) 
+        )
       ) {
 
         // Try to double the height of the packing area
@@ -284,12 +285,12 @@ namespace Nuclex.Support.Packing {
     /// <summary>Locates the first free anchor at which the rectangle fits</summary>
     /// <param name="rectangleWidth">Width of the rectangle to be placed</param>
     /// <param name="rectangleHeight">Height of the rectangle to be placed</param>
-    /// <param name="packingAreaWidth">Total width of the packing area</param>
-    /// <param name="packingAreaHeight">Total height of the packing area</param>
+    /// <param name="testedPackingAreaWidth">Total width of the packing area</param>
+    /// <param name="testedPackingAreaHeight">Total height of the packing area</param>
     /// <returns>The index of the first free anchor or -1 if none is found</returns>
     private int findFirstFreeAnchor(
       int rectangleWidth, int rectangleHeight,
-      int packingAreaWidth, int packingAreaHeight
+      int testedPackingAreaWidth, int testedPackingAreaHeight
     ) {
       Rectangle potentialLocation = new Rectangle(
         0, 0, rectangleWidth, rectangleHeight
@@ -303,7 +304,7 @@ namespace Nuclex.Support.Packing {
         potentialLocation.Y = this.anchors[index].Y;
 
         // See if the rectangle would fit in at this anchor point
-        if(isFree(ref potentialLocation, packingAreaWidth, packingAreaHeight))
+        if(isFree(ref potentialLocation, testedPackingAreaWidth, testedPackingAreaHeight))
           return index;
       }
 
@@ -316,11 +317,11 @@ namespace Nuclex.Support.Packing {
     ///   at its current location.
     /// </summary>
     /// <param name="rectangle">Rectangle whose position to check</param>
-    /// <param name="packingAreaWidth">Total width of the packing area</param>
-    /// <param name="packingAreaHeight">Total height of the packing area</param>
+    /// <param name="testedPackingAreaWidth">Total width of the packing area</param>
+    /// <param name="testedPackingAreaHeight">Total height of the packing area</param>
     /// <returns>True if the rectangle can be placed at its current position</returns>
     private bool isFree(
-      ref Rectangle rectangle, int packingAreaWidth, int packingAreaHeight
+      ref Rectangle rectangle, int testedPackingAreaWidth, int testedPackingAreaHeight
     ) {
 
       // If the rectangle is partially or completely outside of the packing
@@ -328,8 +329,8 @@ namespace Nuclex.Support.Packing {
       bool leavesPackingArea =
         (rectangle.X < 0) ||
         (rectangle.Y < 0) ||
-        (rectangle.Right >= packingAreaWidth) ||
-        (rectangle.Bottom >= packingAreaHeight);
+        (rectangle.Right >= testedPackingAreaWidth) ||
+        (rectangle.Bottom >= testedPackingAreaHeight);
 
       if(leavesPackingArea)
         return false;

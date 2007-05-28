@@ -80,7 +80,7 @@ namespace Nuclex.Support.Packing {
         RectanglePacker packer = buildPacker();
 
         // Try to cramp as many rectangles into the packing area as possible
-        for(;; ++rectanglesPacked) {
+        for(; ; ++rectanglesPacked) {
           Point placement;
 
           int width = dimensionGenerator.Next(16, 64);

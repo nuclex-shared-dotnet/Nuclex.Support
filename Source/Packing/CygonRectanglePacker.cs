@@ -28,15 +28,20 @@ namespace Nuclex.Support.Packing {
   /// <remarks>
   ///   <para>
   ///     Algorithm conceived by Markus Ewald (cygon at nuclex dot org), thought
-  ///     I'm quite sure I'm not the first one to invent this algorithm :)
+  ///     I'm quite sure I'm not the first one to come up with it :)
   ///   </para>
   ///   <para>
-  ///     This algorithm always places rectangles as low as possible. So, for any
-  ///     new rectangle that is to be added into the packing area, the packer has
-  ///     to determine the X coordinate at which the rectangle has the lowest height.
-  ///     To quickly discover these locations, the packer keeps a dynamically updated
-  ///     list of "height slices" which store the silhouette of the rectangles that
-  ///     have been placed so far.
+  ///     The algorithm always places rectangles as low as possible in the packing
+  ///     area. So, for any new rectangle that is to be added into the packing area,
+  ///     the packer has to determine the X coordinate at which the rectangle can have
+  ///     lowest overall height without overlapping any other rectangles.
+  ///   </para>
+  ///   <para>
+  ///     To quickly discover these locations, the packer uses a sophisticated
+  ///     data structure that stores the upper silhouette of the packing area. When
+  ///     a new rectangle needs to be added, only the silouette edges need to be
+  ///     analyzed to find the position where the rectangle would achieve the lowest
+  ///     placement possible in the packing area.
   ///   </para>
   /// </remarks>
   public class CygonRectanglePacker : RectanglePacker {
@@ -91,7 +96,11 @@ namespace Nuclex.Support.Packing {
         return false;
       }
 
-      bool fits = findBestPosition(rectangleWidth, rectangleHeight, out placement);
+      // Determine the placement for the new rectangle
+      bool fits = findBestPlacement(rectangleWidth, rectangleHeight, out placement);
+
+      // If a place for the rectangle could be found, update the height slice table to
+      // mark the region of the rectangle as being taken.
       if(fits)
         integrateRectangle(placement.X, rectangleWidth, placement.Y + rectangleHeight);
 
@@ -101,8 +110,8 @@ namespace Nuclex.Support.Packing {
     /// <summary>Finds the best position for a rectangle of the given width</summary>
     /// <param name="rectangleWidth">Width of the rectangle to find a position for</param>
     /// <param name="rectangleHeight">Height of the rectangle to find a position for</param>
-    /// <returns>The best position for a rectangle with the specified width</returns>
-    private bool findBestPosition(
+    /// <returns>The best position for a rectangle of the specified dimensions</returns>
+    private bool findBestPlacement(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
 
@@ -136,6 +145,7 @@ namespace Nuclex.Support.Packing {
           if(this.heightSlices[index].Y > highest)
             highest = this.heightSlices[index].Y;
 
+        // Only process this position if it doesn't leave the packing area
         if((highest + rectangleHeight < PackingAreaHeight)) {
           int score = highest;
 
@@ -151,7 +161,7 @@ namespace Nuclex.Support.Packing {
         if(leftSliceIndex >= this.heightSlices.Count)
           break;
 
-        // Advance the ending slice until we're on the right slice again, given the new
+        // Advance the ending slice until we're on the proper slice again, given the new
         // starting position of the rectangle.
         int rightRectangleEnd = this.heightSlices[leftSliceIndex].X + rectangleWidth;
         for(; rightSliceIndex <= this.heightSlices.Count; ++rightSliceIndex) {
@@ -171,10 +181,11 @@ namespace Nuclex.Support.Packing {
         if(rightSliceIndex > this.heightSlices.Count)
           break;
 
-      }
+      } // while rightSliceIndex <= this.heightSlices.Count
 
-      // Return the index of the best slice we found for this rectangle. If the rectangle
-      // didn't fit, this variable will still have its initialization value of -1.
+      // Return the best placement we found for this rectangle. If the rectangle
+      // didn't fit anywhere, the slice index will still have its initialization value
+      // of -1 and we can report that no placement could be found.
       if(bestSliceIndex == -1) {
         placement = Point.Zero;
         return false;
@@ -258,9 +269,9 @@ namespace Nuclex.Support.Packing {
           if(right < PackingAreaWidth)
             this.heightSlices.Insert(startSlice, new Point(right, returnHeight));
 
-        }
+        } // if endSlice > 0
 
-      }
+      } // if startSlice >= this.heightSlices.Count
 
     }
 
