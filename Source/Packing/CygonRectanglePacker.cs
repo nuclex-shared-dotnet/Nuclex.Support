@@ -97,7 +97,7 @@ namespace Nuclex.Support.Packing {
       }
 
       // Determine the placement for the new rectangle
-      bool fits = findBestPlacement(rectangleWidth, rectangleHeight, out placement);
+      bool fits = tryFindBestPlacement(rectangleWidth, rectangleHeight, out placement);
 
       // If a place for the rectangle could be found, update the height slice table to
       // mark the region of the rectangle as being taken.
@@ -110,8 +110,9 @@ namespace Nuclex.Support.Packing {
     /// <summary>Finds the best position for a rectangle of the given width</summary>
     /// <param name="rectangleWidth">Width of the rectangle to find a position for</param>
     /// <param name="rectangleHeight">Height of the rectangle to find a position for</param>
+    /// <param name="placement">Received the best placement found for the rectangle</param>
     /// <returns>The best position for a rectangle of the specified dimensions</returns>
-    private bool findBestPlacement(
+    private bool tryFindBestPlacement(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
 

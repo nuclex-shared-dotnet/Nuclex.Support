@@ -37,7 +37,7 @@ namespace Nuclex.Support.Packing {
     /// <remarks>
     ///   A perfect packer would achieve an efficiency rating of 1.0. This is
     ///   impossible however since the 24 squares cannot all be packed into
-    ///   the 70x70 square with no overlap (Bitner & Reingold 1975). The closer
+    ///   the 70x70 square with no overlap (Bitner &amp; Reingold 1975). The closer
     ///   the efficiency rating is to 1.0, the better, with 0.99 being the
     ///   mathematically best rating achievable.
     /// </remarks>
