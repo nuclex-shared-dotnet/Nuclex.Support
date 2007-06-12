@@ -24,8 +24,6 @@ using System.Reflection;
 
 using Microsoft.Xna.Framework;
 
-using Nuclex.Support.Serialization;
-
 namespace Nuclex.Support.Serialization {
 
   /// <summary>Utility class for serializating objects into binary data</summary>
@@ -119,7 +117,7 @@ namespace Nuclex.Support.Serialization {
     /// <summary>Serializes a matrix into a binary data stream</summary>
     /// <param name="writer">BinaryWriter to serialize the matrix into</param>
     /// <param name="matrix">Matrix to be serialized</param>
-    public static void Save(BinaryWriter writer, Matrix matrix) {
+    public static void Save(BinaryWriter writer, ref Matrix matrix) {
       writer.Write(matrix.M11);
       writer.Write(matrix.M12);
       writer.Write(matrix.M13);
@@ -156,7 +154,7 @@ namespace Nuclex.Support.Serialization {
     /// <summary>Serializes a vector into a binary data stream</summary>
     /// <param name="writer">BinaryWriter to serialize the vector into</param>
     /// <param name="vector">Vector to be serialized</param>
-    public static void Save(BinaryWriter writer, Vector2 vector) {
+    public static void Save(BinaryWriter writer, ref Vector2 vector) {
       writer.Write(vector.X);
       writer.Write(vector.Y);
     }
@@ -177,7 +175,7 @@ namespace Nuclex.Support.Serialization {
     /// <summary>Serializes a vector into a binary data stream</summary>
     /// <param name="writer">BinaryWriter to serialize the vector into</param>
     /// <param name="vector">Vector to be serialized</param>
-    public static void Save(BinaryWriter writer, Vector3 vector) {
+    public static void Save(BinaryWriter writer, ref Vector3 vector) {
       writer.Write(vector.X);
       writer.Write(vector.Y);
       writer.Write(vector.Z);
@@ -200,14 +198,38 @@ namespace Nuclex.Support.Serialization {
     /// <summary>Serializes a vector into a binary data stream</summary>
     /// <param name="writer">BinaryWriter to serialize the vector into</param>
     /// <param name="vector">Vector to be serialized</param>
-    public static void Save(BinaryWriter writer, Vector4 vector) {
+    public static void Save(BinaryWriter writer, ref Vector4 vector) {
       writer.Write(vector.X);
       writer.Write(vector.Y);
       writer.Write(vector.Z);
       writer.Write(vector.W);
     }
 
-    #endregion // Microsoft.Xna.Framework.Vector3
+    #endregion // Microsoft.Xna.Framework.Quaternion
+
+    #region Microsoft.Xna.Framework.Quaternion
+
+    /// <summary>Loads a quaternion from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the quaternion</param>
+    /// <param name="quaternion">Quaternion to be deserialized</param>
+    public static void Load(BinaryReader reader, out Quaternion quaternion) {
+      quaternion.X = reader.ReadSingle();
+      quaternion.Y = reader.ReadSingle();
+      quaternion.Z = reader.ReadSingle();
+      quaternion.W = reader.ReadSingle();
+    }
+
+    /// <summary>Serializes a quaternion into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the quaternion into</param>
+    /// <param name="quaternion">Quaternion to be serialized</param>
+    public static void Save(BinaryWriter writer, ref Quaternion quaternion) {
+      writer.Write(quaternion.X);
+      writer.Write(quaternion.Y);
+      writer.Write(quaternion.Z);
+      writer.Write(quaternion.W);
+    }
+
+    #endregion // Microsoft.Xna.Framework.Quaternion
 
   } // class BinarySerializer
 

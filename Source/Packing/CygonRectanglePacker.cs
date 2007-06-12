@@ -107,7 +107,7 @@ namespace Nuclex.Support.Packing {
       return fits;
     }
 
-    /// <summary>Finds the best position for a rectangle of the given width</summary>
+    /// <summary>Finds the best position for a rectangle of the given dimensions</summary>
     /// <param name="rectangleWidth">Width of the rectangle to find a position for</param>
     /// <param name="rectangleHeight">Height of the rectangle to find a position for</param>
     /// <param name="placement">Received the best placement found for the rectangle</param>
@@ -115,9 +115,6 @@ namespace Nuclex.Support.Packing {
     private bool tryFindBestPlacement(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {
-
-      // Total surface area of the rectangle
-      int rectangleArea = rectangleWidth * rectangleHeight;
 
       // Slice index, vertical position and score of the best placement we could find
       int bestSliceIndex = -1; // Slice index where the best placement was found
@@ -254,6 +251,7 @@ namespace Nuclex.Support.Packing {
 
         } else { // No direct hit, rectangle ends inside another slice
 
+          // Make index from negative BinarySearch() result
           endSlice = ~endSlice;
 
           // Find out to which height we need to return at the right end of
