@@ -220,6 +220,10 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>WeightedProgressionWrapperCollection</Name>
     </Compile>
+    <Compile Include="Source\WeakReference.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>WeakReference</Name>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Nuclex.Support.txt">

@@ -34,7 +34,7 @@ namespace Nuclex.Support.Packing {
   ///     The algorithm always places rectangles as low as possible in the packing
   ///     area. So, for any new rectangle that is to be added into the packing area,
   ///     the packer has to determine the X coordinate at which the rectangle can have
-  ///     lowest overall height without overlapping any other rectangles.
+  ///     the lowest overall height without intersecting any other rectangles.
   ///   </para>
   ///   <para>
   ///     To quickly discover these locations, the packer uses a sophisticated
