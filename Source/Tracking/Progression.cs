@@ -45,10 +45,13 @@ namespace Nuclex.Support.Tracking {
     #region class EndedDummyProgression
 
     /// <summary>Dummy progression which always is in the 'ended' state</summary>
-    internal class EndedDummyProgression : Progression {
+    private class EndedDummyProgression : Progression {
 
       /// <summary>Initializes a new ended dummy progression</summary>
       public EndedDummyProgression() {
+#if PROGRESSION_STARTABLE
+        OnAsyncStarted();
+#endif
         OnAsyncEnded();
       }
 
@@ -67,13 +70,41 @@ namespace Nuclex.Support.Tracking {
     /// <summary>will be triggered to report when progress has been achieved</summary>
     public event EventHandler<ProgressUpdateEventArgs> AsyncProgressUpdated;
 
+#if PROGRESSION_STARTABLE
+    /// <summary>Will be triggered when the progression has ended</summary>
+    public event EventHandler AsyncStarted;
+#endif
+
     /// <summary>Will be triggered when the progression has ended</summary>
     public event EventHandler AsyncEnded;
+
+#if PROGRESSION_STARTABLE
+    /// <summary>True when the progression has been started.</summary>
+    /// <remarks>
+    ///   This is also true if the progression has been started but is already finished.
+    ///   To find out whether the progression is running just now, use the IsRunning
+    ///   property instead.
+    /// </remarks>
+    public bool Started {
+      get { return this.started; }
+    }
+#endif
 
     /// <summary>Whether the progression has ended already</summary>
     public bool Ended {
       get { return this.ended; }
     }
+
+#if PROGRESSION_STARTABLE
+    /// <summary>Whether the progression is currently executing.</summary>
+    /// <remarks>
+    ///   This property is true when the progression is executing right at the time of
+    ///   the call (eg. when it has been started and has not ended yet).
+    /// </remarks>
+    public bool IsRunning {
+      get { return (this.started && !base.Ended); }
+    }
+#endif
 
     /// <summary>WaitHandle that can be used to wait for the progression to end</summary>
     public WaitHandle WaitHandle {
@@ -88,7 +119,7 @@ namespace Nuclex.Support.Tracking {
         // the second one is assigned to this.doneEvent and thus gets set in the end.
         if(this.doneEvent == null) {
 
-          lock(this.syncRoot) {
+          lock(this) {
 
             if(this.doneEvent == null)
               this.doneEvent = new ManualResetEvent(this.ended);
@@ -124,20 +155,66 @@ namespace Nuclex.Support.Tracking {
         copy(this, eventArguments);
     }
 
+#if PROGRESSION_STARTABLE
+    /// <summary>Fires the AsyncStarted event</summary>
+    /// <remarks>
+    ///   <para>
+    ///     This event should be fired once when the implementing class begins its
+    ///     work to indicate any observers that the process is now running.
+    ///   </para>
+    ///   <para>
+    ///     Calling this method is mandatory. Care should be taken that it is called
+    ///     exactly once and that it is called before OnAsyncEnded().
+    ///   </para>
+    /// </remarks>
+    protected virtual void OnAsyncStarted() {
+
+      // Make sure that the progression is not started more than once.
+      lock(this) {
+
+        // No double lock here as it would be an implementation fault if this exception
+        // should be triggered. There's no sense in sacrificing normal runtime speed
+        // for improved performance in a case that should never occur in the first place.
+        if(this.started)
+          throw new InvalidOperationException("The operation has already been started");
+
+        this.started = true;
+
+      }
+
+      // Fire the AsyncStarted event
+      EventHandler copy = AsyncStarted;
+      if(copy != null)
+        copy(this, EventArgs.Empty);
+
+    }
+#endif
+
     /// <summary>Fires the AsyncEnded event</summary>
     /// <remarks>
-    ///   This event should be fired by the implementing class when its work is completed.
-    ///   It's of no interest to this class whether the outcome of the process was successfull
-    ///   or not, the outcome and results of the process taking place need to be communicated
-    ///   seperately.
+    ///   <para>
+    ///     This event should be fired by the implementing class when its work is completed.
+    ///     It's of no interest to this class whether the outcome of the process was
+    ///     successfull or not, the outcome and results of the process taking place both
+    ///     need to be communicated seperately.
+    ///   </para>
+    ///   <para>
+    ///     Calling this method is mandatory. Implementers need to take care that
+    ///     the OnAsyncEnded() method is called on any instance of Progression that's
+    ///     being created. This method also must not be called more than once.
+    ///   </para>
     /// </remarks>
     protected virtual void OnAsyncEnded() {
- 
+
       // Make sure the progression is not ended more than once. By guaranteeing that
       // a progression can only be ended once, we allow users of this class to
       // skip some safeguards against notifications arriving twice.
-      lock(this.syncRoot) {
+      lock(this) {
 
+        // No double lock here, this is an exception that indicates an implementation
+        // error that will not be triggered under normal circumstances. We don't want
+        // to waste any effort optimizing the speed at which an implementation fault
+        // will be noticed.
         if(this.ended)
           throw new InvalidOperationException("The progression has already been ended");
 
@@ -158,14 +235,16 @@ namespace Nuclex.Support.Tracking {
 
     }
 
-    /// <summary>Used to synchronize multithreaded accesses to this object</summary>
-    private object syncRoot = new object();
     /// <summary>Event that will be set when the progression is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using
     ///   the WaitHandle property.
     /// </remarks>
     private volatile ManualResetEvent doneEvent;
+#if PROGRESSION_STARTABLE
+    /// <summary>Whether the operation has been started yet</summary>
+    private volatile bool started;
+#endif
     /// <summary>Whether the operation has completed yet</summary>
     private volatile bool ended;
 

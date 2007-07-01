@@ -162,6 +162,10 @@
       <Name>SimpleRectanglePacker.Test</Name>
       <DependentUpon>SimpleRectanglePacker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Scheduling\AbortedException.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>AbortedException</Name>
+    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>
@@ -178,6 +182,26 @@
     <Compile Include="Source\Scheduling\IAbortable.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>IAbortable</Name>
+    </Compile>
+    <Compile Include="Source\SpatialPartitioning\BoundingRectangle.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BoundingRectangle</Name>
+    </Compile>
+    <Compile Include="Source\SpatialPartitioning\RTree2.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RTree2</Name>
+    </Compile>
+    <Compile Include="Source\SpatialPartitioning\RTreeLeaf2.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RTreeLeaf2</Name>
+    </Compile>
+    <Compile Include="Source\SpatialPartitioning\RTreeNode2.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RTreeNode2</Name>
+    </Compile>
+    <Compile Include="Source\SpatialPartitioning\SpatialIndex2.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SpatialIndex2</Name>
     </Compile>
     <Compile Include="Source\Tracking\Internal\ObservedProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>

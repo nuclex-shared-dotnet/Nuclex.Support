@@ -19,17 +19,17 @@ License along with this library
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Text;
 
-using Nuclex.Support.Tracking;
+namespace Nuclex.Support.SpatialPartitioning {
 
-namespace Nuclex.Support.Scheduling {
+  /// <summary>Leaf of an R-Tree</summary>
+  internal class RTreeLeaf2<ItemType> {
 
-  /// <summary>Base class for observable operations running in the background</summary>
-  public abstract class Operation : Progression {
+    public BoundingRectangle BoundingRectangle;
+    public ItemType Item;
 
-    /// <summary>Launches the background operation</summary>
-    public abstract void Start();
 
   }
 
-} // namespace Nuclex.Support.Scheduling
+} // namespace Nuclex.Support.SpatialPartitioning

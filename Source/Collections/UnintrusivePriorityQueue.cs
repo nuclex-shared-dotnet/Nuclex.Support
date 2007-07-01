@@ -25,7 +25,8 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Queue that dequeues items in order of their priority</summary>
   public class UnintrusivePriorityQueue<ItemType, PriorityType>
-    : ICollection, IEnumerable<ItemType> where PriorityType : IComparable<PriorityType> {
+    : ICollection, IEnumerable<ItemType>
+    where PriorityType : IComparable<PriorityType> {
 
     #region struct Entry
 
@@ -39,7 +40,7 @@ namespace Nuclex.Support.Collections {
         this.Item = item;
         this.Priority = priority;
       }
-      
+
       /// <summary>Item contained in this priority queue entry</summary>
       public ItemType Item;
       /// <summary>Priority assigned to this entry</summary>

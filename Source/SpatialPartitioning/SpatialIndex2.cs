@@ -20,16 +20,11 @@ License along with this library
 using System;
 using System.Collections.Generic;
 
-using Nuclex.Support.Tracking;
+namespace Nuclex.Support.SpatialPartitioning {
 
-namespace Nuclex.Support.Scheduling {
-
-  /// <summary>Base class for observable operations running in the background</summary>
-  public abstract class Operation : Progression {
-
-    /// <summary>Launches the background operation</summary>
-    public abstract void Start();
+  /// <summary>Interface for a 2D geometrical database</summary>
+  public abstract class SpatialIndex2 {
 
   }
 
-} // namespace Nuclex.Support.Scheduling
+} // namespace Nuclex.Support.SpatialPartitioning

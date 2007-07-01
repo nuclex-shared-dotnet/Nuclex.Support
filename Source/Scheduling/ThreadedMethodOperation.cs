@@ -19,11 +19,10 @@ License along with this library
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Nuclex.Support.Tracking {
+namespace Nuclex.Support.Scheduling {
 /*
   public class ThreadedMethodOperation : Operation {
   }
 */
-} // namespace Nuclex.Support.Tracking
+} // namespace Nuclex.Support.Scheduling
