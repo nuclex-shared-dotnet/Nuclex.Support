@@ -31,6 +31,7 @@ namespace Nuclex.Support.SpatialPartitioning {
     /// <param name="capacity">Number of items that can fit in the node</param>
     public RTreeNode2(int capacity) {
       this.leafs = new RTreeLeaf2<ItemType>[capacity];
+      this.leafCount = 0;
     }
 
     /// <summary>Inserts an item into this node</summary>
