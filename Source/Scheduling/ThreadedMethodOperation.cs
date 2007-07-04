@@ -19,10 +19,62 @@ License along with this library
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Nuclex.Support.Scheduling {
-/*
+
+  /// <summary>Operation that executes a method in a background thread</summary>
   public class ThreadedMethodOperation : Operation {
+
+    /// <summary>
+    ///   Initializes a new threaded method operation for a parameterless method
+    /// </summary>
+    /// <param name="method">Method to be invoked in a background thread</param>
+    /// <remarks>
+    ///   Uses a ThreadPool thread to execute the method in
+    /// </remarks>
+    public ThreadedMethodOperation(ThreadStart method)
+      : this(method, true) { }
+
+    /// <summary>
+    ///   Initializes a new threaded method operation for a parameterless method
+    /// </summary>
+    /// <param name="method">Method to be invoked in a background thread</param>
+    /// <param name="useThreadPool">Whether to use a ThreadPool thread</param>
+    /// <remarks>
+    ///   If useThreadPool is false, a new thread will be created. This guarantees
+    ///   that the method will be executed immediately but has an impact on
+    ///   performance since the creation of new threads is not a cheap operation.
+    /// </remarks>
+    public ThreadedMethodOperation(ThreadStart method, bool useThreadPool) {
+      if(useThreadPool) {
+        ThreadPool.QueueUserWorkItem(callMethod, method);
+      } else {
+        Thread thread = new Thread(callMethod);
+        thread.Name = "Nuclex.Support.Scheduling.ThreadedMethodOperation thread";
+        thread.IsBackground = true;
+        thread.Start(method);
+      }
+    }
+
+    /// <summary>Invokes the delegate passed as an argument</summary>
+    /// <param name="method">ThreadStart-comaptible Delegate to invoke</param>
+    private void callMethod(object method) {
+#if PROGRESSION_STARTABLE
+      AsyncStarted();
+#endif
+
+      try {
+        ((ThreadStart)method)();
+      }
+      catch(Exception exception) {
+        this.occuredException = exception;
+      }
+      finally {
+        AsyncEnded();
+      }
+    }
+
   }
-*/
+
 } // namespace Nuclex.Support.Scheduling

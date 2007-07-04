@@ -69,7 +69,6 @@ namespace Nuclex.Support.Tracking {
       : this() {
 
       // Construct an ObservedProgression around each of the WeightedProgressions
-      float totalWeight = 0.0f;
       foreach(WeightedProgression<ProgressionType> progression in childs) {
         this.childs.Add(
           new ObservedProgression<ProgressionType>(
@@ -80,11 +79,8 @@ namespace Nuclex.Support.Tracking {
         );
 
         // Sum up the total weight
-        totalWeight += progression.Weight;
+        this.totalWeight += progression.Weight;
       }
-
-      // Take over the summed weight of all progressions we were given
-      this.totalWeight = totalWeight;
 
     }
 
@@ -150,7 +146,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Called when an observed progressions ends
+    ///   Called when an observed progression ends
     /// </summary>
     private void asyncEnded() {
 
