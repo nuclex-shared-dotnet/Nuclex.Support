@@ -27,7 +27,7 @@ namespace Nuclex.Support.Tracking {
   /// <typeparam name="ProgressionType">
   ///   Type of the progression that is being observed
   /// </typeparam>
-  internal class ObservedProgression<ProgressionType> : IDisposable
+  internal class ObservedWeightedProgression<ProgressionType> : IDisposable
     where ProgressionType : Progression {
 
     /// <summary>Delegate for reporting progress updates</summary>
@@ -41,7 +41,7 @@ namespace Nuclex.Support.Tracking {
     /// <param name="endedCallback">
     ///   Callback to invoke when the progression has ended
     /// </param>
-    internal ObservedProgression(
+    internal ObservedWeightedProgression(
       WeightedProgression<ProgressionType> weightedProgression,
       ReportDelegate progressUpdateCallback,
       ReportDelegate endedCallback

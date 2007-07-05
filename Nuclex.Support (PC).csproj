@@ -166,6 +166,18 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>AbortedException</Name>
     </Compile>
+    <Compile Include="Source\Scheduling\QueueOperation.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>QueueOperation</Name>
+    </Compile>
+    <Compile Include="Source\Scheduling\ThreadOperation.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ThreadOperation</Name>
+    </Compile>
+    <Compile Include="Source\Scheduling\WeightedRequirableOperation.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>WeightedRequirableOperation</Name>
+    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>
@@ -203,9 +215,13 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>SpatialIndex2</Name>
     </Compile>
-    <Compile Include="Source\Tracking\Internal\ObservedProgression.cs">
+    <Compile Include="Source\Tracking\IdleStateEventArgs.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>ObservedProgression</Name>
+      <Name>IdleStateEventArgs</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\Internal\ObservedWeightedProgression.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ObservedWeightedProgression</Name>
     </Compile>
     <Compile Include="Source\Tracking\ProgressionTracker.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
@@ -227,9 +243,9 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ProgressUpdateEventArgs</Name>
     </Compile>
-    <Compile Include="Source\Scheduling\ThreadedMethodOperation.cs">
+    <Compile Include="Source\Scheduling\ThreadCallbackOperation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>ThreadedMethodOperation</Name>
+      <Name>ThreadCallbackOperation</Name>
     </Compile>
     <Compile Include="Source\Tracking\SetProgression.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>

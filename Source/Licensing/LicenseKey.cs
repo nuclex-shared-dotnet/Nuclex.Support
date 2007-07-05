@@ -212,7 +212,7 @@ namespace Nuclex.Support.Licensing {
     private static readonly string codeTable =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    /// <summary>Helper array with the powers of two</summary>
+    /// <summary>Helper array containing the precalculated powers of two</summary>
     private static readonly uint[,] powersOfTwo = new uint[32, 2] {
       { 0,         1 }, { 0,         2 }, { 0,          4 }, { 0,          8 },
       { 0,        16 }, { 0,        32 }, { 0,         64 }, { 0,        128 },

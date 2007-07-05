@@ -32,7 +32,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Performs common initialization for the public constructors</summary>
     private SetProgression() {
-      this.childs = new List<ObservedProgression<ProgressionType>>();
+      this.childs = new List<ObservedWeightedProgression<ProgressionType>>();
     }
 
     /// <summary>Initializes a new set progression</summary>
@@ -47,10 +47,10 @@ namespace Nuclex.Support.Tracking {
       // progression and wrap it in an ObservedProgression
       foreach(ProgressionType progression in childs) {
         this.childs.Add(
-          new ObservedProgression<ProgressionType>(
+          new ObservedWeightedProgression<ProgressionType>(
             new WeightedProgression<ProgressionType>(progression),
-            new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded)
+            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
       }
@@ -71,10 +71,10 @@ namespace Nuclex.Support.Tracking {
       // Construct an ObservedProgression around each of the WeightedProgressions
       foreach(WeightedProgression<ProgressionType> progression in childs) {
         this.childs.Add(
-          new ObservedProgression<ProgressionType>(
+          new ObservedWeightedProgression<ProgressionType>(
             progression,
-            new ObservedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedProgression<ProgressionType>.ReportDelegate(asyncEnded)
+            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
 
@@ -110,8 +110,8 @@ namespace Nuclex.Support.Tracking {
         // the Childs collection.
         if(this.wrapper == null) {
 
-          // This doesn't need a lock because it's only a stateless wrapper. If it
-          // is constructed twice, then so be it.
+          // This doesn't need a lock because it's a stateless wrapper.
+          // If it is constructed twice, then so be it, no problem at all.
           this.wrapper = new WeightedProgressionWrapperCollection<ProgressionType>(
             this.childs
           );
@@ -127,10 +127,10 @@ namespace Nuclex.Support.Tracking {
     ///   Called when the progress of one of the observed progressions changes
     /// </summary>
     private void asyncProgressUpdated() {
+      float totalProgress = 0.0f;
 
       // Calculate the sum of the progress reported by our child progressions,
       // scaled to the weight each progression has assigned to it.
-      float totalProgress = 0.0f;
       for(int index = 0; index < this.childs.Count; ++index) {
         totalProgress +=
           this.childs[index].Progress * this.childs[index].WeightedProgression.Weight;
@@ -142,7 +142,6 @@ namespace Nuclex.Support.Tracking {
 
       // Send out the progress update
       OnAsyncProgressUpdated(totalProgress);
-
     }
 
     /// <summary>
@@ -162,7 +161,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Progressions being managed in the set</summary>
-    private List<ObservedProgression<ProgressionType>> childs;
+    private List<ObservedWeightedProgression<ProgressionType>> childs;
     /// <summary>
     ///   Wrapper collection for exposing the child progressions under the
     ///   WeightedProgression interface

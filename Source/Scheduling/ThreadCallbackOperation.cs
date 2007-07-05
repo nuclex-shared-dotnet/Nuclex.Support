@@ -24,7 +24,7 @@ using System.Threading;
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>Operation that executes a method in a background thread</summary>
-  public class ThreadedMethodOperation : Operation {
+  public class ThreadCallbackOperation : ThreadOperation {
 
     /// <summary>
     ///   Initializes a new threaded method operation for a parameterless method
@@ -33,7 +33,7 @@ namespace Nuclex.Support.Scheduling {
     /// <remarks>
     ///   Uses a ThreadPool thread to execute the method in
     /// </remarks>
-    public ThreadedMethodOperation(ThreadStart method)
+    public ThreadCallbackOperation(ThreadStart method)
       : this(method, true) { }
 
     /// <summary>
@@ -46,34 +46,19 @@ namespace Nuclex.Support.Scheduling {
     ///   that the method will be executed immediately but has an impact on
     ///   performance since the creation of new threads is not a cheap operation.
     /// </remarks>
-    public ThreadedMethodOperation(ThreadStart method, bool useThreadPool) {
-      if(useThreadPool) {
-        ThreadPool.QueueUserWorkItem(callMethod, method);
-      } else {
-        Thread thread = new Thread(callMethod);
-        thread.Name = "Nuclex.Support.Scheduling.ThreadedMethodOperation thread";
-        thread.IsBackground = true;
-        thread.Start(method);
-      }
+    public ThreadCallbackOperation(ThreadStart method, bool useThreadPool)
+      : base(useThreadPool) {
+
+      this.method = method;
     }
 
-    /// <summary>Invokes the delegate passed as an argument</summary>
-    /// <param name="method">ThreadStart-comaptible Delegate to invoke</param>
-    private void callMethod(object method) {
-#if PROGRESSION_STARTABLE
-      AsyncStarted();
-#endif
-
-      try {
-        ((ThreadStart)method)();
-      }
-      catch(Exception exception) {
-        this.occuredException = exception;
-      }
-      finally {
-        AsyncEnded();
-      }
+    /// <summary>Executes the thread callback in the background thread</summary>
+    protected override void Execute() {
+      this.method();
     }
+
+    /// <summary>Method to be invoked in a background thread</summary>
+    private ThreadStart method;
 
   }
 

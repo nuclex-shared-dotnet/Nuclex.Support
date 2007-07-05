@@ -27,12 +27,6 @@ namespace Nuclex.Support.Scheduling {
   /// <summary>Base class for observable operations running in the background</summary>
   public abstract class Operation : Progression {
 
-    /// <summary>Executes the operation synchronously</summary>
-    public virtual void Execute() {
-      Begin();
-      End();
-    }
-
     /// <summary>Launches the background operation</summary>
     public abstract void Begin();
 
@@ -55,13 +49,15 @@ namespace Nuclex.Support.Scheduling {
           } else {
             error = true;
           }
-        }
+        } // lock
       } else {
         error = true;
       }
-        
+      if(error)
+        throw new InvalidOperationException("End() has already been called");
+
       // If the progression itself hasn't ended yet, block the caller until it has.
-      if(!Ended) 
+      if(!Ended)
         WaitHandle.WaitOne();
 
       // If an exception occured during the background execution
@@ -75,7 +71,25 @@ namespace Nuclex.Support.Scheduling {
     ///   If this field is null, it is assumed that no exception has occured
     ///   in the background process. When it is set, the End() method will
     /// </remarks>
-    protected Exception occuredException;
+    public Exception OccuredException {
+      get { return this.occuredException; }
+    }
+
+    /// <summary>Sets the exception to raise to the caller of the End() method</summary>
+    /// <param name="exception">Exception to raise to the caller of the End() method</param>
+    protected void SetException(Exception exception) {
+
+      // We allow the caller to set the exception multiple times. While I certainly
+      // can't think of a scenario where this would happen, throwing an exception
+      // in that case seems worse. The caller might just be executing an exception
+      // handling block and locking the operation instance could cause all even
+      // more problems.
+      this.occuredException = exception;
+
+    }
+
+    /// <summary>Exception that occured while the operation was executing</summary>
+    private volatile Exception occuredException;
     /// <summary>Whether the End() method has been called already</summary>
     private volatile bool endCalled;
 
