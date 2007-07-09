@@ -174,10 +174,6 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ThreadOperation</Name>
     </Compile>
-    <Compile Include="Source\Scheduling\WeightedRequirableOperation.cs">
-      <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>WeightedRequirableOperation</Name>
-    </Compile>
     <Compile Include="Source\Serialization\BinarySerializer.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>BinarySerializer.Test</Name>
@@ -226,6 +222,11 @@
     <Compile Include="Source\Tracking\ProgressionTracker.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ProgressionTracker</Name>
+    </Compile>
+    <Compile Include="Source\Tracking\ProgressionTracker.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ProgressionTracker.Test</Name>
+      <DependentUpon>ProgressionTracker.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Tracking\SetProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
