@@ -26,30 +26,32 @@ using System.IO;
 using NUnit.Framework;
 using NMock2;
 
-namespace Nuclex.Support.Tracking {
+using Nuclex.Support.Tracking;
 
-  /// <summary>Unit Test for the progression set class</summary>
+namespace Nuclex.Support.Scheduling {
+
+  /// <summary>Unit Test for the queue operation class</summary>
   [TestFixture]
-  public class SetProgressionTest {
+  public class QueueOperationTest {
 
-    #region interface ISetProgressionSubscriber
+    #region interface IQueueOperationSubscriber
 
     /// <summary>Interface used to test the set progression.</summary>
-    public interface ISetProgressionSubscriber {
+    public interface IQueueOperationSubscriber {
 
-      /// <summary>Called when the set progression's progress changes</summary>
-      /// <param name="sender">Set progression whose progress has changed</param>
+      /// <summary>Called when the queue operations's progress changes</summary>
+      /// <param name="sender">Queue operation whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
       void ProgressUpdated(object sender, ProgressUpdateEventArgs e);
 
-      /// <summary>Called when the set progression has ended</summary>
-      /// <param name="sender">Set progression that as ended</param>
+      /// <summary>Called when the queue operation has ended</summary>
+      /// <param name="sender">Queue operation that as ended</param>
       /// <param name="e">Not used</param>
       void Ended(object sender, EventArgs e);
 
     }
 
-    #endregion // interface ISetProgressionSubscriber
+    #endregion // interface IQueueOperationSubscriber
 
     #region class ProgressUpdateEventArgsMatcher
 
@@ -90,10 +92,25 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // class ProgressUpdateEventArgsMatcher
 
-    #region class TestProgression
+    #region class TestOperation
 
     /// <summary>Progression used for testing in this unit test</summary>
-    private class TestProgression : Progression {
+    private class TestOperation : Operation {
+
+      /// <summary>Begins executing the operation. Yeah, sure :)</summary>
+      public override void Begin() { }
+
+      /// <summary>Moves the operation into the ended state</summary>
+      public void SetEnded() {
+        SetEnded(null);
+      }
+
+      /// <summary>Moves the operation into the ended state with an exception</summary>
+      /// <param name="exception">Exception</param>
+      public void SetEnded(Exception exception) {
+        SetException(exception);
+        OnAsyncEnded();
+      }
 
       /// <summary>Changes the testing progression's indicated progress</summary>
       /// <param name="progress">
@@ -103,14 +120,9 @@ namespace Nuclex.Support.Tracking {
         OnAsyncProgressUpdated(progress);
       }
 
-      /// <summary>Transitions the progression into the ended state</summary>
-      public void End() {
-        OnAsyncEnded();
-      }
-
     }
 
-    #endregion // class TestProgression
+    #endregion // class TestOperation
 
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
@@ -118,103 +130,55 @@ namespace Nuclex.Support.Tracking {
       this.mockery = new Mockery();
     }
 
-    /// <summary>Validates that the set progression properly sums the progress</summary>
+    /// <summary>Validates that the queue executes operations sequentially</summary>
     [Test]
-    public void TestSummedProgress() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new TestProgression[] { new TestProgression(), new TestProgression() }
+    public void TestSequentialExecution() {
+      TestOperation operation1 = new TestOperation();
+      TestOperation operation2 = new TestOperation();
+
+      QueueOperation<TestOperation> testQueueOperation =
+        new QueueOperation<TestOperation>(
+          new TestOperation[] { operation1, operation2 }
         );
 
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
+      IQueueOperationSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
+
+      testQueueOperation.Begin();
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
+            new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
             new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.25f))
           }
         );
 
-      testSetProgression.Childs[0].Progression.ChangeProgress(0.5f);
-
-      this.mockery.VerifyAllExpectationsHaveBeenMet();
-    }
-
-    /// <summary>Validates that the set progression respects the weights</summary>
-    [Test]
-    public void TestWeightedSummedProgress() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new WeightedProgression<TestProgression>[] {
-            new WeightedProgression<TestProgression>(new TestProgression(), 1.0f),
-            new WeightedProgression<TestProgression>(new TestProgression(), 2.0f)
-          }
-        );
-
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
+      operation1.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f / 3.0f))
-          }
-        );
-
-      testSetProgression.Childs[0].Progression.ChangeProgress(0.5f);
-
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
+            new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
             new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f))
           }
         );
 
-      testSetProgression.Childs[1].Progression.ChangeProgress(0.5f);
+      operation1.SetEnded();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
-    /// <summary>
-    ///   Validates that the ended event is triggered when the last progression ends
-    /// </summary>
-    [Test]
-    public void TestEndedEvent() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new TestProgression[] { new TestProgression(), new TestProgression() }
-        );
-
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
-
-      Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressUpdated").
-        WithAnyArguments();
-
-      Expect.Once.On(mockedSubscriber).
-        Method("Ended").
-        WithAnyArguments();
-      
-      testSetProgression.Childs[0].Progression.End();
-      testSetProgression.Childs[1].Progression.End();
-
-      this.mockery.VerifyAllExpectationsHaveBeenMet();
-    }
-
-    /// <summary>Mocks a subscriber for the events of a progression</summary>
-    /// <param name="progression">Progression to mock an event subscriber for</param>
+    /// <summary>Mocks a subscriber for the events of an operation</summary>
+    /// <param name="operation">Operation to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private ISetProgressionSubscriber mockSubscriber(Progression progression) {
-      ISetProgressionSubscriber mockedSubscriber =
-        this.mockery.NewMock<ISetProgressionSubscriber>();
+    private IQueueOperationSubscriber mockSubscriber(Operation operation) {
+      IQueueOperationSubscriber mockedSubscriber =
+        this.mockery.NewMock<IQueueOperationSubscriber>();
 
-      progression.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
-      progression.AsyncProgressUpdated +=
+      operation.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      operation.AsyncProgressUpdated +=
         new EventHandler<ProgressUpdateEventArgs>(mockedSubscriber.ProgressUpdated);
 
       return mockedSubscriber;
@@ -222,7 +186,6 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Mock object factory</summary>
     private Mockery mockery;
-
   }
 
 } // namespace Nuclex.Support.Tracking

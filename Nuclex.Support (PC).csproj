@@ -170,6 +170,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>QueueOperation</Name>
     </Compile>
+    <Compile Include="Source\Scheduling\QueueOperation.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>QueueOperation.Test</Name>
+      <DependentUpon>QueueOperation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\ThreadOperation.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ThreadOperation</Name>

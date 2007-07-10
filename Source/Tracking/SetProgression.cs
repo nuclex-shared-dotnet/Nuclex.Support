@@ -167,7 +167,7 @@ namespace Nuclex.Support.Tracking {
     ///   WeightedProgression interface
     /// </summary>
     private volatile WeightedProgressionWrapperCollection<ProgressionType> wrapper;
-    /// <summary>Summed weight of all progression in the set</summary>
+    /// <summary>Summed weight of all progressions in the set</summary>
     private float totalWeight;
 
   }

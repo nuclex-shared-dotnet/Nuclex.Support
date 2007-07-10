@@ -33,7 +33,9 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Waits for the background operation to end</summary>
     /// <remarks>
     ///   Any exceptions raised in the background operation will be thrown
-    ///   in this method.
+    ///   in this method. If you decide to override this method, you should
+    ///   call End() first (and let any possible exception through to your
+    ///   caller).
     /// </remarks>
     public virtual void End() {
 
@@ -83,7 +85,7 @@ namespace Nuclex.Support.Scheduling {
       // We allow the caller to set the exception multiple times. While I certainly
       // can't think of a scenario where this would happen, throwing an exception
       // in that case seems worse. The caller might just be executing an exception
-      // handling block and locking + throwing here could cause even more problems.
+      // handling block and locking + throwing here could cause all kinds of problems.
       this.occuredException = exception;
 
     }

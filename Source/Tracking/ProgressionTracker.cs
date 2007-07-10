@@ -34,7 +34,7 @@ namespace Nuclex.Support.Tracking {
   ///     This class does not implement the IProgression interface itself in
   ///     order to not violate the design principles of progressions which
   ///     guarantee that a progression will only finish once (whereas the
-  ///     progression tracking might finish any number of times).
+  ///     progression tracker might 'finish' any number of times).
   ///   </para>
   /// </remarks>
   public class ProgressionTracker : IDisposable {
@@ -98,6 +98,10 @@ namespace Nuclex.Support.Tracking {
     public void Dispose() {
       lock(this.trackedProgressions) {
 
+        // Get rid of all progression we're tracking. This unsubscribes the
+        // observers from the events of the progressions and stops us from
+        // being kept alive and receiving any further events if some of the
+        // tracked progressions are still executing.
         for(int index = 0; index < this.trackedProgressions.Count; ++index)
           this.trackedProgressions[index].Dispose();
 
