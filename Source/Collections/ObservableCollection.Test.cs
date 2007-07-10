@@ -31,6 +31,8 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   public class ObservableCollectionTest {
 
+    #region interface IObservableCollectionSubscriber
+
     /// <summary>Interface used to test the observable collection.</summary>
     public interface IObservableCollectionSubscriber {
 
@@ -42,14 +44,16 @@ namespace Nuclex.Support.Collections {
       /// <summary>Called when an item is added to the collection</summary>
       /// <param name="sender">Collection to which an item is being added</param>
       /// <param name="e">Contains the item that is being added</param>
-      void ItemAdded(object sender, ObservableCollection<int>.ItemEventArgs e);
+      void ItemAdded(object sender, ItemEventArgs<int> e);
 
       /// <summary>Called when an item is removed from the collection</summary>
       /// <param name="sender">Collection from which an item is being removed</param>
       /// <param name="e">Contains the item that is being removed</param>
-      void ItemRemoved(object sender, ObservableCollection<int>.ItemEventArgs e);
+      void ItemRemoved(object sender, ItemEventArgs<int> e);
 
     }
+
+    #endregion // interface IObservableCollectionSubscriber
 
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
@@ -61,11 +65,11 @@ namespace Nuclex.Support.Collections {
       this.observedCollection = new ObservableCollection<int>();
       this.observedCollection.Clearing += new EventHandler(this.mockedSubscriber.Clearing);
       this.observedCollection.ItemAdded +=
-        new EventHandler<ObservableCollection<int>.ItemEventArgs>(
+        new EventHandler<ItemEventArgs<int>>(
           this.mockedSubscriber.ItemAdded
         );
       this.observedCollection.ItemRemoved +=
-        new EventHandler<ObservableCollection<int>.ItemEventArgs>(
+        new EventHandler<ItemEventArgs<int>>(
           this.mockedSubscriber.ItemRemoved
         );
 
@@ -102,11 +106,12 @@ namespace Nuclex.Support.Collections {
         Method("ItemAdded").
         WithAnyArguments();
 
+      this.observedCollection.Add(123);
+
       Expect.Once.On(this.mockedSubscriber).
         Method("ItemRemoved").
         WithAnyArguments();
 
-      this.observedCollection.Add(123);
       this.observedCollection.Remove(123);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();

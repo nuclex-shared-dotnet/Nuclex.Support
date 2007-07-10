@@ -23,36 +23,13 @@ using System.Collections.ObjectModel;
 
 namespace Nuclex.Support.Collections {
 
-  /// <summary>Generic collection of progressions</summary>
-  public class ObservableCollection<ItemType> : Collection<ItemType> {
-
-    #region class ItemEventArgs
-
-    /// <summary>Arguments class for events that need to pass a progression</summary>
-    public class ItemEventArgs : EventArgs {
-
-      /// <summary>Initializes a new event arguments supplier</summary>
-      /// <param name="item">Item to be supplied to the event handler</param>
-      public ItemEventArgs(ItemType item) {
-        this.item = item;
-      }
-
-      /// <summary>Obtains the collection item the event arguments are carrying</summary>
-      public ItemType Item {
-        get { return this.item; }
-      }
-
-      /// <summary>Item that's passed to the event handler</summary>
-      private ItemType item;
-
-    }
-
-    #endregion // class ItemEventArgs
+  /// <summary>Collection which fires events when items are added or removed</summary>
+  public class ObservableCollection<ItemType> : AcquiringCollection<ItemType> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemAdded;
+    public event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemRemoved;
+    public event EventHandler<ItemEventArgs<ItemType>> ItemRemoved;
     /// <summary>Raised the collection is about to be cleared</summary>
     public event EventHandler Clearing;
 
@@ -66,74 +43,25 @@ namespace Nuclex.Support.Collections {
     ///   for the specified list.
     /// </summary>
     /// <param name="list">The list that is wrapped by the new collection.</param>
-    /// <exception cref="System.ArgumentNullException">
-    ///    List is null.
-    /// </exception>
+    /// <exception cref="System.ArgumentNullException">List is null.</exception>
     public ObservableCollection(IList<ItemType> list) : base(list) { }
-
-    /// <summary>Removes all elements from the Collection</summary>
-    protected override void ClearItems() {
-      OnClearing();
-
-      base.ClearItems();
-    }
-
-    /// <summary>
-    ///   Inserts an element into the ProgressionCollection at the specified index
-    /// </summary>
-    /// <param name="index">
-    ///   The object to insert. The value can be null for reference types.
-    /// </param>
-    /// <param name="item">The zero-based index at which item should be inserted</param>
-    protected override void InsertItem(int index, ItemType item) {
-      base.InsertItem(index, item);
-
-      OnAdded(item);
-    }
-
-    /// <summary>
-    ///   Removes the element at the specified index of the ProgressionCollection
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to remove</param>
-    protected override void RemoveItem(int index) {
-      ItemType item = base[index];
-
-      base.RemoveItem(index);
-
-      OnRemoved(item);
-    }
-
-    /// <summary>Replaces the element at the specified index</summary>
-    /// <param name="index">
-    ///   The new value for the element at the specified index. The value can be null
-    ///   for reference types
-    /// </param>
-    /// <param name="item">The zero-based index of the element to replace</param>
-    protected override void SetItem(int index, ItemType item) {
-      ItemType oldItem = base[index];
-
-      base.SetItem(index, item);
-
-      OnRemoved(oldItem);
-      OnAdded(item);
-    }
 
     /// <summary>Fires the 'ItemAdded' event</summary>
     /// <param name="item">Item that has been added to the collection</param>
-    protected virtual void OnAdded(ItemType item) {
+    protected override void OnAdded(ItemType item) {
       if(ItemAdded != null)
-        ItemAdded(this, new ItemEventArgs(item));
+        ItemAdded(this, new ItemEventArgs<ItemType>(item));
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
-    protected virtual void OnRemoved(ItemType item) {
+    protected override void OnRemoved(ItemType item) {
       if(ItemRemoved != null)
-        ItemRemoved(this, new ItemEventArgs(item));
+        ItemRemoved(this, new ItemEventArgs<ItemType>(item));
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
-    protected virtual void OnClearing() {
+    protected override void OnClearing() {
       if(Clearing != null)
         Clearing(this, EventArgs.Empty);
     }

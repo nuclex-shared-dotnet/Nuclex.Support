@@ -38,7 +38,7 @@ namespace Nuclex.Support.Scheduling {
         asyncOperationProgressUpdated
       );
 
-      this.childs = new List<WeightedProgression<OperationType>>();
+      this.children = new List<WeightedProgression<OperationType>>();
     }
 
     /// <summary>Initializes a new queue operation with default weights</summary>
@@ -51,11 +51,11 @@ namespace Nuclex.Support.Scheduling {
       // Construct a WeightedProgression with the default weight for each
       // progression and wrap it in an ObservedProgression
       foreach(OperationType operation in childs)
-        this.childs.Add(new WeightedProgression<OperationType>(operation));
+        this.children.Add(new WeightedProgression<OperationType>(operation));
 
       // Since all progressions have a weight of 1.0, the total weight is
       // equal to the number of progressions in our list
-      this.totalWeight = (float)this.childs.Count;
+      this.totalWeight = (float)this.children.Count;
 
     }
 
@@ -65,7 +65,7 @@ namespace Nuclex.Support.Scheduling {
 
       // Construct an ObservedProgression around each of the WeightedProgressions
       foreach(WeightedProgression<OperationType> operation in childs) {
-        this.childs.Add(operation);
+        this.children.Add(operation);
 
         // Sum up the total weight
         this.totalWeight += operation.Weight;
@@ -74,8 +74,8 @@ namespace Nuclex.Support.Scheduling {
     }
 
     /// <summary>Provides access to the child operations of this queue</summary>
-    public IList<WeightedProgression<OperationType>> Childs {
-      get { return this.childs; }
+    public IList<WeightedProgression<OperationType>> Children {
+      get { return this.children; }
     }
 
     /// <summary>Launches the background operation</summary>
@@ -89,7 +89,7 @@ namespace Nuclex.Support.Scheduling {
     ///   and launches the operation by calling its Begin() method.
     /// </remarks>
     private void beginCurrentOperation() {
-      OperationType operation = this.childs[this.currentOperationIndex].Progression;
+      OperationType operation = this.children[this.currentOperationIndex].Progression;
 
       operation.AsyncEnded += this.asyncOperationEndedDelegate;
       operation.AsyncProgressUpdated += this.asyncOperationProgressUpdatedDelegate;
@@ -104,7 +104,7 @@ namespace Nuclex.Support.Scheduling {
     ///   counts up the accumulated progress of the queue.
     /// </remarks>
     private void endCurrentOperation() {
-      OperationType operation = this.childs[this.currentOperationIndex].Progression;
+      OperationType operation = this.children[this.currentOperationIndex].Progression;
 
       // Disconnect from the operation's events
       operation.AsyncEnded -= this.asyncOperationEndedDelegate;
@@ -114,7 +114,7 @@ namespace Nuclex.Support.Scheduling {
         operation.End();
 
         // Add the operations weight to the total amount of completed weight in the queue
-        this.completedWeight += this.childs[this.currentOperationIndex].Weight;
+        this.completedWeight += this.children[this.currentOperationIndex].Weight;
 
         // Trigger another progress update
         OnAsyncProgressUpdated(this.completedWeight / this.totalWeight);
@@ -139,7 +139,7 @@ namespace Nuclex.Support.Scheduling {
         ++this.currentOperationIndex;
 
         // Execute the next operation unless we reached the end of the queue
-        if(this.currentOperationIndex < this.childs.Count) {
+        if(this.currentOperationIndex < this.children.Count) {
           beginCurrentOperation();
           return;
         }
@@ -159,7 +159,7 @@ namespace Nuclex.Support.Scheduling {
 
       // Determine the completed weight of the currently executing operation
       float currentOperationCompletedWeight =
-        e.Progress * this.childs[this.currentOperationIndex].Weight;
+        e.Progress * this.children[this.currentOperationIndex].Weight;
 
       // Build the total normalized amount of progress for the queue
       float progress =
@@ -175,7 +175,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Delegate to the asyncOperationProgressUpdated() method</summary>
     private EventHandler<ProgressUpdateEventArgs> asyncOperationProgressUpdatedDelegate;
     /// <summary>Operations being managed in the queue</summary>
-    private List<WeightedProgression<OperationType>> childs;
+    private List<WeightedProgression<OperationType>> children;
     /// <summary>Summed weight of all operations in the queue</summary>
     private float totalWeight;
     /// <summary>Accumulated weight of the operations already completed</summary>

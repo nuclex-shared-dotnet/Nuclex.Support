@@ -137,7 +137,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Childs[0].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[0].Progression.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -164,7 +164,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Childs[0].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[0].Progression.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressUpdated").
@@ -175,7 +175,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Childs[1].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[1].Progression.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -200,8 +200,8 @@ namespace Nuclex.Support.Tracking {
         Method("Ended").
         WithAnyArguments();
       
-      testSetProgression.Childs[0].Progression.End();
-      testSetProgression.Childs[1].Progression.End();
+      testSetProgression.Children[0].Progression.End();
+      testSetProgression.Children[1].Progression.End();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }

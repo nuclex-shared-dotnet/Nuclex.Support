@@ -174,7 +174,7 @@ namespace Nuclex.Support.Collections {
         // stream to contain the remainder of the data.
         if(count > linearAvailable) {
           if(count > (linearAvailable + this.startIndex))
-            throw new OverflowException("Data does not fit in Ringbuffer");
+            throw new OverflowException("Data does not fit in buffer");
 
           this.ringBuffer.Position = this.endIndex;
           this.ringBuffer.Write(buffer, offset, linearAvailable);
@@ -197,7 +197,7 @@ namespace Nuclex.Support.Collections {
         // to write cannot be fragmented. Example: |#####>-------<#####|
       } else {
         if(count > (this.startIndex - this.endIndex))
-          throw new OverflowException("Data does not fit in Ringbuffer");
+          throw new OverflowException("Data does not fit in buffer");
 
         // Because the gap isn't fragmented, we can be sure that a single
         // write call will suffice.
@@ -241,9 +241,9 @@ namespace Nuclex.Support.Collections {
     /// <remarks>
     ///   This field is required to differentiate between the ring buffer being
     ///   filled to the limit and being totally empty in the case that
-    ///    the start index and the end index are the same. 
+    ///   the start index and the end index are the same. 
     /// </remarks>
-    bool empty;
+    private bool empty;
 
   }
 

@@ -32,7 +32,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Performs common initialization for the public constructors</summary>
     private SetProgression() {
-      this.childs = new List<ObservedWeightedProgression<ProgressionType>>();
+      this.children = new List<ObservedWeightedProgression<ProgressionType>>();
     }
 
     /// <summary>Initializes a new set progression</summary>
@@ -46,7 +46,7 @@ namespace Nuclex.Support.Tracking {
       // Construct a WeightedProgression with the default weight for each
       // progression and wrap it in an ObservedProgression
       foreach(ProgressionType progression in childs) {
-        this.childs.Add(
+        this.children.Add(
           new ObservedWeightedProgression<ProgressionType>(
             new WeightedProgression<ProgressionType>(progression),
             new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
@@ -57,7 +57,7 @@ namespace Nuclex.Support.Tracking {
 
       // Since all progressions have a weight of 1.0, the total weight is
       // equal to the number of progressions in our list
-      this.totalWeight = (float)this.childs.Count;
+      this.totalWeight = (float)this.children.Count;
 
     }
 
@@ -70,7 +70,7 @@ namespace Nuclex.Support.Tracking {
 
       // Construct an ObservedProgression around each of the WeightedProgressions
       foreach(WeightedProgression<ProgressionType> progression in childs) {
-        this.childs.Add(
+        this.children.Add(
           new ObservedWeightedProgression<ProgressionType>(
             progression,
             new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
@@ -87,14 +87,14 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Immediately releases all resources owned by the object</summary>
     public void Dispose() {
 
-      if(this.childs != null) {
+      if(this.children != null) {
 
         // Dispose all the observed progressions, disconnecting the events from the
         // actual progressions so the GC can more easily collect this class
-        for(int index = 0; index < this.childs.Count; ++index)
-          this.childs[index].Dispose();
+        for(int index = 0; index < this.children.Count; ++index)
+          this.children[index].Dispose();
 
-        this.childs = null;
+        this.children = null;
         this.wrapper = null;
 
       }
@@ -102,7 +102,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Childs contained in the progression set</summary>
-    public IList<WeightedProgression<ProgressionType>> Childs {
+    public IList<WeightedProgression<ProgressionType>> Children {
       get {
 
         // The wrapper is constructed only when needed. Most of the time, users will
@@ -113,7 +113,7 @@ namespace Nuclex.Support.Tracking {
           // This doesn't need a lock because it's a stateless wrapper.
           // If it is constructed twice, then so be it, no problem at all.
           this.wrapper = new WeightedProgressionWrapperCollection<ProgressionType>(
-            this.childs
+            this.children
           );
 
         }
@@ -131,9 +131,9 @@ namespace Nuclex.Support.Tracking {
 
       // Calculate the sum of the progress reported by our child progressions,
       // scaled to the weight each progression has assigned to it.
-      for(int index = 0; index < this.childs.Count; ++index) {
+      for(int index = 0; index < this.children.Count; ++index) {
         totalProgress +=
-          this.childs[index].Progress * this.childs[index].WeightedProgression.Weight;
+          this.children[index].Progress * this.children[index].WeightedProgression.Weight;
       }
 
       // Calculate the actual combined progress
@@ -151,8 +151,8 @@ namespace Nuclex.Support.Tracking {
 
       // If there's still at least one progression going, don't report that
       // the SetProgression has finished yet.
-      for(int index = 0; index < this.childs.Count; ++index)
-        if(!this.childs[index].WeightedProgression.Progression.Ended)
+      for(int index = 0; index < this.children.Count; ++index)
+        if(!this.children[index].WeightedProgression.Progression.Ended)
           return;
 
       // All child progressions have ended, so the set has now ended as well
@@ -161,7 +161,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Progressions being managed in the set</summary>
-    private List<ObservedWeightedProgression<ProgressionType>> childs;
+    private List<ObservedWeightedProgression<ProgressionType>> children;
     /// <summary>
     ///   Wrapper collection for exposing the child progressions under the
     ///   WeightedProgression interface

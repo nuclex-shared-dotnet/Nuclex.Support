@@ -33,7 +33,7 @@ namespace Nuclex.Support.Collections {
   /// </remarks>
   /// <typeparam name="ParentType">Type of the parent object to assign to items</typeparam>
   /// <typeparam name="ItemType">Type of the items being managed in the collection</typeparam>
-  public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>
+  public class ParentingCollection<ParentType, ItemType> : AcquiringCollection<ItemType>
     where ItemType : Parentable<ParentType> {
 
     /// <summary>Reparents all elements in the collection</summary>
@@ -45,39 +45,19 @@ namespace Nuclex.Support.Collections {
         base[index].SetParent(parent);
     }
 
-    /// <summary>Clears all elements from the collection</summary>
-    protected override void ClearItems() {
-      for(int index = 0; index < Count; ++index)
-        base[index].SetParent(default(ParentType));
-
-      base.ClearItems();
-    }
-
-    /// <summary>Inserts a new element into the collection</summary>
-    /// <param name="index">Index at which to insert the element</param>
-    /// <param name="item">Item to be inserted</param>
-    protected override void InsertItem(int index, ItemType item) {
-      base.InsertItem(index, item);
+    /// <summary>Called when an item has been added to the collection</summary>
+    /// <param name="item">Item that has been added to the collection</param>
+    protected virtual void OnAdded(ItemType item) {
       item.SetParent(this.parent);
     }
 
-    /// <summary>Removes an element from the collection</summary>
-    /// <param name="index">Index of the element to remove</param>
-    protected override void RemoveItem(int index) {
-      base[index].SetParent(default(ParentType));
-      base.RemoveItem(index);
-    }
-
-    /// <summary>Takes over a new element that is directly assigned</summary>
-    /// <param name="index">Index of the element that was assigned</param>
-    /// <param name="item">New item</param>
-    protected override void SetItem(int index, ItemType item) {
-      base.SetItem(index, item);
-      item.SetParent(this.parent);
+    /// <summary>Called when an item has been removed from the collection</summary>
+    /// <param name="item">Item that has been removed from the collection</param>
+    protected virtual void OnRemoved(ItemType item) {
+      item.SetParent(default(ParentType));
     }
 
     /// <summary>Disposes the collection and optionally all items contained therein</summary>
-    /// <param name="disposeItems">Whether to try calling Dispose() on all items</param>
     /// <remarks>
     ///   <para>
     ///     This method is intended to support collections that need to dispose of their
@@ -95,24 +75,22 @@ namespace Nuclex.Support.Collections {
     ///     line with InternalDispose(true); in your custom Dispose() method.
     ///   </para>
     /// </remarks>
-    protected void InternalDispose(bool disposeItems) {
+    protected void DisposeItems() {
 
-      if(disposeItems) {
+      // Dispose all the items in the collection that implement IDisposable,
+      // starting from the last item in the assumption that this is the fastest
+      // way to empty a list without causing excessive shiftings in the array.
+      for(int index = base.Count - 1; index >= 0; --index) {
 
-        // Dispose of all the items in the collection that implement IDisposable
-        foreach(ItemType item in this) {
-          IDisposable disposable = item as IDisposable;
+        IDisposable disposable = base[index] as IDisposable;
 
-          // If the item is disposable, we get rid of it
-          if(disposable != null)
-            disposable.Dispose();
+        base.RemoveAt(index);
 
-        }
+        // If the item is disposable, destroy it now
+        if(disposable != null)
+          disposable.Dispose();
 
       }
-
-      // Remove all items from the collection
-      base.ClearItems();
 
     }
 
