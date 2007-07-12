@@ -189,7 +189,7 @@ namespace Nuclex.Support.Tracking {
             observedProgression.Dispose();
           }
 
-        }
+        } // if progression ended
 
       } // lock
 
@@ -213,6 +213,7 @@ namespace Nuclex.Support.Tracking {
         {
           ObservedWeightedProgression<Progression> wrappedProgression =
             this.trackedProgressions[removeIndex];
+
           this.trackedProgressions.RemoveAt(removeIndex);
           wrappedProgression.Dispose();
         }
@@ -295,7 +296,7 @@ namespace Nuclex.Support.Tracking {
         this.progress = totalProgress;
         OnAsyncProgressUpdated(totalProgress);
 
-      }
+      } // lock
     }
 
     /// <summary>Called when one of the tracked progressions has ended</summary>
@@ -319,7 +320,7 @@ namespace Nuclex.Support.Tracking {
         // progressions were finished, so it's safe to trigger this here.
         setIdle(true);
 
-      }
+      } // lock
     }
 
     /// <summary>Called when one of the tracked progression has achieved progress</summary>
@@ -338,6 +339,10 @@ namespace Nuclex.Support.Tracking {
       OnAsyncIdleStateChanged(idle);
     }
 
+    /// <summary>Whether the tracker is currently idle</summary>
+    private volatile bool idle;
+    /// <summary>Current summed progress of the tracked progressions</summary>
+    private volatile float progress;
     /// <summary>Total weight of all progressions being tracked</summary>
     private volatile float totalWeight;
     /// <summary>Progressions being tracked by this tracker</summary>
@@ -346,10 +351,6 @@ namespace Nuclex.Support.Tracking {
     private ObservedWeightedProgression<Progression>.ReportDelegate asyncEndedDelegate;
     /// <summary>Delegate for the asyncProgressUpdated() method</summary>
     private ObservedWeightedProgression<Progression>.ReportDelegate asyncProgressUpdatedDelegate;
-    /// <summary>Whether the tracker is currently idle</summary>
-    private bool idle;
-    /// <summary>Current summed progress of the tracked progressions</summary>
-    private volatile float progress;
 
   }
 

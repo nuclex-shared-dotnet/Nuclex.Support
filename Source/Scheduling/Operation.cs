@@ -39,24 +39,13 @@ namespace Nuclex.Support.Scheduling {
     /// </remarks>
     public virtual void End() {
 
-      // Use some ingenious double-checked locking to set the endCalled flag.
-      // Quite a lot of effort for a mere safety feature that prevents the programmer
-      // from calling End() twice.
-      bool error;
-      if(!this.endCalled) {
-        lock(this) {
-          if(!this.endCalled) {
-            this.endCalled = true;
-            error = false;
-          } else {
-            error = true;
-          }
-        } // lock
-      } else {
-        error = true;
+      // By design, end can only be called once!
+      lock(this) {
+        if(this.endCalled)
+          throw new InvalidOperationException("End() has already been called");
+
+        this.endCalled = true;
       }
-      if(error)
-        throw new InvalidOperationException("End() has already been called");
 
       // If the progression itself hasn't ended yet, block the caller until it has.
       if(!Ended)

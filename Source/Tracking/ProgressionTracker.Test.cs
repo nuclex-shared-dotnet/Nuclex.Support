@@ -302,6 +302,25 @@ namespace Nuclex.Support.Tracking {
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
+    /// <summary>
+    ///   Tries to provoke a deadlock by re-entering the tracker from one of
+    ///   its own events.
+    /// </summary>
+    [Test]
+    public void TestProvokedDeadlock() {
+      ProgressionTracker tracker = new ProgressionTracker();
+
+      TestProgression test1 = new TestProgression();
+      tracker.Track(test1);
+
+      tracker.AsyncIdleStateChanged +=
+        (EventHandler<IdleStateEventArgs>)delegate(object sender, IdleStateEventArgs arguments) {
+          tracker.Track(Progression.EndedDummy);
+        };
+
+      test1.End();
+    }
+
     /// <summary>Mocks a subscriber for the events of a tracker</summary>
     /// <param name="tracker">Tracker to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
