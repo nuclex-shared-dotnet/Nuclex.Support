@@ -232,6 +232,76 @@ namespace Nuclex.Support.Tracking {
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
+    /// <summary>
+    ///   Validates that the tracker behaves correctly if it is fed with progressions
+    ///   that have already ended.
+    /// </summary>
+    [Test]
+    public void TestSoleEndedProgression() {
+      ProgressionTracker tracker = new ProgressionTracker();
+
+      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+
+      tracker.Track(Progression.EndedDummy);
+
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
+    }
+
+    /// <summary>
+    ///   Validates that the tracker behaves correctly if it is fed with progressions
+    ///   that have already ended in addition to progressions that are actively executing.
+    /// </summary>
+    [Test]
+    public void TestEndedProgression() {
+      ProgressionTracker tracker = new ProgressionTracker();
+
+      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+
+      Expect.Once.On(mockedSubscriber).
+        Method("IdleStateChanged").
+        WithAnyArguments();
+
+      Expect.Once.On(mockedSubscriber).
+        Method("ProgressUpdated").
+        With(
+          new Matcher[] {
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.0f))
+          }
+        );
+
+      TestProgression test1 = new TestProgression();
+      tracker.Track(test1);
+
+      Expect.Once.On(mockedSubscriber).
+        Method("ProgressUpdated").
+        With(
+          new Matcher[] {
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f))
+          }
+        );
+
+      tracker.Track(Progression.EndedDummy);
+
+      Expect.Once.On(mockedSubscriber).
+        Method("ProgressUpdated").
+        With(
+          new Matcher[] {
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(1.0f))
+          }
+        );
+
+      Expect.Once.On(mockedSubscriber).
+        Method("IdleStateChanged").
+        WithAnyArguments();
+
+      test1.End();
+
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
+    }
+
     /// <summary>Mocks a subscriber for the events of a tracker</summary>
     /// <param name="tracker">Tracker to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>

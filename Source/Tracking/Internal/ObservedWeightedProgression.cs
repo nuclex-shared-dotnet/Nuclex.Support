@@ -47,14 +47,23 @@ namespace Nuclex.Support.Tracking {
       ReportDelegate endedCallback
     ) {
       this.weightedProgression = weightedProgression;
-      this.endedCallback = endedCallback;
-      this.progressUpdateCallback = progressUpdateCallback;
 
-      this.weightedProgression.Progression.AsyncEnded +=
-        new EventHandler(asyncEnded);
+      if(weightedProgression.Progression.Ended) {
 
-      this.weightedProgression.Progression.AsyncProgressUpdated +=
-        new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+        this.progress = 1.0f;
+
+      } else {
+
+        this.endedCallback = endedCallback;
+        this.progressUpdateCallback = progressUpdateCallback;
+
+        this.weightedProgression.Progression.AsyncEnded +=
+          new EventHandler(asyncEnded);
+
+        this.weightedProgression.Progression.AsyncProgressUpdated +=
+          new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+
+      }
     }
 
     /// <summary>Immediately releases all resources owned by the object</summary>

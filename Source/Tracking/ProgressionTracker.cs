@@ -105,6 +105,7 @@ namespace Nuclex.Support.Tracking {
         for(int index = 0; index < this.trackedProgressions.Count; ++index)
           this.trackedProgressions[index].Dispose();
 
+        // Help the GC a bit by untangling the references :)
         this.trackedProgressions.Clear();
         this.trackedProgressions = null;
 
@@ -128,29 +129,69 @@ namespace Nuclex.Support.Tracking {
       // new progression added to the collection.
       lock(this.trackedProgressions) {
 
-        this.trackedProgressions.Add(
-          new ObservedWeightedProgression<Progression>(
-            new WeightedProgression<Progression>(progression, weight),
-            this.asyncProgressUpdatedDelegate,
-            this.asyncEndedDelegate
-          )
-        );
+        bool wasEmpty = (this.trackedProgressions.Count == 0);
 
         // This can be done after we registered the wrapper to our delegates because
         // any incoming progress updates will be stopped from the danger of a
         // division-by-zero from the potentially still zeroed totalWeight by the lock.
         this.totalWeight += weight;
 
-        // If this is the first progression to be added to the list, tell our
-        // owner that we're idle no longer!
-        if(this.trackedProgressions.Count == 1)
-          OnAsyncIdleStateChanged(false);
+        // Construct a new observation wrapper. This is done inside the lock
+        // because as soon as we are subscribed to the events, we can potentially
+        // receive them. This would otherwise risk processing a progress update
+        // before the progression has been added to the tracked progressions list.
+        if(progression.Ended) {
+
+          // If the ended progression would become the only progression in the list,
+          // there's no sense in doing anything at all because it would have to
+          // be thrown right out again
+          if(!wasEmpty) {
+
+            this.trackedProgressions.Add(
+              new ObservedWeightedProgression<Progression>(
+                new WeightedProgression<Progression>(progression, weight),
+                this.asyncProgressUpdatedDelegate,
+                this.asyncEndedDelegate
+              )
+            );
+
+            // All done, the total progress is different now, so force a recalculation and
+            // send out the AsyncProgressUpdated event.
+            recalculateProgress();
+
+          }
+
+        } else { // Progression is still running
+
+          ObservedWeightedProgression<Progression> observedProgression =
+            new ObservedWeightedProgression<Progression>(
+              new WeightedProgression<Progression>(progression, weight),
+              this.asyncProgressUpdatedDelegate,
+              this.asyncEndedDelegate
+            );
+
+          this.trackedProgressions.Add(observedProgression);
+
+          // If this is the first progression to be added to the list, tell our
+          // owner that we're idle no longer!
+          if(wasEmpty)
+            setIdle(false);
+
+          // All done, the total progress is different now, so force a recalculation and
+          // send out the AsyncProgressUpdated event.
+          recalculateProgress();
+
+          // The progression might have ended before we had registered to its AsyncEnded
+          // event, so we have to do this to be on the safe side. This might cause
+          // asyncEnded() to be called twice, but that's not a problem at all.
+          if(progression.Ended) {
+            asyncEnded();
+            observedProgression.Dispose();
+          }
+
+        }
 
       } // lock
-
-      // All done, the total progress is different now, so force a recalculation and
-      // send out the AsyncProgressUpdated event.
-      recalculateProgress();
 
     }
 
@@ -181,8 +222,8 @@ namespace Nuclex.Support.Tracking {
 
           this.totalWeight = 0.0f;
 
-          // Report that we're idle now!
-          OnAsyncIdleStateChanged(true);
+          // If we entered the idle state with this call, report the state change!
+          setIdle(true);
 
         } else {
 
@@ -211,8 +252,6 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the AsyncIdleStateChanged event</summary>
     /// <param name="idle">New idle state to report</param>
     protected virtual void OnAsyncIdleStateChanged(bool idle) {
-      this.idle = idle;
-
       EventHandler<IdleStateEventArgs> copy = AsyncIdleStateChanged;
       if(copy != null)
         copy(this, new IdleStateEventArgs(idle));
@@ -221,8 +260,6 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the AsyncProgressUpdated event</summary>
     /// <param name="progress">New progress to report</param>
     protected virtual void OnAsyncProgressUpdated(float progress) {
-      this.progress = progress;
-
       EventHandler<ProgressUpdateEventArgs> copy = AsyncProgressUpdated;
       if(copy != null)
         copy(this, new ProgressUpdateEventArgs(progress));
@@ -253,10 +290,12 @@ namespace Nuclex.Support.Tracking {
         // the one for the number of progressions we just summed -- by design,
         // the total weight always has to be updated at the same time as the collection.
         totalProgress /= this.totalWeight;
-      }
 
-      // Finally, trigger the event
-      OnAsyncProgressUpdated(totalProgress);
+        // Finally, trigger the event
+        this.progress = totalProgress;
+        OnAsyncProgressUpdated(totalProgress);
+
+      }
     }
 
     /// <summary>Called when one of the tracked progressions has ended</summary>
@@ -270,16 +309,15 @@ namespace Nuclex.Support.Tracking {
           if(!this.trackedProgressions[index].WeightedProgression.Progression.Ended)
             return;
 
-        // All progressions have finished, get rid of the wrappers and disconnect
-        // their events.
-        for(int index = 0; index < this.trackedProgressions.Count; ++index)
-          this.trackedProgressions[index].Dispose();
-
+        // All progressions have finished, get rid of the wrappers and make a
+        // fresh start for future progressions to be tracked. No need to call
+        // Dispose() since, as a matter of fact, when the progression
         this.trackedProgressions.Clear();
         this.totalWeight = 0.0f;
 
-        // Notify our owner that we're idle now.
-        OnAsyncIdleStateChanged(true);
+        // Notify our owner that we're idle now. This line is only reached when all
+        // progressions were finished, so it's safe to trigger this here.
+        setIdle(true);
 
       }
     }
@@ -287,6 +325,17 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Called when one of the tracked progression has achieved progress</summary>
     private void asyncProgressUpdated() {
       recalculateProgress();
+    }
+
+    /// <summary>Changes the idle state</summary>
+    /// <param name="idle">Whether or not the tracker is currently idle</param>
+    /// <remarks>
+    ///   This method expects to be called during a lock() on trackedProgressions!
+    /// </remarks>
+    private void setIdle(bool idle) {
+      this.idle = idle;
+
+      OnAsyncIdleStateChanged(idle);
     }
 
     /// <summary>Total weight of all progressions being tracked</summary>
@@ -300,7 +349,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Whether the tracker is currently idle</summary>
     private bool idle;
     /// <summary>Current summed progress of the tracked progressions</summary>
-    private float progress;
+    private volatile float progress;
 
   }
 
