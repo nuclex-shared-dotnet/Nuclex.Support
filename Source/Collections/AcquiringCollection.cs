@@ -17,6 +17,7 @@ You should have received a copy of the IBM Common Public
 License along with this library
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -98,7 +99,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Called when the collection is being cleared</summary>
     /// <remarks>
-    ///   Instead of called the OnRemoved() method for each item in the collection when
+    ///   Instead of calling the OnRemoved() method for each item in the collection when
     ///   it is being cleared, this variant only triggers the OnClearing() method
     ///   to allow the implementer some room for optimizations. 
     /// </remarks>

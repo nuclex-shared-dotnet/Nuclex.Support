@@ -47,32 +47,37 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Called when an item has been added to the collection</summary>
     /// <param name="item">Item that has been added to the collection</param>
-    protected virtual void OnAdded(ItemType item) {
+    protected override void OnAdded(ItemType item) {
       item.SetParent(this.parent);
     }
 
     /// <summary>Called when an item has been removed from the collection</summary>
     /// <param name="item">Item that has been removed from the collection</param>
-    protected virtual void OnRemoved(ItemType item) {
+    protected override void OnRemoved(ItemType item) {
       item.SetParent(default(ParentType));
     }
 
-    /// <summary>Disposes the collection and optionally all items contained therein</summary>
+    /// <summary>Called when the collection is being cleared</summary>
+    protected override void OnClearing() {
+
+      // Unset the parent of all objects before allowing the list to be emptied
+      for(int index = 0; index < base.Count; ++index)
+        base[index].SetParent(default(ParentType));
+
+    }
+
+    /// <summary>Disposes all items contained in the collection</summary>
     /// <remarks>
     ///   <para>
-    ///     This method is intended to support collections that need to dispose of their
-    ///     items. The ParentingCollection will first detach all items from the parent
-    ///     object and then call Dispose() on any item that implements IDisposable.
+    ///     This method is intended to support collections that need to dispose their
+    ///     items. It will unparent all of the collections items and call Dispose()
+    ///     on any item that implements IDisposable.
     ///   </para>
     ///   <para>
-    ///     The items contained in the collection are not disconnected from their parent
-    ///     (eg. Reparent()ed to null) because this is out of the scope for the
-    ///     ParentingCollection&lt;&gt; class to decide and provokes the potentially
-    ///     risky situation that an item, when it is Dispose()d, might try to disconnect
-    ///     some events or perform other maintenance work on its parent object that
-    ///     would then be no longer available. If you wish to disconnect the items from
-    ///     their parent prior to disposing them, add a Reparent(null); call before the
-    ///     line with InternalDispose(true); in your custom Dispose() method.
+    ///     Do not call this method during a GC run (eg. from your destructor) as it
+    ///     will access the contained items in order to unparent and to Dispose() them,
+    ///     which leads to undefined behavior since the object might have already been
+    ///     collected by the GC.
     ///   </para>
     /// </remarks>
     protected void DisposeItems() {

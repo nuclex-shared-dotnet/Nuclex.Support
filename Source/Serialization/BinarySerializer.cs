@@ -41,7 +41,7 @@ namespace Nuclex.Support.Serialization {
       // Read and verify the version of the file format this was saved in
       int version = reader.ReadInt32();
       if(version > 1)
-        throw new InvalidOperationException("File format is too new");
+        throw new InvalidOperationException("File format mismatch");
 
       // Read all the serialized blueprints
       int count = reader.ReadInt32();

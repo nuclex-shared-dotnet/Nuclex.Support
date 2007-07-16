@@ -26,14 +26,6 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="ParentType">Type of the parent object</typeparam>
   public class Parentable<ParentType> {
 
-    /// <summary>Assigns a new parent to this instance</summary>
-    internal void SetParent(ParentType parent) {
-      ParentType oldParent = this.parent;
-      this.parent = parent;
-
-      OnParentChanged(oldParent);
-    }
-
     /// <summary>The parent object that owns this instance</summary>
     protected ParentType Parent {
       get { return this.parent; }
@@ -47,6 +39,14 @@ namespace Nuclex.Support.Collections {
     /// </remarks>
     /// <param name="oldParent">Previous owner of the instance</param>
     protected virtual void OnParentChanged(ParentType oldParent) { }
+
+    /// <summary>Assigns a new parent to this instance</summary>
+    protected internal void SetParent(ParentType parent) {
+      ParentType oldParent = this.parent;
+      this.parent = parent;
+
+      OnParentChanged(oldParent);
+    }
 
     /// <summary>Current parent of this object</summary>
     private ParentType parent;

@@ -17,6 +17,7 @@ You should have received a copy of the IBM Common Public
 License along with this library
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 
@@ -54,7 +55,7 @@ namespace Nuclex.Support.Packing {
       Point point;
 
       if(!TryPack(rectangleWidth, rectangleHeight, out point))
-        throw new Exception("Rectangle does not fit in packing area");
+        throw new OutOfSpaceException("Rectangle does not fit in packing area");
 
       return point;
     }
