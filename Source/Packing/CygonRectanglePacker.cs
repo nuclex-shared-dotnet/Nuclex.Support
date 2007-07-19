@@ -110,8 +110,8 @@ namespace Nuclex.Support.Packing {
     /// <summary>Finds the best position for a rectangle of the given dimensions</summary>
     /// <param name="rectangleWidth">Width of the rectangle to find a position for</param>
     /// <param name="rectangleHeight">Height of the rectangle to find a position for</param>
-    /// <param name="placement">Received the best placement found for the rectangle</param>
-    /// <returns>The best position for a rectangle of the specified dimensions</returns>
+    /// <param name="placement">Receives the best placement found for the rectangle</param>
+    /// <returns>True if a valid placement for the rectangle could be found</returns>
     private bool tryFindBestPlacement(
       int rectangleWidth, int rectangleHeight, out Point placement
     ) {

@@ -33,7 +33,7 @@ namespace Nuclex.Support.Collections {
   /// </remarks>
   /// <typeparam name="ParentType">Type of the parent object to assign to items</typeparam>
   /// <typeparam name="ItemType">Type of the items being managed in the collection</typeparam>
-  public class ParentingCollection<ParentType, ItemType> : AcquiringCollection<ItemType>
+  public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>
     where ItemType : Parentable<ParentType> {
 
     /// <summary>Reparents all elements in the collection</summary>
@@ -45,25 +45,35 @@ namespace Nuclex.Support.Collections {
         base[index].SetParent(parent);
     }
 
-    /// <summary>Called when an item has been added to the collection</summary>
-    /// <param name="item">Item that has been added to the collection</param>
-    protected override void OnAdded(ItemType item) {
+    /// <summary>Clears all elements from the collection</summary>
+    protected override void ClearItems() {
+      for(int index = 0; index < Count; ++index)
+        base[index].SetParent(default(ParentType));
+
+      base.ClearItems();
+    }
+
+    /// <summary>Inserts a new element into the collection</summary>
+    /// <param name="index">Index at which to insert the element</param>
+    /// <param name="item">Item to be inserted</param>
+    protected override void InsertItem(int index, ItemType item) {
+      base.InsertItem(index, item);
       item.SetParent(this.parent);
     }
 
-    /// <summary>Called when an item has been removed from the collection</summary>
-    /// <param name="item">Item that has been removed from the collection</param>
-    protected override void OnRemoved(ItemType item) {
-      item.SetParent(default(ParentType));
+    /// <summary>Removes an element from the collection</summary>
+    /// <param name="index">Index of the element to remove</param>
+    protected override void RemoveItem(int index) {
+      base[index].SetParent(default(ParentType));
+      base.RemoveItem(index);
     }
 
-    /// <summary>Called when the collection is being cleared</summary>
-    protected override void OnClearing() {
-
-      // Unset the parent of all objects before allowing the list to be emptied
-      for(int index = 0; index < base.Count; ++index)
-        base[index].SetParent(default(ParentType));
-
+    /// <summary>Takes over a new element that is directly assigned</summary>
+    /// <param name="index">Index of the element that was assigned</param>
+    /// <param name="item">New item</param>
+    protected override void SetItem(int index, ItemType item) {
+      base.SetItem(index, item);
+      item.SetParent(this.parent);
     }
 
     /// <summary>Disposes all items contained in the collection</summary>
@@ -89,13 +99,13 @@ namespace Nuclex.Support.Collections {
 
         IDisposable disposable = base[index] as IDisposable;
 
-        base.RemoveAt(index);
-
         // If the item is disposable, destroy it now
         if(disposable != null)
           disposable.Dispose();
 
       }
+
+      base.ClearItems();
 
     }
 
