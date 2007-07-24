@@ -17,42 +17,20 @@ You should have received a copy of the IBM Common Public
 License along with this library
 */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Nuclex.Support.Collections {
 
-  /// <summary>Generic collection of progressions</summary>
+  /// <summary>Collection which fires events when items are added or removed</summary>
   public class ObservableCollection<ItemType> : Collection<ItemType> {
 
-    #region class ItemEventArgs
-
-    /// <summary>Arguments class for events that need to pass a progression</summary>
-    public class ItemEventArgs : EventArgs {
-
-      /// <summary>Initializes a new event arguments supplier</summary>
-      /// <param name="item">Item to be supplied to the event handler</param>
-      public ItemEventArgs(ItemType item) {
-        this.item = item;
-      }
-
-      /// <summary>Obtains the collection item the event arguments are carrying</summary>
-      public ItemType Item {
-        get { return this.item; }
-      }
-
-      /// <summary>Item that's passed to the event handler</summary>
-      private ItemType item;
-
-    }
-
-    #endregion // class ItemEventArgs
-
     /// <summary>Raised when an item has been added to the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemAdded;
+    public event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>
-    public event EventHandler<ItemEventArgs> ItemRemoved;
+    public event EventHandler<ItemEventArgs<ItemType>> ItemRemoved;
     /// <summary>Raised the collection is about to be cleared</summary>
     public event EventHandler Clearing;
 
@@ -122,14 +100,14 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">Item that has been added to the collection</param>
     protected virtual void OnAdded(ItemType item) {
       if(ItemAdded != null)
-        ItemAdded(this, new ItemEventArgs(item));
+        ItemAdded(this, new ItemEventArgs<ItemType>(item));
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
     protected virtual void OnRemoved(ItemType item) {
       if(ItemRemoved != null)
-        ItemRemoved(this, new ItemEventArgs(item));
+        ItemRemoved(this, new ItemEventArgs<ItemType>(item));
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
