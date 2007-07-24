@@ -65,10 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Collections\AcquiringCollection.cs">
-      <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>AcquiringCollection</Name>
-    </Compile>
     <Compile Include="Source\Collections\ItemEventArgs.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ItemEventArgs</Name>
