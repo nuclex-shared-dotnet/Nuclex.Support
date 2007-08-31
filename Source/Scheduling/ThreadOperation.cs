@@ -28,17 +28,17 @@ namespace Nuclex.Support.Scheduling {
   public abstract class ThreadOperation : Operation {
 
     /// <summary>
-    ///   Initializes a new threaded operation
+    ///   Initializes a new threaded operation.
     /// </summary>
     /// <remarks>
-    ///   Uses a ThreadPool thread to execute the method in
+    ///   Uses a ThreadPool thread to execute the method in a background thread.
     /// </remarks>
     public ThreadOperation() : this(true) { }
 
     /// <summary>
-    ///   Initializes a new threaded operation
+    ///   Initializes a new threaded operation which optionally uses the ThreadPool.
     /// </summary>
-    /// <param name="useThreadPool">Whether tos use a ThreadPool thread</param>
+    /// <param name="useThreadPool">Whether to use a ThreadPool thread.</param>
     /// <remarks>
     ///   If useThreadPool is false, a new thread will be created. This guarantees
     ///   that the method will be executed immediately but has an impact on

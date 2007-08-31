@@ -28,7 +28,8 @@ namespace Nuclex.Support.Scheduling {
   public class ThreadCallbackOperation : ThreadOperation {
 
     /// <summary>
-    ///   Initializes a new threaded method operation for a parameterless method
+    ///   Initializes a new threaded method operation that will call back a
+    ///   parameterless method from the background thread.
     /// </summary>
     /// <param name="method">Method to be invoked in a background thread</param>
     /// <remarks>
@@ -38,7 +39,9 @@ namespace Nuclex.Support.Scheduling {
       : this(method, true) { }
 
     /// <summary>
-    ///   Initializes a new threaded method operation for a parameterless method
+    ///   Initializes a new threaded method operation that will call back a
+    ///   parameterless method from the background thread and use the
+    ///   thread pool optionally.
     /// </summary>
     /// <param name="method">Method to be invoked in a background thread</param>
     /// <param name="useThreadPool">Whether to use a ThreadPool thread</param>
