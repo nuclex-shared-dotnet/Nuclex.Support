@@ -66,10 +66,6 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Invokes the delegate passed as an argument</summary>
     /// <param name="state">Not used</param>
     private void callMethod(object state) {
-#if PROGRESSION_STARTABLE
-      OnAsyncStarted();
-#endif
-
       try {
         Execute();
       }
