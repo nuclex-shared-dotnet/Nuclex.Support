@@ -29,22 +29,22 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the priority queue class</summary>
   [TestFixture]
-  public class UnintrusivePriorityQueueTest {
+  public class PairPriorityQueueTest {
 
     /// <summary>Tests to ensure the count property is properly updated</summary>
     [Test]
     public void TestCount() {
-      UnintrusivePriorityQueue<string, float> testQueue =
-        new UnintrusivePriorityQueue<string, float>();
+      PairPriorityQueue<float, string> testQueue =
+        new PairPriorityQueue<float, string>();
 
       Assert.AreEqual(0, testQueue.Count);
-      testQueue.Enqueue("a", 12.34f);
+      testQueue.Enqueue(12.34f, "a");
       Assert.AreEqual(1, testQueue.Count);
-      testQueue.Enqueue("b", 56.78f);
+      testQueue.Enqueue(56.78f, "b");
       Assert.AreEqual(2, testQueue.Count);
       testQueue.Dequeue();
       Assert.AreEqual(1, testQueue.Count);
-      testQueue.Enqueue("c", 9.0f);
+      testQueue.Enqueue(9.0f, "c");
       Assert.AreEqual(2, testQueue.Count);
       testQueue.Clear();
       Assert.AreEqual(0, testQueue.Count);
@@ -53,28 +53,28 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests to ensure that the priority collection actually sorts items</summary>
     [Test]
     public void TestOrdering() {
-      UnintrusivePriorityQueue<string, float> testQueue =
-        new UnintrusivePriorityQueue<string, float>();
+      PairPriorityQueue<float, string> testQueue =
+        new PairPriorityQueue<float, string>();
 
-      testQueue.Enqueue("a", 1.0f);
-      testQueue.Enqueue("i", 9.0f);
-      testQueue.Enqueue("b", 2.0f);
-      testQueue.Enqueue("h", 8.0f);
-      testQueue.Enqueue("c", 3.0f);
-      testQueue.Enqueue("g", 7.0f);
-      testQueue.Enqueue("d", 4.0f);
-      testQueue.Enqueue("f", 6.0f);
-      testQueue.Enqueue("e", 5.0f);
+      testQueue.Enqueue(1.0f, "a");
+      testQueue.Enqueue(9.0f, "i");
+      testQueue.Enqueue(2.0f, "b");
+      testQueue.Enqueue(8.0f, "h");
+      testQueue.Enqueue(3.0f, "c");
+      testQueue.Enqueue(7.0f, "g");
+      testQueue.Enqueue(4.0f, "d");
+      testQueue.Enqueue(6.0f, "f");
+      testQueue.Enqueue(5.0f, "e");
 
-      Assert.AreEqual("i", testQueue.Dequeue());
-      Assert.AreEqual("h", testQueue.Dequeue());
-      Assert.AreEqual("g", testQueue.Dequeue());
-      Assert.AreEqual("f", testQueue.Dequeue());
-      Assert.AreEqual("e", testQueue.Dequeue());
-      Assert.AreEqual("d", testQueue.Dequeue());
-      Assert.AreEqual("c", testQueue.Dequeue());
-      Assert.AreEqual("b", testQueue.Dequeue());
-      Assert.AreEqual("a", testQueue.Dequeue());
+      Assert.AreEqual("i", testQueue.Dequeue().Item);
+      Assert.AreEqual("h", testQueue.Dequeue().Item);
+      Assert.AreEqual("g", testQueue.Dequeue().Item);
+      Assert.AreEqual("f", testQueue.Dequeue().Item);
+      Assert.AreEqual("e", testQueue.Dequeue().Item);
+      Assert.AreEqual("d", testQueue.Dequeue().Item);
+      Assert.AreEqual("c", testQueue.Dequeue().Item);
+      Assert.AreEqual("b", testQueue.Dequeue().Item);
+      Assert.AreEqual("a", testQueue.Dequeue().Item);
     }
 
   }

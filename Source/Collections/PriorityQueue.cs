@@ -94,6 +94,11 @@ namespace Nuclex.Support.Collections {
 
     #endregion // class Enumerator
 
+    /// <summary>
+    ///   Initializes a new priority queue using IComparable for comparing items
+    /// </summary>
+    public PriorityQueue() : this(Comparer<ItemType>.Default) { }
+
     /// <summary>Initializes a new priority queue</summary>
     /// <param name="comparer">Comparer to use for ordering the items</param>
     public PriorityQueue(IComparer<ItemType> comparer) {

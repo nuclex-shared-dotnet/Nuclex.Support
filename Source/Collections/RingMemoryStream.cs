@@ -123,8 +123,8 @@ namespace Nuclex.Support.Collections {
             setEmpty();
         }
 
-        // If the end index lies before the start index, the data in the
-        // ring memory stream is fragmented. Example: |#####>-------<#####|
+      // The end index lies before the start index, so the data in the
+      // ring memory stream is fragmented. Example: |#####>-------<#####|
       } else {
         int linearAvailable = (int)this.ringBuffer.Length - this.startIndex;
 
@@ -142,8 +142,8 @@ namespace Nuclex.Support.Collections {
           this.startIndex = count - linearAvailable;
           this.ringBuffer.Read(buffer, offset + linearAvailable, this.startIndex);
 
-          // Nope, the amount of requested data can be read in one piece without
-          // crossing the end of the ring buffer
+        // Nope, the amount of requested data can be read in one piece without
+        // crossing the end of the ring buffer
         } else {
           this.ringBuffer.Position = this.startIndex;
           this.ringBuffer.Read(buffer, offset, count);
@@ -166,7 +166,7 @@ namespace Nuclex.Support.Collections {
     public override void Write(byte[] buffer, int offset, int count) {
 
       // The end index lies behind the start index (usual case), so the
-      // ring memory is not fragmented. Example: |-----<#######>-----|
+      // unused buffer space is fragmented. Example: |-----<#######>-----|
       if((this.startIndex < this.endIndex) || this.empty) {
         int linearAvailable = (int)(this.ringBuffer.Length - this.endIndex);
 
@@ -183,8 +183,8 @@ namespace Nuclex.Support.Collections {
           this.endIndex = count - linearAvailable;
           this.ringBuffer.Write(buffer, offset + linearAvailable, this.endIndex);
 
-          // All data can be appended at the current stream position without
-          // crossing the ring memory stream's end
+        // All data can be appended at the current stream position without
+        // crossing the ring memory stream's end
         } else {
           this.ringBuffer.Position = this.endIndex;
           this.ringBuffer.Write(buffer, offset, count);
@@ -193,9 +193,9 @@ namespace Nuclex.Support.Collections {
 
         this.empty = false;
 
-        // If the end index lies before the start index, the ring memory stream
-        // has been fragmented. Hence, this means the gap into which we are about
-        // to write cannot be fragmented. Example: |#####>-------<#####|
+      // The end index lies before the start index, so the data in the ring memory
+      // stream has been fragmented. This means the gap into which we are about
+      // to write is not fragmented. Example: |#####>-------<#####|
       } else {
         if(count > (this.startIndex - this.endIndex))
           throw new OverflowException("Data does not fit in buffer");

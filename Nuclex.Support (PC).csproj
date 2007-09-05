@@ -78,6 +78,10 @@
       <Name>ObservableCollection.Test</Name>
       <DependentUpon>ObservableCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\PriorityItemPair.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PriorityItemPair</Name>
+    </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>TransformingReadOnlyCollection</Name>
@@ -87,9 +91,9 @@
       <Name>TransformingReadOnlyCollection.Interfaces</Name>
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Collections\UnintrusivePriorityQueue.cs">
+    <Compile Include="Source\Collections\PairPriorityQueue.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>UnintrusivePriorityQueue</Name>
+      <Name>PairPriorityQueue</Name>
     </Compile>
     <Compile Include="Source\Collections\Parentable.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
@@ -121,10 +125,10 @@
       <Name>RingMemoryStream.Test</Name>
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Collections\UnintrusivePriorityQueue.Test.cs">
+    <Compile Include="Source\Collections\PairPriorityQueue.Test.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
-      <Name>UnintrusivePriorityQueue.Test</Name>
-      <DependentUpon>UnintrusivePriorityQueue.cs</DependentUpon>
+      <Name>PairPriorityQueue.Test</Name>
+      <DependentUpon>PairPriorityQueue.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Licensing\LicenseKey.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
