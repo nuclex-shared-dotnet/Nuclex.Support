@@ -35,7 +35,7 @@ namespace Nuclex.Support.SpatialPartitioning {
       this.Min = min;
       this.Max = max;
     }
-    
+
     /// <summary>
     ///   Builds the smallest bounding rectangle that contains the two
     ///   specified bounding rectangle.
@@ -50,7 +50,7 @@ namespace Nuclex.Support.SpatialPartitioning {
       CreateMerged(ref original, ref additional, out result);
       return result;
     }
-    
+
     /// <summary>
     ///   Builds the smallest bounding rectangle that contains the two
     ///   specified bounding rectangle.
@@ -66,7 +66,6 @@ namespace Nuclex.Support.SpatialPartitioning {
       result.Min = Vector2.Min(original.Min, additional.Min);
       result.Max = Vector2.Max(original.Max, additional.Max);
     }
-      
 
     /// <summary>Coordinates of the lesser side of the bounding rectangle</summary>
     public Vector2 Min;
