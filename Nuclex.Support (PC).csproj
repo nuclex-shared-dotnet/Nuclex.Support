@@ -241,6 +241,10 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ObservedWeightedProgression</Name>
     </Compile>
+    <Compile Include="Source\Tracking\IStatusReporter.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IStatusReporter</Name>
+    </Compile>
     <Compile Include="Source\Tracking\ProgressionTracker.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>ProgressionTracker</Name>
@@ -274,6 +278,10 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>SetProgression.Test</Name>
       <DependentUpon>SetProgression.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Tracking\StatusReportEventArgs.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>StatusReportEventArgs</Name>
     </Compile>
     <Compile Include="Source\Tracking\WeightedProgression.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
