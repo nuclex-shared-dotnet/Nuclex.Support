@@ -179,6 +179,10 @@
       <Name>SimpleRectanglePacker.Test</Name>
       <DependentUpon>SimpleRectanglePacker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\PathHelper.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PathHelper</Name>
+    </Compile>
     <Compile Include="Source\Scheduling\AbortedException.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>AbortedException</Name>
@@ -304,6 +308,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documents\" />
+    <Folder Include="Source\Parsing\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA\Game Studio Express\v1.0\Microsoft.Xna.ContentPipeline.targets" />
