@@ -30,7 +30,9 @@ namespace Nuclex.Support {
           break;
       }
 
-      // If the paths don't share a common root, we have to use an absolute path
+      // If the paths don't share a common root, we have to use an absolute path.
+      // Should the absolutePath parameter actually be a relative path, this will
+      // also trigger the return of the absolutePath as-is.
       if(lastCommonRoot == -1)
         return absolutePath;
 

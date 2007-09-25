@@ -15,19 +15,16 @@ namespace Nuclex.Support.Parsing {
     /// <summary>Validates that normal arguments can be parsed</summary>
     [Test]
     public void TestPlainArguments() {
-      Assert.AreEqual(
-        true.ToString(),
-        new CommandLineParser(new string[] { "-hello" })["hello"],
+      Assert.IsTrue(
+        new CommandLineParser(new string[] { "-hello" }).HasArgument("hello"),
         "Argument with minus sign is recognized"
       );
-      Assert.AreEqual(
-        true.ToString(),
-        new CommandLineParser(new string[] { "--hello" })["hello"],
+      Assert.IsTrue(
+        new CommandLineParser(new string[] { "--hello" }).HasArgument("hello"),
         "Argument with double minus sign is recognized"
       );
-      Assert.AreEqual(
-        true.ToString(),
-        new CommandLineParser(new string[] { "/hello" })["hello"],
+      Assert.IsTrue(
+        new CommandLineParser(new string[] { "/hello" }).HasArgument("hello"),
         "Argument with slash is recognized"
       );
     }
@@ -49,6 +46,21 @@ namespace Nuclex.Support.Parsing {
         "world",
         new CommandLineParser(new string[] { "-hello", "world" })["hello"],
         "Argument can be assigned with a space"
+      );
+    }
+
+    /// <summary>
+    ///   Validates that loosely specified values are recognized by the parser
+    /// </summary>
+    [Test]
+    public void TestLooseValues() {
+      Assert.IsTrue(
+        new CommandLineParser(new string[] { "hello" }).Values.Contains("hello"),
+        "Plain loose value is recognized"
+      );
+      Assert.IsTrue(
+        new CommandLineParser(new string[] { "-hello:world", "foo" }).Values.Contains("foo"),
+        "Loose value following an assignment is recognized"
       );
     }
 

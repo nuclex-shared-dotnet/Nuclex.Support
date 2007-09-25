@@ -86,7 +86,7 @@ namespace Nuclex.Support.Tracking {
         //
         // We can *not* optimize this lock away since we absolutely must not create
         // two doneEvents -- someone might call .WaitOne() on the first one when only
-        // the second one is references by this.doneEvent and thus gets set in the end.
+        // the second one is referenced by this.doneEvent and thus gets set in the end.
         if(this.doneEvent == null) {
 
           lock(this) {

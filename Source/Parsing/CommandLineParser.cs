@@ -58,6 +58,7 @@ namespace Nuclex.Support.Parsing {
     /// <param name="arguments">Arguments that have been passed in the command line</param>
     public CommandLineParser(string[] arguments) {
       this.arguments = new StringDictionary();
+      this.values = new StringCollection();
 
       string activeParameter = null;
 
@@ -76,6 +77,8 @@ namespace Nuclex.Support.Parsing {
                 this.arguments.Add(activeParameter, parts[0]);
               }
               activeParameter = null;
+            } else {
+              this.values.Add(parts[0]);
             }
 
             // Error: No argument is waiting for a value. Skip this argument.
@@ -89,7 +92,7 @@ namespace Nuclex.Support.Parsing {
             // it up before switching to the argument we just found.
             if(activeParameter != null)
               if(!this.arguments.ContainsKey(activeParameter))
-                this.arguments.Add(activeParameter, true.ToString());
+                this.arguments.Add(activeParameter, null);
 
             // Remember argument to allow for a later value assignment
             activeParameter = parts[1];
@@ -104,7 +107,7 @@ namespace Nuclex.Support.Parsing {
             // it up before switching to the argument we just found.
             if(activeParameter != null)
               if(!this.arguments.ContainsKey(activeParameter))
-                this.arguments.Add(activeParameter, true.ToString());
+                this.arguments.Add(activeParameter, null);
 
             activeParameter = parts[1];
 
@@ -125,7 +128,7 @@ namespace Nuclex.Support.Parsing {
       // it up before leaving the parsing method.
       if(activeParameter != null) {
         if(!this.arguments.ContainsKey(activeParameter)) {
-          this.arguments.Add(activeParameter, true.ToString());
+          this.arguments.Add(activeParameter, null);
         }
       }
     }
@@ -135,6 +138,23 @@ namespace Nuclex.Support.Parsing {
     /// <returns>The value of the argument with the specified name</returns>
     public string this[string argumentName] {
       get { return this.arguments[argumentName]; }
+    }
+
+    /// <summary>
+    ///   Checks whether the specified argument was specified on the command line
+    /// </summary>
+    /// <param name="argumentName">Name of the argument to check</param>
+    /// <returns>True if the specified command was given on the command line</returns>
+    public bool HasArgument(string argumentName) {
+      return this.arguments.ContainsKey(argumentName);
+    }
+
+    /// <summary>
+    ///   Any values loosely specified on the command line without being assigned
+    ///   to an argument.
+    /// </summary>
+    public StringCollection Values {
+      get { return this.values; }
     }
 
     /// <summary>
@@ -151,6 +171,10 @@ namespace Nuclex.Support.Parsing {
 
     /// <summary>Stores the parsed arguments</summary>
     private StringDictionary arguments;
+    /// <summary>
+    ///   Stores any values passed on the command line without assigning an argument
+    /// </summary>
+    private StringCollection values;
 
   }
 
