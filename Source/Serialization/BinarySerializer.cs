@@ -206,7 +206,7 @@ namespace Nuclex.Support.Serialization {
       writer.Write(vector.W);
     }
 
-    #endregion // Microsoft.Xna.Framework.Quaternion
+    #endregion // Microsoft.Xna.Framework.Vector4
 
     #region Microsoft.Xna.Framework.Quaternion
 
@@ -231,6 +231,56 @@ namespace Nuclex.Support.Serialization {
     }
 
     #endregion // Microsoft.Xna.Framework.Quaternion
+
+    #region Microsoft.Xna.Framework.Curve
+
+    /// <summary>Loads a curve from its serialized representation</summary>
+    /// <param name="reader">Reader to use for reading the curve</param>
+    /// <param name="curve">Curve to be deserialized</param>
+    public static void Load(BinaryReader reader, Curve curve) {
+      curve.Keys.Clear();
+
+      // Load the curve's loop settings
+      curve.PreLoop = (CurveLoopType)reader.ReadByte();
+      curve.PostLoop = (CurveLoopType)reader.ReadByte();
+
+      // Load the key frames defined for the curve
+      int keyCount = reader.ReadInt32();
+      for(int keyIndex = 0; keyIndex < curve.Keys.Count; ++keyIndex) {
+        float position = reader.ReadSingle();
+        float value = reader.ReadSingle();
+        float tangentIn = reader.ReadSingle();
+        float tangentOut = reader.ReadSingle();
+        CurveContinuity continuity = (CurveContinuity)reader.ReadByte();
+
+        curve.Keys.Add(new CurveKey(position, value, tangentIn, tangentOut, continuity));
+      }      
+    }
+
+    /// <summary>Serializes a curve into a binary data stream</summary>
+    /// <param name="writer">BinaryWriter to serialize the curve into</param>
+    /// <param name="curve">Curve to be serialized</param>
+    public static void Save(BinaryWriter writer, Curve curve) {
+
+      // Save the curve's loop settings
+      writer.Write((byte)curve.PreLoop);
+      writer.Write((byte)curve.PostLoop);
+
+      // Save the key frames contained in the curve
+      writer.Write(curve.Keys.Count);
+      for(int keyIndex = 0; keyIndex < curve.Keys.Count; ++keyIndex) {
+        CurveKey key = curve.Keys[keyIndex];
+
+        writer.Write(key.Position);
+        writer.Write(key.Value);
+        writer.Write(key.TangentIn);
+        writer.Write(key.TangentOut);
+        writer.Write((byte)key.Continuity);
+      }
+    }
+
+    #endregion // Microsoft.Xna.Framework.Curve
+    
 
   } // class BinarySerializer
 
