@@ -139,15 +139,16 @@ namespace Nuclex.Support.Tracking {
 
         // Construct a new observation wrapper. This is done inside the lock
         // because as soon as we are subscribed to the events, we can potentially
-        // receive them. This would otherwise risk processing a progress update
+        // receive them. The lock eliminates the risk of processing a progress update
         // before the progression has been added to the tracked progressions list.
         if(progression.Ended) {
 
           // If the ended progression would become the only progression in the list,
-          // there's no sense in doing anything at all because it would have to
-          // be thrown right out again
+          // there's no sense in doing anything at all because it would have to be
+          // thrown right out again. So only add the progression if it hasn't ended yet.
           if(!wasEmpty) {
 
+            // Add the progression into our tracked progressions list.
             this.trackedProgressions.Add(
               new ObservedWeightedProgression<Progression>(
                 new WeightedProgression<Progression>(progression, weight),
@@ -164,6 +165,8 @@ namespace Nuclex.Support.Tracking {
 
         } else { // Progression is still running
 
+          // Construct a new progression observer and add the progression to our
+          // list of tracked progressions.
           ObservedWeightedProgression<Progression> observedProgression =
             new ObservedWeightedProgression<Progression>(
               new WeightedProgression<Progression>(progression, weight),
@@ -184,7 +187,8 @@ namespace Nuclex.Support.Tracking {
 
           // The progression might have ended before we had registered to its AsyncEnded
           // event, so we have to do this to be on the safe side. This might cause
-          // asyncEnded() to be called twice, but that's not a problem at all.
+          // asyncEnded() to be called twice, but that's not a problem in this
+          // implementation and was accepted for performance reasons.
           if(progression.Ended) {
             asyncEnded();
             observedProgression.Dispose();

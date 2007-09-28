@@ -254,7 +254,7 @@ namespace Nuclex.Support.Serialization {
         CurveContinuity continuity = (CurveContinuity)reader.ReadByte();
 
         curve.Keys.Add(new CurveKey(position, value, tangentIn, tangentOut, continuity));
-      }      
+      }
     }
 
     /// <summary>Serializes a curve into a binary data stream</summary>
@@ -280,7 +280,6 @@ namespace Nuclex.Support.Serialization {
     }
 
     #endregion // Microsoft.Xna.Framework.Curve
-    
 
   } // class BinarySerializer
 
