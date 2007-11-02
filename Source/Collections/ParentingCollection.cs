@@ -81,14 +81,14 @@ namespace Nuclex.Support.Collections {
     /// <remarks>
     ///   <para>
     ///     This method is intended to support collections that need to dispose their
-    ///     items. It will unparent all of the collections items and call Dispose()
+    ///     items. It will unparent all of the collection's items and call Dispose()
     ///     on any item that implements IDisposable.
     ///   </para>
     ///   <para>
-    ///     Do not call this method during a GC run (eg. from your destructor) as it
-    ///     will access the contained items in order to unparent and to Dispose() them,
-    ///     which leads to undefined behavior since the object might have already been
-    ///     collected by the GC.
+    ///     Do not call this method from your destructor as it will access the
+    ///     contained items in order to unparent and to Dispose() them, which leads
+    ///     to undefined behavior since the object might have already been collected
+    ///     by the GC. Call it only if your object is being manually disposed.
     ///   </para>
     /// </remarks>
     protected void DisposeItems() {

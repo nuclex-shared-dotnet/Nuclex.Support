@@ -191,6 +191,11 @@
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>PathHelper</Name>
     </Compile>
+    <Compile Include="Source\PathHelper.Test.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PathHelper.Test</Name>
+      <DependentUpon>PathHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\AbortedException.cs">
       <XNAUseContentPipeline>false</XNAUseContentPipeline>
       <Name>AbortedException</Name>

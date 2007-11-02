@@ -37,7 +37,7 @@ namespace Nuclex.Support {
         return absolutePath;
 
       // Calculate the required length for the StrinBuilder to be slightly more
-      // friendly in terms of memory usage
+      // friendly in terms of memory usage.
       int requiredLength = (baseDirectories.Length - (lastCommonRoot + 1)) * 3;
       for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; index++)
         requiredLength += absoluteDirectories[index].Length + 1;
@@ -47,7 +47,7 @@ namespace Nuclex.Support {
       // Go to the common path by adding .. until we're where we want to be
       for(int index = lastCommonRoot + 1; index < baseDirectories.Length; index++) {
         if(baseDirectories[index].Length > 0) {
-          if(relativePath.Length > 0) // // We don't want the path to start with a slash
+          if(relativePath.Length > 0) // We don't want the path to start with a slash
             relativePath.Append(Path.DirectorySeparatorChar);
 
           relativePath.Append("..");
