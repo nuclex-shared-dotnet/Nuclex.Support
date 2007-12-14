@@ -39,13 +39,13 @@ namespace Nuclex.Support {
       // Calculate the required length for the StrinBuilder to be slightly more
       // friendly in terms of memory usage.
       int requiredLength = (baseDirectories.Length - (lastCommonRoot + 1)) * 3;
-      for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; index++)
+      for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; ++index)
         requiredLength += absoluteDirectories[index].Length + 1;
 
       StringBuilder relativePath = new StringBuilder(requiredLength);
 
       // Go to the common path by adding .. until we're where we want to be
-      for(int index = lastCommonRoot + 1; index < baseDirectories.Length; index++) {
+      for(int index = lastCommonRoot + 1; index < baseDirectories.Length; ++index) {
         if(baseDirectories[index].Length > 0) {
           if(relativePath.Length > 0) // We don't want the path to start with a slash
             relativePath.Append(Path.DirectorySeparatorChar);
