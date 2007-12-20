@@ -137,18 +137,18 @@ namespace Nuclex.Support.Tracking {
         // division-by-zero from the potentially still zeroed totalWeight by the lock.
         this.totalWeight += weight;
 
-        // Construct a new observation wrapper. This is done inside the lock
-        // because as soon as we are subscribed to the events, we can potentially
-        // receive them. The lock eliminates the risk of processing a progress update
-        // before the progression has been added to the tracked progressions list.
         if(progression.Ended) {
 
           // If the ended progression would become the only progression in the list,
           // there's no sense in doing anything at all because it would have to be
-          // thrown right out again. So only add the progression if it hasn't ended yet.
+          // thrown right out again. Only add the progression when there are other
+          // running progressions to properly sum total progress for consistency.
           if(!wasEmpty) {
 
-            // Add the progression into our tracked progressions list.
+            // Construct a new observation wrapper. This is done inside the lock
+            // because as soon as we are subscribed to the events, we can potentially
+            // receive them. The lock eliminates the risk of processing a progress update
+            // before the progression has been added to the tracked progressions list.
             this.trackedProgressions.Add(
               new ObservedWeightedProgression<Progression>(
                 new WeightedProgression<Progression>(progression, weight),
@@ -163,7 +163,7 @@ namespace Nuclex.Support.Tracking {
 
           }
 
-        } else { // Progression is still running
+        } else { // Not ended -- Progression is still running
 
           // Construct a new progression observer and add the progression to our
           // list of tracked progressions.
@@ -188,7 +188,7 @@ namespace Nuclex.Support.Tracking {
           // The progression might have ended before we had registered to its AsyncEnded
           // event, so we have to do this to be on the safe side. This might cause
           // asyncEnded() to be called twice, but that's not a problem in this
-          // implementation and was accepted for performance reasons.
+          // implementation and improves performance and simplicity for the normal path.
           if(progression.Ended) {
             asyncEnded();
             observedProgression.Dispose();
@@ -234,7 +234,7 @@ namespace Nuclex.Support.Tracking {
         } else {
 
           // Rebuild the total weight from scratch. Subtracting the removed progression's
-          // weight would work, too, but might accumulate rounding errors making the sum
+          // weight would work, too, but we might accumulate rounding errors making the sum
           // drift slowly away from the actual value.
           this.totalWeight = 0.0f;
           for(int index = 0; index < this.trackedProgressions.Count; ++index)
@@ -275,12 +275,12 @@ namespace Nuclex.Support.Tracking {
     private void recalculateProgress() {
       float totalProgress = 0.0f;
 
-      // Lock the progression to avoid trouble when someone tries to remove one
-      // of our tracked progressions while we're just processing a progress update
+      // Lock the collection to avoid trouble when someone tries to remove one
+      // of our tracked progressions while we're just doing a progress update
       lock(this.trackedProgressions) {
 
         // This is a safety measure. In theory, even after all progressions have
-        // ended and collection of tracked progressions is cleared, a waiting
+        // ended and the collection of tracked progressions is cleared, a waiting
         // thread might deliver another progress update causing this method to
         // be entered. In this case, the right thing is to do nothing at all.
         if(this.totalWeight == 0.0f)
