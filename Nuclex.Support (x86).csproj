@@ -84,7 +84,9 @@
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />
-    <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs" />
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs">
+      <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Licensing\LicenseKey.cs" />
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
@@ -114,6 +116,13 @@
     <Compile Include="Source\PathHelper.Test.cs">
       <DependentUpon>PathHelper.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Plugins\Attributes.cs" />
+    <Compile Include="Source\Plugins\Employer.cs" />
+    <Compile Include="Source\Plugins\FactoryEmployer.cs" />
+    <Compile Include="Source\Plugins\InstanceEmployer.cs" />
+    <Compile Include="Source\Plugins\PluginHelper.cs" />
+    <Compile Include="Source\Plugins\PluginHost.cs" />
+    <Compile Include="Source\Plugins\PluginRepository.cs" />
     <Compile Include="Source\Scheduling\AbortedException.cs" />
     <Compile Include="Source\Scheduling\IAbortable.cs" />
     <Compile Include="Source\Scheduling\Operation.cs" />

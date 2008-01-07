@@ -1,4 +1,4 @@
-#region CPL License
+﻿#region CPL License
 /*
 Nuclex Framework
 Copyright (C) 2002-2008 Nuclex Development Labs
@@ -19,13 +19,20 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
 
-namespace Nuclex.Support.SpatialPartitioning {
+namespace Nuclex.Support.Plugins {
 
-  /// <summary>Interface for a 2D geometrical database</summary>
-  public abstract class SpatialIndex2 {
+  /// <summary>Attribute that prevents a class from being seen by the PluginHost</summary>
+  /// <remarks>
+  ///   When this attribute is attached to a class it will be invisible to the
+  ///   PluginHost and not become accessable as a plugin.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+  public class NoPluginAttribute : System.Attribute {
+
+    /// <summary>Initializes an instance of the NoPluginAttributes</summary>
+    public NoPluginAttribute() : base() { }
 
   }
 
-} // namespace Nuclex.Support.SpatialPartitioning
+} // namespace Nuclex.Support.Plugins

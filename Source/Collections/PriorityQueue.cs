@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2007 Nuclex Development Labs
+Copyright (C) 2002-2008 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -196,15 +196,17 @@ namespace Nuclex.Support.Collections {
 
       while(child < this.count) {
 
-        if(
+        bool needsToBeMoved =
           ((child + 1) < this.count) &&
-          (this.comparer.Compare(heap[child], this.heap[child + 1]) < 0)
-        )
+          (this.comparer.Compare(heap[child], this.heap[child + 1]) < 0);
+
+        if(needsToBeMoved)
           ++child;
 
         this.heap[index] = this.heap[child];
         index = child;
         child = getLeftChild(index);
+
       }
 
       bubbleUp(index, item);
