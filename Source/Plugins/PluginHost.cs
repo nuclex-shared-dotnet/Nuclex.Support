@@ -46,7 +46,7 @@ namespace Nuclex.Support.Plugins {
       this.employer = employer;
       this.repository = repository;
 
-      foreach(Assembly assembly in this.repository.LoadedPlugins)
+      foreach(Assembly assembly in this.repository.LoadedAssemblies)
         employAssemblyTypes(assembly);
 
       this.repository.AssemblyLoaded += new AssemblyLoadEventHandler(assemblyLoadHandler);
