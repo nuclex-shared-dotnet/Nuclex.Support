@@ -80,8 +80,8 @@ namespace Nuclex.Support.Scheduling {
     }
 
     /// <summary>Launches the background operation</summary>
-    public override void Begin() {
-      beginCurrentOperation();
+    public override void Start() {
+      startCurrentOperation();
     }
 
     /// <summary>Prepares the current operation and calls its Begin() method</summary>
@@ -89,13 +89,13 @@ namespace Nuclex.Support.Scheduling {
     ///   This subscribes the queue to the events of to the current operation
     ///   and launches the operation by calling its Begin() method.
     /// </remarks>
-    private void beginCurrentOperation() {
+    private void startCurrentOperation() {
       OperationType operation = this.children[this.currentOperationIndex].Progression;
 
       operation.AsyncEnded += this.asyncOperationEndedDelegate;
       operation.AsyncProgressUpdated += this.asyncOperationProgressUpdatedDelegate;
 
-      operation.Begin();
+      operation.Start();
     }
 
     /// <summary>Disconnects from the current operation and calls its End() method</summary>
@@ -112,7 +112,7 @@ namespace Nuclex.Support.Scheduling {
       operation.AsyncProgressUpdated -= this.asyncOperationProgressUpdatedDelegate;
 
       try {
-        operation.End();
+        operation.Join();
 
         // Add the operations weight to the total amount of completed weight in the queue
         this.completedWeight += this.children[this.currentOperationIndex].Weight;
@@ -141,7 +141,7 @@ namespace Nuclex.Support.Scheduling {
 
         // Execute the next operation unless we reached the end of the queue
         if(this.currentOperationIndex < this.children.Count) {
-          beginCurrentOperation();
+          startCurrentOperation();
           return;
         }
 

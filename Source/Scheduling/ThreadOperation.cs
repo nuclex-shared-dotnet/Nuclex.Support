@@ -49,7 +49,7 @@ namespace Nuclex.Support.Scheduling {
     }
 
     /// <summary>Launches the background operation</summary>
-    public override void Begin() {
+    public override void Start() {
       if(useThreadPool) {
         ThreadPool.QueueUserWorkItem(callMethod);
       } else {

@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Tracking {
 
   /// <summary>Interface for processes that report their status</summary>
-  interface IStatusReporter {
+  public interface IStatusReporter {
 
     /// <summary>Triggered when the status of the process changes</summary>
     event EventHandler<StatusReportEventArgs> StatusChanged;

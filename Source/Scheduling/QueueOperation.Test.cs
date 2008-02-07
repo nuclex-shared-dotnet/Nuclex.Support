@@ -99,7 +99,7 @@ namespace Nuclex.Support.Scheduling {
     private class TestOperation : Operation {
 
       /// <summary>Begins executing the operation. Yeah, sure :)</summary>
-      public override void Begin() { }
+      public override void Start() { }
 
       /// <summary>Moves the operation into the ended state</summary>
       public void SetEnded() {
@@ -144,7 +144,7 @@ namespace Nuclex.Support.Scheduling {
 
       IQueueOperationSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
 
-      testQueueOperation.Begin();
+      testQueueOperation.Start();
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressUpdated").

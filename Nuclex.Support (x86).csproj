@@ -60,6 +60,8 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Source\Tracking\Internal\ObservedWeightedProgression.cs" />
     <Compile Include="Source\Tracking\Internal\WeightedProgressionWrapperCollection.cs" />
     <Compile Include="Source\Tracking\IStatusReporter.cs" />
+    <Compile Include="Source\Tracking\FailableProgression.cs" />
     <Compile Include="Source\Tracking\Progression.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.Test.cs">
