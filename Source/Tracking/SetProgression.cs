@@ -46,10 +46,10 @@ namespace Nuclex.Support.Tracking {
       // progression and wrap it in an ObservedProgression
       foreach(ProgressionType progression in childs) {
         this.children.Add(
-          new ObservedWeightedProgression<ProgressionType>(
-            new WeightedProgression<ProgressionType>(progression),
-            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncEnded)
+          new ObservedWeightedWaitable<ProgressionType>(
+            new WeightedWaitable<ProgressionType>(progression),
+            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
       }
@@ -63,17 +63,17 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Initializes a new set progression</summary>
     /// <param name="childs">Progressions to track with this set</param>
     public SetProgression(
-      IEnumerable<WeightedProgression<ProgressionType>> childs
+      IEnumerable<WeightedWaitable<ProgressionType>> childs
     )
       : this() {
 
       // Construct an ObservedProgression around each of the WeightedProgressions
-      foreach(WeightedProgression<ProgressionType> progression in childs) {
+      foreach(WeightedWaitable<ProgressionType> progression in childs) {
         this.children.Add(
-          new ObservedWeightedProgression<ProgressionType>(
+          new ObservedWeightedWaitable<ProgressionType>(
             progression,
-            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedWeightedProgression<ProgressionType>.ReportDelegate(asyncEnded)
+            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncEnded)
           )
         );
 
@@ -85,7 +85,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Performs common initialization for the public constructors</summary>
     private SetProgression() {
-      this.children = new List<ObservedWeightedProgression<ProgressionType>>();
+      this.children = new List<ObservedWeightedWaitable<ProgressionType>>();
     }
 
     /// <summary>Immediately releases all resources owned by the object</summary>
@@ -106,7 +106,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Childs contained in the progression set</summary>
-    public IList<WeightedProgression<ProgressionType>> Children {
+    public IList<WeightedWaitable<ProgressionType>> Children {
       get {
 
         // The wrapper is constructed only when needed. Most of the time, users will
@@ -160,7 +160,7 @@ namespace Nuclex.Support.Tracking {
       // scaled to the weight each progression has assigned to it.
       for(int index = 0; index < this.children.Count; ++index) {
         totalProgress +=
-          this.children[index].Progress * this.children[index].WeightedProgression.Weight;
+          this.children[index].Progress * this.children[index].WeightedWaitable.Weight;
       }
 
       // Calculate the actual combined progress
@@ -179,7 +179,7 @@ namespace Nuclex.Support.Tracking {
       // If there's still at least one progression going, don't report that
       // the SetProgression has finished yet.
       for(int index = 0; index < this.children.Count; ++index)
-        if(!this.children[index].WeightedProgression.Progression.Ended)
+        if(!this.children[index].WeightedWaitable.Waitable.Ended)
           return;
 
       // All child progressions have ended, so the set has now ended as well
@@ -188,7 +188,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Progressions being managed in the set</summary>
-    private List<ObservedWeightedProgression<ProgressionType>> children;
+    private List<ObservedWeightedWaitable<ProgressionType>> children;
     /// <summary>
     ///   Wrapper collection for exposing the child progressions under the
     ///   WeightedProgression interface

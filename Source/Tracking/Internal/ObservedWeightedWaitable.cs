@@ -27,7 +27,7 @@ namespace Nuclex.Support.Tracking {
   /// <typeparam name="ProgressionType">
   ///   Type of the progression that is being observed
   /// </typeparam>
-  internal class ObservedWeightedProgression<ProgressionType> : IDisposable
+  internal class ObservedWeightedWaitable<ProgressionType> : IDisposable
     where ProgressionType : Waitable {
 
     /// <summary>Delegate for reporting progress updates</summary>
@@ -41,15 +41,15 @@ namespace Nuclex.Support.Tracking {
     /// <param name="endedCallback">
     ///   Callback to invoke when the progression has ended
     /// </param>
-    internal ObservedWeightedProgression(
-      WeightedProgression<ProgressionType> weightedProgression,
+    internal ObservedWeightedWaitable(
+      WeightedWaitable<ProgressionType> weightedProgression,
       ReportDelegate progressUpdateCallback,
       ReportDelegate endedCallback
     ) {
       this.weightedProgression = weightedProgression;
 
       // See if this progression has already ended (initial check for performance)
-      if(weightedProgression.Progression.Ended) {
+      if(weightedProgression.Waitable.Ended) {
 
         this.progress = 1.0f;
 
@@ -58,7 +58,7 @@ namespace Nuclex.Support.Tracking {
         this.endedCallback = endedCallback;
         this.progressUpdateCallback = progressUpdateCallback;
 
-        this.weightedProgression.Progression.AsyncEnded +=
+        this.weightedProgression.Waitable.AsyncEnded +=
           new EventHandler(asyncEnded);
 
         // Check whether this progression might have ended before we were able to
@@ -66,10 +66,10 @@ namespace Nuclex.Support.Tracking {
         // other event and (important) set our progress to 1.0 because, since we
         // might not have gotten the 'Ended' event, it might otherwise stay at 0.0
         // even though the progression is in the 'Ended' state.
-        if(weightedProgression.Progression.Ended) {
+        if(weightedProgression.Waitable.Ended) {
           this.progress = 1.0f;
         } else {
-          this.progressReporter = this.weightedProgression.Progression as IProgressReporter;
+          this.progressReporter = this.weightedProgression.Waitable as IProgressReporter;
 
           if(this.progressReporter != null) {
             this.asyncProgressChangedEventHandler = new EventHandler<ProgressReportEventArgs>(
@@ -90,7 +90,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Weighted progression being observed</summary>
-    public WeightedProgression<ProgressionType> WeightedProgression {
+    public WeightedWaitable<ProgressionType> WeightedWaitable {
       get { return this.weightedProgression; }
     }
 
@@ -143,7 +143,7 @@ namespace Nuclex.Support.Tracking {
         // is no risk of deadlock involved, so we don't need a fancy syncRoot!
         lock(this) {
           if(this.endedCallback != null) {
-            this.weightedProgression.Progression.AsyncEnded -=
+            this.weightedProgression.Waitable.AsyncEnded -=
               new EventHandler(asyncEnded);
 
             if(this.progressReporter != null) {
@@ -166,7 +166,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>The observed progression's progress reporting interface</summary>
     private IProgressReporter progressReporter;
     /// <summary>The weighted progression that is being observed</summary>
-    private WeightedProgression<ProgressionType> weightedProgression;
+    private WeightedWaitable<ProgressionType> weightedProgression;
     /// <summary>Callback to invoke when the progress updates</summary>
     private volatile ReportDelegate progressUpdateCallback;
     /// <summary>Callback to invoke when the progression ends</summary>

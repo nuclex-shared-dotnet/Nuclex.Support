@@ -148,7 +148,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Validates that the tracker properly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
-      ProgressionTracker tracker = new ProgressionTracker();
+      ProgressTracker tracker = new ProgressTracker();
 
       IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
@@ -160,7 +160,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
@@ -174,7 +174,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
@@ -194,7 +194,7 @@ namespace Nuclex.Support.Tracking {
     /// </remarks>
     [Test]
     public void TestDelayedRemoval() {
-      ProgressionTracker tracker = new ProgressionTracker();
+      ProgressTracker tracker = new ProgressTracker();
 
       IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
@@ -206,7 +206,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
@@ -220,7 +220,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
@@ -231,7 +231,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.75f))
           }
         );
@@ -245,7 +245,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(1.0f))
           }
         );
@@ -265,7 +265,7 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     [Test]
     public void TestSoleEndedProgression() {
-      ProgressionTracker tracker = new ProgressionTracker();
+      ProgressTracker tracker = new ProgressTracker();
 
       IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
@@ -280,7 +280,7 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     [Test]
     public void TestEndedProgression() {
-      ProgressionTracker tracker = new ProgressionTracker();
+      ProgressTracker tracker = new ProgressTracker();
 
       IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
@@ -292,7 +292,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
@@ -304,7 +304,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );
@@ -315,7 +315,7 @@ namespace Nuclex.Support.Tracking {
         Method("ProgressUpdated").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressionTracker)),
+            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(1.0f))
           }
         );
@@ -335,7 +335,7 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     [Test]
     public void TestProvokedDeadlock() {
-      ProgressionTracker tracker = new ProgressionTracker();
+      ProgressTracker tracker = new ProgressTracker();
 
       TestProgression test1 = new TestProgression();
       tracker.Track(test1);
@@ -351,14 +351,14 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a tracker</summary>
     /// <param name="tracker">Tracker to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private IProgressionTrackerSubscriber mockSubscriber(ProgressionTracker tracker) {
+    private IProgressionTrackerSubscriber mockSubscriber(ProgressTracker tracker) {
       IProgressionTrackerSubscriber mockedSubscriber =
         this.mockery.NewMock<IProgressionTrackerSubscriber>();
 
       tracker.AsyncIdleStateChanged +=
         new EventHandler<IdleStateEventArgs>(mockedSubscriber.IdleStateChanged);
 
-      tracker.AsyncProgressUpdated +=
+      tracker.AsyncProgressChanged +=
         new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressUpdated);
 
       return mockedSubscriber;

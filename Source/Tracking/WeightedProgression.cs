@@ -24,24 +24,24 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Tracking {
 
   /// <summary>Progression with an associated weight for the total progress</summary>
-  public class WeightedProgression<ProgressionType> where ProgressionType : Waitable {
+  public class WeightedWaitable<ProgressionType> where ProgressionType : Waitable {
 
     /// <summary>
     ///   Initializes a new weighted progression with a default weight of 1.0
     /// </summary>
     /// <param name="progression">Progression whose progress to monitor</param>
-    public WeightedProgression(ProgressionType progression) : this(progression, 1.0f) { }
+    public WeightedWaitable(ProgressionType progression) : this(progression, 1.0f) { }
 
     /// <summary>Initializes a new weighted progression</summary>
     /// <param name="progression">Progression whose progress to monitor</param>
     /// <param name="weight">Weighting of the progression's progress</param>
-    public WeightedProgression(ProgressionType progression, float weight) {
+    public WeightedWaitable(ProgressionType progression, float weight) {
       this.progression = progression;
       this.weight = weight;       
     }
 
     /// <summary>Progression being wrapped by this weighted progression</summary>
-    public ProgressionType Progression {
+    public ProgressionType Waitable {
       get { return this.progression; }
     }
 

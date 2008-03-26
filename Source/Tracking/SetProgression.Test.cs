@@ -164,7 +164,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Children[0].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[0].Waitable.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -174,9 +174,9 @@ namespace Nuclex.Support.Tracking {
     public void TestWeightedSummedProgress() {
       SetProgression<TestWaitable> testSetProgression =
         new SetProgression<TestWaitable>(
-          new WeightedProgression<TestWaitable>[] {
-            new WeightedProgression<TestWaitable>(new TestWaitable(), 1.0f),
-            new WeightedProgression<TestWaitable>(new TestWaitable(), 2.0f)
+          new WeightedWaitable<TestWaitable>[] {
+            new WeightedWaitable<TestWaitable>(new TestWaitable(), 1.0f),
+            new WeightedWaitable<TestWaitable>(new TestWaitable(), 2.0f)
           }
         );
 
@@ -191,7 +191,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Children[0].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[0].Waitable.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressChanged").
@@ -202,7 +202,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      testSetProgression.Children[1].Progression.ChangeProgress(0.5f);
+      testSetProgression.Children[1].Waitable.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -227,8 +227,8 @@ namespace Nuclex.Support.Tracking {
         Method("Ended").
         WithAnyArguments();
       
-      testSetProgression.Children[0].Progression.End();
-      testSetProgression.Children[1].Progression.End();
+      testSetProgression.Children[0].Waitable.End();
+      testSetProgression.Children[1].Waitable.End();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }

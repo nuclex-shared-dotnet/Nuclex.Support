@@ -49,14 +49,14 @@ namespace Nuclex.Support.Tracking {
   /// </remarks>
   internal class WeightedProgressionWrapperCollection<ProgressionType> :
     TransformingReadOnlyCollection<
-      ObservedWeightedProgression<ProgressionType>, WeightedProgression<ProgressionType>
+      ObservedWeightedWaitable<ProgressionType>, WeightedWaitable<ProgressionType>
     >
     where ProgressionType : Waitable {
 
     /// <summary>Initializes a new weighted progression collection wrapper</summary>
     /// <param name="items">Items to be exposed as weighted progressions</param>
     internal WeightedProgressionWrapperCollection(
-      IList<ObservedWeightedProgression<ProgressionType>> items
+      IList<ObservedWeightedWaitable<ProgressionType>> items
     )
       : base(items) { }
 
@@ -69,10 +69,10 @@ namespace Nuclex.Support.Tracking {
     ///   be called frequently, because the TransformingReadOnlyCollection does
     ///   not cache otherwise store the transformed items.
     /// </remarks>
-    protected override WeightedProgression<ProgressionType> Transform(
-      ObservedWeightedProgression<ProgressionType> item
+    protected override WeightedWaitable<ProgressionType> Transform(
+      ObservedWeightedWaitable<ProgressionType> item
     ) {
-      return item.WeightedProgression;
+      return item.WeightedWaitable;
     }
 
   }
