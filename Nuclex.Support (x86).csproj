@@ -148,7 +148,7 @@
     <Compile Include="Source\Tracking\Internal\ObservedWeightedProgression.cs" />
     <Compile Include="Source\Tracking\Internal\WeightedProgressionWrapperCollection.cs" />
     <Compile Include="Source\Tracking\IStatusReporter.cs" />
-    <Compile Include="Source\Tracking\FailableProgression.cs" />
+    <Compile Include="Source\Tracking\Request.cs" />
     <Compile Include="Source\Tracking\Progression.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.Test.cs">

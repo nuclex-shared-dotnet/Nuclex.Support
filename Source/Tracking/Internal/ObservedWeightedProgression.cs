@@ -48,6 +48,7 @@ namespace Nuclex.Support.Tracking {
     ) {
       this.weightedProgression = weightedProgression;
 
+      // See if this progression has already ended (initial check for performance)
       if(weightedProgression.Progression.Ended) {
 
         this.progress = 1.0f;
@@ -60,8 +61,17 @@ namespace Nuclex.Support.Tracking {
         this.weightedProgression.Progression.AsyncEnded +=
           new EventHandler(asyncEnded);
 
-        this.weightedProgression.Progression.AsyncProgressUpdated +=
-          new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+        // Check whether this progression might have ended before we were able to
+        // attach ourselfes to its event. If so, don't bother registering to the
+        // other event and (important) set our progress to 1.0 because, since we
+        // might not have gotten the 'Ended' event, it might otherwise stay at 0.0
+        // even though the progression is in the 'Ended' state.
+        if(weightedProgression.Progression.Ended) {
+          this.progress = 1.0f;
+        } else {
+          this.weightedProgression.Progression.AsyncProgressUpdated +=
+            new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+        }
 
       }
     }

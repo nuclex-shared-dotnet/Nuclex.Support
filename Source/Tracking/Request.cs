@@ -1,3 +1,23 @@
+#region CPL License
+/*
+Nuclex Framework
+Copyright (C) 2002-2008 Nuclex Development Labs
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the IBM Common Public License as
+published by the IBM Corporation; either version 1.0 of the
+License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+IBM Common Public License for more details.
+
+You should have received a copy of the IBM Common Public
+License along with this library
+*/
+#endregion
+
 using System;
 using System.Collections.Generic;
 
@@ -17,17 +37,17 @@ namespace Nuclex.Support.Tracking {
   ///     OnAsyncEnded(), no matter what the outcome of your background operation is.
   ///   </para>
   /// </remarks>
-  public class FailableProgression : Progression {
+  public class Request : Progression {
 
-    #region class EndedDummyProgression
+    #region class EndedDummyRequest
 
-    /// <summary>Dummy progression that is always in the ended state</summary>
-    private class EndedDummyProgression : FailableProgression {
-      /// <summary>Creates a new successfully completed dummy progression</summary>
-      public EndedDummyProgression() : this(null) { }
-      /// <summary>Creates a new failed dummy progression</summary>
+    /// <summary>Dummy request that is always in the ended state</summary>
+    private class EndedDummyRequest : Request {
+      /// <summary>Creates a new successfully completed dummy request</summary>
+      public EndedDummyRequest() : this(null) { }
+      /// <summary>Creates a new failed dummy request</summary>
       /// <param name="exception">Exception that caused the dummy to fail</param>
-      public EndedDummyProgression(Exception exception) {
+      public EndedDummyRequest(Exception exception) {
         OnAsyncEnded();
 
         // Only call SetException() if an actual exception was provided. Who knows what
@@ -37,17 +57,17 @@ namespace Nuclex.Support.Tracking {
       }
     }
 
-    #endregion // EndedDummyProgression
+    #endregion // EndedDummyRequest
 
-    /// <summary>Creates a new failed dummy progression</summary>
+    /// <summary>Creates a new failed dummy request</summary>
     /// <param name="error">
     ///   Exception that supposedly caused the progression to fail
     /// </param>
     /// <returns>
-    ///   A failed progression that reports the provided exception as cause for its failure
+    ///   A failed request that reports the provided exception as cause for its failure
     /// </returns>
-    public static FailableProgression CreateFailedDummyProgression(Exception exception) {
-      return new EndedDummyProgression(exception);
+    public static Request CreateFailedDummyRequest(Exception exception) {
+      return new EndedDummyRequest(exception);
     }
 
     /// <summary>Waits for the background operation to end</summary>
@@ -58,14 +78,6 @@ namespace Nuclex.Support.Tracking {
     ///   caller).
     /// </remarks>
     public virtual void Join() {
-
-      // By design, end can only be called once!
-      lock(this) {
-        if(this.endCalled)
-          throw new InvalidOperationException("End() has already been called");
-
-        this.endCalled = true;
-      }
 
       // If the progression itself hasn't ended yet, block the caller until it has.
       if(!Ended)
@@ -101,8 +113,6 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Exception that occured while the operation was executing</summary>
     private volatile Exception occuredException;
-    /// <summary>Whether the End() method has been called already</summary>
-    private volatile bool endCalled;
 
   }
 
