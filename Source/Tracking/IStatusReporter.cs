@@ -27,7 +27,7 @@ namespace Nuclex.Support.Tracking {
   public interface IStatusReporter {
 
     /// <summary>Triggered when the status of the process changes</summary>
-    event EventHandler<StatusReportEventArgs> StatusChanged;
+    event EventHandler<StatusReportEventArgs> AsyncStatusChanged;
 
   }
 

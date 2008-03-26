@@ -23,33 +23,34 @@ using System.Threading;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Base class for actions that give an indication of their progress</summary>
+  /// <summary>Base class for actions on which that give an indication of their progress</summary>
   /// <remarks>
   ///   <para>
   ///     By encapsulating long-running operations which will ideally be running in
-  ///     a background thread in a class that's derived from Progression you can wait
-  ///     for the completion of the operation and receive feedback on the achieved
-  ///     progress. This is useful for displaying a progress bar, loading screen or
-  ///     some other means of entertaining the user while he waits for the operation to
-  ///     complete. It is also possible to register callbacks which will be fired once
-  ///     the progression has ended.
+  ///     a background thread in a class that's derived from <see cref="Waitable" />
+  ///     you can wait for the completion of the operation and optionally even receive
+  ///     feedback on the achieved progress. This is useful for displaying a progress
+  ///     bar, loading screen or some other means of entertaining the user while he
+  ///     waits for the task to complete.
   ///   </para>
   ///   <para>
-  ///     This class deliberately does not provide an Execute() method or anything similar
-  ///     to clearly seperate the initiation of an operation from just monitoring it.
-  ///     By omitting an Execute() method, it also becomes possible to construct a
-  ///     progression just-in-time when it is explicitely asked for.
+  ///     You can register callbacks which will be fired once the <see cref="Waitable" />
+  ///     task has completed. This class deliberately does not provide an Execute()
+  ///     method or anything similar to clearly seperate the initiation of an operation
+  ///     from just monitoring it. By omitting an Execute() method, it also becomes
+  ///     possible to construct a progression just-in-time when it is explicitely being
+  ///     asked for.
   ///   </para>
   /// </remarks>
-  public abstract class Progression {
+  public abstract class Waitable {
 
     #region class EndedDummyProgression
 
     /// <summary>Dummy progression which always is in the 'ended' state</summary>
-    private class EndedDummyProgression : Progression {
+    private class EndedDummyWaitable : Waitable {
 
       /// <summary>Initializes a new ended dummy progression</summary>
-      public EndedDummyProgression() {
+      public EndedDummyWaitable() {
         OnAsyncEnded();
       }
 
@@ -63,10 +64,7 @@ namespace Nuclex.Support.Tracking {
     ///   when a progression that's lazily created is accessed after the original
     ///   operation has ended already.
     /// </remarks>
-    public static readonly Progression EndedDummy = new EndedDummyProgression();
-
-    /// <summary>will be triggered to report when progress has been achieved</summary>
-    public event EventHandler<ProgressUpdateEventArgs> AsyncProgressUpdated;
+    public static readonly Waitable EndedDummy = new EndedDummyWaitable();
 
     /// <summary>Will be triggered when the progression has ended</summary>
     public event EventHandler AsyncEnded;
@@ -100,29 +98,6 @@ namespace Nuclex.Support.Tracking {
 
         return this.doneEvent;
       }
-    }
-
-    /// <summary>Fires the progress update event</summary>
-    /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
-    /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
-    /// </remarks>
-    protected virtual void OnAsyncProgressUpdated(float progress) {
-      OnAsyncProgressUpdated(new ProgressUpdateEventArgs(progress));
-    }
-
-    /// <summary>Fires the progress update event</summary>
-    /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
-    /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
-    ///   Allows for classes derived from the Progression class to easily provide
-    ///   a custom event arguments class that has been derived from the
-    ///   Progression's ProgressUpdateEventArgs class.
-    /// </remarks>
-    protected virtual void OnAsyncProgressUpdated(ProgressUpdateEventArgs eventArguments) {
-      EventHandler<ProgressUpdateEventArgs> copy = AsyncProgressUpdated;
-      if(copy != null)
-        copy(this, eventArguments);
     }
 
     /// <summary>Fires the AsyncEnded event</summary>

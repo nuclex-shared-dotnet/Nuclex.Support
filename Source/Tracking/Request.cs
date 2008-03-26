@@ -37,7 +37,7 @@ namespace Nuclex.Support.Tracking {
   ///     OnAsyncEnded(), no matter what the outcome of your background operation is.
   ///   </para>
   /// </remarks>
-  public abstract class Request : Progression {
+  public abstract class Request : Waitable {
 
     #region class EndedDummyRequest
 

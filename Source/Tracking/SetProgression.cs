@@ -28,13 +28,11 @@ namespace Nuclex.Support.Tracking {
 
   /// <summary>Forms a single progression from a set of progressions</summary>
   /// <typeparam name="ProgressionType">Type of progressions to manage as a set</typeparam>
-  public class SetProgression<ProgressionType> : Progression, IDisposable
-    where ProgressionType : Progression {
+  public class SetProgression<ProgressionType> : Waitable, IDisposable, IProgressReporter
+    where ProgressionType : Waitable {
 
-    /// <summary>Performs common initialization for the public constructors</summary>
-    private SetProgression() {
-      this.children = new List<ObservedWeightedProgression<ProgressionType>>();
-    }
+    /// <summary>will be triggered to report when progress has been achieved</summary>
+    public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
     /// <summary>Initializes a new set progression</summary>
     /// <param name="childs">Progressions to track with this set</param>
@@ -85,6 +83,11 @@ namespace Nuclex.Support.Tracking {
 
     }
 
+    /// <summary>Performs common initialization for the public constructors</summary>
+    private SetProgression() {
+      this.children = new List<ObservedWeightedProgression<ProgressionType>>();
+    }
+
     /// <summary>Immediately releases all resources owned by the object</summary>
     public void Dispose() {
 
@@ -124,6 +127,29 @@ namespace Nuclex.Support.Tracking {
       }
     }
 
+    /// <summary>Fires the progress update event</summary>
+    /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
+    /// <remarks>
+    ///   Informs the observers of this progression about the achieved progress.
+    /// </remarks>
+    protected virtual void OnAsyncProgressChanged(float progress) {
+      OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
+    }
+
+    /// <summary>Fires the progress update event</summary>
+    /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
+    /// <remarks>
+    ///   Informs the observers of this progression about the achieved progress.
+    ///   Allows for classes derived from the Progression class to easily provide
+    ///   a custom event arguments class that has been derived from the
+    ///   Progression's ProgressUpdateEventArgs class.
+    /// </remarks>
+    protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
+      EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
+      if(copy != null)
+        copy(this, eventArguments);
+    }
+
     /// <summary>
     ///   Called when the progress of one of the observed progressions changes
     /// </summary>
@@ -142,7 +168,7 @@ namespace Nuclex.Support.Tracking {
         totalProgress /= this.totalWeight;
 
       // Send out the progress update
-      OnAsyncProgressUpdated(totalProgress);
+      OnAsyncProgressChanged(totalProgress);
     }
 
     /// <summary>

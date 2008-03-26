@@ -28,7 +28,7 @@ namespace Nuclex.Support.Tracking {
   ///   Type of the progression that is being observed
   /// </typeparam>
   internal class ObservedWeightedProgression<ProgressionType> : IDisposable
-    where ProgressionType : Progression {
+    where ProgressionType : Waitable {
 
     /// <summary>Delegate for reporting progress updates</summary>
     public delegate void ReportDelegate();
@@ -69,8 +69,16 @@ namespace Nuclex.Support.Tracking {
         if(weightedProgression.Progression.Ended) {
           this.progress = 1.0f;
         } else {
-          this.weightedProgression.Progression.AsyncProgressUpdated +=
-            new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+          this.progressReporter = this.weightedProgression.Progression as IProgressReporter;
+
+          if(this.progressReporter != null) {
+            this.asyncProgressChangedEventHandler = new EventHandler<ProgressReportEventArgs>(
+              asyncProgressChanged
+            );
+
+            this.progressReporter.AsyncProgressChanged +=
+              this.asyncProgressChangedEventHandler;
+          }
         }
 
       }
@@ -119,7 +127,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Called when the progress of the observed progression changes</summary>
     /// <param name="sender">Progression whose progress has changed</param>
     /// <param name="e">Contains the updated progress</param>
-    private void asyncProgressUpdated(object sender, ProgressUpdateEventArgs e) {
+    private void asyncProgressChanged(object sender, ProgressReportEventArgs e) {
       this.progress = e.Progress;
       this.progressUpdateCallback();
     }
@@ -138,8 +146,12 @@ namespace Nuclex.Support.Tracking {
             this.weightedProgression.Progression.AsyncEnded -=
               new EventHandler(asyncEnded);
 
-            this.weightedProgression.Progression.AsyncProgressUpdated -=
-              new EventHandler<ProgressUpdateEventArgs>(asyncProgressUpdated);
+            if(this.progressReporter != null) {
+              this.progressReporter.AsyncProgressChanged -=
+                this.asyncProgressChangedEventHandler;
+
+              this.asyncProgressChangedEventHandler = null;
+            }
 
             this.endedCallback = null;
             this.progressUpdateCallback = null;
@@ -150,6 +162,9 @@ namespace Nuclex.Support.Tracking {
 
     }
 
+    private EventHandler<ProgressReportEventArgs> asyncProgressChangedEventHandler;
+    /// <summary>The observed progression's progress reporting interface</summary>
+    private IProgressReporter progressReporter;
     /// <summary>The weighted progression that is being observed</summary>
     private WeightedProgression<ProgressionType> weightedProgression;
     /// <summary>Callback to invoke when the progress updates</summary>

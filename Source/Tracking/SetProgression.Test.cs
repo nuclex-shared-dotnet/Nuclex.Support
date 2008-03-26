@@ -41,7 +41,7 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Called when the set progression's progress changes</summary>
       /// <param name="sender">Set progression whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
-      void ProgressUpdated(object sender, ProgressUpdateEventArgs e);
+      void ProgressChanged(object sender, ProgressReportEventArgs e);
 
       /// <summary>Called when the set progression has ended</summary>
       /// <param name="sender">Set progression that as ended</param>
@@ -59,7 +59,7 @@ namespace Nuclex.Support.Tracking {
 
       /// <summary>Initializes a new ProgressUpdateEventArgsMatcher </summary>
       /// <param name="expected">Expected progress update event arguments</param>
-      public ProgressUpdateEventArgsMatcher(ProgressUpdateEventArgs expected) {
+      public ProgressUpdateEventArgsMatcher(ProgressReportEventArgs expected) {
         this.expected = expected;
       }
 
@@ -71,7 +71,7 @@ namespace Nuclex.Support.Tracking {
       ///   True if the actual value matches the expected value; otherwise false
       /// </returns>
       public override bool Matches(object actualAsObject) {
-        ProgressUpdateEventArgs actual = (actualAsObject as ProgressUpdateEventArgs);
+        ProgressReportEventArgs actual = (actualAsObject as ProgressReportEventArgs);
         if(actual == null)
           return false;
 
@@ -85,23 +85,26 @@ namespace Nuclex.Support.Tracking {
       }
 
       /// <summary>Expected progress update event args value</summary>
-      private ProgressUpdateEventArgs expected;
+      private ProgressReportEventArgs expected;
 
     }
 
     #endregion // class ProgressUpdateEventArgsMatcher
 
-    #region class TestProgression
+    #region class TestWaitable
 
     /// <summary>Progression used for testing in this unit test</summary>
-    private class TestProgression : Progression {
+    private class TestWaitable : Waitable, IProgressReporter {
+
+      /// <summary>will be triggered to report when progress has been achieved</summary>
+      public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
       /// <summary>Changes the testing progression's indicated progress</summary>
       /// <param name="progress">
       ///   New progress to be reported by the testing progression
       /// </param>
       public void ChangeProgress(float progress) {
-        OnAsyncProgressUpdated(progress);
+        OnAsyncProgressChanged(progress);
       }
 
       /// <summary>Transitions the progression into the ended state</summary>
@@ -109,9 +112,32 @@ namespace Nuclex.Support.Tracking {
         OnAsyncEnded();
       }
 
+      /// <summary>Fires the progress update event</summary>
+      /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
+      /// <remarks>
+      ///   Informs the observers of this progression about the achieved progress.
+      /// </remarks>
+      protected virtual void OnAsyncProgressChanged(float progress) {
+        OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
+      }
+
+      /// <summary>Fires the progress update event</summary>
+      /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
+      /// <remarks>
+      ///   Informs the observers of this progression about the achieved progress.
+      ///   Allows for classes derived from the Progression class to easily provide
+      ///   a custom event arguments class that has been derived from the
+      ///   Progression's ProgressUpdateEventArgs class.
+      /// </remarks>
+      protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
+        EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
+        if(copy != null)
+          copy(this, eventArguments);
+      }
+
     }
 
-    #endregion // class TestProgression
+    #endregion // class TestWaitable
 
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
@@ -122,19 +148,19 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Validates that the set progression properly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new TestProgression[] { new TestProgression(), new TestProgression() }
+      SetProgression<TestWaitable> testSetProgression =
+        new SetProgression<TestWaitable>(
+          new TestWaitable[] { new TestWaitable(), new TestWaitable() }
         );
 
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.25f))
+            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
 
@@ -146,33 +172,33 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Validates that the set progression respects the weights</summary>
     [Test]
     public void TestWeightedSummedProgress() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new WeightedProgression<TestProgression>[] {
-            new WeightedProgression<TestProgression>(new TestProgression(), 1.0f),
-            new WeightedProgression<TestProgression>(new TestProgression(), 2.0f)
+      SetProgression<TestWaitable> testSetProgression =
+        new SetProgression<TestWaitable>(
+          new WeightedProgression<TestWaitable>[] {
+            new WeightedProgression<TestWaitable>(new TestWaitable(), 1.0f),
+            new WeightedProgression<TestWaitable>(new TestWaitable(), 2.0f)
           }
         );
 
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f / 3.0f))
+            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f / 3.0f))
           }
         );
 
       testSetProgression.Children[0].Progression.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestProgression>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f))
+            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );
 
@@ -186,9 +212,9 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     [Test]
     public void TestEndedEvent() {
-      SetProgression<TestProgression> testSetProgression =
-        new SetProgression<TestProgression>(
-          new TestProgression[] { new TestProgression(), new TestProgression() }
+      SetProgression<TestWaitable> testSetProgression =
+        new SetProgression<TestWaitable>(
+          new TestWaitable[] { new TestWaitable(), new TestWaitable() }
         );
 
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
@@ -210,13 +236,13 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a progression</summary>
     /// <param name="progression">Progression to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private ISetProgressionSubscriber mockSubscriber(Progression progression) {
+    private ISetProgressionSubscriber mockSubscriber(Waitable progression) {
       ISetProgressionSubscriber mockedSubscriber =
         this.mockery.NewMock<ISetProgressionSubscriber>();
 
       progression.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
-      progression.AsyncProgressUpdated +=
-        new EventHandler<ProgressUpdateEventArgs>(mockedSubscriber.ProgressUpdated);
+      (progression as IProgressReporter).AsyncProgressChanged +=
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
 
       return mockedSubscriber;
     }

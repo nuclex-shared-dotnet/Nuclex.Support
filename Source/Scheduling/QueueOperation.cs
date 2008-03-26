@@ -32,15 +32,8 @@ namespace Nuclex.Support.Scheduling {
   public class QueueOperation<OperationType> : Operation
     where OperationType : Operation {
 
-    /// <summary>Initializes a new queue operation</summary>
-    private QueueOperation() {
-      this.asyncOperationEndedDelegate = new EventHandler(asyncOperationEnded);
-      this.asyncOperationProgressUpdatedDelegate = new EventHandler<ProgressUpdateEventArgs>(
-        asyncOperationProgressUpdated
-      );
-
-      this.children = new List<WeightedProgression<OperationType>>();
-    }
+    /// <summary>will be triggered to report when progress has been achieved</summary>
+    public event EventHandler<ProgressReportEventArgs> AsyncProgressUpdated;
 
     /// <summary>Initializes a new queue operation with default weights</summary>
     /// <param name="childs">Child operations to execute in this operation</param>
@@ -74,6 +67,16 @@ namespace Nuclex.Support.Scheduling {
 
     }
 
+    /// <summary>Initializes a new queue operation</summary>
+    private QueueOperation() {
+      this.asyncOperationEndedDelegate = new EventHandler(asyncOperationEnded);
+      this.asyncOperationProgressChangedDelegate = new EventHandler<ProgressReportEventArgs>(
+        asyncOperationProgressChanged
+      );
+
+      this.children = new List<WeightedProgression<OperationType>>();
+    }
+
     /// <summary>Provides access to the child operations of this queue</summary>
     public IList<WeightedProgression<OperationType>> Children {
       get { return this.children; }
@@ -93,6 +96,29 @@ namespace Nuclex.Support.Scheduling {
         throw this.exception;
     }
 
+    /// <summary>Fires the progress update event</summary>
+    /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
+    /// <remarks>
+    ///   Informs the observers of this progression about the achieved progress.
+    /// </remarks>
+    protected virtual void OnAsyncProgressChanged(float progress) {
+      OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
+    }
+
+    /// <summary>Fires the progress update event</summary>
+    /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
+    /// <remarks>
+    ///   Informs the observers of this progression about the achieved progress.
+    ///   Allows for classes derived from the Progression class to easily provide
+    ///   a custom event arguments class that has been derived from the
+    ///   Progression's ProgressUpdateEventArgs class.
+    /// </remarks>
+    protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
+      EventHandler<ProgressReportEventArgs> copy = AsyncProgressUpdated;
+      if(copy != null)
+        copy(this, eventArguments);
+    }
+
     /// <summary>Prepares the current operation and calls its Begin() method</summary>
     /// <remarks>
     ///   This subscribes the queue to the events of to the current operation
@@ -102,7 +128,10 @@ namespace Nuclex.Support.Scheduling {
       OperationType operation = this.children[this.currentOperationIndex].Progression;
 
       operation.AsyncEnded += this.asyncOperationEndedDelegate;
-      operation.AsyncProgressUpdated += this.asyncOperationProgressUpdatedDelegate;
+
+      IProgressReporter progressReporter = operation as IProgressReporter;
+      if(progressReporter != null)
+        progressReporter.AsyncProgressChanged += this.asyncOperationProgressChangedDelegate;
 
       operation.Start();
     }
@@ -118,7 +147,10 @@ namespace Nuclex.Support.Scheduling {
 
       // Disconnect from the operation's events
       operation.AsyncEnded -= this.asyncOperationEndedDelegate;
-      operation.AsyncProgressUpdated -= this.asyncOperationProgressUpdatedDelegate;
+
+      IProgressReporter progressReporter = operation as IProgressReporter;
+      if(progressReporter != null)
+        progressReporter.AsyncProgressChanged -= this.asyncOperationProgressChangedDelegate;
 
       try {
         operation.Join();
@@ -127,7 +159,7 @@ namespace Nuclex.Support.Scheduling {
         this.completedWeight += this.children[this.currentOperationIndex].Weight;
 
         // Trigger another progress update
-        OnAsyncProgressUpdated(this.completedWeight / this.totalWeight);
+        OnAsyncProgressChanged(this.completedWeight / this.totalWeight);
       }
       catch(Exception exception) {
         this.exception = exception;
@@ -165,7 +197,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Called when currently executing operation makes progress</summary>
     /// <param name="sender">Operation that has achieved progress</param>
     /// <param name="e">Not used</param>
-    private void asyncOperationProgressUpdated(object sender, ProgressUpdateEventArgs e) {
+    private void asyncOperationProgressChanged(object sender, ProgressReportEventArgs e) {
 
       // Determine the completed weight of the currently executing operation
       float currentOperationCompletedWeight =
@@ -176,14 +208,14 @@ namespace Nuclex.Support.Scheduling {
         (this.completedWeight + currentOperationCompletedWeight) / this.totalWeight;
 
       // Done, we can send the actual progress to any event subscribers
-      OnAsyncProgressUpdated(progress);
+      OnAsyncProgressChanged(progress);
 
     }
 
     /// <summary>Delegate to the asyncOperationEnded() method</summary>
     private EventHandler asyncOperationEndedDelegate;
     /// <summary>Delegate to the asyncOperationProgressUpdated() method</summary>
-    private EventHandler<ProgressUpdateEventArgs> asyncOperationProgressUpdatedDelegate;
+    private EventHandler<ProgressReportEventArgs> asyncOperationProgressChangedDelegate;
     /// <summary>Operations being managed in the queue</summary>
     private List<WeightedProgression<OperationType>> children;
     /// <summary>Summed weight of all operations in the queue</summary>

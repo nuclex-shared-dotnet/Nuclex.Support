@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Tracking {
 
   /// <summary>Progression with an associated weight for the total progress</summary>
-  public class WeightedProgression<ProgressionType> where ProgressionType : Progression {
+  public class WeightedProgression<ProgressionType> where ProgressionType : Waitable {
 
     /// <summary>
     ///   Initializes a new weighted progression with a default weight of 1.0

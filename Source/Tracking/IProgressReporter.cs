@@ -23,22 +23,11 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Event arguments for a progress update notification</summary>
-  public class ProgressReportEventArgs : EventArgs {
+  /// <summary>Interface for processes that report their progress</summary>
+  public interface IProgressReporter {
 
-    /// <summary>Initializes the progress update informations</summary>
-    /// <param name="progress">Achieved progress ranging from 0.0 to 1.0</param>
-    public ProgressReportEventArgs(float progress) {
-      this.progress = progress;
-    }
-
-    /// <summary>Currently achieved progress</summary>
-    public float Progress {
-      get { return this.progress; }
-    }
-
-    /// <summary>Achieved progress</summary>
-    private float progress;
+    /// <summary>Triggered when the status of the process changes</summary>
+    event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
   }
 

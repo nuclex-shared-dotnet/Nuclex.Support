@@ -147,9 +147,10 @@
     <Compile Include="Source\Tracking\IdleStateEventArgs.cs" />
     <Compile Include="Source\Tracking\Internal\ObservedWeightedProgression.cs" />
     <Compile Include="Source\Tracking\Internal\WeightedProgressionWrapperCollection.cs" />
+    <Compile Include="Source\Tracking\IProgressReporter.cs" />
     <Compile Include="Source\Tracking\IStatusReporter.cs" />
     <Compile Include="Source\Tracking\Request.cs" />
-    <Compile Include="Source\Tracking\Progression.cs" />
+    <Compile Include="Source\Tracking\Waitable.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.cs" />
     <Compile Include="Source\Tracking\ProgressionTracker.Test.cs">
       <DependentUpon>ProgressionTracker.cs</DependentUpon>

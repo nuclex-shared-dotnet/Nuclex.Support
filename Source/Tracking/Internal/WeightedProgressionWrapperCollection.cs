@@ -51,7 +51,7 @@ namespace Nuclex.Support.Tracking {
     TransformingReadOnlyCollection<
       ObservedWeightedProgression<ProgressionType>, WeightedProgression<ProgressionType>
     >
-    where ProgressionType : Progression {
+    where ProgressionType : Waitable {
 
     /// <summary>Initializes a new weighted progression collection wrapper</summary>
     /// <param name="items">Items to be exposed as weighted progressions</param>

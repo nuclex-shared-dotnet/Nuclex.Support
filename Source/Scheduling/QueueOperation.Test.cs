@@ -43,7 +43,7 @@ namespace Nuclex.Support.Scheduling {
       /// <summary>Called when the queue operations's progress changes</summary>
       /// <param name="sender">Queue operation whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
-      void ProgressUpdated(object sender, ProgressUpdateEventArgs e);
+      void ProgressChanged(object sender, ProgressReportEventArgs e);
 
       /// <summary>Called when the queue operation has ended</summary>
       /// <param name="sender">Queue operation that as ended</param>
@@ -61,7 +61,7 @@ namespace Nuclex.Support.Scheduling {
 
       /// <summary>Initializes a new ProgressUpdateEventArgsMatcher </summary>
       /// <param name="expected">Expected progress update event arguments</param>
-      public ProgressUpdateEventArgsMatcher(ProgressUpdateEventArgs expected) {
+      public ProgressUpdateEventArgsMatcher(ProgressReportEventArgs expected) {
         this.expected = expected;
       }
 
@@ -73,7 +73,7 @@ namespace Nuclex.Support.Scheduling {
       ///   True if the actual value matches the expected value; otherwise false
       /// </returns>
       public override bool Matches(object actualAsObject) {
-        ProgressUpdateEventArgs actual = (actualAsObject as ProgressUpdateEventArgs);
+        ProgressReportEventArgs actual = (actualAsObject as ProgressReportEventArgs);
         if(actual == null)
           return false;
 
@@ -87,7 +87,7 @@ namespace Nuclex.Support.Scheduling {
       }
 
       /// <summary>Expected progress update event args value</summary>
-      private ProgressUpdateEventArgs expected;
+      private ProgressReportEventArgs expected;
 
     }
 
@@ -96,7 +96,10 @@ namespace Nuclex.Support.Scheduling {
     #region class TestOperation
 
     /// <summary>Progression used for testing in this unit test</summary>
-    private class TestOperation : Operation {
+    private class TestOperation : Operation, IProgressReporter {
+
+      /// <summary>will be triggered to report when progress has been achieved</summary>
+      public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
       /// <summary>Begins executing the operation. Yeah, sure :)</summary>
       public override void Start() { }
@@ -118,7 +121,7 @@ namespace Nuclex.Support.Scheduling {
       ///   New progress to be reported by the testing progression
       /// </param>
       public void ChangeProgress(float progress) {
-        OnAsyncProgressUpdated(progress);
+        OnAsyncProgressChanged(progress);
       }
 
       /// <summary>
@@ -128,6 +131,29 @@ namespace Nuclex.Support.Scheduling {
       protected override void ReraiseExceptions() {
         if(this.exception != null)
           throw this.exception;
+      }
+
+      /// <summary>Fires the progress update event</summary>
+      /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
+      /// <remarks>
+      ///   Informs the observers of this progression about the achieved progress.
+      /// </remarks>
+      protected virtual void OnAsyncProgressChanged(float progress) {
+        OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
+      }
+
+      /// <summary>Fires the progress update event</summary>
+      /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
+      /// <remarks>
+      ///   Informs the observers of this progression about the achieved progress.
+      ///   Allows for classes derived from the Progression class to easily provide
+      ///   a custom event arguments class that has been derived from the
+      ///   Progression's ProgressUpdateEventArgs class.
+      /// </remarks>
+      protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
+        EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
+        if(copy != null)
+          copy(this, eventArguments);
       }
 
       /// <summary>Exception that has occured in the background process</summary>
@@ -159,22 +185,22 @@ namespace Nuclex.Support.Scheduling {
       testQueueOperation.Start();
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.25f))
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
 
       operation1.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressUpdateEventArgs(0.5f))
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );
 
@@ -191,8 +217,8 @@ namespace Nuclex.Support.Scheduling {
         this.mockery.NewMock<IQueueOperationSubscriber>();
 
       operation.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
-      operation.AsyncProgressUpdated +=
-        new EventHandler<ProgressUpdateEventArgs>(mockedSubscriber.ProgressUpdated);
+      (operation as IProgressReporter).AsyncProgressChanged +=
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
 
       return mockedSubscriber;
     }

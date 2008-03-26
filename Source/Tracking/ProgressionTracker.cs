@@ -50,7 +50,7 @@ namespace Nuclex.Support.Tracking {
       ///   the specified progression
       /// </summary>
       /// <param name="toMatch">Progression to match against</param>
-      public ProgressionMatcher(Progression toMatch) {
+      public ProgressionMatcher(Waitable toMatch) {
         this.toMatch = toMatch;
       }
 
@@ -59,12 +59,12 @@ namespace Nuclex.Support.Tracking {
       ///   progression of the instance
       /// </summary>
       /// <param name="other">Progression to match to the comparison progression</param>
-      public bool Matches(ObservedWeightedProgression<Progression> other) {
+      public bool Matches(ObservedWeightedProgression<Waitable> other) {
         return ReferenceEquals(other.WeightedProgression.Progression, this.toMatch);
       }
 
       /// <summary>Progression this instance compares against</summary>
-      private Progression toMatch;
+      private Waitable toMatch;
 
     }
 
@@ -80,18 +80,18 @@ namespace Nuclex.Support.Tracking {
     public event EventHandler<IdleStateEventArgs> AsyncIdleStateChanged;
 
     /// <summary>Triggered when the total progress has changed</summary>
-    public event EventHandler<ProgressUpdateEventArgs> AsyncProgressUpdated;
+    public event EventHandler<ProgressReportEventArgs> AsyncProgressUpdated;
 
     /// <summary>Initializes a new progression tracker</summary>
     public ProgressionTracker() {
 
-      this.trackedProgressions = new List<ObservedWeightedProgression<Progression>>();
+      this.trackedProgressions = new List<ObservedWeightedProgression<Waitable>>();
       this.idle = true;
 
       this.asyncEndedDelegate =
-        new ObservedWeightedProgression<Progression>.ReportDelegate(asyncEnded);
+        new ObservedWeightedProgression<Waitable>.ReportDelegate(asyncEnded);
       this.asyncProgressUpdatedDelegate =
-        new ObservedWeightedProgression<Progression>.ReportDelegate(asyncProgressUpdated);
+        new ObservedWeightedProgression<Waitable>.ReportDelegate(asyncProgressUpdated);
 
     }
 
@@ -115,14 +115,14 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Begins tracking the specified progression</summary>
     /// <param name="progression">Progression to be tracked</param>
-    public void Track(Progression progression) {
+    public void Track(Waitable progression) {
       Track(progression, 1.0f);
     }
 
     /// <summary>Begins tracking the specified progression</summary>
     /// <param name="progression">Progression to be tracked</param>
     /// <param name="weight">Weight to assign to this progression</param>
-    public void Track(Progression progression, float weight) {
+    public void Track(Waitable progression, float weight) {
 
       // Add the new progression into the tracking list. This has to be done
       // inside a lock to prevent issues with the progressUpdate callback, which could
@@ -150,8 +150,8 @@ namespace Nuclex.Support.Tracking {
             // receive them. The lock eliminates the risk of processing a progress update
             // before the progression has been added to the tracked progressions list.
             this.trackedProgressions.Add(
-              new ObservedWeightedProgression<Progression>(
-                new WeightedProgression<Progression>(progression, weight),
+              new ObservedWeightedProgression<Waitable>(
+                new WeightedProgression<Waitable>(progression, weight),
                 this.asyncProgressUpdatedDelegate,
                 this.asyncEndedDelegate
               )
@@ -167,9 +167,9 @@ namespace Nuclex.Support.Tracking {
 
           // Construct a new progression observer and add the progression to our
           // list of tracked progressions.
-          ObservedWeightedProgression<Progression> observedProgression =
-            new ObservedWeightedProgression<Progression>(
-              new WeightedProgression<Progression>(progression, weight),
+          ObservedWeightedProgression<Waitable> observedProgression =
+            new ObservedWeightedProgression<Waitable>(
+              new WeightedProgression<Waitable>(progression, weight),
               this.asyncProgressUpdatedDelegate,
               this.asyncEndedDelegate
             );
@@ -202,12 +202,12 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Stops tracking the specified progression</summary>
     /// <param name="progression">Progression to stop tracking of</param>
-    public void Untrack(Progression progression) {
+    public void Untrack(Waitable progression) {
       lock(this.trackedProgressions) {
 
         // Locate the object to be untracked in our collection
         int removeIndex = this.trackedProgressions.FindIndex(
-          new Predicate<ObservedWeightedProgression<Progression>>(
+          new Predicate<ObservedWeightedProgression<Waitable>>(
             new ProgressionMatcher(progression).Matches
           )
         );
@@ -216,7 +216,7 @@ namespace Nuclex.Support.Tracking {
 
         // Remove and dispose the progression the user wants to untrack
         {
-          ObservedWeightedProgression<Progression> wrappedProgression =
+          ObservedWeightedProgression<Waitable> wrappedProgression =
             this.trackedProgressions[removeIndex];
 
           this.trackedProgressions.RemoveAt(removeIndex);
@@ -266,9 +266,9 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the AsyncProgressUpdated event</summary>
     /// <param name="progress">New progress to report</param>
     protected virtual void OnAsyncProgressUpdated(float progress) {
-      EventHandler<ProgressUpdateEventArgs> copy = AsyncProgressUpdated;
+      EventHandler<ProgressReportEventArgs> copy = AsyncProgressUpdated;
       if(copy != null)
-        copy(this, new ProgressUpdateEventArgs(progress));
+        copy(this, new ProgressReportEventArgs(progress));
     }
 
     /// <summary>Recalculates the total progress of the tracker</summary>
@@ -351,11 +351,11 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Total weight of all progressions being tracked</summary>
     private volatile float totalWeight;
     /// <summary>Progressions being tracked by this tracker</summary>
-    private List<ObservedWeightedProgression<Progression>> trackedProgressions;
+    private List<ObservedWeightedProgression<Waitable>> trackedProgressions;
     /// <summary>Delegate for the asyncEnded() method</summary>
-    private ObservedWeightedProgression<Progression>.ReportDelegate asyncEndedDelegate;
+    private ObservedWeightedProgression<Waitable>.ReportDelegate asyncEndedDelegate;
     /// <summary>Delegate for the asyncProgressUpdated() method</summary>
-    private ObservedWeightedProgression<Progression>.ReportDelegate asyncProgressUpdatedDelegate;
+    private ObservedWeightedProgression<Waitable>.ReportDelegate asyncProgressUpdatedDelegate;
 
   }
 
