@@ -70,15 +70,26 @@ namespace Nuclex.Support.Scheduling {
         Execute();
       }
       catch(Exception exception) {
-        SetException(exception);
+        this.exception = exception;
       }
       finally {
         OnAsyncEnded();
       }
     }
 
+    /// <summary>
+    ///   Allows the specific request implementation to re-throw an exception if
+    ///   the background process finished unsuccessfully
+    /// </summary>
+    protected override void ReraiseExceptions() {
+      if(this.exception != null)
+        throw this.exception;
+    }
+
     /// <summary>Whether to use the ThreadPool for obtaining a background thread</summary>
     private bool useThreadPool;
+    /// <summary>Exception that has occured in the background process</summary>
+    private volatile Exception exception;
 
   }
 

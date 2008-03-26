@@ -109,7 +109,7 @@ namespace Nuclex.Support.Scheduling {
       /// <summary>Moves the operation into the ended state with an exception</summary>
       /// <param name="exception">Exception</param>
       public void SetEnded(Exception exception) {
-        SetException(exception);
+        this.exception = exception;
         OnAsyncEnded();
       }
 
@@ -120,6 +120,18 @@ namespace Nuclex.Support.Scheduling {
       public void ChangeProgress(float progress) {
         OnAsyncProgressUpdated(progress);
       }
+
+      /// <summary>
+      ///   Allows the specific request implementation to re-throw an exception if
+      ///   the background process finished unsuccessfully
+      /// </summary>
+      protected override void ReraiseExceptions() {
+        if(this.exception != null)
+          throw this.exception;
+      }
+
+      /// <summary>Exception that has occured in the background process</summary>
+      private volatile Exception exception;
 
     }
 

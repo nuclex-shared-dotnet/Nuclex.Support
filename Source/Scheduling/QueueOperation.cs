@@ -84,6 +84,15 @@ namespace Nuclex.Support.Scheduling {
       startCurrentOperation();
     }
 
+    /// <summary>
+    ///   Allows the specific request implementation to re-throw an exception if
+    ///   the background process finished unsuccessfully
+    /// </summary>
+    protected override void ReraiseExceptions() {
+      if(this.exception != null)
+        throw this.exception;
+    }
+
     /// <summary>Prepares the current operation and calls its Begin() method</summary>
     /// <remarks>
     ///   This subscribes the queue to the events of to the current operation
@@ -121,7 +130,7 @@ namespace Nuclex.Support.Scheduling {
         OnAsyncProgressUpdated(this.completedWeight / this.totalWeight);
       }
       catch(Exception exception) {
-        SetException(exception);
+        this.exception = exception;
       }
     }
 
@@ -135,7 +144,7 @@ namespace Nuclex.Support.Scheduling {
       endCurrentOperation();
 
       // Only jump to the next operation if no exception occured
-      if(OccuredException == null) {
+      if(this.exception == null) {
 
         ++this.currentOperationIndex;
 
@@ -183,6 +192,8 @@ namespace Nuclex.Support.Scheduling {
     private float completedWeight;
     /// <summary>Index of the operation currently executing</summary>
     private int currentOperationIndex;
+    /// <summary>Exception that has occured in the background process</summary>
+    private volatile Exception exception;
 
   }
 
