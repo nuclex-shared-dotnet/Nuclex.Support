@@ -29,11 +29,11 @@ namespace Nuclex.Support.Scheduling {
   /// <typeparam name="OperationType">
   ///   Type of the child operations the QueueOperation will contain
   /// </typeparam>
-  public class QueueOperation<OperationType> : Operation
+  public class QueueOperation<OperationType> : Operation, IProgressReporter
     where OperationType : Operation {
 
     /// <summary>will be triggered to report when progress has been achieved</summary>
-    public event EventHandler<ProgressReportEventArgs> AsyncProgressUpdated;
+    public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
     /// <summary>Initializes a new queue operation with default weights</summary>
     /// <param name="childs">Child operations to execute in this operation</param>
@@ -114,7 +114,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Progression's ProgressUpdateEventArgs class.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
-      EventHandler<ProgressReportEventArgs> copy = AsyncProgressUpdated;
+      EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
       if(copy != null)
         copy(this, eventArguments);
     }

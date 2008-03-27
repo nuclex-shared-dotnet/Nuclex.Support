@@ -220,7 +220,7 @@ namespace Nuclex.Support.Tracking {
       ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
 
       Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         WithAnyArguments();
 
       Expect.Once.On(mockedSubscriber).

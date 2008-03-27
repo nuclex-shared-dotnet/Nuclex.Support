@@ -41,7 +41,7 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Called when the progression tracker's progress changes</summary>
       /// <param name="sender">Progression tracker whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
-      void ProgressUpdated(object sender, ProgressReportEventArgs e);
+      void ProgressChanged(object sender, ProgressReportEventArgs e);
 
       /// <summary>Called when the progression tracker's idle state changes</summary>
       /// <param name="sender">Progression tracker whose idle state has changed</param>
@@ -55,11 +55,11 @@ namespace Nuclex.Support.Tracking {
     #region class ProgressUpdateEventArgsMatcher
 
     /// <summary>Compares two ProgressUpdateEventArgsInstances for NMock validation</summary>
-    private class ProgressUpdateEventArgsMatcher : Matcher {
+    private class ProgressReportEventArgsMatcher : Matcher {
 
       /// <summary>Initializes a new ProgressUpdateEventArgsMatcher </summary>
       /// <param name="expected">Expected progress update event arguments</param>
-      public ProgressUpdateEventArgsMatcher(ProgressReportEventArgs expected) {
+      public ProgressReportEventArgsMatcher(ProgressReportEventArgs expected) {
         this.expected = expected;
       }
 
@@ -94,7 +94,7 @@ namespace Nuclex.Support.Tracking {
     #region class TestProgression
 
     /// <summary>Progression used for testing in this unit test</summary>
-    private class TestProgression : Waitable {
+    private class TestProgression : Waitable, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
       public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
@@ -157,11 +157,11 @@ namespace Nuclex.Support.Tracking {
         WithAnyArguments();
 
       Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
 
@@ -171,11 +171,11 @@ namespace Nuclex.Support.Tracking {
       tracker.Track(test2);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
 
@@ -203,11 +203,11 @@ namespace Nuclex.Support.Tracking {
         WithAnyArguments();
 
       Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
 
@@ -217,22 +217,22 @@ namespace Nuclex.Support.Tracking {
       tracker.Track(test2);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
 
       test1.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.75f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.75f))
           }
         );
 
@@ -242,11 +242,11 @@ namespace Nuclex.Support.Tracking {
       test2.End();
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
           }
         );
 
@@ -289,11 +289,11 @@ namespace Nuclex.Support.Tracking {
         WithAnyArguments();
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           }
         );
 
@@ -301,22 +301,22 @@ namespace Nuclex.Support.Tracking {
       tracker.Track(test1);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );
 
       tracker.Track(Waitable.EndedDummy);
 
       Expect.Once.On(mockedSubscriber).
-        Method("ProgressUpdated").
+        Method("ProgressChanged").
         With(
           new Matcher[] {
             new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
           }
         );
 
@@ -359,7 +359,7 @@ namespace Nuclex.Support.Tracking {
         new EventHandler<IdleStateEventArgs>(mockedSubscriber.IdleStateChanged);
 
       tracker.AsyncProgressChanged +=
-        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressUpdated);
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
 
       return mockedSubscriber;
     }
