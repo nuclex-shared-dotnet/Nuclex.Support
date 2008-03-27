@@ -161,7 +161,7 @@
       <DependentUpon>SetProgression.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Tracking\StatusReportEventArgs.cs" />
-    <Compile Include="Source\Tracking\WeightedProgression.cs" />
+    <Compile Include="Source\Tracking\WeightedWaitable.cs" />
     <Compile Include="Source\WeakReference.cs" />
   </ItemGroup>
   <ItemGroup>
