@@ -155,7 +155,7 @@
     <Compile Include="Source\Tracking\ProgressTracker.Test.cs">
       <DependentUpon>ProgressTracker.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Tracking\ProgressUpdateEventArgs.cs" />
+    <Compile Include="Source\Tracking\ProgressReportEventArgs.cs" />
     <Compile Include="Source\Tracking\SetProgression.cs" />
     <Compile Include="Source\Tracking\SetProgression.Test.cs">
       <DependentUpon>SetProgression.cs</DependentUpon>
