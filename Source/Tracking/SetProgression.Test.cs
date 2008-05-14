@@ -226,7 +226,7 @@ namespace Nuclex.Support.Tracking {
       Expect.Once.On(mockedSubscriber).
         Method("Ended").
         WithAnyArguments();
-      
+
       testSetProgression.Children[0].Waitable.End();
       testSetProgression.Children[1].Waitable.End();
 

@@ -37,7 +37,7 @@ namespace Nuclex.Support.Tracking {
     /// <param name="weight">Weighting of the progression's progress</param>
     public WeightedWaitable(ProgressionType progression, float weight) {
       this.progression = progression;
-      this.weight = weight;       
+      this.weight = weight;
     }
 
     /// <summary>Progression being wrapped by this weighted progression</summary>

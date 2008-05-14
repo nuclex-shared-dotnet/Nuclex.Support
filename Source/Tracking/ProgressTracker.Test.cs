@@ -342,8 +342,8 @@ namespace Nuclex.Support.Tracking {
 
       tracker.AsyncIdleStateChanged +=
         (EventHandler<IdleStateEventArgs>)delegate(object sender, IdleStateEventArgs arguments) {
-          tracker.Track(Waitable.EndedDummy);
-        };
+        tracker.Track(Waitable.EndedDummy);
+      };
 
       test1.End();
     }

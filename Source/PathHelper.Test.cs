@@ -25,7 +25,7 @@ using System.IO;
 
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
-                                 
+
 namespace Nuclex.Support {
 
   /// <summary>Unit Test for the path helper class</summary>

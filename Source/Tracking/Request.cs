@@ -96,8 +96,8 @@ namespace Nuclex.Support.Tracking {
     ///   Allows the specific request implementation to re-throw an exception if
     ///   the background process finished unsuccessfully
     /// </summary>
-    protected virtual void ReraiseExceptions() {}
- 
+    protected virtual void ReraiseExceptions() { }
+
   }
 
   /// <summary>Request providing a result that can be passed to the caller</summary>
