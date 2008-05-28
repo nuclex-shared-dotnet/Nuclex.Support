@@ -59,6 +59,49 @@ namespace Nuclex.Support {
       );
     }
 
+    /// <summary>Tests the integer reinterpretation functions</summary>
+    [Test]
+    public void TestIntegerReinterpretation() {
+      Assert.AreEqual(
+        12345.0f,
+        FloatHelper.ReinterpretAsFloat(FloatHelper.ReinterpretAsInt(12345.0f)),
+        "Number hasn't changed after mirrored reinterpretation"
+      );
+    }
+
+    /// <summary>Tests the long reinterpretation functions</summary>
+    [Test]
+    public void TestLongReinterpretation() {
+      Assert.AreEqual(
+        12345.67890,
+        FloatHelper.ReinterpretAsDouble(FloatHelper.ReinterpretAsLong(12345.67890)),
+        "Number hasn't changed after mirrored reinterpretation"
+      );
+    }
+
+    /// <summary>Tests the floating point reinterpretation functions</summary>
+    [Test]
+    public void TestFloatReinterpretation() {
+      Assert.AreEqual(
+        12345,
+        FloatHelper.ReinterpretAsInt(FloatHelper.ReinterpretAsFloat(12345)),
+        "Number hasn't changed after mirrored reinterpretation"
+      );
+    }
+
+
+    /// <summary>
+    ///   Tests the double prevision floating point reinterpretation functions
+    /// </summary>
+    [Test]
+    public void TestDoubleReinterpretation() {
+      Assert.AreEqual(
+        1234567890,
+        FloatHelper.ReinterpretAsLong(FloatHelper.ReinterpretAsDouble(1234567890)),
+        "Number hasn't changed after mirrored reinterpretation"
+      );
+    }
+
   }
 
 } // namespace Nuclex.Support

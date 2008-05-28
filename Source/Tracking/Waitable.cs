@@ -23,7 +23,9 @@ using System.Threading;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Base class for actions on which that give an indication of their progress</summary>
+  /// <summary>
+  ///   Base class for actions on which that give an indication of their progress
+  /// </summary>
   /// <remarks>
   ///   <para>
   ///     By encapsulating long-running operations which will ideally be running in
@@ -85,11 +87,11 @@ namespace Nuclex.Support.Tracking {
         // We can *not* optimize this lock away since we absolutely must not create
         // two doneEvents -- someone might call .WaitOne() on the first one when only
         // the second one is referenced by this.doneEvent and thus gets set in the end.
-        if(this.doneEvent == null) {
+        if (this.doneEvent == null) {
 
-          lock(this) {
+          lock (this) {
 
-            if(this.doneEvent == null)
+            if (this.doneEvent == null)
               this.doneEvent = new ManualResetEvent(this.ended);
 
           }
@@ -119,13 +121,13 @@ namespace Nuclex.Support.Tracking {
       // Make sure the progression is not ended more than once. By guaranteeing that
       // a progression can only be ended once, we allow users of this class to
       // skip some safeguards against notifications arriving twice.
-      lock(this) {
+      lock (this) {
 
         // No double lock here, this is an exception that indicates an implementation
         // error that will not be triggered under normal circumstances. We don't want
         // to waste any effort optimizing the speed at which an implementation fault
         // will be noticed.
-        if(this.ended)
+        if (this.ended)
           throw new InvalidOperationException("The progression has already been ended");
 
         this.ended = true;
@@ -135,12 +137,12 @@ namespace Nuclex.Support.Tracking {
       // Doesn't need a lock. If another thread wins the race and creates the event
       // after we just saw it being null, it would be created in an already set
       // state due to the ended flag (see above) being set to true beforehand!
-      if(this.doneEvent != null)
+      if (this.doneEvent != null)
         this.doneEvent.Set();
 
       // Finally, fire the AsyncEnded event
       EventHandler copy = AsyncEnded;
-      if(copy != null)
+      if (copy != null)
         copy(this, EventArgs.Empty);
 
     }
