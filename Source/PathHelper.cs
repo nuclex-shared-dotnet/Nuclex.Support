@@ -36,8 +36,8 @@ namespace Nuclex.Support {
       if(lastCommonRoot == -1)
         return absolutePath;
 
-      // Calculate the required length for the StrinBuilder to be slightly more
-      // friendly in terms of memory usage.
+      // Calculate the required length for the StringBuilder in order to be slightly
+      // more friendly in terms of memory usage.
       int requiredLength = (baseDirectories.Length - (lastCommonRoot + 1)) * 3;
       for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; ++index)
         requiredLength += absoluteDirectories[index].Length + 1;
