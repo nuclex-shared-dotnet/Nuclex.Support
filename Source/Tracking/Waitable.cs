@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Nuclex.Support.Tracking {
@@ -67,7 +68,59 @@ namespace Nuclex.Support.Tracking {
     public static readonly Waitable EndedDummy = new EndedDummyWaitable();
 
     /// <summary>Will be triggered when the Waitable has ended</summary>
-    public event EventHandler AsyncEnded;
+    /// <remarks>
+    ///   If the process is already finished when a client registers to this event,
+    ///   the registered callback will be invoked synchronously right when the
+    ///   registration takes place.
+    /// </remarks>
+    public event EventHandler AsyncEnded {
+      add {
+
+        // If the background process has not yet ended, add the delegate to the
+        // list of subscribers. This uses the double-checked locking idiom to
+        // avoid taking the lock when the background process has already ended.
+        if(!this.ended) {
+          lock(this) {
+            if(!this.ended) {
+
+              // The subscriber list is also created lazily ;-)
+              if(ReferenceEquals(this.subscribers, null)) {
+                this.subscribers = new List<EventHandler>();
+              }
+
+              // Subscribe the event handler to the list
+              this.subscribers.Add(value);
+              return;
+
+            }
+          }
+        }
+
+        // If this point is reached, the background process was already finished
+        // and we have to invoke the subscriber manually as promised.
+        value(this, EventArgs.Empty);
+
+      }
+      remove {
+
+        // Unsubscribing a non-subscribed delegate from an event is allowed and should
+        // not throw an exception. Due to the stupid design of the .NET collection
+        // classes (has anyone at Microsoft ever written a single proper collection
+        // in his life?) we have to search the collection twice.
+        lock(this) {
+
+          // Only try to remove the event handler if the subscriber list was created,
+          // otherwise, we can be sure that no actual subscribers exist.
+          if(!ReferenceEquals(this.subscribers, null)) {
+            if(this.subscribers.Contains(value)) {
+              this.subscribers.Remove(value);
+            }
+          }
+
+        }
+
+      }
+    }
 
     /// <summary>Whether the Waitable has ended already</summary>
     public bool Ended {
@@ -79,24 +132,20 @@ namespace Nuclex.Support.Tracking {
       get {
 
         // The WaitHandle will only be created when someone asks for it!
-        // See the Double-Check Locking idiom on why the condition is checked twice
-        // (primarily, it avoids an expensive lock when it isn't needed)
-        //
         // We can *not* optimize this lock away since we absolutely must not create
         // two doneEvents -- someone might call .WaitOne() on the first one when only
         // the second one is referenced by this.doneEvent and thus gets set in the end.
         if(this.doneEvent == null) {
-
           lock(this) {
-
-            if(this.doneEvent == null)
+            if(this.doneEvent == null) {
               this.doneEvent = new ManualResetEvent(this.ended);
-
+            }
           }
-
         }
 
+        // We can be sure the doneEvent has been created now!
         return this.doneEvent;
+
       }
     }
 
@@ -130,29 +179,38 @@ namespace Nuclex.Support.Tracking {
 
         this.ended = true;
 
+        // Doesn't really need a lock: if another thread wins the race and creates
+        // the event after we just saw it being null, it would be created in an already
+        // set state due to the ended flag (see above) being set to true beforehand!
+        // But since we've got a lock ready, we can even avoid that 1 in a million
+        // performance loss and prevent a second doneEvent from being created.
+        if(this.doneEvent != null)
+          this.doneEvent.Set();
+
       }
 
-      // Doesn't need a lock. If another thread wins the race and creates the event
-      // after we just saw it being null, it would be created in an already set
-      // state due to the ended flag (see above) being set to true beforehand!
-      if(this.doneEvent != null)
-        this.doneEvent.Set();
-
-      // Finally, fire the AsyncEnded event
-      EventHandler copy = AsyncEnded;
-      if(copy != null)
-        copy(this, EventArgs.Empty);
+      // Fire the ended events to all event subscribers. We can freely use the list
+      // without synchronization at this point on since once this.ended is set to true,
+      // the subscribers list will not be accessed any longer
+      for(int index = 0; index < this.subscribers.Count; ++index) {
+        this.subscribers[index](this, EventArgs.Empty);
+      }
 
     }
 
+    /// <summary>List of event handler which have subscribed to the ended event</summary>
+    /// <remarks>
+    ///   Does not need to be volatile since it's only accessed inside 
+    /// </remarks>
+    private volatile List<EventHandler> subscribers;
+    /// <summary>Whether the operation has completed yet</summary>
+    private volatile bool ended;
     /// <summary>Event that will be set when the progression is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using
     ///   the WaitHandle property.
     /// </remarks>
     private volatile ManualResetEvent doneEvent;
-    /// <summary>Whether the operation has completed yet</summary>
-    private volatile bool ended;
 
   }
 

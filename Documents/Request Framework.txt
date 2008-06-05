@@ -64,5 +64,97 @@ Design using interfaces:
 
   interface IThreadedRequest : IRequest, IThreadedWaitable { }
 
-  interface IThreadedRequest<ResultType> :
-    IRequest<ResultType>, IThreadedRequest, IThreadedWaitable { }
+  interface IThreadedRequest<ResultType> : IRequest<ResultType>, IThreadedRequest { }
+
+
+Impossible implementation:
+
+  class Request : IRequest {
+
+    event EventHandler Finished;
+    void Wait();
+    bool Wait(int timeoutMilliseconds);
+    bool Finished { get; }
+    void Join();
+    protected virtual void ReraiseExceptions() { }
+
+  }
+
+  class Request<ResultType> : Request, IRequest<ResultType> {
+
+    new ResultType Join();
+    protected abstract ResultType GatherResults();
+
+  }
+
+  Do not provide: (see conflict in second version)
+
+    class ThreadedRequest : Request, IThreadedRequest {
+    
+      WaitHandle WaitHandle { get; }
+
+    }
+
+    class ThreadedRequest<ResultType> : ThreadedRequest, Request<ResultType> { }
+
+    // However, not providing these, the user would have to rewrite
+    // the complex threading routines everywhere he uses then. Bad.
+
+Inelegant implementation:
+
+  class Void {}
+
+  class Request<ResultType> : IRequest<ResultType> {
+
+    new ResultType Join();
+    protected abstract ResultType GatherResults();
+
+  }
+
+  class ThreadedRequest<ResultType> : Request<ResultType> { }
+
+  // However, not providing these, the user would have to rewrite
+  // the complex threading routines everywhere he uses then. Bad.
+
+
+
+Maybe keeping threaded and non-threaded requests apart is a good thing?
+
+  IWaitable (without Finished event)
+    Waitable (Finished event)
+      Request
+        Request<Bla>
+
+  IWaitable (without Finished event)
+    ThreadedWaitable (AsyncFinished event)
+      ThreadedRequest
+        ThreadedRequest<Bla>
+
+
+Or just dump the WaitHandle schmonder
+
+  Waitable (with virtual protected SyncRoot { get { return this; } })
+    Request
+      Request<Bla>
+
+  LazyWaitHandle
+    WaitHandle Get(Waitable waitable)
+
+
+Or use policy classes (waithandle trouble)
+
+  Waitable
+    Request
+      Request<Bla>
+
+  RequestImpl<ThreadPolicy>
+    RequestImpl<Bla, ThreadPolicy>
+
+  LazyWaitHandle
+    WaitHandle Get(Waitable waitable)
+    WaitHandle Get(Waitable waitable, object syncRoot)
+
+  ThreadPolicy {
+    virtual void lock() {}
+    virtual void unlock() {}
+  }   
