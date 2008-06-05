@@ -70,7 +70,7 @@ namespace Nuclex.Support.Tracking {
     /// <returns>
     ///   A failed request that reports the provided exception as cause for its failure
     /// </returns>
-    public static Request CreateFailedDummyRequest(Exception exception) {
+    public static Request CreateFailedDummy(Exception exception) {
       return new EndedDummyRequest(exception);
     }
 
@@ -134,7 +134,7 @@ namespace Nuclex.Support.Tracking {
     /// <returns>
     ///   A failed request that reports the provided exception as cause for its failure
     /// </returns>
-    public static new Request CreateFailedDummyRequest(Exception exception) {
+    public static new Request CreateFailedDummy(Exception exception) {
       return new EndedDummyRequest(exception);
     }
 

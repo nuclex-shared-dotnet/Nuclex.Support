@@ -23,9 +23,7 @@ using System.Threading;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>
-  ///   Base class for actions on which that give an indication of their progress
-  /// </summary>
+  /// <summary>Base class for background processes the user can wait on</summary>
   /// <remarks>
   ///   <para>
   ///     By encapsulating long-running operations which will ideally be running in
@@ -40,27 +38,27 @@ namespace Nuclex.Support.Tracking {
   ///     task has completed. This class deliberately does not provide an Execute()
   ///     method or anything similar to clearly seperate the initiation of an operation
   ///     from just monitoring it. By omitting an Execute() method, it also becomes
-  ///     possible to construct a progression just-in-time when it is explicitely being
+  ///     possible to construct a Waitable just-in-time when it is explicitely being
   ///     asked for.
   ///   </para>
   /// </remarks>
   public abstract class Waitable {
 
-    #region class EndedDummyProgression
+    #region class EndedDummyWaitable
 
-    /// <summary>Dummy progression which always is in the 'ended' state</summary>
+    /// <summary>Dummy waitable which always is in the 'ended' state</summary>
     private class EndedDummyWaitable : Waitable {
 
-      /// <summary>Initializes a new ended dummy progression</summary>
+      /// <summary>Initializes a new ended dummy waitable</summary>
       public EndedDummyWaitable() {
         OnAsyncEnded();
       }
 
     }
 
-    #endregion // class EndedDummyProgression
+    #endregion // class EndedDummyWaitable
 
-    /// <summary>A dummy progression that's always in the 'ended' state</summary>
+    /// <summary>A dummy waitable that's always in the 'ended' state</summary>
     /// <remarks>
     ///   Useful if an operation is already complete when it's being asked for or
     ///   when a progression that's lazily created is accessed after the original
@@ -68,15 +66,15 @@ namespace Nuclex.Support.Tracking {
     /// </remarks>
     public static readonly Waitable EndedDummy = new EndedDummyWaitable();
 
-    /// <summary>Will be triggered when the progression has ended</summary>
+    /// <summary>Will be triggered when the Waitable has ended</summary>
     public event EventHandler AsyncEnded;
 
-    /// <summary>Whether the progression has ended already</summary>
+    /// <summary>Whether the Waitable has ended already</summary>
     public bool Ended {
       get { return this.ended; }
     }
 
-    /// <summary>WaitHandle that can be used to wait for the progression to end</summary>
+    /// <summary>WaitHandle that can be used to wait for the Waitable to end</summary>
     public WaitHandle WaitHandle {
       get {
 
@@ -87,11 +85,11 @@ namespace Nuclex.Support.Tracking {
         // We can *not* optimize this lock away since we absolutely must not create
         // two doneEvents -- someone might call .WaitOne() on the first one when only
         // the second one is referenced by this.doneEvent and thus gets set in the end.
-        if (this.doneEvent == null) {
+        if(this.doneEvent == null) {
 
-          lock (this) {
+          lock(this) {
 
-            if (this.doneEvent == null)
+            if(this.doneEvent == null)
               this.doneEvent = new ManualResetEvent(this.ended);
 
           }
@@ -121,13 +119,13 @@ namespace Nuclex.Support.Tracking {
       // Make sure the progression is not ended more than once. By guaranteeing that
       // a progression can only be ended once, we allow users of this class to
       // skip some safeguards against notifications arriving twice.
-      lock (this) {
+      lock(this) {
 
         // No double lock here, this is an exception that indicates an implementation
         // error that will not be triggered under normal circumstances. We don't want
         // to waste any effort optimizing the speed at which an implementation fault
         // will be noticed.
-        if (this.ended)
+        if(this.ended)
           throw new InvalidOperationException("The progression has already been ended");
 
         this.ended = true;
@@ -137,12 +135,12 @@ namespace Nuclex.Support.Tracking {
       // Doesn't need a lock. If another thread wins the race and creates the event
       // after we just saw it being null, it would be created in an already set
       // state due to the ended flag (see above) being set to true beforehand!
-      if (this.doneEvent != null)
+      if(this.doneEvent != null)
         this.doneEvent.Set();
 
       // Finally, fire the AsyncEnded event
       EventHandler copy = AsyncEnded;
-      if (copy != null)
+      if(copy != null)
         copy(this, EventArgs.Empty);
 
     }

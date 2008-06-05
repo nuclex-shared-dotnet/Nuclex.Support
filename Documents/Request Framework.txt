@@ -1,0 +1,68 @@
+﻿The request framework should not require that .NET multithreading is used for
+asynchronous requests.
+
+Otherwise, it would prvent overlapped operations, 3rd party APIs (eg. used
+via P/Invoke) from being able to use the request framework and possibly even
+spawn duplicate implementations.
+
+
+Design using interfaces:
+
+  interface IWaitable {
+
+    /// <summary>Fired when the background process has finished</summary>
+    /// <remarks>
+    ///   If the process is already finished when a client registers to this event,
+    ///   the registered callback will be invoked synchronously right when the
+    ///   registration takes place.
+    /// </remarks>
+    event EventHandler Finished;
+
+    /// <summary>Waits until the background process finishes</summary>
+    void Wait();
+
+    /// <summary>Waits until the background process finishes or a timeout occurs</summary>
+    /// <param name="timeoutMilliseconds">
+    ///   Number of milliseconds after which to stop waiting and return immediately
+    /// </param>
+    /// <returns>
+    ///   True if the background process completed, false if the timeout was reached
+    /// </returns>
+    bool Wait(int timeoutMilliseconds);
+
+    /// <summary>Whether the background process has finished</summary>
+    bool Finished { get; }
+
+  }
+
+  interface IThreadedWaitable : IWaitable {
+
+    WaitHandle WaitHandle { get; }
+
+  }
+
+  interface IRequest : IWaitable {
+
+    /// <summary>
+    ///   Waits for the background process to complete and re-throws the exception to
+    ///   the caller when an error has occured
+    /// </summary>
+    void Join();
+
+  }
+
+  interface IRequest<ResultType> : IRequest {
+
+    /// <summary>
+    ///   Waits for the background process to complete and re-throws the exception to
+    ///   the caller when an error has occured
+    /// </summary>
+    /// <returns>The result of the background processing</returns>
+    new ResultType Join();
+
+  }
+
+  interface IThreadedRequest : IRequest, IThreadedWaitable { }
+
+  interface IThreadedRequest<ResultType> :
+    IRequest<ResultType>, IThreadedRequest, IThreadedWaitable { }
