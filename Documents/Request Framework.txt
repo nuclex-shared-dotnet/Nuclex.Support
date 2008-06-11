@@ -33,6 +33,18 @@ Design using interfaces:
     /// <summary>Whether the background process has finished</summary>
     bool Finished { get; }
 
+// ?
+    /// <summary>Wait handle that can be used to wait for multiple waitables</summary>
+    /// <remarks>
+    ///   Only use the WaitHandle to wait if you're running in a different thread than
+    ///   the request, or you may deadlock. Libraries based on single-threaded
+    ///   multitasking may employ concepts such as window message processing to achieve
+    ///   parallelism which could be stalled by improper waiting using the WaitHandle
+    ///   whereas the Wait() method typically has a suitable implementation compatible
+    ///   with the request's requirements.
+    /// </remarks>
+    WaitHandle WaitHandle { get; }
+
   }
 
   interface IThreadedWaitable : IWaitable {

@@ -84,8 +84,11 @@ namespace Nuclex.Support.Tracking {
     public virtual void Join() {
 
       // If the progression itself hasn't ended yet, block the caller until it has.
+      // We could just use WaitHandle.WaitOne() here, but since the WaitHandle is created
+      // on-the-fly only when it is requested, we can avoid the WaitHandle creation in
+      // case the request is already finished!
       if(!Ended)
-        WaitHandle.WaitOne();
+        Wait();
 
       // Allow the implementor to throw an exception in case an error has occured
       ReraiseExceptions();

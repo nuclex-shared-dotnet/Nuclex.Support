@@ -73,7 +73,7 @@ namespace Nuclex.Support.Tracking {
     ///   the registered callback will be invoked synchronously right when the
     ///   registration takes place.
     /// </remarks>
-    public event EventHandler AsyncEnded {
+    public virtual event EventHandler AsyncEnded {
       add {
 
         // If the background process has not yet ended, add the delegate to the
@@ -84,12 +84,12 @@ namespace Nuclex.Support.Tracking {
             if(!this.ended) {
 
               // The subscriber list is also created lazily ;-)
-              if(ReferenceEquals(this.subscribers, null)) {
-                this.subscribers = new List<EventHandler>();
+              if(ReferenceEquals(this.endedEventSubscribers, null)) {
+                this.endedEventSubscribers = new List<EventHandler>();
               }
 
               // Subscribe the event handler to the list
-              this.subscribers.Add(value);
+              this.endedEventSubscribers.Add(value);
               return;
 
             }
@@ -103,17 +103,17 @@ namespace Nuclex.Support.Tracking {
       }
       remove {
 
-        // Unsubscribing a non-subscribed delegate from an event is allowed and should
-        // not throw an exception. Due to the stupid design of the .NET collection
-        // classes (has anyone at Microsoft ever written a single proper collection
-        // in his life?) we have to search the collection twice.
         lock(this) {
 
           // Only try to remove the event handler if the subscriber list was created,
           // otherwise, we can be sure that no actual subscribers exist.
-          if(!ReferenceEquals(this.subscribers, null)) {
-            if(this.subscribers.Contains(value)) {
-              this.subscribers.Remove(value);
+          if(!ReferenceEquals(this.endedEventSubscribers, null)) {
+            int eventHandlerIndex = this.endedEventSubscribers.IndexOf(value);
+
+            // Unsubscribing a non-subscribed delegate from an event is allowed and should
+            // not throw an exception.
+            if(eventHandlerIndex != -1) {
+              this.endedEventSubscribers.RemoveAt(eventHandlerIndex);
             }
           }
 
@@ -122,13 +122,40 @@ namespace Nuclex.Support.Tracking {
       }
     }
 
+    /// <summary>Waits until the background process finishes</summary>
+    public virtual void Wait() {
+      WaitHandle.WaitOne();
+    }
+
+    /// <summary>Waits until the background process finishes or a timeout occurs</summary>
+    /// <param name="timeout">
+    ///   Time span after which to stop waiting and return immediately
+    /// </param>
+    /// <returns>
+    ///   True if the background process completed, false if the timeout was reached
+    /// </returns>
+    public virtual bool Wait(TimeSpan timeout) {
+      return WaitHandle.WaitOne(timeout, false);
+    }
+
+    /// <summary>Waits until the background process finishes or a timeout occurs</summary>
+    /// <param name="timeoutMilliseconds">
+    ///   Number of milliseconds after which to stop waiting and return immediately
+    /// </param>
+    /// <returns>
+    ///   True if the background process completed, false if the timeout was reached
+    /// </returns>
+    public virtual bool Wait(int timeoutMilliseconds) {
+      return WaitHandle.WaitOne(timeoutMilliseconds, false);
+    }
+
     /// <summary>Whether the Waitable has ended already</summary>
-    public bool Ended {
+    public virtual bool Ended {
       get { return this.ended; }
     }
 
     /// <summary>WaitHandle that can be used to wait for the Waitable to end</summary>
-    public WaitHandle WaitHandle {
+    public virtual WaitHandle WaitHandle {
       get {
 
         // The WaitHandle will only be created when someone asks for it!
@@ -189,11 +216,15 @@ namespace Nuclex.Support.Tracking {
 
       }
 
-      // Fire the ended events to all event subscribers. We can freely use the list
-      // without synchronization at this point on since once this.ended is set to true,
-      // the subscribers list will not be accessed any longer
-      for(int index = 0; index < this.subscribers.Count; ++index) {
-        this.subscribers[index](this, EventArgs.Empty);
+      if(!ReferenceEquals(this.endedEventSubscribers, null)) {
+
+        // Fire the ended events to all event subscribers. We can freely use the list
+        // without synchronization at this point on since once this.ended is set to true,
+        // the subscribers list will not be accessed any longer
+        for(int index = 0; index < this.endedEventSubscribers.Count; ++index) {
+          this.endedEventSubscribers[index](this, EventArgs.Empty);
+        }
+
       }
 
     }
@@ -202,15 +233,15 @@ namespace Nuclex.Support.Tracking {
     /// <remarks>
     ///   Does not need to be volatile since it's only accessed inside 
     /// </remarks>
-    private volatile List<EventHandler> subscribers;
+    protected volatile List<EventHandler> endedEventSubscribers;
     /// <summary>Whether the operation has completed yet</summary>
-    private volatile bool ended;
+    protected volatile bool ended;
     /// <summary>Event that will be set when the progression is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using
     ///   the WaitHandle property.
     /// </remarks>
-    private volatile ManualResetEvent doneEvent;
+    protected volatile ManualResetEvent doneEvent;
 
   }
 
