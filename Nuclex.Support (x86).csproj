@@ -151,9 +151,9 @@
     <Compile Include="Source\Scheduling\AbortedException.cs" />
     <Compile Include="Source\Scheduling\IAbortable.cs" />
     <Compile Include="Source\Scheduling\Operation.cs" />
-    <Compile Include="Source\Scheduling\QueueOperation.cs" />
-    <Compile Include="Source\Scheduling\QueueOperation.Test.cs">
-      <DependentUpon>QueueOperation.cs</DependentUpon>
+    <Compile Include="Source\Scheduling\OperationQueue.cs" />
+    <Compile Include="Source\Scheduling\OperationQueue.Test.cs">
+      <DependentUpon>OperationQueue.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Scheduling\ThreadCallbackOperation.cs" />
     <Compile Include="Source\Scheduling\ThreadOperation.cs" />
@@ -178,9 +178,9 @@
       <DependentUpon>ProgressTracker.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Tracking\Request.cs" />
-    <Compile Include="Source\Tracking\SetProgression.cs" />
-    <Compile Include="Source\Tracking\SetProgression.Test.cs">
-      <DependentUpon>SetProgression.cs</DependentUpon>
+    <Compile Include="Source\Tracking\WaitableGroup.cs" />
+    <Compile Include="Source\Tracking\WaitableGroup.Test.cs">
+      <DependentUpon>WaitableGroup.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Tracking\StatusReportEventArgs.cs" />
     <Compile Include="Source\Tracking\Waitable.cs" />

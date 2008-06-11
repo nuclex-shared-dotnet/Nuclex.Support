@@ -27,36 +27,36 @@ using Nuclex.Support.Collections;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Collection of progressions with a weighting value</summary>
-  /// <typeparam name="ProgressionType">Type of progressions to manage</typeparam>
+  /// <summary>Collection of waitables with a weighting value</summary>
+  /// <typeparam name="WaitableType">Type of waitables to manage</typeparam>
   /// <remarks>
   ///   <para>
   ///     This collection is exposed as a read-only collection to the user that
-  ///     stores WeightedProgressions. Internally, it merely wraps a collection of
-  ///     an internal type used to keep track of the individual progression's
-  ///     progress in the SetProgression and QueueOperation classes.
+  ///     stores WeightedWaitables. Internally, it merely wraps a collection of
+  ///     an internal type used to keep track of the individual waitable's
+  ///     progress in the WaitableSet and OperationQueue classes.
   ///   </para>
   ///   <para>
-  ///     It is read-only because the design requires a progression to only ever
-  ///     finish once. If it was possible eg. to add items after a SetProgression
+  ///     It is read-only because the design requires a waitable to only ever
+  ///     finish once. If it was possible eg. to add items after a WaitableSet
   ///     had signalled itself as being finished, it would be moved into an
-  ///     unfinished state again. Also, an empty SetProgression is, by definition,
+  ///     unfinished state again. Also, an empty WaitableSet is, by definition,
   ///     finished (simply because there is no work to do) - unless the contents
-  ///     of set are passed to the SetProgression's constructor and never modified
+  ///     of set are passed to the WaitableSet's constructor and never modified
   ///     at all, the design would be violated as soon as ab instance of the
-  ///     SetProgression or QueueOperation classes was created.
+  ///     WaitableSet or OperationQueue classes was created.
   ///   </para>
   /// </remarks>
-  internal class WeightedProgressionWrapperCollection<ProgressionType> :
+  internal class WeightedWaitableWrapperCollection<WaitableType> :
     TransformingReadOnlyCollection<
-      ObservedWeightedWaitable<ProgressionType>, WeightedWaitable<ProgressionType>
+      ObservedWeightedWaitable<WaitableType>, WeightedWaitable<WaitableType>
     >
-    where ProgressionType : Waitable {
+    where WaitableType : Waitable {
 
-    /// <summary>Initializes a new weighted progression collection wrapper</summary>
-    /// <param name="items">Items to be exposed as weighted progressions</param>
-    internal WeightedProgressionWrapperCollection(
-      IList<ObservedWeightedWaitable<ProgressionType>> items
+    /// <summary>Initializes a new weighted waitable collection wrapper</summary>
+    /// <param name="items">Items to be exposed as weighted waitables</param>
+    internal WeightedWaitableWrapperCollection(
+      IList<ObservedWeightedWaitable<WaitableType>> items
     )
       : base(items) { }
 
@@ -69,8 +69,8 @@ namespace Nuclex.Support.Tracking {
     ///   be called frequently, because the TransformingReadOnlyCollection does
     ///   not cache otherwise store the transformed items.
     /// </remarks>
-    protected override WeightedWaitable<ProgressionType> Transform(
-      ObservedWeightedWaitable<ProgressionType> item
+    protected override WeightedWaitable<WaitableType> Transform(
+      ObservedWeightedWaitable<WaitableType> item
     ) {
       return item.WeightedWaitable;
     }

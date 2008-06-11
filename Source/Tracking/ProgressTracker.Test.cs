@@ -29,28 +29,28 @@ using NMock2;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Unit Test for the progression tracker class</summary>
+  /// <summary>Unit Test for the progress tracker class</summary>
   [TestFixture]
-  public class ProgressionTrackerTest {
+  public class ProgressTrackerTest {
 
-    #region interface IProgressionTrackerSubscriber
+    #region interface IProgressTrackerSubscriber
 
-    /// <summary>Interface used to test the progression tracker.</summary>
-    public interface IProgressionTrackerSubscriber {
+    /// <summary>Interface used to test the progress tracker</summary>
+    public interface IProgressTrackerSubscriber {
 
-      /// <summary>Called when the progression tracker's progress changes</summary>
-      /// <param name="sender">Progression tracker whose progress has changed</param>
+      /// <summary>Called when the tracked progress changes</summary>
+      /// <param name="sender">Progress tracker whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
       void ProgressChanged(object sender, ProgressReportEventArgs e);
 
-      /// <summary>Called when the progression tracker's idle state changes</summary>
-      /// <param name="sender">Progression tracker whose idle state has changed</param>
+      /// <summary>Called when the progress tracker's idle state changes</summary>
+      /// <param name="sender">Progress tracker whose idle state has changed</param>
       /// <param name="e">Contains the new idle state of the tracker</param>
       void IdleStateChanged(object sender, IdleStateEventArgs e);
 
     }
 
-    #endregion // interface IProgressionTrackerSubscriber
+    #endregion // interface IProgressTrackerSubscriber
 
     #region class ProgressUpdateEventArgsMatcher
 
@@ -91,23 +91,21 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // class ProgressUpdateEventArgsMatcher
 
-    #region class TestProgression
+    #region class TestWaitable
 
-    /// <summary>Progression used for testing in this unit test</summary>
-    private class TestProgression : Waitable, IProgressReporter {
+    /// <summary>Waitable used for testing in this unit test</summary>
+    private class TestWaitable : Waitable, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
       public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
-      /// <summary>Changes the testing progression's indicated progress</summary>
-      /// <param name="progress">
-      ///   New progress to be reported by the testing progression
-      /// </param>
+      /// <summary>Changes the testing waitable's indicated progress</summary>
+      /// <param name="progress">New progress to be reported by the testing waitable</param>
       public void ChangeProgress(float progress) {
         OnAsyncProgressChanged(progress);
       }
 
-      /// <summary>Transitions the progression into the ended state</summary>
+      /// <summary>Transitions the waitable into the ended state</summary>
       public void End() {
         OnAsyncEnded();
       }
@@ -115,7 +113,7 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
+      ///   Informs the observers of this waitable about the achieved progress.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(float progress) {
         OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -124,10 +122,10 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
-      ///   Allows for classes derived from the Progression class to easily provide
+      ///   Informs the observers of this waitable about the achieved progress.
+      ///   Allows for classes derived from the Waitable class to easily provide
       ///   a custom event arguments class that has been derived from the
-      ///   Progression's ProgressUpdateEventArgs class.
+      ///   waitable's ProgressUpdateEventArgs class.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
         EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -137,7 +135,7 @@ namespace Nuclex.Support.Tracking {
 
     }
 
-    #endregion // class TestProgression
+    #endregion // class TestWiatable
 
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
@@ -150,7 +148,7 @@ namespace Nuclex.Support.Tracking {
     public void TestSummedProgress() {
       ProgressTracker tracker = new ProgressTracker();
 
-      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
       Expect.Once.On(mockedSubscriber).
         Method("IdleStateChanged").
@@ -165,9 +163,9 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      TestProgression test1 = new TestProgression();
+      TestWaitable test1 = new TestWaitable();
       tracker.Track(test1);
-      TestProgression test2 = new TestProgression();
+      TestWaitable test2 = new TestWaitable();
       tracker.Track(test2);
 
       Expect.Once.On(mockedSubscriber).
@@ -185,18 +183,18 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Validates that the tracker only removes progressions when the whole
+    ///   Validates that the tracker only removes waitables when the whole
     ///   tracking list has reached the 'ended' state.
     /// </summary>
     /// <remarks>
-    ///   If the tracker would remove ended progressions right when they finished,
+    ///   If the tracker would remove ended waitables right when they finished,
     ///   the total progress would jump back each time. This is unwanted, of course.
     /// </remarks>
     [Test]
     public void TestDelayedRemoval() {
       ProgressTracker tracker = new ProgressTracker();
 
-      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
       Expect.Once.On(mockedSubscriber).
         Method("IdleStateChanged").
@@ -211,9 +209,9 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      TestProgression test1 = new TestProgression();
+      TestWaitable test1 = new TestWaitable();
       tracker.Track(test1);
-      TestProgression test2 = new TestProgression();
+      TestWaitable test2 = new TestWaitable();
       tracker.Track(test2);
 
       Expect.Once.On(mockedSubscriber).
@@ -236,8 +234,8 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      // Total progress should be 0.75 after this call (one progression at 1.0,
-      // the other one at 0.5). If the second progression would be removed,
+      // Total progress should be 0.75 after this call (one waitable at 1.0,
+      // the other one at 0.5). If the second waitable would be removed,
       // the progress would jump to 0.5 instead.
       test2.End();
 
@@ -260,14 +258,14 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Validates that the tracker behaves correctly if it is fed with progressions
+    ///   Validates that the tracker behaves correctly if it is fed with waitables
     ///   that have already ended.
     /// </summary>
     [Test]
-    public void TestSoleEndedProgression() {
+    public void TestSoleEndedWaitable() {
       ProgressTracker tracker = new ProgressTracker();
 
-      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
       tracker.Track(Waitable.EndedDummy);
 
@@ -275,14 +273,14 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Validates that the tracker behaves correctly if it is fed with progressions
-    ///   that have already ended in addition to progressions that are actively executing.
+    ///   Validates that the tracker behaves correctly if it is fed with waitables
+    ///   that have already ended in addition to waitables that are actively executing.
     /// </summary>
     [Test]
-    public void TestEndedProgression() {
+    public void TestEndedWaitable() {
       ProgressTracker tracker = new ProgressTracker();
 
-      IProgressionTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
       Expect.Once.On(mockedSubscriber).
         Method("IdleStateChanged").
@@ -297,7 +295,7 @@ namespace Nuclex.Support.Tracking {
           }
         );
 
-      TestProgression test1 = new TestProgression();
+      TestWaitable test1 = new TestWaitable();
       tracker.Track(test1);
 
       Expect.Once.On(mockedSubscriber).
@@ -337,7 +335,7 @@ namespace Nuclex.Support.Tracking {
     public void TestProvokedDeadlock() {
       ProgressTracker tracker = new ProgressTracker();
 
-      TestProgression test1 = new TestProgression();
+      TestWaitable test1 = new TestWaitable();
       tracker.Track(test1);
 
       tracker.AsyncIdleStateChanged +=
@@ -351,9 +349,9 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a tracker</summary>
     /// <param name="tracker">Tracker to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private IProgressionTrackerSubscriber mockSubscriber(ProgressTracker tracker) {
-      IProgressionTrackerSubscriber mockedSubscriber =
-        this.mockery.NewMock<IProgressionTrackerSubscriber>();
+    private IProgressTrackerSubscriber mockSubscriber(ProgressTracker tracker) {
+      IProgressTrackerSubscriber mockedSubscriber =
+        this.mockery.NewMock<IProgressTrackerSubscriber>();
 
       tracker.AsyncIdleStateChanged +=
         new EventHandler<IdleStateEventArgs>(mockedSubscriber.IdleStateChanged);

@@ -23,33 +23,33 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Progression being observed by another class</summary>
-  /// <typeparam name="ProgressionType">
-  ///   Type of the progression that is being observed
+  /// <summary>Waitable being observed by another object</summary>
+  /// <typeparam name="WaitableType">
+  ///   Type of the waitable that is being observed
   /// </typeparam>
-  internal class ObservedWeightedWaitable<ProgressionType> : IDisposable
-    where ProgressionType : Waitable {
+  internal class ObservedWeightedWaitable<WaitableType> : IDisposable
+    where WaitableType : Waitable {
 
     /// <summary>Delegate for reporting progress updates</summary>
     public delegate void ReportDelegate();
 
-    /// <summary>Initializes a new observed progression</summary>
-    /// <param name="weightedProgression">Weighted progression being observed</param>
+    /// <summary>Initializes a new observed waitable</summary>
+    /// <param name="weightedWaitable">Weighted waitable being observed</param>
     /// <param name="progressUpdateCallback">
-    ///   Callback to invoke when the progression's progress changes
+    ///   Callback to invoke when the waitable's progress changes
     /// </param>
     /// <param name="endedCallback">
-    ///   Callback to invoke when the progression has ended
+    ///   Callback to invoke when the waitable has ended
     /// </param>
     internal ObservedWeightedWaitable(
-      WeightedWaitable<ProgressionType> weightedProgression,
+      WeightedWaitable<WaitableType> weightedWaitable,
       ReportDelegate progressUpdateCallback,
       ReportDelegate endedCallback
     ) {
-      this.weightedProgression = weightedProgression;
+      this.weightedWaitable = weightedWaitable;
 
-      // See if this progression has already ended (initial check for performance)
-      if(weightedProgression.Waitable.Ended) {
+      // See if this waitable has already ended (initial check for performance)
+      if(weightedWaitable.Waitable.Ended) {
 
         this.progress = 1.0f;
 
@@ -58,18 +58,18 @@ namespace Nuclex.Support.Tracking {
         this.endedCallback = endedCallback;
         this.progressUpdateCallback = progressUpdateCallback;
 
-        this.weightedProgression.Waitable.AsyncEnded +=
+        this.weightedWaitable.Waitable.AsyncEnded +=
           new EventHandler(asyncEnded);
 
-        // Check whether this progression might have ended before we were able to
+        // Check whether this waitable might have ended before we were able to
         // attach ourselfes to its event. If so, don't bother registering to the
         // other event and (important) set our progress to 1.0 because, since we
         // might not have gotten the 'Ended' event, it might otherwise stay at 0.0
-        // even though the progression is in the 'Ended' state.
-        if(weightedProgression.Waitable.Ended) {
+        // even though the waitable is in the 'Ended' state.
+        if(weightedWaitable.Waitable.Ended) {
           this.progress = 1.0f;
         } else {
-          this.progressReporter = this.weightedProgression.Waitable as IProgressReporter;
+          this.progressReporter = this.weightedWaitable.Waitable as IProgressReporter;
 
           if(this.progressReporter != null) {
             this.asyncProgressChangedEventHandler = new EventHandler<ProgressReportEventArgs>(
@@ -89,18 +89,18 @@ namespace Nuclex.Support.Tracking {
       asyncDisconnectEvents();
     }
 
-    /// <summary>Weighted progression being observed</summary>
-    public WeightedWaitable<ProgressionType> WeightedWaitable {
-      get { return this.weightedProgression; }
+    /// <summary>Weighted waitable being observed</summary>
+    public WeightedWaitable<WaitableType> WeightedWaitable {
+      get { return this.weightedWaitable; }
     }
 
-    /// <summary>Amount of progress this progression has achieved so far</summary>
+    /// <summary>Amount of progress this waitable has achieved so far</summary>
     public float Progress {
       get { return this.progress; }
     }
 
-    /// <summary>Called when the observed progression has ended</summary>
-    /// <param name="sender">Progression that has ended</param>
+    /// <summary>Called when the observed waitable has ended</summary>
+    /// <param name="sender">Waitable that has ended</param>
     /// <param name="e">Not used</param>
     private void asyncEnded(object sender, EventArgs e) {
       ReportDelegate endedCallback = this.endedCallback;
@@ -109,11 +109,11 @@ namespace Nuclex.Support.Tracking {
       asyncDisconnectEvents(); // We don't need those anymore!
 
       // If the progress hasn't reached 1.0 yet, make a fake report so that even
-      // when a progression doesn't report any progress at all, the set or queue
-      // owning us will have a percentage of progressions completed.
+      // when a waitable doesn't report any progress at all, the set or queue
+      // owning us will have a percentage of waitables completed.
       //
       // There is the possibility of a race condition here, as a final progress
-      // report could have been generated by a thread running the progression
+      // report could have been generated by a thread running the waitable
       // that was preempted by this thread. This would cause the progress to
       // jump to 1.0 and then back to whatever the waiting thread will report.
       if(this.progress != 1.0f) {
@@ -124,15 +124,15 @@ namespace Nuclex.Support.Tracking {
       endedCallback();
     }
 
-    /// <summary>Called when the progress of the observed progression changes</summary>
-    /// <param name="sender">Progression whose progress has changed</param>
+    /// <summary>Called when the progress of the observed waitable changes</summary>
+    /// <param name="sender">Waitable whose progress has changed</param>
     /// <param name="e">Contains the updated progress</param>
     private void asyncProgressChanged(object sender, ProgressReportEventArgs e) {
       this.progress = e.Progress;
       this.progressUpdateCallback();
     }
 
-    /// <summary>Unsubscribes from all events of the observed progression</summary>
+    /// <summary>Unsubscribes from all events of the observed waitable</summary>
     private void asyncDisconnectEvents() {
 
       // Make use of the double check locking idiom to avoid the costly lock when
@@ -143,8 +143,7 @@ namespace Nuclex.Support.Tracking {
         // is no risk of deadlock involved, so we don't need a fancy syncRoot!
         lock(this) {
           if(this.endedCallback != null) {
-            this.weightedProgression.Waitable.AsyncEnded -=
-              new EventHandler(asyncEnded);
+            this.weightedWaitable.Waitable.AsyncEnded -= new EventHandler(asyncEnded);
 
             if(this.progressReporter != null) {
               this.progressReporter.AsyncProgressChanged -=
@@ -163,13 +162,13 @@ namespace Nuclex.Support.Tracking {
     }
 
     private EventHandler<ProgressReportEventArgs> asyncProgressChangedEventHandler;
-    /// <summary>The observed progression's progress reporting interface</summary>
+    /// <summary>The observed waitable's progress reporting interface</summary>
     private IProgressReporter progressReporter;
-    /// <summary>The weighted progression that is being observed</summary>
-    private WeightedWaitable<ProgressionType> weightedProgression;
+    /// <summary>The weighted wable that is being observed</summary>
+    private WeightedWaitable<WaitableType> weightedWaitable;
     /// <summary>Callback to invoke when the progress updates</summary>
     private volatile ReportDelegate progressUpdateCallback;
-    /// <summary>Callback to invoke when the progression ends</summary>
+    /// <summary>Callback to invoke when the waitable ends</summary>
     private volatile ReportDelegate endedCallback;
     /// <summary>Progress achieved so far</summary>
     private volatile float progress;

@@ -26,66 +26,66 @@ using Nuclex.Support.Collections;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Forms a single progression from a set of progressions</summary>
-  /// <typeparam name="ProgressionType">Type of progressions to manage as a set</typeparam>
-  public class SetProgression<ProgressionType> : Waitable, IDisposable, IProgressReporter
-    where ProgressionType : Waitable {
+  /// <summary>Forms a single waitable from a group of waitables</summary>
+  /// <typeparam name="WaitableType">Type of waitables to manage as a set</typeparam>
+  public class WaitableGroup<WaitableType> : Waitable, IDisposable, IProgressReporter
+    where WaitableType : Waitable {
 
     /// <summary>will be triggered to report when progress has been achieved</summary>
     public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
-    /// <summary>Initializes a new set progression</summary>
-    /// <param name="childs">Progressions to track with this set</param>
+    /// <summary>Initializes a new waitable group</summary>
+    /// <param name="childs">Waitables to track with this group</param>
     /// <remarks>
-    ///   Uses a default weighting factor of 1.0 for all progressions.
+    ///   Uses a default weighting factor of 1.0 for all waitables.
     /// </remarks>
-    public SetProgression(IEnumerable<ProgressionType> childs)
+    public WaitableGroup(IEnumerable<WaitableType> childs)
       : this() {
 
-      // Construct a WeightedProgression with the default weight for each
-      // progression and wrap it in an ObservedProgression
-      foreach(ProgressionType progression in childs) {
+      // Construct a WeightedWaitable with the default weight for each
+      // waitable and wrap it in an ObservedWaitable
+      foreach(WaitableType waitable in childs) {
         this.children.Add(
-          new ObservedWeightedWaitable<ProgressionType>(
-            new WeightedWaitable<ProgressionType>(progression),
-            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncEnded)
+          new ObservedWeightedWaitable<WaitableType>(
+            new WeightedWaitable<WaitableType>(waitable),
+            new ObservedWeightedWaitable<WaitableType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedWaitable<WaitableType>.ReportDelegate(asyncChildEnded)
           )
         );
       }
 
-      // Since all progressions have a weight of 1.0, the total weight is
-      // equal to the number of progressions in our list
+      // Since all waitables have a weight of 1.0, the total weight is
+      // equal to the number of waitables in our list
       this.totalWeight = (float)this.children.Count;
 
     }
 
-    /// <summary>Initializes a new set progression</summary>
-    /// <param name="childs">Progressions to track with this set</param>
-    public SetProgression(
-      IEnumerable<WeightedWaitable<ProgressionType>> childs
+    /// <summary>Initializes a new waitable group</summary>
+    /// <param name="childs">Waitables to track with this group</param>
+    public WaitableGroup(
+      IEnumerable<WeightedWaitable<WaitableType>> childs
     )
       : this() {
 
-      // Construct an ObservedProgression around each of the WeightedProgressions
-      foreach(WeightedWaitable<ProgressionType> progression in childs) {
+      // Construct an ObservedWaitable around each of the WeightedWaitables
+      foreach(WeightedWaitable<WaitableType> waitable in childs) {
         this.children.Add(
-          new ObservedWeightedWaitable<ProgressionType>(
-            progression,
-            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncProgressUpdated),
-            new ObservedWeightedWaitable<ProgressionType>.ReportDelegate(asyncEnded)
+          new ObservedWeightedWaitable<WaitableType>(
+            waitable,
+            new ObservedWeightedWaitable<WaitableType>.ReportDelegate(asyncProgressUpdated),
+            new ObservedWeightedWaitable<WaitableType>.ReportDelegate(asyncChildEnded)
           )
         );
 
         // Sum up the total weight
-        this.totalWeight += progression.Weight;
+        this.totalWeight += waitable.Weight;
       }
 
     }
 
     /// <summary>Performs common initialization for the public constructors</summary>
-    private SetProgression() {
-      this.children = new List<ObservedWeightedWaitable<ProgressionType>>();
+    private WaitableGroup() {
+      this.children = new List<ObservedWeightedWaitable<WaitableType>>();
     }
 
     /// <summary>Immediately releases all resources owned by the object</summary>
@@ -93,8 +93,8 @@ namespace Nuclex.Support.Tracking {
 
       if(this.children != null) {
 
-        // Dispose all the observed progressions, disconnecting the events from the
-        // actual progressions so the GC can more easily collect this class
+        // Dispose all the observed waitables, disconnecting the events from the
+        // actual waitables so the GC can more easily collect this class
         for(int index = 0; index < this.children.Count; ++index)
           this.children[index].Dispose();
 
@@ -105,18 +105,18 @@ namespace Nuclex.Support.Tracking {
 
     }
 
-    /// <summary>Childs contained in the progression set</summary>
-    public IList<WeightedWaitable<ProgressionType>> Children {
+    /// <summary>Childs contained in the waitable set</summary>
+    public IList<WeightedWaitable<WaitableType>> Children {
       get {
 
         // The wrapper is constructed only when needed. Most of the time, users will
-        // just create a SetProgression and monitor its progress without ever using
+        // just create a waitable group and monitor its progress without ever using
         // the Childs collection.
         if(this.wrapper == null) {
 
           // This doesn't need a lock because it's a stateless wrapper.
           // If it is constructed twice, then so be it, no problem at all.
-          this.wrapper = new WeightedProgressionWrapperCollection<ProgressionType>(
+          this.wrapper = new WeightedWaitableWrapperCollection<WaitableType>(
             this.children
           );
 
@@ -130,7 +130,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the progress update event</summary>
     /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
+    ///   Informs the observers of this waitables about the achieved progress.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(float progress) {
       OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -139,10 +139,10 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the progress update event</summary>
     /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
-    ///   Allows for classes derived from the Progression class to easily provide
+    ///   Informs the observers of this waitable about the achieved progress.
+    ///   Allows for classes derived from the Waitable class to easily provide
     ///   a custom event arguments class that has been derived from the
-    ///   Progression's ProgressUpdateEventArgs class.
+    ///   waitable's ProgressUpdateEventArgs class.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
       EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -151,13 +151,13 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Called when the progress of one of the observed progressions changes
+    ///   Called when the progress of one of the observed waitables changes
     /// </summary>
     private void asyncProgressUpdated() {
       float totalProgress = 0.0f;
 
-      // Calculate the sum of the progress reported by our child progressions,
-      // scaled to the weight each progression has assigned to it.
+      // Calculate the sum of the progress reported by our child waitables,
+      // scaled to the weight each waitable has assigned to it.
       for(int index = 0; index < this.children.Count; ++index) {
         totalProgress +=
           this.children[index].Progress * this.children[index].WeightedWaitable.Weight;
@@ -172,29 +172,29 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Called when an observed progression ends
+    ///   Called when an observed waitable ends
     /// </summary>
-    private void asyncEnded() {
+    private void asyncChildEnded() {
 
-      // If there's still at least one progression going, don't report that
-      // the SetProgression has finished yet.
+      // If there's still at least one waitable going, don't report that
+      // the waitable group has finished yet.
       for(int index = 0; index < this.children.Count; ++index)
         if(!this.children[index].WeightedWaitable.Waitable.Ended)
           return;
 
-      // All child progressions have ended, so the set has now ended as well
+      // All child waitables have ended, so the set has now ended as well
       OnAsyncEnded();
 
     }
 
-    /// <summary>Progressions being managed in the set</summary>
-    private List<ObservedWeightedWaitable<ProgressionType>> children;
+    /// <summary>Waitables being managed in the set</summary>
+    private List<ObservedWeightedWaitable<WaitableType>> children;
     /// <summary>
-    ///   Wrapper collection for exposing the child progressions under the
-    ///   WeightedProgression interface
+    ///   Wrapper collection for exposing the child waitables under the
+    ///   WeightedWaitable interface
     /// </summary>
-    private volatile WeightedProgressionWrapperCollection<ProgressionType> wrapper;
-    /// <summary>Summed weight of all progressions in the set</summary>
+    private volatile WeightedWaitableWrapperCollection<WaitableType> wrapper;
+    /// <summary>Summed weight of all waitables in the set</summary>
     private float totalWeight;
 
   }

@@ -29,7 +29,7 @@ namespace Nuclex.Support.Scheduling {
   /// <typeparam name="OperationType">
   ///   Type of the child operations the QueueOperation will contain
   /// </typeparam>
-  public class QueueOperation<OperationType> : Operation, IProgressReporter
+  public class OperationQueue<OperationType> : Operation, IProgressReporter
     where OperationType : Operation {
 
     /// <summary>will be triggered to report when progress has been achieved</summary>
@@ -40,24 +40,24 @@ namespace Nuclex.Support.Scheduling {
     /// <remarks>
     ///   All child operations will have a default weight of 1.0
     /// </remarks>
-    public QueueOperation(IEnumerable<OperationType> childs) : this() {
+    public OperationQueue(IEnumerable<OperationType> childs) : this() {
 
-      // Construct a WeightedProgression with the default weight for each
-      // progression and wrap it in an ObservedProgression
+      // Construct a WeightedWaitable with the default weight for each
+      // waitable and wrap it in an ObservedWaitable
       foreach(OperationType operation in childs)
         this.children.Add(new WeightedWaitable<OperationType>(operation));
 
-      // Since all progressions have a weight of 1.0, the total weight is
-      // equal to the number of progressions in our list
+      // Since all waitables have a weight of 1.0, the total weight is
+      // equal to the number of waitables in our list
       this.totalWeight = (float)this.children.Count;
 
     }
 
     /// <summary>Initializes a new queue operation with custom weights</summary>
     /// <param name="childs">Child operations to execute in this operation</param>
-    public QueueOperation(IEnumerable<WeightedWaitable<OperationType>> childs) : this() {
+    public OperationQueue(IEnumerable<WeightedWaitable<OperationType>> childs) : this() {
 
-      // Construct an ObservedProgression around each of the WeightedProgressions
+      // Construct an ObservedWaitablen around each of the WeightedWaitables
       foreach(WeightedWaitable<OperationType> operation in childs) {
         this.children.Add(operation);
 
@@ -68,7 +68,7 @@ namespace Nuclex.Support.Scheduling {
     }
 
     /// <summary>Initializes a new queue operation</summary>
-    private QueueOperation() {
+    private OperationQueue() {
       this.asyncOperationEndedDelegate = new EventHandler(asyncOperationEnded);
       this.asyncOperationProgressChangedDelegate = new EventHandler<ProgressReportEventArgs>(
         asyncOperationProgressChanged
@@ -99,7 +99,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Fires the progress update event</summary>
     /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
+    ///   Informs the observers of this waitable about the achieved progress.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(float progress) {
       OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -108,10 +108,10 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Fires the progress update event</summary>
     /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this progression about the achieved progress.
-    ///   Allows for classes derived from the Progression class to easily provide
+    ///   Informs the observers of this waitable about the achieved progress.
+    ///   Allows for classes derived from the Waitable class to easily provide
     ///   a custom event arguments class that has been derived from the
-    ///   Progression's ProgressUpdateEventArgs class.
+    ///   waitable's ProgressUpdateEventArgs class.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
       EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;

@@ -33,11 +33,11 @@ namespace Nuclex.Support.Scheduling {
 
   /// <summary>Unit Test for the queue operation class</summary>
   [TestFixture]
-  public class QueueOperationTest {
+  public class OperationQueueTest {
 
     #region interface IQueueOperationSubscriber
 
-    /// <summary>Interface used to test the set progression.</summary>
+    /// <summary>Interface used to test the set waitable.</summary>
     public interface IQueueOperationSubscriber {
 
       /// <summary>Called when the queue operations's progress changes</summary>
@@ -95,7 +95,7 @@ namespace Nuclex.Support.Scheduling {
 
     #region class TestOperation
 
-    /// <summary>Progression used for testing in this unit test</summary>
+    /// <summary>Operation used for testing in this unit test</summary>
     private class TestOperation : Operation, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
@@ -116,9 +116,9 @@ namespace Nuclex.Support.Scheduling {
         OnAsyncEnded();
       }
 
-      /// <summary>Changes the testing progression's indicated progress</summary>
+      /// <summary>Changes the testing operation's indicated progress</summary>
       /// <param name="progress">
-      ///   New progress to be reported by the testing progression
+      ///   New progress to be reported by the testing operation
       /// </param>
       public void ChangeProgress(float progress) {
         OnAsyncProgressChanged(progress);
@@ -136,7 +136,7 @@ namespace Nuclex.Support.Scheduling {
       /// <summary>Fires the progress update event</summary>
       /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
+      ///   Informs the observers of this operation about the achieved progress.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(float progress) {
         OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -145,10 +145,10 @@ namespace Nuclex.Support.Scheduling {
       /// <summary>Fires the progress update event</summary>
       /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
-      ///   Allows for classes derived from the Progression class to easily provide
+      ///   Informs the observers of this operation about the achieved progress.
+      ///   Allows for classes derived from the Operation class to easily provide
       ///   a custom event arguments class that has been derived from the
-      ///   Progression's ProgressUpdateEventArgs class.
+      ///   operation's ProgressUpdateEventArgs class.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
         EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -175,8 +175,8 @@ namespace Nuclex.Support.Scheduling {
       TestOperation operation1 = new TestOperation();
       TestOperation operation2 = new TestOperation();
 
-      QueueOperation<TestOperation> testQueueOperation =
-        new QueueOperation<TestOperation>(
+      OperationQueue<TestOperation> testQueueOperation =
+        new OperationQueue<TestOperation>(
           new TestOperation[] { operation1, operation2 }
         );
 
@@ -188,7 +188,7 @@ namespace Nuclex.Support.Scheduling {
         Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
+            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
@@ -199,7 +199,7 @@ namespace Nuclex.Support.Scheduling {
         Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(QueueOperation<TestOperation>)),
+            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );

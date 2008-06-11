@@ -62,7 +62,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>A dummy waitable that's always in the 'ended' state</summary>
     /// <remarks>
     ///   Useful if an operation is already complete when it's being asked for or
-    ///   when a progression that's lazily created is accessed after the original
+    ///   when a waitable that's lazily created is accessed after the original
     ///   operation has ended already.
     /// </remarks>
     public static readonly Waitable EndedDummy = new EndedDummyWaitable();
@@ -186,14 +186,14 @@ namespace Nuclex.Support.Tracking {
     ///   </para>
     ///   <para>
     ///     Calling this method is mandatory. Implementers need to take care that
-    ///     the OnAsyncEnded() method is called on any instance of Progression that's
+    ///     the OnAsyncEnded() method is called on any instance of Waitable that's
     ///     being created. This method also must not be called more than once.
     ///   </para>
     /// </remarks>
     protected virtual void OnAsyncEnded() {
 
-      // Make sure the progression is not ended more than once. By guaranteeing that
-      // a progression can only be ended once, we allow users of this class to
+      // Make sure the waitable is not ended more than once. By guaranteeing that
+      // a waitable can only be ended once, we allow users of this class to
       // skip some safeguards against notifications arriving twice.
       lock(this) {
 
@@ -202,7 +202,7 @@ namespace Nuclex.Support.Tracking {
         // to waste any effort optimizing the speed at which an implementation fault
         // will be noticed.
         if(this.ended)
-          throw new InvalidOperationException("The progression has already been ended");
+          throw new InvalidOperationException("The Waitable has already been ended");
 
         this.ended = true;
 
@@ -236,7 +236,7 @@ namespace Nuclex.Support.Tracking {
     protected volatile List<EventHandler> endedEventSubscribers;
     /// <summary>Whether the operation has completed yet</summary>
     protected volatile bool ended;
-    /// <summary>Event that will be set when the progression is completed</summary>
+    /// <summary>Event that will be set when the waitable is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using
     ///   the WaitHandle property.

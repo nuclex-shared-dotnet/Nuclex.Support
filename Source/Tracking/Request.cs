@@ -23,18 +23,18 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Extended type of progression that is able to fail</summary>
+  /// <summary>Asynchronous request running in the background</summary>
   /// <remarks>
   ///   <para>
   ///     If the background process fails, the exception that caused it to fail is
-  ///     communicated to all parties waiting on the progression through the
-  ///     Exception property. Implementers should place their code in try..catch
-  ///     blocks and call SetException() to temporarily store the exception for
-  ///     retrieval by the caller(s).
+  ///     communicated to all parties waiting on the Request through the Join()
+  ///     method. Implementers should store any errors occuring in the asynchronous
+  ///     parts of their code in a try..catch block (or avoid throwing and just
+  ///     store a new exception) and re-throw them when in ReraiseExceptions()
   ///   </para>
   ///   <para>
-  ///     As with all progressions, the interface contract still requires you to call
-  ///     OnAsyncEnded(), no matter what the outcome of your background operation is.
+  ///     Like in the Waitable class, the contract requires you to always call
+  ///     OnAsyncEnded(), no matter what the outcome of your operation is.
   ///   </para>
   /// </remarks>
   public abstract class Request : Waitable {
@@ -65,6 +65,13 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // EndedDummyRequest
 
+    /// <summary>Succeeded dummy request</summary>
+    /// <remarks>
+    ///   Use to indicate success if the request has already been completed at
+    ///   the time you are asked to perform it.
+    /// </remarks>
+    public static readonly Request SucceededDummy = new EndedDummyRequest();
+
     /// <summary>Creates a new failed dummy request</summary>
     /// <param name="exception">Exception that supposedly caused the request to fail</param>
     /// <returns>
@@ -83,7 +90,7 @@ namespace Nuclex.Support.Tracking {
     /// </remarks>
     public virtual void Join() {
 
-      // If the progression itself hasn't ended yet, block the caller until it has.
+      // If the request itself hasn't ended yet, block the caller until it has.
       // We could just use WaitHandle.WaitOne() here, but since the WaitHandle is created
       // on-the-fly only when it is requested, we can avoid the WaitHandle creation in
       // case the request is already finished!
@@ -109,13 +116,36 @@ namespace Nuclex.Support.Tracking {
   /// </typeparam>
   public abstract class Request<ResultType> : Request {
 
-    #region class EndedDummyRequest
+    #region class SucceededDummyRequest
 
-    /// <summary>Dummy request that is always in the ended state</summary>
-    private class EndedDummyRequest : Request<ResultType> {
+    /// <summary>Succeeded dummy request that is always in the ended state</summary>
+    private class SucceededDummyRequest : Request<ResultType> {
+      /// <summary>Creates a new failed dummy request</summary>
+      /// <param name="result">Result to return to the request's caller</param>
+      public SucceededDummyRequest(ResultType result) {
+        this.result = result;
+        OnAsyncEnded();
+      }
+      /// <summary>
+      ///   Allows the specific request implementation to re-throw an exception if
+      ///   the background process finished unsuccessfully
+      /// </summary>
+      protected override ResultType GatherResults() {
+        return this.result;
+      }
+      /// <summary>Results the succeede dummy request will provide to the caller</summary>
+      private ResultType result;
+    }
+
+    #endregion // SucceededDummyRequest
+
+    #region class FailedDummyRequest
+
+    /// <summary>Failed dummy request that is always in the ended state</summary>
+    private class FailedDummyRequest : Request<ResultType> {
       /// <summary>Creates a new failed dummy request</summary>
       /// <param name="exception">Exception that caused the dummy to fail</param>
-      public EndedDummyRequest(Exception exception) {
+      public FailedDummyRequest(Exception exception) {
         this.exception = exception;
         OnAsyncEnded();
       }
@@ -130,15 +160,24 @@ namespace Nuclex.Support.Tracking {
       private Exception exception;
     }
 
-    #endregion // EndedDummyRequest
+    #endregion // FailedDummyRequest
+
+    /// <summary>Creates a new failed dummy request</summary>
+    /// <param name="result">Result to provide to the caller</param>
+    /// <returns>
+    ///   A succeeded request that returns the provided result to the caller
+    /// </returns>
+    public static Request<ResultType> CreateSucceededDummy(ResultType result) {
+      return new SucceededDummyRequest(result);
+    }
 
     /// <summary>Creates a new failed dummy request</summary>
     /// <param name="exception">Exception that supposedly caused the request to fail</param>
     /// <returns>
     ///   A failed request that reports the provided exception as cause for its failure
     /// </returns>
-    public static new Request CreateFailedDummy(Exception exception) {
-      return new EndedDummyRequest(exception);
+    public static new Request<ResultType> CreateFailedDummy(Exception exception) {
+      return new FailedDummyRequest(exception);
     }
 
     /// <summary>Waits for the background operation to end</summary>

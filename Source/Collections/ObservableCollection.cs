@@ -57,7 +57,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Inserts an element into the ProgressionCollection at the specified index
+    ///   Inserts an element into the ObservableCollection at the specified index
     /// </summary>
     /// <param name="index">
     ///   The object to insert. The value can be null for reference types.
@@ -70,7 +70,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Removes the element at the specified index of the ProgressionCollection
+    ///   Removes the element at the specified index of the ObservableCollection
     /// </summary>
     /// <param name="index">The zero-based index of the element to remove</param>
     protected override void RemoveItem(int index) {

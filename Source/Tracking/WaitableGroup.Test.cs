@@ -29,28 +29,28 @@ using NMock2;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Unit Test for the progression set class</summary>
+  /// <summary>Unit Test for the waitable group class</summary>
   [TestFixture]
-  public class SetProgressionTest {
+  public class WaitableGroupTest {
 
-    #region interface ISetProgressionSubscriber
+    #region interface IWaitableGroupSubscriber
 
-    /// <summary>Interface used to test the set progression.</summary>
-    public interface ISetProgressionSubscriber {
+    /// <summary>Interface used to test the set waitable.</summary>
+    public interface IWaitableGroupSubscriber {
 
-      /// <summary>Called when the set progression's progress changes</summary>
-      /// <param name="sender">Set progression whose progress has changed</param>
+      /// <summary>Called when the set waitable's progress changes</summary>
+      /// <param name="sender">Waitable group whose progress has changed</param>
       /// <param name="e">Contains the new progress achieved</param>
       void ProgressChanged(object sender, ProgressReportEventArgs e);
 
-      /// <summary>Called when the set progression has ended</summary>
-      /// <param name="sender">Set progression that as ended</param>
+      /// <summary>Called when the set waitable has ended</summary>
+      /// <param name="sender">Waitable group that as ended</param>
       /// <param name="e">Not used</param>
       void Ended(object sender, EventArgs e);
 
     }
 
-    #endregion // interface ISetProgressionSubscriber
+    #endregion // interface IWaitableGroupSubscriber
 
     #region class ProgressUpdateEventArgsMatcher
 
@@ -93,21 +93,21 @@ namespace Nuclex.Support.Tracking {
 
     #region class TestWaitable
 
-    /// <summary>Progression used for testing in this unit test</summary>
+    /// <summary>Waitable used for testing in this unit test</summary>
     private class TestWaitable : Waitable, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
       public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
-      /// <summary>Changes the testing progression's indicated progress</summary>
+      /// <summary>Changes the testing waitable's indicated progress</summary>
       /// <param name="progress">
-      ///   New progress to be reported by the testing progression
+      ///   New progress to be reported by the testing waitable
       /// </param>
       public void ChangeProgress(float progress) {
         OnAsyncProgressChanged(progress);
       }
 
-      /// <summary>Transitions the progression into the ended state</summary>
+      /// <summary>Transitions the waitable into the ended state</summary>
       public void End() {
         OnAsyncEnded();
       }
@@ -115,7 +115,7 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
+      ///   Informs the observers of this waitable about the achieved progress.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(float progress) {
         OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -124,10 +124,10 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this progression about the achieved progress.
-      ///   Allows for classes derived from the Progression class to easily provide
+      ///   Informs the observers of this waitable about the achieved progress.
+      ///   Allows for classes derived from the Waitable class to easily provide
       ///   a custom event arguments class that has been derived from the
-      ///   Progression's ProgressUpdateEventArgs class.
+      ///   Waitable's ProgressUpdateEventArgs class.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
         EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -145,79 +145,79 @@ namespace Nuclex.Support.Tracking {
       this.mockery = new Mockery();
     }
 
-    /// <summary>Validates that the set progression properly sums the progress</summary>
+    /// <summary>Validates that the set waitable properly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
-      SetProgression<TestWaitable> testSetProgression =
-        new SetProgression<TestWaitable>(
+      WaitableGroup<TestWaitable> testWaitableGroup =
+        new WaitableGroup<TestWaitable>(
           new TestWaitable[] { new TestWaitable(), new TestWaitable() }
         );
 
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
+      IWaitableGroupSubscriber mockedSubscriber = mockSubscriber(testWaitableGroup);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new NMock2.Matchers.TypeMatcher(typeof(WaitableGroup<TestWaitable>)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           }
         );
 
-      testSetProgression.Children[0].Waitable.ChangeProgress(0.5f);
+      testWaitableGroup.Children[0].Waitable.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
-    /// <summary>Validates that the set progression respects the weights</summary>
+    /// <summary>Validates that the waitable group respects the weights</summary>
     [Test]
     public void TestWeightedSummedProgress() {
-      SetProgression<TestWaitable> testSetProgression =
-        new SetProgression<TestWaitable>(
+      WaitableGroup<TestWaitable> testWaitableGroup =
+        new WaitableGroup<TestWaitable>(
           new WeightedWaitable<TestWaitable>[] {
             new WeightedWaitable<TestWaitable>(new TestWaitable(), 1.0f),
             new WeightedWaitable<TestWaitable>(new TestWaitable(), 2.0f)
           }
         );
 
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
+      IWaitableGroupSubscriber mockedSubscriber = mockSubscriber(testWaitableGroup);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new NMock2.Matchers.TypeMatcher(typeof(WaitableGroup<TestWaitable>)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f / 3.0f))
           }
         );
 
-      testSetProgression.Children[0].Waitable.ChangeProgress(0.5f);
+      testWaitableGroup.Children[0].Waitable.ChangeProgress(0.5f);
 
       Expect.Once.On(mockedSubscriber).
         Method("ProgressChanged").
         With(
           new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(SetProgression<TestWaitable>)),
+            new NMock2.Matchers.TypeMatcher(typeof(WaitableGroup<TestWaitable>)),
             new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
           }
         );
 
-      testSetProgression.Children[1].Waitable.ChangeProgress(0.5f);
+      testWaitableGroup.Children[1].Waitable.ChangeProgress(0.5f);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>
-    ///   Validates that the ended event is triggered when the last progression ends
+    ///   Validates that the ended event is triggered when the last waitable ends
     /// </summary>
     [Test]
     public void TestEndedEvent() {
-      SetProgression<TestWaitable> testSetProgression =
-        new SetProgression<TestWaitable>(
+      WaitableGroup<TestWaitable> testWaitableGroup =
+        new WaitableGroup<TestWaitable>(
           new TestWaitable[] { new TestWaitable(), new TestWaitable() }
         );
 
-      ISetProgressionSubscriber mockedSubscriber = mockSubscriber(testSetProgression);
+      IWaitableGroupSubscriber mockedSubscriber = mockSubscriber(testWaitableGroup);
 
       Expect.Exactly(2).On(mockedSubscriber).
         Method("ProgressChanged").
@@ -227,21 +227,21 @@ namespace Nuclex.Support.Tracking {
         Method("Ended").
         WithAnyArguments();
 
-      testSetProgression.Children[0].Waitable.End();
-      testSetProgression.Children[1].Waitable.End();
+      testWaitableGroup.Children[0].Waitable.End();
+      testWaitableGroup.Children[1].Waitable.End();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
-    /// <summary>Mocks a subscriber for the events of a progression</summary>
-    /// <param name="progression">Progression to mock an event subscriber for</param>
+    /// <summary>Mocks a subscriber for the events of a waitable</summary>
+    /// <param name="waitable">Waitable to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private ISetProgressionSubscriber mockSubscriber(Waitable progression) {
-      ISetProgressionSubscriber mockedSubscriber =
-        this.mockery.NewMock<ISetProgressionSubscriber>();
+    private IWaitableGroupSubscriber mockSubscriber(Waitable waitable) {
+      IWaitableGroupSubscriber mockedSubscriber =
+        this.mockery.NewMock<IWaitableGroupSubscriber>();
 
-      progression.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
-      (progression as IProgressReporter).AsyncProgressChanged +=
+      waitable.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      (waitable as IProgressReporter).AsyncProgressChanged +=
         new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
 
       return mockedSubscriber;
