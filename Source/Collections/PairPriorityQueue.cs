@@ -73,6 +73,12 @@ namespace Nuclex.Support.Collections {
       );
     }
 
+    /// <summary>Returns the topmost item in the queue without dequeueing it</summary>
+    /// <returns>The topmost item in the queue</returns>
+    public PriorityItemPair<PriorityType, ItemType> Peek() {
+      return this.internalQueue.Peek();
+    }
+
     /// <summary>Takes the item with the highest priority off from the queue</summary>
     /// <returns>The item with the highest priority in the list</returns>
     public PriorityItemPair<PriorityType, ItemType> Dequeue() {

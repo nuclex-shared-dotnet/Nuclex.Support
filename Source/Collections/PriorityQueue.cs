@@ -107,12 +107,23 @@ namespace Nuclex.Support.Collections {
       this.heap = new ItemType[this.capacity];
     }
 
+    /// <summary>Returns the topmost item in the queue without dequeueing it</summary>
+    /// <returns>The topmost item in the queue</returns>
+    public ItemType Peek() {
+      if(this.count == 0) {
+        throw new InvalidOperationException("No items queued");
+      }
+
+      return this.heap[0];
+    }
+
     /// <summary>Takes the item with the highest priority off from the queue</summary>
     /// <returns>The item with the highest priority in the list</returns>
     /// <exception cref="InvalidOperationException">When the queue is empty</exception>
     public ItemType Dequeue() {
-      if(count == 0)
+      if(this.count == 0) {
         throw new InvalidOperationException("No items available to dequeue");
+      }
 
       ItemType result = this.heap[0];
       --this.count;
@@ -150,7 +161,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array to copy the priority queue into</param>
     /// <param name="index">Starting index for the destination array</param>
     public void CopyTo(Array array, int index) {
-      Array.Copy(heap, 0, array, index, this.count);
+      Array.Copy(this.heap, 0, array, index, this.count);
     }
 
     /// <summary>
