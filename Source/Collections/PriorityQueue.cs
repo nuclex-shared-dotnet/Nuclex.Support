@@ -127,7 +127,7 @@ namespace Nuclex.Support.Collections {
 
       ItemType result = this.heap[0];
       --this.count;
-      trickleDown(0, heap[this.count]);
+      trickleDown(0, this.heap[this.count]);
 
       ++this.version;
 

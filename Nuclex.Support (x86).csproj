@@ -81,6 +81,8 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -100,6 +102,10 @@
     <Compile Include="Source\Collections\PriorityQueue.Test.cs">
       <DependentUpon>PriorityQueue.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ReadOnlyCollection.cs" />
+    <Compile Include="Source\Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Source\Collections\ReadOnlyList.cs" />
+    <Compile Include="Source\Collections\ReverseComparer.cs" />
     <Compile Include="Source\Collections\RingMemoryStream.cs" />
     <Compile Include="Source\Collections\RingMemoryStream.Test.cs">
       <DependentUpon>RingMemoryStream.cs</DependentUpon>

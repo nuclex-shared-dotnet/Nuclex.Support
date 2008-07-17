@@ -25,7 +25,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Specialized memory stream for ring buffers</summary>
   /// <remarks>
-  ///   This ring buffer class is specialized for binary data and attempts to achieve
+  ///   This ring buffer class is specialized for binary data and tries to achieve
   ///   optimal efficiency when storing and retrieving chunks of several bytes
   ///   at once. Typical use cases include audio and network buffers where one party
   ///   is responsible for refilling the buffer at regular intervals while the other
@@ -50,10 +50,11 @@ namespace Nuclex.Support.Collections {
       get { return this.ringBuffer.Length; }
       set {
         int length = (int)Length;
-        if(value < length)
+        if(value < length) {
           throw new ArgumentOutOfRangeException(
-            "New capacity is less than the stream's length"
+            "New capacity is less than the stream's current length"
           );
+        }
 
         // This could be done in a more efficient manner than just replacing
         // the entire buffer, but since this operation will probably be only called
@@ -62,8 +63,9 @@ namespace Nuclex.Support.Collections {
         MemoryStream newBuffer = new MemoryStream((int)value);
 
         newBuffer.SetLength(value);
-        if(length > 0)
+        if(length > 0) {
           Read(newBuffer.GetBuffer(), 0, length);
+        }
 
         this.ringBuffer.Close(); // Equals dispose of the old buffer
         this.ringBuffer = newBuffer;
@@ -119,12 +121,13 @@ namespace Nuclex.Support.Collections {
           this.ringBuffer.Read(buffer, offset, count);
           this.startIndex += count;
 
-          if(this.startIndex == this.endIndex)
+          if(this.startIndex == this.endIndex) {
             setEmpty();
+          }
         }
 
-      // The end index lies before the start index, so the data in the
-      // ring memory stream is fragmented. Example: |#####>-------<#####|
+        // The end index lies before the start index, so the data in the
+        // ring memory stream is fragmented. Example: |#####>-------<#####|
       } else {
         int linearAvailable = (int)this.ringBuffer.Length - this.startIndex;
 
@@ -142,8 +145,8 @@ namespace Nuclex.Support.Collections {
           this.startIndex = count - linearAvailable;
           this.ringBuffer.Read(buffer, offset + linearAvailable, this.startIndex);
 
-        // Nope, the amount of requested data can be read in one piece without
-        // crossing the end of the ring buffer
+          // Nope, the amount of requested data can be read in one piece without
+          // crossing the end of the ring buffer
         } else {
           this.ringBuffer.Position = this.startIndex;
           this.ringBuffer.Read(buffer, offset, count);
@@ -151,8 +154,9 @@ namespace Nuclex.Support.Collections {
 
         }
 
-        if(this.startIndex == this.endIndex)
+        if(this.startIndex == this.endIndex) {
           setEmpty();
+        }
       }
 
       return count;
@@ -183,8 +187,8 @@ namespace Nuclex.Support.Collections {
           this.endIndex = count - linearAvailable;
           this.ringBuffer.Write(buffer, offset + linearAvailable, this.endIndex);
 
-        // All data can be appended at the current stream position without
-        // crossing the ring memory stream's end
+          // All data can be appended at the current stream position without
+          // crossing the ring memory stream's end
         } else {
           this.ringBuffer.Position = this.endIndex;
           this.ringBuffer.Write(buffer, offset, count);
@@ -193,9 +197,9 @@ namespace Nuclex.Support.Collections {
 
         this.empty = false;
 
-      // The end index lies before the start index, so the data in the ring memory
-      // stream has been fragmented. This means the gap into which we are about
-      // to write is not fragmented. Example: |#####>-------<#####|
+        // The end index lies before the start index, so the data in the ring memory
+        // stream has been fragmented. This means the gap into which we are about
+        // to write is not fragmented. Example: |#####>-------<#####|
       } else {
         if(count > (this.startIndex - this.endIndex))
           throw new OverflowException("Data does not fit in buffer");
