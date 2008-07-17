@@ -118,6 +118,10 @@
     <Compile Include="Source\FloatHelper.Test.cs">
       <DependentUpon>FloatHelper.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\IntegerHelper.cs" />
+    <Compile Include="Source\IntegerHelper.Test.cs">
+      <DependentUpon>IntegerHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Licensing\LicenseKey.cs" />
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
