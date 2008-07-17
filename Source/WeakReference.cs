@@ -25,7 +25,7 @@ using System.Runtime.Serialization;
 namespace Nuclex.Support {
 
   /// <summary>
-  ///   Represents a weak reference, which references an object while still allowing
+  ///   Type-safe weak reference, referencing an object while still allowing
   ///   that object to be garbage collected.
   /// </summary>
   public class WeakReference<ReferencedType> : WeakReference

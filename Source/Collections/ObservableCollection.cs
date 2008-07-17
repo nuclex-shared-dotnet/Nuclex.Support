@@ -31,7 +31,12 @@ namespace Nuclex.Support.Collections {
     public event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>
     public event EventHandler<ItemEventArgs<ItemType>> ItemRemoved;
-    /// <summary>Raised the collection is about to be cleared</summary>
+    /// <summary>Raised when the collection is about to be cleared</summary>
+    /// <remarks>
+    ///   This could be covered by calling ItemRemoved for each item currently
+    ///   contained in the collection, but it is often simpler and more efficient
+    ///   to process the clearing of the entire collection as a special operation.
+    /// </remarks>
     public event EventHandler Clearing;
 
     /// <summary>
