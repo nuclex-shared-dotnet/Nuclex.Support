@@ -30,7 +30,7 @@ namespace Nuclex.Support.Packing {
   ///   the object you tried to pack into the remaining packing area.
   /// </remarks>
   [Serializable]
-  public class OutOfSpaceException : ApplicationException {
+  public class OutOfSpaceException : Exception {
 
     /// <summary>Initializes the exception</summary>
     public OutOfSpaceException() { }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support {
 
+  /// <summary>Helper methods for working with integer types</summary>
   public static class IntegerHelper {
 
     /// <summary>Returns the next highest power of 2 from the specified value</summary>
