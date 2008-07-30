@@ -30,8 +30,61 @@ namespace Nuclex.Support {
 
   /// <summary>Unit Test for the string helper class</summary>
   [TestFixture]
-  public class PathHelperTest {
+  public class StringHelperTest {
 
+    /// <summary>
+    ///   Verifies that the IndexNotOfAny() method works identical to the framework's
+    ///   implementation of the IndexOfAny() method, only inverted.
+    /// </summary>
+    [Test]
+    public void TestIndexNotOfAny() {
+      string positive = "xxxxxOOOOO";
+      string negative = "OOOOOxxxxx";
+
+      Assert.AreEqual(
+        positive.IndexOfAny(new char[] { 'O' }),
+        StringHelper.IndexNotOfAny(negative, new char[] { 'O' })
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that the LastIndexNotOfAny() method works identical to the framework's
+    ///   implementation of the LastIndexOfAny() method, only inverted.
+    /// </summary>
+    [Test]
+    public void TestLastIndexNotOfAny() {
+      string positive = "xxxxxOOOOO";
+      string negative = "OOOOOxxxxx";
+
+      Assert.AreEqual(
+        positive.LastIndexOfAny(new char[] { 'x' }),
+        StringHelper.LastIndexNotOfAny(negative, new char[] { 'x' })
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that the IndexNotOfAny() method works with multiple characters
+    /// </summary>
+    [Test]
+    public void TestMultipleCharIndexNotOfAny() {
+      string haystack = "0123456789";
+
+      Assert.AreEqual(
+        5, StringHelper.IndexNotOfAny(haystack, new char[] { '4', '3', '2', '1', '0' })
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that the IndexNotOfAny() method works with multiple characters
+    /// </summary>
+    [Test]
+    public void TestMultipleCharLastIndexNotOfAny() {
+      string haystack = "0123456789";
+
+      Assert.AreEqual(
+        4, StringHelper.LastIndexNotOfAny(haystack, new char[] { '9', '8', '7', '6', '5' })
+      );
+    }
 
   }
 

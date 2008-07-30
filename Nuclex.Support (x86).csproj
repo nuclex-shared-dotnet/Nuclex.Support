@@ -178,7 +178,10 @@
     <Compile Include="Source\SpatialPartitioning\RTreeNode2.cs" />
     <Compile Include="Source\SpatialPartitioning\SpatialIndex2.cs" />
     <Compile Include="Source\StringHelper.cs" />
-    <Compile Include="Source\StringHelper.Test.cs" />
+    <Compile Include="Source\StringHelper.Test.cs">
+      <DependentUpon>StringHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\StringSegment.cs" />
     <Compile Include="Source\Tracking\IdleStateEventArgs.cs" />
     <Compile Include="Source\Tracking\Internal\ObservedWeightedWaitable.cs" />
     <Compile Include="Source\Tracking\Internal\WeightedWaitableWrapperCollection.cs" />

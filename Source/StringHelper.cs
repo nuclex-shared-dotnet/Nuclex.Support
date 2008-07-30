@@ -83,10 +83,9 @@ namespace Nuclex.Support {
       while(startIndex < count) {
         char character = haystack[startIndex];
 
-        for(int anyIndex = 0; anyIndex < anyLength; ++anyIndex) {
-          if(character != anyNotOf[anyIndex]) {
-            return startIndex;
-          }
+        int index = Array.IndexOf<char>(anyNotOf, character, 0, anyLength);
+        if(index == -1) {
+          return startIndex;
         }
 
         ++startIndex;
@@ -152,10 +151,9 @@ namespace Nuclex.Support {
       while(startIndex > count) {
         char character = haystack[startIndex];
 
-        for(int anyIndex = 0; anyIndex < anyLength; ++anyIndex) {
-          if(character != anyNotOf[anyIndex]) {
-            return startIndex;
-          }
+        int index = Array.IndexOf<char>(anyNotOf, character, 0, anyLength);
+        if(index == -1) {
+          return startIndex;
         }
 
         --startIndex;
