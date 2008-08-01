@@ -29,7 +29,7 @@ namespace Nuclex.Support.Scheduling {
   ///   background process. 
   /// </remarks>
   [Serializable]
-  public class AbortedException : ApplicationException {
+  public class AbortedException : Exception {
 
     /// <summary>Initializes the exception</summary>
     public AbortedException() { }

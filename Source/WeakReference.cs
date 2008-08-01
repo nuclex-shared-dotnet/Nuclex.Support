@@ -74,7 +74,7 @@ namespace Nuclex.Support {
     ///   object.
     /// </summary>
     /// <remarks>
-    ///   null if the object referenced by the current System.WeakReference object
+    ///   Is null if the object referenced by the current System.WeakReference object
     ///   has been garbage collected; otherwise, a reference to the object referenced
     ///   by the current System.WeakReference object.
     /// </remarks>
