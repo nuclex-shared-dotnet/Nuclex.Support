@@ -98,7 +98,7 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Gets the position of the first element in the range delimited by the array segment,
     ///   relative to the start of the original array
-    /// </summary
+    /// </summary>
     /// <returns>
     ///   The position of the first element in the range delimited by the
     ///   <see cref="StringSegment" />, relative to the start of the original array

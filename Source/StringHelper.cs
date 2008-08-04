@@ -96,7 +96,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches backwards for the first occurence of a character other than the
-    ///   characters listed in the <see cref="anyNotOf" /> parameter
+    ///   characters listed in the <see pref="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
