@@ -120,7 +120,7 @@ namespace Nuclex.Support {
     /// <summary>Returns the hash code for the current instance</summary>
     /// <returns>A 32-bit signed integer hash code</returns>
     public override int GetHashCode() {
-      return ((this.text.GetHashCode() ^ this.offset) ^ this.count);
+      return this.text.GetHashCode() ^ this.offset ^ this.count;
     }
 
     /// <summary>
@@ -132,7 +132,9 @@ namespace Nuclex.Support {
     /// </returns>
     /// <param name="other">The object to be compared with the current instance</param>
     public override bool Equals(object other) {
-      return ((other is StringSegment) && this.Equals((StringSegment)other));
+      return
+        (other is StringSegment) &&
+        this.Equals((StringSegment)other);
     }
 
     /// <summary>

@@ -36,8 +36,8 @@ namespace Nuclex.Support.Licensing {
   ///   <para>
   ///     Available storage space is used efficiently and allows for up to four
   ///     32 bit integers to be stored within the key, that's enough for a full GUID.
-  ///     The four integers can be modified directly, for example to
-  ///     store feature lists, checksums or other data within the key.
+  ///     The four integers can be modified directly, for example to store feature
+  ///     lists, checksums or other data within the key.
   ///   </para>
   /// </remarks>
   public class LicenseKey {

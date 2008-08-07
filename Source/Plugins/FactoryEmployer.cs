@@ -98,7 +98,7 @@ namespace Nuclex.Support.Plugins {
     /// <returns>True if the type can be employed</returns>
     public override bool CanEmploy(Type type) {
       return
-        Support.HasDefaultConstructor(type) &&
+        PluginHelper.HasDefaultConstructor(type) &&
         typeof(T).IsAssignableFrom(type);
     }
 

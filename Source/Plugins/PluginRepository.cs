@@ -65,28 +65,30 @@ namespace Nuclex.Support.Plugins {
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
         catch(DllNotFoundException exception) {
-          System.Console.WriteLine(
-            "Assembly not found, missing dependencies? " + exception.Message
+          Console.WriteLine(
+            "Assembly '" + assemblyFile + "' or one of its dependencies is missing"
           );
         }
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
         catch(UnauthorizedAccessException exception) {
-          System.Console.WriteLine(
-            "Not authorized, user rights problem? " + exception.Message
+          Console.WriteLine(
+            "Not authorized to load assembly '" + assemblyFile + "', " +
+            "possible rights problem"
           );
         }
         // Bad image format - This exception is often thrown when the assembly we
         // attempted to load requires a different version of the .NET framework
         catch(BadImageFormatException exception) {
-          System.Console.WriteLine(
-            "Not a .NET assembly or wrong runtime version. " + exception.Message
+          Console.WriteLine(
+            "'" + assemblyFile +"' is not a .NET assembly, requires a different version " +
+            "of the .NET Runtime or does not support the current instruction set (x86/x64)"
           );
         }
         // Unknown error - Our last resort is to show a default error message
         catch(Exception exception) {
-          System.Console.WriteLine(
-            "Failed to load plugin. " + exception.Message
+          Console.WriteLine(
+            "Failed to load plugin assembly '" + assemblyFile + "': " + exception.Message
           );
         }
 
@@ -102,8 +104,9 @@ namespace Nuclex.Support.Plugins {
       this.assemblies.Add(assembly);
 
       // Trigger event in case any subscribers have been registered
-      if(AssemblyLoaded != null)
+      if(AssemblyLoaded != null) {
         AssemblyLoaded(this, new AssemblyLoadEventArgs(assembly));
+      }
     }
 
     /// <summary>List of all loaded plugin assemblies in the repository</summary>

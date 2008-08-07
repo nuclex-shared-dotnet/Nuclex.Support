@@ -77,19 +77,23 @@ namespace Nuclex.Support.Plugins {
       foreach(Type type in assembly.GetTypes()) {
 
         // We'll ignore abstract and non-public types
-        if(!type.IsPublic || type.IsAbstract)
+        if(!type.IsPublic || type.IsAbstract) {
           continue;
+        }
 
         // Types that have been tagged with the [NoPlugin] attribute will be ignored
         object[] attributes = type.GetCustomAttributes(true);
-        foreach(object attribute in attributes)
-          if(attribute is NoPluginAttribute)
+        for(int index = 0; index < attributes.Length; ++index) {
+          if(attributes[index] is NoPluginAttribute) {
             continue;
+          }
+        }
 
         // Type seems to be acceptable, assess and possibly employ it
         try {
-          if(this.employer.CanEmploy(type))
+          if(this.employer.CanEmploy(type)) {
             this.employer.Employ(type);
+          }
         }
         catch(Exception exception) {
           System.Console.WriteLine(

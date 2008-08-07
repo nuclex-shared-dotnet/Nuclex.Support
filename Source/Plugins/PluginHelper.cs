@@ -22,8 +22,8 @@ using System;
 
 namespace Nuclex.Support.Plugins {
 
-  /// <summary>Supporting functions for the assembly</summary>
-  internal static class Support {
+  /// <summary>Supporting functions for the plugin classes</summary>
+  internal static class PluginHelper {
 
     /// <summary>Determines whether the given type has a default constructor</summary>
     /// <param name="type">Type which is to be checked</param>
