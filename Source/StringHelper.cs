@@ -28,14 +28,14 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches for the first occurence of a character other than the characters
-    ///   listed in the <see paramref="anyNotOf" /> parameter
+    ///   listed in the <<paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int IndexNotOfAny(string haystack, char[] anyNotOf) {
       return IndexNotOfAny(haystack, anyNotOf, 0, haystack.Length);
@@ -43,7 +43,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches for the first occurence of a character other than the characters
-    ///   listed in the <see paramref="anyNotOf" /> parameter
+    ///   listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
@@ -52,8 +52,8 @@ namespace Nuclex.Support {
     /// </param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int IndexNotOfAny(string haystack, char[] anyNotOf, int startIndex) {
       return IndexNotOfAny(haystack, anyNotOf, startIndex, haystack.Length - startIndex);
@@ -61,7 +61,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches for the first occurence of a character other than the characters
-    ///   listed in the <see paramref="anyNotOf" /> parameter
+    ///   listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
@@ -71,8 +71,8 @@ namespace Nuclex.Support {
     /// <param name="count">Number of characters in the haystack to scan</param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int IndexNotOfAny(
       string haystack, char[] anyNotOf, int startIndex, int count
@@ -96,14 +96,14 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches backwards for the first occurence of a character other than the
-    ///   characters listed in the <see pref="anyNotOf" /> parameter
+    ///   characters listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int LastIndexNotOfAny(string haystack, char[] anyNotOf) {
       return LastIndexNotOfAny(haystack, anyNotOf, haystack.Length - 1, haystack.Length);
@@ -111,7 +111,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches backwards for the first occurence of a character other than the
-    ///   characters listed in the <see paramref="anyNotOf" /> parameter
+    ///   characters listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
@@ -120,8 +120,8 @@ namespace Nuclex.Support {
     /// </param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int LastIndexNotOfAny(string haystack, char[] anyNotOf, int startIndex) {
       return LastIndexNotOfAny(haystack, anyNotOf, startIndex, startIndex + 1);
@@ -129,7 +129,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches backwards for the first occurence of a character other than the
-    ///   characters listed in the <see paramref="anyNotOf" /> parameter
+    ///   characters listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
@@ -139,8 +139,8 @@ namespace Nuclex.Support {
     /// <param name="count">Number of characters in the haystack to scan</param>
     /// <returns>
     ///   The index of the first occurence of a character not in the
-    ///   <see paramref="anyNotOf" /> array or -1 if all characters in the string were
-    ///   present in the <see paramref="anyNotOf" /> array.
+    ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
+    ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int LastIndexNotOfAny(
       string haystack, char[] anyNotOf, int startIndex, int count
