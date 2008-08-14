@@ -31,7 +31,7 @@ using Nuclex.Support.Tracking;
 
 namespace Nuclex.Support.Scheduling {
 
-  /// <summary>Unit Test for the queue operation class</summary>
+  /// <summary>Unit Test for the operation queue class</summary>
   [TestFixture]
   public class OperationQueueTest {
 

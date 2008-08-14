@@ -85,7 +85,7 @@ namespace Nuclex.Support.Tracking {
     /// <remarks>
     ///   Any exceptions raised in the background operation will be thrown
     ///   in this method. If you decide to override this method, you should
-    ///   call End() first (and let any possible exception through to your
+    ///   call Wait() first (and let any possible exception through to your
     ///   caller).
     /// </remarks>
     public virtual void Join() {
@@ -97,7 +97,7 @@ namespace Nuclex.Support.Tracking {
       if(!Ended)
         Wait();
 
-      // Allow the implementor to throw an exception in case an error has occured
+      // Allow the implementer to throw an exception in case an error has occured
       ReraiseExceptions();
 
     }

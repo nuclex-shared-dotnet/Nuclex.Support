@@ -64,14 +64,14 @@ namespace Nuclex.Support.Plugins {
         }
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
-        catch(DllNotFoundException exception) {
+        catch(DllNotFoundException) {
           Console.WriteLine(
             "Assembly '" + assemblyFile + "' or one of its dependencies is missing"
           );
         }
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
-        catch(UnauthorizedAccessException exception) {
+        catch(UnauthorizedAccessException) {
           Console.WriteLine(
             "Not authorized to load assembly '" + assemblyFile + "', " +
             "possible rights problem"
@@ -79,7 +79,7 @@ namespace Nuclex.Support.Plugins {
         }
         // Bad image format - This exception is often thrown when the assembly we
         // attempted to load requires a different version of the .NET framework
-        catch(BadImageFormatException exception) {
+        catch(BadImageFormatException) {
           Console.WriteLine(
             "'" + assemblyFile +"' is not a .NET assembly, requires a different version " +
             "of the .NET Runtime or does not support the current instruction set (x86/x64)"
