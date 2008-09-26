@@ -37,7 +37,7 @@ namespace Nuclex.Support {
     ///   the location being passed is not relative to the base path.
     /// </summary>
     [Test]
-    public void TestRelativePathOfNonRelativePath() {
+    public void TestRelativeWindowsPathOfNonRelativePath() {
       Assert.That(
         PathHelper.MakeRelative(
           platformify("C:/Folder1/Folder2"),
@@ -57,10 +57,10 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Tests whether the relative path creator correctly builds the relative
-    ///   path to the parent folder of the base path.
+    ///   path to the parent folder of the base path for windows paths.
     /// </summary>
     [Test]
-    public void TestRelativePathToParentFolder() {
+    public void TestRelativeWindowsPathToParentFolder() {
       Assert.That(
         PathHelper.MakeRelative(
           platformify("C:/Folder1/Folder2"),
@@ -79,10 +79,32 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Tests whether the relative path creator correctly builds the relative
-    ///   path to a nested folder in the base path.
+    ///   path to the parent folder of the base path for unix paths.
     /// </summary>
     [Test]
-    public void TestRelativePathToNestedFolder() {
+    public void TestRelativeUnixPathToParentFolder() {
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2"),
+          platformify("/Folder1")
+        ),
+        Is.EqualTo(platformify(".."))
+      );
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2/"),
+          platformify("/Folder1/")
+        ),
+        Is.EqualTo(platformify("../"))
+      );
+    }
+
+    /// <summary>
+    ///   Tests whether the relative path creator correctly builds the relative
+    ///   path to a nested folder in the base path for windows paths.
+    /// </summary>
+    [Test]
+    public void TestRelativeWindowsPathToNestedFolder() {
       Assert.That(
         PathHelper.MakeRelative(
           platformify("C:/Folder1"),
@@ -101,10 +123,32 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Tests whether the relative path creator correctly builds the relative
-    ///   path to another folder on the same level as base path.
+    ///   path to a nested folder in the base path for unix paths.
     /// </summary>
     [Test]
-    public void TestRelativePathToSiblingFolder() {
+    public void TestRelativeUnixPathToNestedFolder() {
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1"),
+          platformify("/Folder1/Folder2")
+        ),
+        Is.EqualTo(platformify("Folder2"))
+      );
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/"),
+          platformify("/Folder1/Folder2/")
+        ),
+        Is.EqualTo(platformify("Folder2/"))
+      );
+    }
+
+    /// <summary>
+    ///   Tests whether the relative path creator correctly builds the relative
+    ///   path to another folder on the same level as base path for windows paths.
+    /// </summary>
+    [Test]
+    public void TestRelativeWindowsPathToSiblingFolder() {
       Assert.That(
         PathHelper.MakeRelative(
           platformify("C:/Folder1/Folder2/"),
@@ -116,6 +160,28 @@ namespace Nuclex.Support {
         PathHelper.MakeRelative(
           platformify("C:/Folder1/Folder2345/"),
           platformify("C:/Folder1/Folder2")
+        ),
+        Is.EqualTo(platformify("../Folder2"))
+      );
+    }
+
+    /// <summary>
+    ///   Tests whether the relative path creator correctly builds the relative
+    ///   path to another folder on the same level as base path for unix paths.
+    /// </summary>
+    [Test]
+    public void TestRelativeUnixPathToSiblingFolder() {
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2/"),
+          platformify("/Folder1/Folder2345")
+        ),
+        Is.EqualTo(platformify("../Folder2345"))
+      );
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2345/"),
+          platformify("/Folder1/Folder2")
         ),
         Is.EqualTo(platformify("../Folder2"))
       );

@@ -28,7 +28,7 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Searches for the first occurence of a character other than the characters
-    ///   listed in the <<paramref name="anyNotOf" /> parameter
+    ///   listed in the <paramref name="anyNotOf" /> parameter
     /// </summary>
     /// <param name="haystack">String that will be scanned in</param>
     /// <param name="anyNotOf">Characters to not look for in the scanned string</param>
