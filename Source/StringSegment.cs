@@ -64,12 +64,12 @@ namespace Nuclex.Support {
       }
       if(offset < 0) {
         throw new ArgumentOutOfRangeException(
-            "offset", "Argument out of range, non-negative number required"
+          "offset", "Argument out of range, non-negative number required"
         );
       }
       if(count < 0) {
         throw new ArgumentOutOfRangeException(
-            "count", "Argument out of range, non-negative number required"
+          "count", "Argument out of range, non-negative number required"
         );
       }
       if((text.Length - offset) < count) {
