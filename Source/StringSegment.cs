@@ -25,8 +25,22 @@ using System.Runtime.InteropServices;
 namespace Nuclex.Support {
 
   /// <summary>Delimits a section of a string</summary>
+  /// <remarks>
+  ///   <para>
+  ///     The design of this class pretty much mirrors that of the
+  ///     <see cref="T:System.ArraySegment" /> class found in the .NET framework, but is
+  ///     specialized to be used for strings, which can not be expressed as arrays but
+  ///     share a lot of the characteristics of an array.
+  ///   </para>
+  ///   <para>
+  ///     In certain situations, passing a StringSegment instead of the the actual
+  ///     section from a string is useful. For example, the caller might want to know
+  ///     from which index of the original string the substring was taken. Used internally
+  ///     in parsers, it can also prevent needless string copying and garbage generation.
+  ///   </para>
+  /// </remarks>
   [Serializable, StructLayout(LayoutKind.Sequential)]
-  internal struct StringSegment {
+  public struct StringSegment {
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StringSegment" /> class that delimits
@@ -35,7 +49,7 @@ namespace Nuclex.Support {
     /// <param name="text">String that will be wrapped</param>
     /// <exception cref="System.ArgumentNullException">String is null</exception>
     public StringSegment(string text) {
-      if(text == null) {
+      if(text == null) { // questionable, but matches behavior of ArraySegment class
         throw new ArgumentNullException("text");
       }
 
@@ -59,8 +73,8 @@ namespace Nuclex.Support {
     /// </exception>
     /// <exception cref="System.ArgumentNullException">String is null</exception>
     public StringSegment(string text, int offset, int count) {
-      if(text == null) {
-        throw new ArgumentNullException("array");
+      if(text == null) { // questionable, but matches behavior of ArraySegment class
+        throw new ArgumentNullException("text");
       }
       if(offset < 0) {
         throw new ArgumentOutOfRangeException(
@@ -72,7 +86,7 @@ namespace Nuclex.Support {
           "count", "Argument out of range, non-negative number required"
         );
       }
-      if((text.Length - offset) < count) {
+      if(count > (text.Length - offset)) {
         throw new ArgumentException(
           "Invalid argument, specified offset and count exceed string length"
         );

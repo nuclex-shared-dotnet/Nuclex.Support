@@ -98,8 +98,8 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Collection aller Werte im Dictionary</summary>
-    public ICollection<ValueType> Values { // TODO: RO-Wrappen!
+    /// <summary>Collection of all values contained in the Dictionary</summary>
+    public ICollection<ValueType> Values {
       get {
         if(this.readonlyValueCollection == null) {
           this.readonlyValueCollection = new ReadOnlyCollection<ValueType>(

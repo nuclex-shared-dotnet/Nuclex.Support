@@ -95,11 +95,15 @@
     <Compile Include="Source\PathHelper.Test.cs">
       <DependentUpon>PathHelper.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Plugins\Attributes.cs" />
+    <Compile Include="Source\Plugins\AbstractFactory.cs" />
+    <Compile Include="Source\Plugins\NoPluginAttribute.cs" />
     <Compile Include="Source\Plugins\Employer.cs" />
     <Compile Include="Source\Plugins\FactoryEmployer.cs" />
     <Compile Include="Source\Plugins\InstanceEmployer.cs" />
     <Compile Include="Source\Plugins\PluginHelper.cs" />
+    <Compile Include="Source\Plugins\PluginHelper.Test.cs">
+      <DependentUpon>PluginHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Plugins\PluginHost.cs" />
     <Compile Include="Source\Plugins\PluginRepository.cs" />
     <Compile Include="Source\Scheduling\AbortedException.cs" />
@@ -112,11 +116,17 @@
     <Compile Include="Source\Scheduling\ThreadCallbackOperation.cs" />
     <Compile Include="Source\Scheduling\ThreadOperation.cs" />
     <Compile Include="Source\Shared.cs" />
+    <Compile Include="Source\Shared.Test.cs">
+      <DependentUpon>Shared.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\StringHelper.cs" />
     <Compile Include="Source\StringHelper.Test.cs">
       <DependentUpon>StringHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\StringSegment.cs" />
+    <Compile Include="Source\StringSegment.Test.cs">
+      <DependentUpon>StringSegment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Tracking\IdleStateEventArgs.cs" />
     <Compile Include="Source\Tracking\Internal\ObservedWeightedWaitable.cs" />
     <Compile Include="Source\Tracking\Internal\WeightedWaitableWrapperCollection.cs" />
@@ -136,6 +146,9 @@
     <Compile Include="Source\Tracking\Waitable.cs" />
     <Compile Include="Source\Tracking\WeightedWaitable.cs" />
     <Compile Include="Source\WeakReference.cs" />
+    <Compile Include="Source\WeakReference.Test.cs">
+      <DependentUpon>WeakReference.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documents\Nuclex.Support.txt" />

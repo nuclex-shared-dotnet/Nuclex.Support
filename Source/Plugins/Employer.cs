@@ -34,7 +34,7 @@ namespace Nuclex.Support.Plugins {
 
     /// <summary>Determines whether the type suites the employer's requirements</summary>
     /// <param name="type">Type which will be assessed</param>
-    /// <returns>True if the type can be employed</returns>
+    /// <returns>True if the type can be employed, otherwise false</returns>
     public virtual bool CanEmploy(Type type) {
       return PluginHelper.HasDefaultConstructor(type);
     }

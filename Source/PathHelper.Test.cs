@@ -78,6 +78,29 @@ namespace Nuclex.Support {
     }
 
     /// <summary>
+    ///   Tests whether the relative path creator correctly builds the relative path to
+    ///   the parent folder of the base path for windows paths with more than one level.
+    /// </summary>
+    [Test]
+    public void TestRelativeWindowsPathToParentFolderTwoLevels() {
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("C:/Folder1/Folder2/Folder3"),
+          platformify("C:/Folder1")
+        ),
+        Is.EqualTo(platformify("../.."))
+      );
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("C:/Folder1/Folder2/Folder3/"),
+          platformify("C:/Folder1/")
+        ),
+        Is.EqualTo(platformify("../../"))
+      );
+    }
+
+
+    /// <summary>
     ///   Tests whether the relative path creator correctly builds the relative
     ///   path to the parent folder of the base path for unix paths.
     /// </summary>
@@ -96,6 +119,28 @@ namespace Nuclex.Support {
           platformify("/Folder1/")
         ),
         Is.EqualTo(platformify("../"))
+      );
+    }
+
+    /// <summary>
+    ///   Tests whether the relative path creator correctly builds the relative path to
+    ///   the parent folder of the base path for unix paths with more than one level.
+    /// </summary>
+    [Test]
+    public void TestRelativeUnixPathToParentFolderTwoLevels() {
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2/Folder3"),
+          platformify("/Folder1")
+        ),
+        Is.EqualTo(platformify("../.."))
+      );
+      Assert.That(
+        PathHelper.MakeRelative(
+          platformify("/Folder1/Folder2/Folder3/"),
+          platformify("/Folder1/")
+        ),
+        Is.EqualTo(platformify("../../"))
       );
     }
 

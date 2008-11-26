@@ -23,21 +23,10 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Plugins {
 
-  /// <summary>Abstract factory</summary>
-  /// <typeparam name="T">Interface or base class of the product of the factory</typeparam>
-  public interface IFactory<T> {
-
-    /// <summary>The concrete type as implemented by the factory instance</summary>
-    Type ConcreteType { get; }
-
-    /// <summary>Creates a new instance of the type to which the factory is specialized</summary>
-    /// <returns>The newly created instance</returns>
-    T CreateInstance();
-
-  }
-
   /// <summary>Employer to create factories of suiting types found in plugins</summary>
-  /// <typeparam name="T">Interface or base class that the types need to implement</typeparam>
+  /// <typeparam name="ProductType">
+  ///   Interface or base class that the types need to implement
+  /// </typeparam>
   /// <remarks>
   ///   <para>
   ///     This employer will not directly instanciate any compatible types found in
@@ -52,16 +41,16 @@ namespace Nuclex.Support.Plugins {
   ///     a human-readable name, capabilities or an icon.
   ///   </para>
   /// </remarks>
-  public class FactoryEmployer<T> : Employer {
+  public class FactoryEmployer<ProductType> : Employer {
 
-    #region class Factory
+    #region class ConcreteFactory
 
     /// <summary>Concrete factory for the types in a plugin assembly</summary>
-    private class Factory : IFactory<T> {
+    private class ConcreteFactory : IAbstractFactory<ProductType> {
 
       /// <summary>Initializes a factory and configures it for the specified product</summary>
       /// <param name="type">Type of which the factory creates instances</param>
-      public Factory(Type type) {
+      public ConcreteFactory(Type type) {
         this.concreteType = type;
       }
 
@@ -72,8 +61,8 @@ namespace Nuclex.Support.Plugins {
 
       /// <summary>Create a new instance of the type that the factory is configured to</summary>
       /// <returns>The newly created instance</returns>
-      public T CreateInstance() {
-        return (T)Activator.CreateInstance(this.concreteType);
+      public ProductType CreateInstance() {
+        return (ProductType)Activator.CreateInstance(this.concreteType);
       }
 
       /// <summary>Concrete product which the factory instance creates</summary>
@@ -85,11 +74,11 @@ namespace Nuclex.Support.Plugins {
 
     /// <summary>Initializes a new FactoryEmployer</summary>
     public FactoryEmployer() {
-      this.employedFactories = new List<IFactory<T>>();
+      this.employedFactories = new List<IAbstractFactory<ProductType>>();
     }
 
     /// <summary>List of all factories that the instance employer has created</summary>
-    public List<IFactory<T>> Factories {
+    public List<IAbstractFactory<ProductType>> Factories {
       get { return this.employedFactories; }
     }
 
@@ -99,17 +88,17 @@ namespace Nuclex.Support.Plugins {
     public override bool CanEmploy(Type type) {
       return
         PluginHelper.HasDefaultConstructor(type) &&
-        typeof(T).IsAssignableFrom(type);
+        typeof(ProductType).IsAssignableFrom(type);
     }
 
     /// <summary>Employs the specified plugin type</summary>
     /// <param name="type">Type to be employed</param>
     public override void Employ(Type type) {
-      this.employedFactories.Add(new Factory(type));
+      this.employedFactories.Add(new ConcreteFactory(type));
     }
 
     /// <summary>All factories that the instance employer has created</summary>
-    private List<IFactory<T>> employedFactories;
+    private List<IAbstractFactory<ProductType>> employedFactories;
 
   }
 

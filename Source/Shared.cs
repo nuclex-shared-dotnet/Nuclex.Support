@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Diagnostics;
 
 namespace Nuclex.Support {
 
@@ -30,7 +31,7 @@ namespace Nuclex.Support {
 
     /// <summary>Returns the global instance of the class</summary>
     public static SharedType Instance {
-      [System.Diagnostics.DebuggerStepThrough]
+      [DebuggerStepThrough]
       get {
         return instance;
       }

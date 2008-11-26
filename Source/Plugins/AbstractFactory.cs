@@ -19,25 +19,20 @@ License along with this library
 #endregion
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace Nuclex.Support.Plugins {
 
-  /// <summary>Supporting functions for the plugin classes</summary>
-  public static class PluginHelper {
+  /// <summary>Abstract factory for a concrete type</summary>
+  /// <typeparam name="ProductType">Interface or base class of the product of the factory</typeparam>
+  public interface IAbstractFactory<ProductType> {
 
-    /// <summary>Determines whether the given type has a default constructor</summary>
-    /// <param name="type">Type which is to be checked</param>
-    /// <returns>True if the type has a default constructor</returns>
-    public static bool HasDefaultConstructor(Type type) {
-      ConstructorInfo[] constructors = type.GetConstructors();
+    /// <summary>The concrete type as implemented by the factory instance</summary>
+    Type ConcreteType { get; }
 
-      foreach(ConstructorInfo constructor in constructors)
-        if(constructor.IsPublic && (constructor.GetParameters().Length == 0))
-          return true;
-
-      return false;
-    }
+    /// <summary>Creates a new instance of the type to which the factory is specialized</summary>
+    /// <returns>The newly created instance</returns>
+    ProductType CreateInstance();
 
   }
 
