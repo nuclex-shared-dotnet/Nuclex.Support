@@ -80,7 +80,13 @@
       <DependentUpon>ReadOnlyCollection.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Source\Collections\ReadOnlyDictionary.Test.cs">
+      <DependentUpon>ReadOnlyDictionary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ReadOnlyList.cs" />
+    <Compile Include="Source\Collections\ReadOnlyList.Test.cs">
+      <DependentUpon>ReadOnlyList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ReverseComparer.cs" />
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
@@ -91,6 +97,9 @@
     </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs">
+      <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.Test.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\FloatHelper.cs" />

@@ -194,7 +194,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Whether the size of the List is fixed</summary>
     bool IList.IsFixedSize {
-      get { throw new NotImplementedException(); }
+      get { return this.objectList.IsFixedSize; }
     }
 
     /// <summary>Removes the specified item from the List</summary>

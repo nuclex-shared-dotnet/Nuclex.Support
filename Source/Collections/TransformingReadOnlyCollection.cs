@@ -181,15 +181,15 @@ namespace Nuclex.Support.Collections {
     ///   Array is null.
     /// </exception>
     public void CopyTo(ExposedItemType[] array, int index) {
-
-      if(this.items.Count > (array.Length - index))
+      if(this.items.Count > (array.Length - index)) {
         throw new ArgumentException(
           "Array too small to fit the collection items starting at the specified index"
         );
+      }
 
-      for(int itemIndex = 0; itemIndex < this.items.Count; ++itemIndex)
+      for(int itemIndex = 0; itemIndex < this.items.Count; ++itemIndex) {
         array[itemIndex + index] = Transform(this.items[itemIndex]);
-
+      }
     }
 
     /// <summary>
@@ -264,6 +264,11 @@ namespace Nuclex.Support.Collections {
     /// </exception>
     public ExposedItemType this[int index] {
       get { return Transform(this.items[index]); }
+    }
+
+    /// <summary>Whether the List is write-protected</summary>
+    public bool IsReadOnly {
+      get { return true; }
     }
 
     /// <summary>Transforms an item into the exposed type</summary>

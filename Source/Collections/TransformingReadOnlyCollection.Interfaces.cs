@@ -36,19 +36,6 @@ namespace Nuclex.Support.Collections {
     #region IList<ExposedItemType> Members
 
     /// <summary>
-    ///   Determines the index of a specific item in the TransformingReadOnlyCollection.
-    /// </summary>
-    /// <param name="item">
-    ///   The object to locate in the TransformingReadOnlyCollection.
-    /// </param>
-    /// <returns>
-    ///   The index of item if found in the list; otherwise, -1.
-    /// </returns>
-    int IList<ExposedItemType>.IndexOf(ExposedItemType item) {
-      return IndexOf(item);
-    }
-
-    /// <summary>
     ///   Inserts an item to the TransformingReadOnlyCollection at the specified index.
     /// </summary>
     /// <param name="index">
@@ -121,48 +108,6 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Determines whether the TransformingReadOnlyCollection contains a specific value.
-    /// </summary>
-    /// <param name="item">
-    ///   The object to locate in the TransformingReadOnlyCollection.
-    /// </param>
-    /// <returns>
-    ///   True if item is found in the TransformingReadOnlyCollection; otherwise, false.
-    /// </returns>
-    bool ICollection<ExposedItemType>.Contains(ExposedItemType item) {
-      return Contains(item);
-    }
-
-    /// <summary>
-    ///   Copies the elements of the TransformingReadOnlyCollection to an System.Array,
-    ///   starting at a particular System.Array index.
-    /// </summary>
-    /// <param name="array">
-    ///   The one-dimensional System.Array that is the destination of the elements
-    ///   copied from TransformingReadOnlyCollection. The System.Array must have
-    ///   zero-based indexing.
-    /// </param>
-    /// <param name="arrayIndex">
-    ///   The zero-based index in array at which copying begins
-    /// </param>
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    ///   ArrayIndex is less than 0.
-    /// </exception>
-    /// <exception cref="System.ArgumentNullException">
-    ///   Array is null.
-    /// </exception>
-    /// <exception cref="System.ArgumentException">
-    ///   Array is multidimensional or arrayIndex is equal to or greater than the
-    ///   length of array or the number of elements in the source
-    ///   TransformingReadOnlyCollection is greater than the available
-    ///   space from arrayIndex to the end of the destination array or type T cannot
-    ///   be cast automatically to the type of the destination array.
-    /// </exception>
-    void ICollection<ExposedItemType>.CopyTo(ExposedItemType[] array, int arrayIndex) {
-      CopyTo(array, arrayIndex);
-    }
-
-    /// <summary>
     ///   Removes the first occurrence of a specific object from the
     ///   TransformingReadOnlyCollection.
     /// </summary>
@@ -179,33 +124,6 @@ namespace Nuclex.Support.Collections {
     /// </exception>
     bool ICollection<ExposedItemType>.Remove(ExposedItemType item) {
       throw new NotSupportedException("The collection is ready-only");
-    }
-
-    /// <summary>
-    ///   The number of elements contained in the TransformingReadOnlyCollection.
-    /// </summary>
-    int ICollection<ExposedItemType>.Count {
-      get { return Count; }
-    }
-
-    /// <summary>
-    ///   A value indicating whether the TransformingReadOnlyCollection is read-only.
-    /// </summary>
-    bool ICollection<ExposedItemType>.IsReadOnly {
-      get { return true; }
-    }
-
-    #endregion
-
-    #region IEnumerable<ExposedItemType> Members
-
-    /// <summary>Returns an enumerator that iterates through the collection.</summary>
-    /// <returns>
-    ///   A System.Collections.Generic.IEnumerator&lt;ExposedItemType&gt; that can be used
-    ///   to iterate through the collection.
-    /// </returns>
-    IEnumerator<ExposedItemType> IEnumerable<ExposedItemType>.GetEnumerator() {
-      return GetEnumerator();
     }
 
     #endregion
@@ -301,13 +219,6 @@ namespace Nuclex.Support.Collections {
     ///   size.
     /// </summary>
     bool IList.IsFixedSize {
-      get { return true; }
-    }
-
-    /// <summary>
-    ///   A value indicating whether the index is not a valid index in the is read-only.
-    /// </summary>
-    bool IList.IsReadOnly {
       get { return true; }
     }
 
