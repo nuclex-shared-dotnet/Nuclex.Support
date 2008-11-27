@@ -82,6 +82,9 @@
     <Compile Include="Source\Collections\ReadOnlyDictionary.cs" />
     <Compile Include="Source\Collections\ReadOnlyList.cs" />
     <Compile Include="Source\Collections\ReverseComparer.cs" />
+    <Compile Include="Source\Collections\ReverseComparer.Test.cs">
+      <DependentUpon>ReverseComparer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\RingMemoryStream.cs" />
     <Compile Include="Source\Collections\RingMemoryStream.Test.cs">
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
