@@ -42,7 +42,7 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnParentChanged(ParentType oldParent) { }
 
     /// <summary>Assigns a new parent to this instance</summary>
-    protected internal void SetParent(ParentType parent) {
+    internal void SetParent(ParentType parent) {
       ParentType oldParent = this.parent;
       this.parent = parent;
 

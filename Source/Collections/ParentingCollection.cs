@@ -73,6 +73,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="index">Index of the element that was assigned</param>
     /// <param name="item">New item</param>
     protected override void SetItem(int index, ItemType item) {
+      base[index].SetParent(default(ParentType));
       base.SetItem(index, item);
       item.SetParent(this.parent);
     }

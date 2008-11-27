@@ -31,6 +31,8 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   public class PriorityQueueTest {
 
+    #region class FloatComparer
+
     /// <summary>Comparer for two floating point values</summary>
     private class FloatComparer : IComparer<float> {
 
@@ -46,6 +48,8 @@ namespace Nuclex.Support.Collections {
       }
 
     }
+
+    #endregion // class FloatComparer
 
     /// <summary>Tests to ensure the count property is properly updated</summary>
     [Test]
@@ -89,6 +93,56 @@ namespace Nuclex.Support.Collections {
       Assert.AreEqual(3.0f, testQueue.Dequeue());
       Assert.AreEqual(2.0f, testQueue.Dequeue());
       Assert.AreEqual(1.0f, testQueue.Dequeue());
+    }
+
+#if DEBUG
+    /// <summary>
+    ///   Tests whether the priority queue's enumerators are invalidated when the queue's
+    ///   contents are modified
+    /// </summary>
+    [Test, ExpectedException(typeof(InvalidOperationException))]
+    public void TestEnumeratorInvalidationOnModify() {
+      PriorityQueue<int> testQueue = new PriorityQueue<int>();
+      IEnumerator<int> testQueueEnumerator = testQueue.GetEnumerator();
+
+      testQueue.Enqueue(123);
+      
+      testQueueEnumerator.MoveNext();
+    }
+#endif
+
+    /// <summary>
+    ///   Verifies that an exception is thrown when Peek() is called on an empty queue
+    /// </summary>
+    [Test, ExpectedException(typeof(InvalidOperationException))]
+    public void TestPeekEmptyQueue() {
+      PriorityQueue<int> testQueue = new PriorityQueue<int>();
+      testQueue.Peek();
+    }
+
+    /// <summary>
+    ///   Verifies that an exception is thrown when Dequeue() is called on an empty queue
+    /// </summary>
+    [Test, ExpectedException(typeof(InvalidOperationException))]
+    public void TestDequeueEmptyQueue() {
+      PriorityQueue<int> testQueue = new PriorityQueue<int>();
+      testQueue.Dequeue();
+    }
+
+    /// <summary>
+    ///   Verifies that the priority queue can handle large amounts of data
+    /// </summary>
+    [Test]
+    public void TestLargeQueue() {
+      PriorityQueue<int> testQueue = new PriorityQueue<int>();
+      List<int> testList = new List<int>();
+
+      for(int index = 0; index < 1000; ++index) {
+        testQueue.Enqueue(index * 2);
+        testList.Add(index * 2);
+      }
+
+      CollectionAssert.AreEquivalent(testList, testQueue);
     }
 
   }

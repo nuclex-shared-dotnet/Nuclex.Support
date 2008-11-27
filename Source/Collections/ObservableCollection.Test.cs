@@ -118,6 +118,49 @@ namespace Nuclex.Support.Collections {
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
+    /// <summary>Tests whether items in the collection can be replaced</summary>
+    [Test]
+    public void TestItemReplacement() {
+      Expect.Exactly(3).On(this.mockedSubscriber).
+        Method("ItemAdded").
+        WithAnyArguments();
+
+      this.observedCollection.Add(1);
+      this.observedCollection.Add(2);
+      this.observedCollection.Add(3);
+
+      Expect.Once.On(this.mockedSubscriber).
+        Method("ItemRemoved").
+        WithAnyArguments();
+
+      Expect.Once.On(this.mockedSubscriber).
+        Method("ItemAdded").
+        WithAnyArguments();
+
+      // Replace the middle item with something else
+      this.observedCollection[1] = 4;
+
+      Assert.AreEqual(
+        1,
+        this.observedCollection.IndexOf(4)
+      );
+
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
+    }
+
+    /// <summary>Tests whether the ItemRemoved event is fired</summary>
+    [Test]
+    public void TestListConstructor() {
+      int[] integers = new int[] { 12, 34, 56, 78 };
+
+      ObservableCollection<int> testCollection = new ObservableCollection<int>(integers);
+      
+      CollectionAssert.AreEqual(
+        integers,
+        testCollection
+      );
+    }
+
     /// <summary>Mock object factory</summary>
     private Mockery mockery;
     /// <summary>The mocked observable collection subscriber</summary>

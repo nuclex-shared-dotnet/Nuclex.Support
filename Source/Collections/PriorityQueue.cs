@@ -41,27 +41,32 @@ namespace Nuclex.Support.Collections {
 
       /// <summary>Resets the enumerator to its initial state</summary>
       public void Reset() {
-        index = -1;
-        version = priorityQueue.version;
+        this.index = -1;
+#if DEBUG
+        this.expectedVersion = priorityQueue.version;
+#endif
       }
 
       /// <summary>The current item being enumerated</summary>
       ItemType IEnumerator<ItemType>.Current {
         get {
+#if DEBUG
           checkVersion();
-          return priorityQueue.heap[index];
+#endif
+          return this.priorityQueue.heap[index];
         }
       }
 
       /// <summary>Moves to the next item in the priority queue</summary>
       /// <returns>True if a next item was found, false if the end has been reached</returns>
       public bool MoveNext() {
+#if DEBUG
         checkVersion();
-
-        if(index + 1 == priorityQueue.count)
+#endif
+        if(this.index + 1 == this.priorityQueue.count)
           return false;
 
-        ++index;
+        ++this.index;
 
         return true;
       }
@@ -69,17 +74,21 @@ namespace Nuclex.Support.Collections {
       /// <summary>Releases all resources used by the enumerator</summary>
       public void Dispose() { }
 
+#if DEBUG
       /// <summary>Ensures that the priority queue has not changed</summary>
       private void checkVersion() {
-        if(version != priorityQueue.version)
+        if(this.expectedVersion != this.priorityQueue.version)
           throw new InvalidOperationException("Priority queue has been modified");
       }
+#endif
 
       /// <summary>The current item being enumerated</summary>
       object IEnumerator.Current {
         get {
+#if DEBUG
           checkVersion();
-          return priorityQueue.heap[index];
+#endif
+          return this.priorityQueue.heap[index];
         }
       }
 
@@ -87,8 +96,10 @@ namespace Nuclex.Support.Collections {
       private int index;
       /// <summary>The priority queue whose items this instance enumerates</summary>
       private PriorityQueue<ItemType> priorityQueue;
+#if DEBUG
       /// <summary>Expected version of the priority queue</summary>
-      private int version;
+      private int expectedVersion;
+#endif
 
     }
 
@@ -128,9 +139,9 @@ namespace Nuclex.Support.Collections {
       ItemType result = this.heap[0];
       --this.count;
       trickleDown(0, this.heap[this.count]);
-
+#if DEBUG
       ++this.version;
-
+#endif
       return result;
     }
 
@@ -142,13 +153,17 @@ namespace Nuclex.Support.Collections {
 
       ++this.count;
       bubbleUp(this.count - 1, item);
+#if DEBUG
       ++this.version;
+#endif
     }
 
     /// <summary>Removes all items from the priority queue</summary>
     public void Clear() {
       this.count = 0;
+#if DEBUG
       ++this.version;
+#endif
     }
 
 
@@ -258,10 +273,12 @@ namespace Nuclex.Support.Collections {
     private int count;
     /// <summary>Available space in the priority queue</summary>
     private int capacity;
-    /// <summary>Incremented whenever the priority queue is modified</summary>
-    private int version;
     /// <summary>Tree containing the items in the priority queue</summary>
     private ItemType[] heap;
+#if DEBUG
+    /// <summary>Incremented whenever the priority queue is modified</summary>
+    private int version;
+#endif
 
   }
 
