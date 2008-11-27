@@ -113,12 +113,18 @@ namespace Nuclex.Support.Licensing {
         if((index < 0) || (index > 3))
           throw new IndexOutOfRangeException("Index out of range");
 
-        using(MemoryStream guidBytes = new MemoryStream(this.guid.ToByteArray())) {
-          guidBytes.Position = index * 4;
-          new BinaryWriter(guidBytes).Write(value);
+        // Convert the GUID into binary data so we can replace one of its values
+        byte[] guidBytes = this.guid.ToByteArray();
 
-          this.guid = new Guid(guidBytes.ToArray());
-        }
+        // Overwrite the section at the index specified by the user with the new value
+        Array.Copy(
+          BitConverter.GetBytes(value), 0, // source and start index
+          guidBytes, index * 4, // destination and start index
+          4 // length
+        );
+
+        // Replacement finished, now we can reconstruct our guid
+        this.guid = new Guid(guidBytes);
       }
     }
 

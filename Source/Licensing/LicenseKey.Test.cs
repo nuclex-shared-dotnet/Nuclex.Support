@@ -31,6 +31,13 @@ namespace Nuclex.Support.Licensing {
   [TestFixture]
   public class LicenseKeyTest {
 
+    /// <summary>Tests the default constructor of the license key class</summary>
+    [Test]
+    public void TestDefaultConstructor() {
+      new LicenseKey();
+    }
+
+
     /// <summary>Validates the correct translation of keys to GUIDs and back</summary>
     [Test]
     public void TestGuidKeyConversion() {
@@ -86,6 +93,43 @@ namespace Nuclex.Support.Licensing {
         } // for j
       } // for i
 
+    }
+
+    /// <summary>Tests whether license keys can be modified without destroying them</summary>
+    [Test, ExpectedException(typeof(ArgumentException))]
+    public void TestParseInvalidLicenseKey() {
+      LicenseKey.Parse("hello world");
+    }
+
+    /// <summary>
+    ///   Tests whether an exception is thrown if the indexer of a license key is used
+    ///   with an invalid index to retrieve a component of the key
+    /// </summary>
+    [Test, ExpectedException(typeof(IndexOutOfRangeException))]
+    public void TestGetByIndexerWithInvalidIndex() {
+      LicenseKey key = new LicenseKey();
+      int indexMinusOne = key[-1];
+    }
+
+    /// <summary>
+    ///   Tests whether an exception is thrown if the indexer of a license key is used
+    ///   with an invalid index to set a component of the key
+    /// </summary>
+    [Test, ExpectedException(typeof(IndexOutOfRangeException))]
+    public void TestSetByIndexerWithInvalidIndex() {
+      LicenseKey key = new LicenseKey();
+      key[-1] = 0;
+    }
+
+    /// <summary>
+    ///   Verifies that a license key can be converted into a byte array
+    /// </summary>
+    [Test]
+    public void TestToByteArray() {
+      Guid someGuid = Guid.NewGuid();
+      LicenseKey someKey = new LicenseKey(someGuid);
+
+      CollectionAssert.AreEqual(someGuid.ToByteArray(), someKey.ToByteArray());
     }
 
   }

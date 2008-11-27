@@ -76,6 +76,9 @@
       <DependentUpon>PriorityQueue.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\ReadOnlyCollection.cs" />
+    <Compile Include="Source\Collections\ReadOnlyCollection.Test.cs">
+      <DependentUpon>ReadOnlyCollection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ReadOnlyDictionary.cs" />
     <Compile Include="Source\Collections\ReadOnlyList.cs" />
     <Compile Include="Source\Collections\ReverseComparer.cs" />

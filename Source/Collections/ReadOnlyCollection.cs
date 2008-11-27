@@ -115,17 +115,17 @@ namespace Nuclex.Support.Collections {
     ///   Starting index at which to begin filling the destination array
     /// </param>
     void ICollection.CopyTo(Array array, int index) {
-      throw new NotImplementedException();
+      this.objectCollection.CopyTo(array, index);
     }
 
     /// <summary>Whether the List is synchronized for multi-threaded usage</summary>
     bool ICollection.IsSynchronized {
-      get { throw new NotImplementedException(); }
+      get { return this.objectCollection.IsSynchronized; }
     }
 
     /// <summary>Synchronization root on which the List locks</summary>
     object ICollection.SyncRoot {
-      get { throw new NotImplementedException(); }
+      get { return this.objectCollection.SyncRoot; }
     }
 
     #endregion
