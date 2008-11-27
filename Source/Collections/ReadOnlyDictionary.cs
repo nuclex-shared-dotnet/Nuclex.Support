@@ -29,11 +29,41 @@ namespace Nuclex.Support.Collections {
   /// <summary>Wraps a Dictionary and prevents users from modifying it</summary>
   /// <typeparam name="KeyType">Type of the keys used in the Dictionary</typeparam>
   /// <typeparam name="ValueType">Type of the values used in the Dictionary</typeparam>
+  [Serializable]
   public class ReadOnlyDictionary<KeyType, ValueType> :
     IDictionary<KeyType, ValueType>,
     IDictionary,
     ISerializable,
     IDeserializationCallback {
+
+    #region class SerializedDictionary
+
+    /// <summary>
+    ///   Dictionary wrapped used to reconstruct a serialized read only dictionary
+    /// </summary>
+    private class SerializedDictionary : Dictionary<KeyType, ValueType> {
+
+      /// <summary>
+      ///   Initializes a new instance of the System.WeakReference class, using deserialized
+      ///   data from the specified serialization and stream objects.
+      /// </summary>
+      /// <param name="info">
+      ///   An object that holds all the data needed to serialize or deserialize the
+      ///   current System.WeakReference object.
+      /// </param>
+      /// <param name="context">
+      ///   (Reserved) Describes the source and destination of the serialized stream
+      ///   specified by info.
+      /// </param>
+      /// <exception cref="System.ArgumentNullException">
+      ///   The info parameter is null.
+      /// </exception>
+      public SerializedDictionary(SerializationInfo info, StreamingContext context) :
+        base(info, context) { }
+
+    }
+
+    #endregion // class SerializeDictionary
 
     /// <summary>Initializes a new read-only Dictionary wrapper</summary>
     /// <param name="dictionary">Dictionary that will be wrapped</param>
@@ -41,6 +71,24 @@ namespace Nuclex.Support.Collections {
       this.typedDictionary = dictionary;
       this.objectDictionary = (this.typedDictionary as IDictionary);
     }
+
+    /// <summary>
+    ///   Initializes a new instance of the System.WeakReference class, using deserialized
+    ///   data from the specified serialization and stream objects.
+    /// </summary>
+    /// <param name="info">
+    ///   An object that holds all the data needed to serialize or deserialize the
+    ///   current System.WeakReference object.
+    /// </param>
+    /// <param name="context">
+    ///   (Reserved) Describes the source and destination of the serialized stream
+    ///   specified by info.
+    /// </param>
+    /// <exception cref="System.ArgumentNullException">
+    ///   The info parameter is null.
+    /// </exception>
+    protected ReadOnlyDictionary(SerializationInfo info, StreamingContext context) :
+      this(new SerializedDictionary(info, context)) { }
 
     /// <summary>Whether the directory is write-protected</summary>
     public bool IsReadOnly {

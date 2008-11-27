@@ -187,7 +187,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Tests whether the typesafe enumerator of the read only collection is working
+    ///   Tests whether the typesafe enumerator of the read only list is working
     /// </summary>
     [Test]
     public void TestTypesafeEnumerator() {
