@@ -52,6 +52,11 @@ namespace Nuclex.Support.Plugins {
       string directory = Path.GetDirectoryName(wildcard);
       string search = Path.GetFileName(wildcard);
 
+      // If no directory was specified, use the current working directory
+      if((directory == null) || (directory == string.Empty)) {
+        directory = ".";
+      }
+
       // We'll scan the specified directory for all files matching the specified
       // wildcard. If only a single file is specified, only that file will match
       // the supposed wildcard and everything works as expected

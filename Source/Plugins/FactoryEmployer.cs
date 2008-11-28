@@ -41,7 +41,8 @@ namespace Nuclex.Support.Plugins {
   ///     a human-readable name, capabilities or an icon.
   ///   </para>
   /// </remarks>
-  public class FactoryEmployer<ProductType> : Employer {
+  public class FactoryEmployer<ProductType> : Employer
+    where ProductType : class {
 
     #region class ConcreteFactory
 
@@ -94,6 +95,17 @@ namespace Nuclex.Support.Plugins {
     /// <summary>Employs the specified plugin type</summary>
     /// <param name="type">Type to be employed</param>
     public override void Employ(Type type) {
+      if(!PluginHelper.HasDefaultConstructor(type)) {
+        throw new MissingMethodException(
+          "Cannot employ type because it does not have a public default constructor"
+        );
+      }
+      if(!typeof(ProductType).IsAssignableFrom(type)) {
+        throw new InvalidCastException(
+          "Cannot employ type because it cannot be cast to the factory's product type"
+        );
+      }
+
       this.employedFactories.Add(new ConcreteFactory(type));
     }
 

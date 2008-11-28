@@ -34,7 +34,7 @@ namespace Nuclex.Support.Parsing {
 
     /// <summary>Validates that normal arguments can be parsed</summary>
     [Test]
-    public void TestPlainArguments() {
+    public void TestArrayConstructorWithPlainArguments() {
       Assert.IsTrue(
         new CommandLineParser(new string[] { "-hello" }).HasArgument("hello"),
         "Argument with minus sign is recognized"
@@ -51,7 +51,7 @@ namespace Nuclex.Support.Parsing {
 
     /// <summary>Validates that argument assignments are working</summary>
     [Test]
-    public void TestAssignments() {
+    public void TestArrayConstructorWithAssignments() {
       Assert.AreEqual(
         "world",
         new CommandLineParser(new string[] { "-hello:world" })["hello"],
@@ -73,7 +73,7 @@ namespace Nuclex.Support.Parsing {
     ///   Validates that loosely specified values are recognized by the parser
     /// </summary>
     [Test]
-    public void TestLooseValues() {
+    public void TestArrayConstructorWithLooseValues() {
       Assert.IsTrue(
         new CommandLineParser(new string[] { "hello" }).Values.Contains("hello"),
         "Plain loose value is recognized"
@@ -82,6 +82,47 @@ namespace Nuclex.Support.Parsing {
         new CommandLineParser(new string[] { "-hello:world", "foo" }).Values.Contains("foo"),
         "Loose value following an assignment is recognized"
       );
+    }
+
+    /// <summary>
+    ///   Tests whether the parser can parse the processes current command line if
+    ///   the default constructor is used
+    /// </summary>
+    [Test]
+    public void TestDefaultConstructor() {
+      new CommandLineParser();
+    }
+
+    /// <summary>
+    ///   Tests whether the string constructor works for simple arguments being
+    ///   specified on the command line
+    /// </summary>
+    [Test]
+    public void TestStringConstructorWithSimpleArguments() {
+      CommandLineParser parser = new CommandLineParser("argument1 argument2");
+      Assert.AreEqual("argument1", parser.Values[0]);
+      Assert.AreEqual("argument2", parser.Values[1]);
+    }
+
+    // TODO: This test fails!!
+#if FAILED_TEST
+    /// <summary>
+    ///   Bullshit
+    /// </summary>
+    [Test]
+    public void TestStringConstructorWithQuotedArguments() {
+      CommandLineParser parser = new CommandLineParser("\"this is a single argument\"");
+      Assert.AreEqual("this is a single argument", parser.Values[0]);
+    }
+#endif
+
+    /// <summary>
+    ///   Tests whether the string constructor recognizes an unfinished argument
+    ///   (that is, and argument that gets 'nothing' assigned)
+    /// </summary>
+    [Test]
+    public void TestStringConstructorWithUnfinishedAssignment() {
+      CommandLineParser parser = new CommandLineParser("--hello= --world=");
     }
 
   }
