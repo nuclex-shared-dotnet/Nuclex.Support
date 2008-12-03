@@ -35,24 +35,24 @@ namespace Nuclex.Support.Scheduling {
   [TestFixture]
   public class OperationQueueTest {
 
-    #region interface IQueueOperationSubscriber
+    #region interface IOperationQueueSubscriber
 
-    /// <summary>Interface used to test the set waitable.</summary>
-    public interface IQueueOperationSubscriber {
+    /// <summary>Interface used to test the operation queue</summary>
+    public interface IOperationQueueSubscriber {
 
-      /// <summary>Called when the queue operations's progress changes</summary>
-      /// <param name="sender">Queue operation whose progress has changed</param>
-      /// <param name="e">Contains the new progress achieved</param>
-      void ProgressChanged(object sender, ProgressReportEventArgs e);
+      /// <summary>Called when the operations queue's progress changes</summary>
+      /// <param name="sender">Operation queue whose progress has changed</param>
+      /// <param name="arguments">Contains the new progress achieved</param>
+      void ProgressChanged(object sender, ProgressReportEventArgs arguments);
 
-      /// <summary>Called when the queue operation has ended</summary>
-      /// <param name="sender">Queue operation that as ended</param>
-      /// <param name="e">Not used</param>
-      void Ended(object sender, EventArgs e);
+      /// <summary>Called when the operation queue has ended</summary>
+      /// <param name="sender">Operation queue that as ended</param>
+      /// <param name="arguments">Not used</param>
+      void Ended(object sender, EventArgs arguments);
 
     }
 
-    #endregion // interface IQueueOperationSubscriber
+    #endregion // interface IOperationQueueSubscriber
 
     #region class ProgressUpdateEventArgsMatcher
 
@@ -180,7 +180,7 @@ namespace Nuclex.Support.Scheduling {
           new TestOperation[] { operation1, operation2 }
         );
 
-      IQueueOperationSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
+      IOperationQueueSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
 
       testQueueOperation.Start();
 
@@ -212,9 +212,9 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Mocks a subscriber for the events of an operation</summary>
     /// <param name="operation">Operation to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private IQueueOperationSubscriber mockSubscriber(Operation operation) {
-      IQueueOperationSubscriber mockedSubscriber =
-        this.mockery.NewMock<IQueueOperationSubscriber>();
+    private IOperationQueueSubscriber mockSubscriber(Operation operation) {
+      IOperationQueueSubscriber mockedSubscriber =
+        this.mockery.NewMock<IOperationQueueSubscriber>();
 
       operation.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
       (operation as IProgressReporter).AsyncProgressChanged +=

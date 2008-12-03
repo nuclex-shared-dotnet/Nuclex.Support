@@ -33,11 +33,11 @@ namespace Nuclex.Support.Tracking {
   ///     store a new exception) and re-throw them when in ReraiseExceptions()
   ///   </para>
   ///   <para>
-  ///     Like in the Waitable class, the contract requires you to always call
+  ///     Like in the transaction class, the contract requires you to always call
   ///     OnAsyncEnded(), no matter what the outcome of your operation is.
   ///   </para>
   /// </remarks>
-  public abstract class Request : Waitable {
+  public abstract class Request : Transaction {
 
     #region class EndedDummyRequest
 

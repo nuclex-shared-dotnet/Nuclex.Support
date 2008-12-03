@@ -27,36 +27,36 @@ using Nuclex.Support.Collections;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Collection of waitables with a weighting value</summary>
-  /// <typeparam name="WaitableType">Type of waitables to manage</typeparam>
+  /// <summary>Collection of transactions with a weighting value</summary>
+  /// <typeparam name="TransactionType">Type of transactions to manage</typeparam>
   /// <remarks>
   ///   <para>
   ///     This collection is exposed as a read-only collection to the user that
-  ///     stores WeightedWaitables. Internally, it merely wraps a collection of
-  ///     an internal type used to keep track of the individual waitable's
-  ///     progress in the WaitableSet and OperationQueue classes.
+  ///     stores WeightedTransactions. Internally, it merely wraps a collection of
+  ///     an internal type used to keep track of the individual transaction's
+  ///     progress in the TransactionGroup and OperationQueue classes.
   ///   </para>
   ///   <para>
-  ///     It is read-only because the design requires a waitable to only ever
-  ///     finish once. If it was possible eg. to add items after a WaitableSet
-  ///     had signalled itself as being finished, it would be moved into an
-  ///     unfinished state again. Also, an empty WaitableSet is, by definition,
-  ///     finished (simply because there is no work to do) - unless the contents
-  ///     of set are passed to the WaitableSet's constructor and never modified
-  ///     at all, the design would be violated as soon as ab instance of the
-  ///     WaitableSet or OperationQueue classes was created.
+  ///     It is read-only because the design requires a transaction to only ever finish
+  ///     once. If it was possible eg. to add items after a TransactionGroup had signalled
+  ///     itself as being finished, it would be moved into an unfinished state again.
+  ///     Also, an empty TransactionGroup is, by definition, finished (simply because
+  ///     there is no work to do) - unless the contents of the group are passed to the
+  ///     TransactionGroup's constructor and never modified at all, the design would be
+  ///     violated as soon as an instance of the TransactionGroup or OperationQueue
+  ///     classes was created.
   ///   </para>
   /// </remarks>
-  internal class WeightedWaitableWrapperCollection<WaitableType> :
+  internal class WeightedTransactionWrapperCollection<TransactionType> :
     TransformingReadOnlyCollection<
-      ObservedWeightedWaitable<WaitableType>, WeightedWaitable<WaitableType>
+      ObservedWeightedTransaction<TransactionType>, WeightedTransaction<TransactionType>
     >
-    where WaitableType : Waitable {
+    where TransactionType : Transaction {
 
-    /// <summary>Initializes a new weighted waitable collection wrapper</summary>
-    /// <param name="items">Items to be exposed as weighted waitables</param>
-    internal WeightedWaitableWrapperCollection(
-      IList<ObservedWeightedWaitable<WaitableType>> items
+    /// <summary>Initializes a new weighted transaction collection wrapper</summary>
+    /// <param name="items">Items to be exposed as weighted transactions</param>
+    internal WeightedTransactionWrapperCollection(
+      IList<ObservedWeightedTransaction<TransactionType>> items
     )
       : base(items) { }
 
@@ -69,10 +69,10 @@ namespace Nuclex.Support.Tracking {
     ///   be called frequently, because the TransformingReadOnlyCollection does
     ///   not cache otherwise store the transformed items.
     /// </remarks>
-    protected override WeightedWaitable<WaitableType> Transform(
-      ObservedWeightedWaitable<WaitableType> item
+    protected override WeightedTransaction<TransactionType> Transform(
+      ObservedWeightedTransaction<TransactionType> item
     ) {
-      return item.WeightedWaitable;
+      return item.WeightedTransaction;
     }
 
   }

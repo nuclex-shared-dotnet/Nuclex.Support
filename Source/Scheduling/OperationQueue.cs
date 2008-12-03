@@ -42,23 +42,23 @@ namespace Nuclex.Support.Scheduling {
     /// </remarks>
     public OperationQueue(IEnumerable<OperationType> childs) : this() {
 
-      // Construct a WeightedWaitable with the default weight for each
-      // waitable and wrap it in an ObservedWaitable
+      // Construct a WeightedTransaction with the default weight for each
+      // transaction and wrap it in an ObservedTransaction
       foreach(OperationType operation in childs)
-        this.children.Add(new WeightedWaitable<OperationType>(operation));
+        this.children.Add(new WeightedTransaction<OperationType>(operation));
 
-      // Since all waitables have a weight of 1.0, the total weight is
-      // equal to the number of waitables in our list
+      // Since all transactions have a weight of 1.0, the total weight is
+      // equal to the number of transactions in our list
       this.totalWeight = (float)this.children.Count;
 
     }
 
     /// <summary>Initializes a new queue operation with custom weights</summary>
     /// <param name="childs">Child operations to execute in this operation</param>
-    public OperationQueue(IEnumerable<WeightedWaitable<OperationType>> childs) : this() {
+    public OperationQueue(IEnumerable<WeightedTransaction<OperationType>> childs) : this() {
 
-      // Construct an ObservedWaitablen around each of the WeightedWaitables
-      foreach(WeightedWaitable<OperationType> operation in childs) {
+      // Construct an ObservedTransactionn around each of the WeightedTransactions
+      foreach(WeightedTransaction<OperationType> operation in childs) {
         this.children.Add(operation);
 
         // Sum up the total weight
@@ -74,11 +74,11 @@ namespace Nuclex.Support.Scheduling {
         asyncOperationProgressChanged
       );
 
-      this.children = new List<WeightedWaitable<OperationType>>();
+      this.children = new List<WeightedTransaction<OperationType>>();
     }
 
     /// <summary>Provides access to the child operations of this queue</summary>
-    public IList<WeightedWaitable<OperationType>> Children {
+    public IList<WeightedTransaction<OperationType>> Children {
       get { return this.children; }
     }
 
@@ -99,7 +99,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Fires the progress update event</summary>
     /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this waitable about the achieved progress.
+    ///   Informs the observers of this transaction about the achieved progress.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(float progress) {
       OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -108,10 +108,10 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Fires the progress update event</summary>
     /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this waitable about the achieved progress.
-    ///   Allows for classes derived from the Waitable class to easily provide
+    ///   Informs the observers of this transaction about the achieved progress.
+    ///   Allows for classes derived from the transaction class to easily provide
     ///   a custom event arguments class that has been derived from the
-    ///   waitable's ProgressUpdateEventArgs class.
+    ///   transaction's ProgressUpdateEventArgs class.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
       EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -125,7 +125,7 @@ namespace Nuclex.Support.Scheduling {
     ///   and launches the operation by calling its Begin() method.
     /// </remarks>
     private void startCurrentOperation() {
-      OperationType operation = this.children[this.currentOperationIndex].Waitable;
+      OperationType operation = this.children[this.currentOperationIndex].Transaction;
 
       operation.AsyncEnded += this.asyncOperationEndedDelegate;
 
@@ -143,7 +143,7 @@ namespace Nuclex.Support.Scheduling {
     ///   counts up the accumulated progress of the queue.
     /// </remarks>
     private void endCurrentOperation() {
-      OperationType operation = this.children[this.currentOperationIndex].Waitable;
+      OperationType operation = this.children[this.currentOperationIndex].Transaction;
 
       // Disconnect from the operation's events
       operation.AsyncEnded -= this.asyncOperationEndedDelegate;
@@ -217,7 +217,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Delegate to the asyncOperationProgressUpdated() method</summary>
     private EventHandler<ProgressReportEventArgs> asyncOperationProgressChangedDelegate;
     /// <summary>Operations being managed in the queue</summary>
-    private List<WeightedWaitable<OperationType>> children;
+    private List<WeightedTransaction<OperationType>> children;
     /// <summary>Summed weight of all operations in the queue</summary>
     private float totalWeight;
     /// <summary>Accumulated weight of the operations already completed</summary>

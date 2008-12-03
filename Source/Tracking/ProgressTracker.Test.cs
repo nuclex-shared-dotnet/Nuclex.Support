@@ -91,21 +91,21 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // class ProgressUpdateEventArgsMatcher
 
-    #region class TestWaitable
+    #region class TestTransaction
 
-    /// <summary>Waitable used for testing in this unit test</summary>
-    private class TestWaitable : Waitable, IProgressReporter {
+    /// <summary>Transaction used for testing in this unit test</summary>
+    private class TestTransaction : Transaction, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
       public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
-      /// <summary>Changes the testing waitable's indicated progress</summary>
-      /// <param name="progress">New progress to be reported by the testing waitable</param>
+      /// <summary>Changes the testing transaction's indicated progress</summary>
+      /// <param name="progress">New progress to be reported by the testing transaction</param>
       public void ChangeProgress(float progress) {
         OnAsyncProgressChanged(progress);
       }
 
-      /// <summary>Transitions the waitable into the ended state</summary>
+      /// <summary>Transitions the transaction into the ended state</summary>
       public void End() {
         OnAsyncEnded();
       }
@@ -113,7 +113,7 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this waitable about the achieved progress.
+      ///   Informs the observers of this transaction about the achieved progress.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(float progress) {
         OnAsyncProgressChanged(new ProgressReportEventArgs(progress));
@@ -122,10 +122,10 @@ namespace Nuclex.Support.Tracking {
       /// <summary>Fires the progress update event</summary>
       /// <param name="eventArguments">Progress to report (ranging from 0.0 to 1.0)</param>
       /// <remarks>
-      ///   Informs the observers of this waitable about the achieved progress.
-      ///   Allows for classes derived from the Waitable class to easily provide
+      ///   Informs the observers of this transaction about the achieved progress.
+      ///   Allows for classes derived from the transaction class to easily provide
       ///   a custom event arguments class that has been derived from the
-      ///   waitable's ProgressUpdateEventArgs class.
+      ///   transaction's ProgressUpdateEventArgs class.
       /// </remarks>
       protected virtual void OnAsyncProgressChanged(ProgressReportEventArgs eventArguments) {
         EventHandler<ProgressReportEventArgs> copy = AsyncProgressChanged;
@@ -146,204 +146,238 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Validates that the tracker properly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
-      ProgressTracker tracker = new ProgressTracker();
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
-      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        TestTransaction test1 = new TestTransaction();
+        TestTransaction test2 = new TestTransaction();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("IdleStateChanged").
-        WithAnyArguments();
+        // Step 1
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("IdleStateChanged").
+            WithAnyArguments();
 
-      Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-          }
-        );
+          // Since the progress is already at 0, these redundant reports are optional
+          Expect.Between(0, 2).On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+            }
+            );
 
-      TestWaitable test1 = new TestWaitable();
-      tracker.Track(test1);
-      TestWaitable test2 = new TestWaitable();
-      tracker.Track(test2);
+          tracker.Track(test1);
+          tracker.Track(test2);
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-          }
-        );
+        // Step 2
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+            }
+            );
 
-      test1.ChangeProgress(0.5f);
+          test1.ChangeProgress(0.5f);
+        }
+      }
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>
-    ///   Validates that the tracker only removes waitables when the whole
+    ///   Validates that the tracker only removes transactions when the whole
     ///   tracking list has reached the 'ended' state.
     /// </summary>
     /// <remarks>
-    ///   If the tracker would remove ended waitables right when they finished,
+    ///   If the tracker would remove ended transactions right when they finished,
     ///   the total progress would jump back each time. This is unwanted, of course.
     /// </remarks>
     [Test]
     public void TestDelayedRemoval() {
-      ProgressTracker tracker = new ProgressTracker();
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
-      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        TestTransaction test1 = new TestTransaction();
+        TestTransaction test2 = new TestTransaction();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("IdleStateChanged").
-        WithAnyArguments();
+        // Step 1
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("IdleStateChanged").
+            WithAnyArguments();
 
-      Expect.Exactly(2).On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-          }
-        );
+          // This is optional. The tracker's progress is currently 0, so there's no need
+          // to send out superfluous progress reports.
+          Expect.Between(0, 2).On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+            }
+            );
 
-      TestWaitable test1 = new TestWaitable();
-      tracker.Track(test1);
-      TestWaitable test2 = new TestWaitable();
-      tracker.Track(test2);
+          tracker.Track(test1);
+          tracker.Track(test2);
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-          }
-        );
+        // Step 2
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+            }
+            );
 
-      test1.ChangeProgress(0.5f);
+          // Total progress should be 0.25 after this call (two transactions, one with
+          // 0% progress and one with 50% progress)
+          test1.ChangeProgress(0.5f);
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.75f))
-          }
-        );
+        // Step 3
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.75f))
+            }
+            );
 
-      // Total progress should be 0.75 after this call (one waitable at 1.0,
-      // the other one at 0.5). If the second waitable would be removed,
-      // the progress would jump to 0.5 instead.
-      test2.End();
+          // Total progress should be 0.75 after this call (one transaction at 100%,
+          // the other one at 50%). If the second transaction would be removed by the tracker,
+          // (which would be inappropriate!) the progress would falsely jump to 0.5 instead.
+          test2.End();
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
-          }
-        );
+        // Step 4
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+            }
+            );
 
-      Expect.Once.On(mockedSubscriber).
-        Method("IdleStateChanged").
-        WithAnyArguments();
+          Expect.Once.On(mockedSubscriber).
+            Method("IdleStateChanged").
+            WithAnyArguments();
 
-      test1.End();
+          test1.End();
+        }
+      }
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>
-    ///   Validates that the tracker behaves correctly if it is fed with waitables
+    ///   Validates that the tracker behaves correctly if it is fed with transactions
     ///   that have already ended.
     /// </summary>
     [Test]
-    public void TestSoleEndedWaitable() {
-      ProgressTracker tracker = new ProgressTracker();
+    public void TestSoleEndedTransaction() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
-      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
-
-      tracker.Track(Waitable.EndedDummy);
+        tracker.Track(Transaction.EndedDummy);
+      }
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>
-    ///   Validates that the tracker behaves correctly if it is fed with waitables
-    ///   that have already ended in addition to waitables that are actively executing.
+    ///   Validates that the tracker behaves correctly if it is fed with transactions
+    ///   that have already ended in addition to transactions that are actively executing.
     /// </summary>
     [Test]
-    public void TestEndedWaitable() {
-      ProgressTracker tracker = new ProgressTracker();
+    public void TestEndedTransaction() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
 
-      IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        TestTransaction test1 = new TestTransaction();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("IdleStateChanged").
-        WithAnyArguments();
+        // Step 1
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("IdleStateChanged").
+            WithAnyArguments();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-          }
-        );
+          Expect.Between(0, 1).On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+              }
+            );
 
-      TestWaitable test1 = new TestWaitable();
-      tracker.Track(test1);
+          tracker.Track(test1);
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.5f))
-          }
-        );
+        // Step 2
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.5f))
+              }
+            );
 
-      tracker.Track(Waitable.EndedDummy);
+          tracker.Track(Transaction.EndedDummy);
+        }
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
-          }
-        );
+        // Step 3
+        {
+          Expect.Once.On(mockedSubscriber).
+            Method("ProgressChanged").
+            With(
+              new Matcher[] {
+                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
+                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+              }
+            );
 
-      Expect.Once.On(mockedSubscriber).
-        Method("IdleStateChanged").
-        WithAnyArguments();
+          Expect.Once.On(mockedSubscriber).
+            Method("IdleStateChanged").
+            WithAnyArguments();
 
-      test1.End();
+          test1.End();
+        }
+      }
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>
-    ///   Tries to provoke a deadlock by re-entering the tracker from one of
-    ///   its own events.
+    ///   Tries to provoke a deadlock by re-entering the tracker from one of its own events
     /// </summary>
     [Test]
     public void TestProvokedDeadlock() {
-      ProgressTracker tracker = new ProgressTracker();
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test1 = new TestTransaction();
+        tracker.Track(test1);
 
-      TestWaitable test1 = new TestWaitable();
-      tracker.Track(test1);
+        tracker.AsyncIdleStateChanged +=
+          (EventHandler<IdleStateEventArgs>)delegate(object sender, IdleStateEventArgs arguments) {
+          tracker.Track(Transaction.EndedDummy);
+        };
 
-      tracker.AsyncIdleStateChanged +=
-        (EventHandler<IdleStateEventArgs>)delegate(object sender, IdleStateEventArgs arguments) {
-        tracker.Track(Waitable.EndedDummy);
-      };
-
-      test1.End();
+        test1.End();
+      }
     }
 
     /// <summary>Mocks a subscriber for the events of a tracker</summary>

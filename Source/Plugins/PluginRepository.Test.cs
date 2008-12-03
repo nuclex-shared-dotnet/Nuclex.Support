@@ -77,9 +77,9 @@ namespace Nuclex.Support.Plugins {
     /// </summary>
     [Test]
     public void TestAddFilesWithOwnAssembly() {
-      Assembly self = Assembly.GetAssembly(GetType());
-
       PluginRepository testRepository = new PluginRepository();
+
+      Assembly self = Assembly.GetAssembly(GetType());
       testRepository.AddFiles(self.Location);
     }
 

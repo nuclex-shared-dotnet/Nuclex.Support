@@ -28,46 +28,46 @@ namespace Nuclex.Support.Tracking {
   /// <remarks>
   ///   <para>
   ///     By encapsulating long-running operations which will ideally be running in
-  ///     a background thread in a class that's derived from <see cref="Waitable" />
+  ///     a background thread in a class that's derived from <see cref="Transaction" />
   ///     you can wait for the completion of the operation and optionally even receive
   ///     feedback on the achieved progress. This is useful for displaying a progress
   ///     bar, loading screen or some other means of entertaining the user while he
   ///     waits for the task to complete.
   ///   </para>
   ///   <para>
-  ///     You can register callbacks which will be fired once the <see cref="Waitable" />
+  ///     You can register callbacks which will be fired once the <see cref="Transaction" />
   ///     task has completed. This class deliberately does not provide an Execute()
   ///     method or anything similar to clearly seperate the initiation of an operation
   ///     from just monitoring it. By omitting an Execute() method, it also becomes
-  ///     possible to construct a Waitable just-in-time when it is explicitely being
+  ///     possible to construct a transaction just-in-time when it is explicitely being
   ///     asked for.
   ///   </para>
   /// </remarks>
-  public abstract class Waitable {
+  public abstract class Transaction {
 
-    #region class EndedDummyWaitable
+    #region class EndedDummyTransaction
 
-    /// <summary>Dummy waitable which always is in the 'ended' state</summary>
-    private class EndedDummyWaitable : Waitable {
+    /// <summary>Dummy transaction which always is in the 'ended' state</summary>
+    private class EndedDummyTransaction : Transaction {
 
-      /// <summary>Initializes a new ended dummy waitable</summary>
-      public EndedDummyWaitable() {
+      /// <summary>Initializes a new ended dummy transaction</summary>
+      public EndedDummyTransaction() {
         OnAsyncEnded();
       }
 
     }
 
-    #endregion // class EndedDummyWaitable
+    #endregion // class EndedDummyTransaction
 
-    /// <summary>A dummy waitable that's always in the 'ended' state</summary>
+    /// <summary>A dummy transaction that's always in the 'ended' state</summary>
     /// <remarks>
     ///   Useful if an operation is already complete when it's being asked for or
-    ///   when a waitable that's lazily created is accessed after the original
+    ///   when a transaction that's lazily created is accessed after the original
     ///   operation has ended already.
     /// </remarks>
-    public static readonly Waitable EndedDummy = new EndedDummyWaitable();
+    public static readonly Transaction EndedDummy = new EndedDummyTransaction();
 
-    /// <summary>Will be triggered when the Waitable has ended</summary>
+    /// <summary>Will be triggered when the transaction has ended</summary>
     /// <remarks>
     ///   If the process is already finished when a client registers to this event,
     ///   the registered callback will be invoked synchronously right when the
@@ -149,12 +149,12 @@ namespace Nuclex.Support.Tracking {
       return WaitHandle.WaitOne(timeoutMilliseconds, false);
     }
 
-    /// <summary>Whether the Waitable has ended already</summary>
+    /// <summary>Whether the transaction has ended already</summary>
     public virtual bool Ended {
       get { return this.ended; }
     }
 
-    /// <summary>WaitHandle that can be used to wait for the Waitable to end</summary>
+    /// <summary>WaitHandle that can be used to wait for the transaction to end</summary>
     public virtual WaitHandle WaitHandle {
       get {
 
@@ -186,14 +186,14 @@ namespace Nuclex.Support.Tracking {
     ///   </para>
     ///   <para>
     ///     Calling this method is mandatory. Implementers need to take care that
-    ///     the OnAsyncEnded() method is called on any instance of Waitable that's
+    ///     the OnAsyncEnded() method is called on any instance of transaction that's
     ///     being created. This method also must not be called more than once.
     ///   </para>
     /// </remarks>
     protected virtual void OnAsyncEnded() {
 
-      // Make sure the waitable is not ended more than once. By guaranteeing that
-      // a waitable can only be ended once, we allow users of this class to
+      // Make sure the transaction is not ended more than once. By guaranteeing that
+      // a transaction can only be ended once, we allow users of this class to
       // skip some safeguards against notifications arriving twice.
       lock(this) {
 
@@ -202,7 +202,7 @@ namespace Nuclex.Support.Tracking {
         // to waste any effort optimizing the speed at which an implementation fault
         // will be noticed.
         if(this.ended)
-          throw new InvalidOperationException("The Waitable has already been ended");
+          throw new InvalidOperationException("The transaction has already been ended");
 
         this.ended = true;
 
@@ -236,7 +236,7 @@ namespace Nuclex.Support.Tracking {
     protected volatile List<EventHandler> endedEventSubscribers;
     /// <summary>Whether the operation has completed yet</summary>
     protected volatile bool ended;
-    /// <summary>Event that will be set when the waitable is completed</summary>
+    /// <summary>Event that will be set when the transaction is completed</summary>
     /// <remarks>
     ///   This event is will only be created when it is specifically asked for using
     ///   the WaitHandle property.
