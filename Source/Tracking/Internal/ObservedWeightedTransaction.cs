@@ -126,10 +126,14 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Called when the progress of the observed transaction changes</summary>
     /// <param name="sender">Transaction whose progress has changed</param>
-    /// <param name="e">Contains the updated progress</param>
-    private void asyncProgressChanged(object sender, ProgressReportEventArgs e) {
-      this.progress = e.Progress;
-      this.progressUpdateCallback();
+    /// <param name="arguments">Contains the updated progress</param>
+    private void asyncProgressChanged(object sender, ProgressReportEventArgs arguments) {
+      this.progress = arguments.Progress;
+      
+      ReportDelegate savedProgressUpdateCallback = this.progressUpdateCallback;
+      if(savedProgressUpdateCallback != null) {
+        savedProgressUpdateCallback();
+      }
     }
 
     /// <summary>Unsubscribes from all events of the observed transaction</summary>

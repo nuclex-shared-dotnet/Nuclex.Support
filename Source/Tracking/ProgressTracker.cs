@@ -156,7 +156,7 @@ namespace Nuclex.Support.Tracking {
 
           }
 
-        } else { // Not ended -- Transation is still running
+        } else { // Not ended -- Transaction is still running
 
           // Construct a new transation observer and add the transaction to our
           // list of tracked transactions.
@@ -171,8 +171,9 @@ namespace Nuclex.Support.Tracking {
 
           // If this is the first transaction to be added to the list, tell our
           // owner that we're idle no longer!
-          if(wasEmpty)
+          if(wasEmpty) {
             setIdle(false);
+          }
 
         } // if transaction ended
 
@@ -200,8 +201,9 @@ namespace Nuclex.Support.Tracking {
             new TransactionMatcher(transaction).Matches
           )
         );
-        if(removeIndex == -1)
-          throw new InvalidOperationException("Item is not being tracked");
+        if(removeIndex == -1) {
+          throw new ArgumentException("Specified transaction is not being tracked");
+        }
 
         // Remove and dispose the transaction the user wants to untrack
         {
@@ -225,9 +227,13 @@ namespace Nuclex.Support.Tracking {
           // Rebuild the total weight from scratch. Subtracting the removed transaction's
           // weight would work, too, but we might accumulate rounding errors making the sum
           // drift slowly away from the actual value.
-          this.totalWeight = 0.0f;
+          float newTotalWeight = 0.0f;
           for(int index = 0; index < this.trackedTransactions.Count; ++index)
-            this.totalWeight += this.trackedTransactions[index].WeightedTransaction.Weight;
+            newTotalWeight += this.trackedTransactions[index].WeightedTransaction.Weight;
+
+          this.totalWeight = newTotalWeight;
+
+          recalculateProgress();
 
         }
 
@@ -262,7 +268,7 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Recalculates the total progress of the tracker</summary>
     private void recalculateProgress() {
-      float totalProgress = 0.0f;
+      bool progressChanged = false;
 
       // Lock the collection to avoid trouble when someone tries to remove one
       // of our tracked transactions while we're just doing a progress update
@@ -272,27 +278,32 @@ namespace Nuclex.Support.Tracking {
         // ended and the collection of tracked transactions is cleared, a waiting
         // thread might deliver another progress update causing this method to
         // be entered. In this case, the right thing is to do nothing at all.
-        if(this.totalWeight == 0.0f)
-          return;
+        if(this.totalWeight != 0.0f) {
+          float totalProgress = 0.0f;
 
-        // Sum up the total progress
-        for(int index = 0; index < this.trackedTransactions.Count; ++index) {
-          float weight = this.trackedTransactions[index].WeightedTransaction.Weight;
-          totalProgress += this.trackedTransactions[index].Progress * weight;
-        }
+          // Sum up the total progress
+          for(int index = 0; index < this.trackedTransactions.Count; ++index) {
+            float weight = this.trackedTransactions[index].WeightedTransaction.Weight;
+            totalProgress += this.trackedTransactions[index].Progress * weight;
+          }
 
-        // This also needs to be in the lock to guarantee that the totalWeight is
-        // the one for the number of transactions we just summed -- by design,
-        // the total weight always has to be updated at the same time as the collection.
-        totalProgress /= this.totalWeight;
+          // This also needs to be in the lock to guarantee that the total weight
+          // corresponds to the number of transactions we just summed -- by design,
+          // the total weight always has to be updated at the same time as the collection.
+          totalProgress /= this.totalWeight;
 
-        // Finally, trigger the event if the progress has changed
-        if(totalProgress != this.progress) {
-          this.progress = totalProgress;
-          OnAsyncProgressUpdated(totalProgress);
+          if(totalProgress != this.progress) {
+            this.progress = totalProgress;
+            progressChanged = true;
+          }
         }
 
       } // lock
+
+      // Finally, trigger the event if the progress has changed
+      if(progressChanged) {
+        OnAsyncProgressUpdated(this.progress);
+      }
     }
 
     /// <summary>Called when one of the tracked transactions has ended</summary>

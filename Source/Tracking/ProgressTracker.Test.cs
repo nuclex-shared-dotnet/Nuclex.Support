@@ -135,7 +135,28 @@ namespace Nuclex.Support.Tracking {
 
     }
 
-    #endregion // class TestWiatable
+    #endregion // class TestTransaction
+
+    #region class EvilTransaction
+
+    /// <summary>
+    ///   Transaction that tries to emulate a thread given a progress report at
+    ///   a very inconvenient time ;)
+    /// </summary>
+    private class EvilTransaction : Transaction, IProgressReporter {
+
+      /// <summary>will be triggered to report when progress has been achieved</summary>
+      public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged {
+        add {}
+        remove {
+          // Send a progress update right when the subscriber is trying to unsubscribe
+          value(this, new ProgressReportEventArgs(0.5f));
+        }
+      }
+
+    }
+
+    #endregion // class EvilTransaction
 
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
@@ -377,6 +398,115 @@ namespace Nuclex.Support.Tracking {
         };
 
         test1.End();
+      }
+    }
+
+    /// <summary>
+    ///   Tests whether the progress tracker enters and leaves the idle state correctly
+    ///   when a transaction is removed via Untrack()
+    /// </summary>
+    [Test]
+    public void TestIdleWithUntrack() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test1 = new TestTransaction();
+
+        Assert.IsTrue(tracker.Idle);
+
+        tracker.Track(test1);
+
+        Assert.IsFalse(tracker.Idle);
+
+        tracker.Untrack(test1);
+
+        Assert.IsTrue(tracker.Idle);
+      }
+    }
+
+    /// <summary>
+    ///   Tests whether the progress tracker enters and leaves the idle state correctly
+    ///   when a transaction is removed the transaction finishing
+    /// </summary>
+    [Test]
+    public void TestIdleWithAutoRemoval() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test1 = new TestTransaction();
+
+        Assert.IsTrue(tracker.Idle);
+
+        tracker.Track(test1);
+
+        Assert.IsFalse(tracker.Idle);
+
+        test1.End();
+
+        Assert.IsTrue(tracker.Idle);
+      }
+    }
+
+    /// <summary>
+    ///   Tests whether the progress tracker enters and leaves the idle state correctly
+    ///   when a transaction is removed via Untrack()
+    /// </summary>
+    [Test]
+    public void TestProgressWithUntrack() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test1 = new TestTransaction();
+        TestTransaction test2 = new TestTransaction();
+        tracker.Track(test1);
+        tracker.Track(test2);
+
+        Assert.AreEqual(0.0f, tracker.Progress);
+
+        test1.ChangeProgress(0.5f);
+
+        Assert.AreEqual(0.25f, tracker.Progress);
+
+        tracker.Untrack(test2);
+
+        Assert.AreEqual(0.5f, tracker.Progress);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the progress tracker throws an exception if it is instructed
+    ///   to untrack a transaction it doesn't know about
+    /// </summary>
+    [Test, ExpectedException(typeof(ArgumentException))]
+    public void TestThrowOnUntrackNonTrackedTransaction() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test1 = new TestTransaction();
+
+        tracker.Untrack(test1);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the progress tracker throws an exception if it is instructed
+    ///   to untrack a transaction it doesn't know about
+    /// </summary>
+    [Test]
+    public void TestProgressReportDuringUnsubscribe() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        EvilTransaction evil = new EvilTransaction();
+        tracker.Track(evil);
+        tracker.Untrack(evil);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the progress tracker doesn't choke on a transaction being tracked
+    ///   multiple times.
+    /// </summary>
+    [Test]
+    public void TestMultiTrackedTransaction() {
+      using(ProgressTracker tracker = new ProgressTracker()) {
+        TestTransaction test = new TestTransaction();
+        tracker.Track(test);
+        tracker.Track(test);
+        tracker.Track(test);
+        tracker.Untrack(test);
+        tracker.Untrack(test);
+        tracker.Untrack(test);
       }
     }
 
