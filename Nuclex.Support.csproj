@@ -156,6 +156,7 @@
       <DependentUpon>PluginRepository.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Scheduling\AbortedException.cs" />
+    <Compile Include="Source\Scheduling\AbortedException.Test.cs" />
     <Compile Include="Source\Scheduling\IAbortable.cs" />
     <Compile Include="Source\Scheduling\Operation.cs" />
     <Compile Include="Source\Scheduling\OperationQueue.cs" />
@@ -199,6 +200,9 @@
       <DependentUpon>ProgressTracker.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Tracking\Request.cs" />
+    <Compile Include="Source\Tracking\Request.Test.cs">
+      <DependentUpon>Request.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Tracking\StatusReportEventArgs.Test.cs">
       <DependentUpon>StatusReportEventArgs.cs</DependentUpon>
     </Compile>
