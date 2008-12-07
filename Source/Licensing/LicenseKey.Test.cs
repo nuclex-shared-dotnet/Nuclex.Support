@@ -109,6 +109,7 @@ namespace Nuclex.Support.Licensing {
     public void TestGetByIndexerWithInvalidIndex() {
       LicenseKey key = new LicenseKey();
       int indexMinusOne = key[-1];
+      Console.WriteLine(indexMinusOne.ToString());
     }
 
     /// <summary>

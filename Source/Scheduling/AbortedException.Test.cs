@@ -42,6 +42,7 @@ namespace Nuclex.Support.Scheduling {
       AbortedException testException = new AbortedException();
 
       string testExceptionString = testException.ToString();
+      Assert.IsNotNull(testExceptionString);
     }
 
     /// <summary>

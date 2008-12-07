@@ -123,6 +123,7 @@ namespace Nuclex.Support.Parsing {
     [Test]
     public void TestStringConstructorWithUnfinishedAssignment() {
       CommandLineParser parser = new CommandLineParser("--hello= --world=");
+      Assert.AreEqual(0, parser.Values.Count);
     }
 
   }

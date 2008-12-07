@@ -156,15 +156,26 @@
       <DependentUpon>PluginRepository.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Scheduling\AbortedException.cs" />
-    <Compile Include="Source\Scheduling\AbortedException.Test.cs" />
+    <Compile Include="Source\Scheduling\AbortedException.Test.cs">
+      <DependentUpon>AbortedException.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\IAbortable.cs" />
     <Compile Include="Source\Scheduling\Operation.cs" />
+    <Compile Include="Source\Scheduling\Operation.Test.cs">
+      <DependentUpon>Operation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\OperationQueue.cs" />
     <Compile Include="Source\Scheduling\OperationQueue.Test.cs">
       <DependentUpon>OperationQueue.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Scheduling\ThreadCallbackOperation.cs" />
+    <Compile Include="Source\Scheduling\ThreadCallbackOperation.Test.cs">
+      <DependentUpon>ThreadCallbackOperation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\ThreadOperation.cs" />
+    <Compile Include="Source\Scheduling\ThreadOperation.Test.cs">
+      <DependentUpon>ThreadOperation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Shared.cs" />
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>

@@ -345,7 +345,7 @@ namespace Nuclex.Support.Collections {
 
       if(!(testList as ICollection).IsSynchronized) {
         lock((testList as ICollection).SyncRoot) {
-          int count = testList.Count;
+          Assert.AreEqual(0, testList.Count);
         }
       }
     }

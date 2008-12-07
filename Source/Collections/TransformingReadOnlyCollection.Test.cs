@@ -439,7 +439,7 @@ namespace Nuclex.Support.Collections {
 
       if(!(testCollection as ICollection).IsSynchronized) {
         lock((testCollection as ICollection).SyncRoot) {
-          int count = testCollection.Count;
+          Assert.AreEqual(0, testCollection.Count);
         }
       }
     }

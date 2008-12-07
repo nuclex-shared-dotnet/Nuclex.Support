@@ -180,6 +180,7 @@ namespace Nuclex.Support.Collections {
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
       string numberName = testDictionary[24];
+      Console.WriteLine(numberName);
     }
 
     /// <summary>
@@ -423,7 +424,7 @@ namespace Nuclex.Support.Collections {
 
       if(!(testDictionary as ICollection).IsSynchronized) {
         lock((testDictionary as ICollection).SyncRoot) {
-          int count = testDictionary.Count;
+          Assert.AreEqual(numbers.Count, testDictionary.Count);
         }
       }
     }

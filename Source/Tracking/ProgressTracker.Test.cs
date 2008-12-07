@@ -311,6 +311,9 @@ namespace Nuclex.Support.Tracking {
     public void TestSoleEndedTransaction() {
       using(ProgressTracker tracker = new ProgressTracker()) {
         IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        
+        Expect.Never.On(mockedSubscriber).Method("IdleStateChanged").WithAnyArguments();
+        Expect.Never.On(mockedSubscriber).Method("ProgressChanged").WithAnyArguments();
 
         tracker.Track(Transaction.EndedDummy);
       }

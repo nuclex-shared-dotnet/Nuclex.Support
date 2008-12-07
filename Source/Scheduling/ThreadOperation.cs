@@ -20,6 +20,7 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Nuclex.Support.Scheduling {
@@ -50,6 +51,11 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Launches the background operation</summary>
     public override void Start() {
+      Debug.Assert(
+        !Ended,
+        "Tried to Start an Operation again that has already ended",
+        "Operations cannot be re-run"
+      );
       if(useThreadPool) {
         ThreadPool.QueueUserWorkItem(callMethod);
       } else {
@@ -68,6 +74,11 @@ namespace Nuclex.Support.Scheduling {
     private void callMethod(object state) {
       try {
         Execute();
+        Debug.Assert(
+          !Ended,
+          "Operation unexpectedly ended during Execute()",
+          "Do not call OnAsyncEnded() yourself when deriving from ThreadOperation"
+        );
       }
       catch(Exception exception) {
         this.exception = exception;

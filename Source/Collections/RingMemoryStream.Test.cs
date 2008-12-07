@@ -241,6 +241,7 @@ namespace Nuclex.Support.Collections {
     [Test, ExpectedException(typeof(NotSupportedException))]
     public void TestThrowOnRetrievePosition() {
       long position = new RingMemoryStream(10).Position;
+      Console.WriteLine(position.ToString());
     }
 
     /// <summary>

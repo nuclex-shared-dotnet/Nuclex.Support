@@ -209,6 +209,133 @@ namespace Nuclex.Support.Scheduling {
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
+    /// <summary>
+    ///   Validates that the queue executes operations sequentially and honors the weights
+    ///   assigned to the individual operations
+    /// </summary>
+    [Test]
+    public void TestWeightedSequentialExecution() {
+      TestOperation operation1 = new TestOperation();
+      TestOperation operation2 = new TestOperation();
+
+      OperationQueue<TestOperation> testQueueOperation =
+        new OperationQueue<TestOperation>(
+          new WeightedTransaction<TestOperation>[] {
+            new WeightedTransaction<TestOperation>(operation1, 0.5f),
+            new WeightedTransaction<TestOperation>(operation2, 2.0f)
+          }
+        );
+
+      IOperationQueueSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
+
+      testQueueOperation.Start();
+
+      Expect.Once.On(mockedSubscriber).
+        Method("ProgressChanged").
+        With(
+          new Matcher[] {
+            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.1f))
+          }
+        );
+
+      operation1.ChangeProgress(0.5f);
+
+      Expect.Once.On(mockedSubscriber).
+        Method("ProgressChanged").
+        With(
+          new Matcher[] {
+            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.2f))
+          }
+        );
+
+      operation1.SetEnded();
+
+      this.mockery.VerifyAllExpectationsHaveBeenMet();
+    }
+
+    /// <summary>
+    ///   Validates that the operation queue propagates the ended event once all contained
+    ///   operations have completed
+    /// </summary>
+    [Test]
+    public void TestEndPropagation() {
+      TestOperation operation1 = new TestOperation();
+      TestOperation operation2 = new TestOperation();
+
+      OperationQueue<TestOperation> testQueueOperation =
+        new OperationQueue<TestOperation>(
+          new TestOperation[] {
+            operation1,
+            operation2
+          }
+        );
+
+      testQueueOperation.Start();
+
+      Assert.IsFalse(testQueueOperation.Ended);
+      operation1.SetEnded();
+      Assert.IsFalse(testQueueOperation.Ended);
+      operation2.SetEnded();
+      Assert.IsTrue(testQueueOperation.Ended);
+
+      testQueueOperation.Join();
+    }
+
+    /// <summary>
+    ///   Validates that the operation queue delivers an exception occuring in one of the
+    ///   contained operations to the operation queue joiner
+    /// </summary>
+    [Test, ExpectedException(typeof(AbortedException))]
+    public void TestExceptionPropagation() {
+      TestOperation operation1 = new TestOperation();
+      TestOperation operation2 = new TestOperation();
+
+      OperationQueue<TestOperation> testQueueOperation =
+        new OperationQueue<TestOperation>(
+          new TestOperation[] {
+            operation1,
+            operation2
+          }
+        );
+
+      testQueueOperation.Start();
+
+      Assert.IsFalse(testQueueOperation.Ended);
+      operation1.SetEnded();
+      Assert.IsFalse(testQueueOperation.Ended);
+      operation2.SetEnded(new AbortedException("Hello World"));
+
+      testQueueOperation.Join();
+    }
+
+    /// <summary>
+    ///   Ensures that the operation queue transparently wraps the child operations in
+    ///   an observation wrapper that is not visible to an outside user
+    /// </summary>
+    [Test]
+    public void TestTransparentWrapping() {
+      WeightedTransaction<TestOperation> operation1 = new WeightedTransaction<TestOperation>(
+        new TestOperation()
+      );
+      WeightedTransaction<TestOperation> operation2 = new WeightedTransaction<TestOperation>(
+        new TestOperation()
+      );      
+
+      OperationQueue<TestOperation> testQueueOperation =
+        new OperationQueue<TestOperation>(
+          new WeightedTransaction<TestOperation>[] {
+            operation1,
+            operation2
+          }
+        );
+
+      // Order is important due to sequential execution!
+      Assert.AreSame(operation1, testQueueOperation.Children[0]);
+      Assert.AreSame(operation2, testQueueOperation.Children[1]);
+    }
+
     /// <summary>Mocks a subscriber for the events of an operation</summary>
     /// <param name="operation">Operation to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
