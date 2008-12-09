@@ -114,11 +114,23 @@
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Parsing\CommandLineParser.cs" />
-    <Compile Include="Source\Parsing\CommandLineParser.Test.cs">
-      <DependentUpon>CommandLineParser.cs</DependentUpon>
+    <Compile Include="Source\Parsing\CommandLine.Option.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.Formatter.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.Test.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\BrokenCommandLineParser.cs" />
+    <Compile Include="Source\Parsing\BrokenCommandLineParser.Test.cs">
+      <DependentUpon>BrokenCommandLineParser.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Parsing\CommandLine.cs" />
+    <Compile Include="Source\Parsing\CommandLine.Parser.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\PathHelper.cs" />
     <Compile Include="Source\PathHelper.Test.cs">
       <DependentUpon>PathHelper.cs</DependentUpon>

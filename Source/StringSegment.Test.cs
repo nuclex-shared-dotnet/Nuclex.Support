@@ -188,6 +188,41 @@ namespace Nuclex.Support {
       Assert.IsFalse(helloWorld1Segment != helloWorld2Segment);
     }
 
+    /// <summary>Tests the ToString() method of the string segment</summary>
+    [Test]
+    public void TestToString() {
+      StringSegment helloWorldSegment = new StringSegment("hello world", 4, 3);
+
+      Assert.AreEqual("o w", helloWorldSegment.ToString());
+    }
+
+    /// <summary>
+    ///   Tests the ToString() method of the string segment with an invalid string
+    /// </summary>
+    [Test, ExpectedException(typeof(ArgumentNullException))]
+    public void TestToStringWithInvalidString() {
+      StringSegment helloWorldSegment = new StringSegment(null, 4, 3);
+      Assert.IsNotNull(helloWorldSegment.ToString());
+    }
+
+    /// <summary>
+    ///   Tests the ToString() method of the string segment with an invalid offset
+    /// </summary>
+    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void TestToStringWithInvalidOffset() {
+      StringSegment helloWorldSegment = new StringSegment("hello world", -4, 3);
+      Assert.IsNotNull(helloWorldSegment.ToString());
+    }
+
+    /// <summary>
+    ///   Tests the ToString() method of the string segment with an invalid count
+    /// </summary>
+    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void TestToStringWithInvalidCount() {
+      StringSegment helloWorldSegment = new StringSegment("hello world", 4, -3);
+      Assert.IsNotNull(helloWorldSegment.ToString());
+    }
+
   }
 
 } // namespace Nuclex.Support

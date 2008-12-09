@@ -201,6 +201,12 @@ namespace Nuclex.Support {
       return !(left == right);
     }
 
+    /// <summary>Returns a string representation of the string segment</summary>
+    /// <returns>The string representation of the string segment</returns>
+    public override string ToString() {
+      return this.text.Substring(this.offset, this.count);
+    }
+
     /// <summary>String wrapped by the string segment</summary>
     private string text;
     /// <summary>Offset in the original string the segment begins at</summary>

@@ -21,6 +21,8 @@ License along with this library
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
+#if false // Too bugged. 100% test coverage not possible.
+
 namespace Nuclex.Support.Parsing {
 
   /// <summary>Parses an application's command line</summary>
@@ -179,3 +181,5 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
+
+#endif

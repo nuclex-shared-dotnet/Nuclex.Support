@@ -78,6 +78,7 @@ namespace Nuclex.Support.Plugins {
 
       PluginHost testHost = new PluginHost(testEmployer, testRepository);
 
+      Assert.AreSame(testEmployer, testHost.Employer);
       Assert.AreEqual(1, testEmployer.Factories.Count);
     }
 
@@ -121,6 +122,7 @@ namespace Nuclex.Support.Plugins {
       Assembly self = Assembly.GetAssembly(GetType());
       testRepository.AddAssembly(self);
 
+      Assert.AreSame(testEmployer, testHost.Employer);
       Assert.AreEqual(1, testEmployer.Factories.Count);
     }
 
@@ -137,6 +139,8 @@ namespace Nuclex.Support.Plugins {
       // the unit testing tool
       Assembly self = Assembly.GetAssembly(GetType());
       testRepository.AddAssembly(self);
+
+      Assert.AreSame(testRepository, testHost.Repository);
     }
 
     /// <summary>
@@ -154,6 +158,7 @@ namespace Nuclex.Support.Plugins {
       Assembly self = Assembly.GetAssembly(GetType());
       testRepository.AddAssembly(self);
 
+      Assert.AreSame(testRepository, testHost.Repository);
       Assert.AreEqual(0, testEmployer.Factories.Count);
     }
 
