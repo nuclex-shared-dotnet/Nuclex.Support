@@ -20,8 +20,9 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace Nuclex.Support.Plugins {
 
@@ -33,12 +34,94 @@ namespace Nuclex.Support.Plugins {
   /// </remarks>
   public class PluginRepository {
 
+    #region class DefaultAssemblyLoader
+
+    /// <summary>Default assembly loader used to read assemblies from files</summary>
+    public class DefaultAssemblyLoader : IAssemblyLoader {
+
+      /// <summary>Initializes a new default assembly loader</summary>
+      /// <remarks>
+      ///   Made protected to provide users with a small incentive for using
+      ///   the Instance property instead of creating new instances all around.
+      /// </remarks>
+      protected DefaultAssemblyLoader() { }
+
+      /// <summary>Loads an assembly from a file system path</summary>
+      /// <param name="path">Path the assembly will be loaded from</param>
+      /// <returns>The loaded assembly</returns>
+      protected virtual Assembly LoadAssemblyFromFile(string path) {
+        return Assembly.LoadFile(path);
+      }
+
+      /// <summary>Tries to loads an assembly from a file</summary>
+      /// <param name="path">Path to the file that is loaded as an assembly</param>
+      /// <param name="loadedAssembly">
+      ///   Output parameter that receives the loaded assembly or null
+      /// </param>
+      /// <returns>True if the assembly was loaded successfully, otherwise false</returns>
+      public bool TryLoadFile(string path, out Assembly loadedAssembly) {
+
+        // A lot of errors can occur when attempting to load an assembly...
+        try {
+          loadedAssembly = LoadAssemblyFromFile(path);
+          return true;
+        }
+        // File not found - Most likely a missing dependency of the assembly we
+        // attempted to load since the assembly itself has been found by the GetFiles() method
+        catch(DllNotFoundException) {
+          Trace.WriteLine(
+            "Assembly '" + path + "' or one of its dependencies is missing"
+          );
+        }
+        // Unauthorized acccess - Either the assembly is not trusted because it contains
+        // code that imposes a security risk on the system or a user rights problem
+        catch(UnauthorizedAccessException) {
+          Trace.WriteLine(
+            "Not authorized to load assembly '" + path + "', " +
+            "possible rights problem"
+          );
+        }
+        // Bad image format - This exception is often thrown when the assembly we
+        // attempted to load requires a different version of the .NET framework
+        catch(BadImageFormatException) {
+          Trace.WriteLine(
+            "'" + path + "' is not a .NET assembly, requires a different version " +
+            "of the .NET Runtime or does not support the current instruction set (x86/x64)"
+          );
+        }
+        // Unknown error - Our last resort is to show a default error message
+        catch(Exception exception) {
+          Trace.WriteLine(
+            "Failed to load plugin assembly '" + path + "': " + exception.Message
+          );
+        }
+
+        loadedAssembly = null;
+        return false;
+
+      }
+
+      /// <summary>The only instance of the DefaultAssemblyLoader</summary>
+      public static readonly DefaultAssemblyLoader Instance =
+        new DefaultAssemblyLoader();
+
+    }
+
+    #endregion // class DefaultAssemblyLoader
+
     /// <summary>Triggered whenever a new assembly is loaded into this repository</summary>
     public event AssemblyLoadEventHandler AssemblyLoaded;
 
     /// <summary>Initializes a new instance of the plugin repository</summary>
-    public PluginRepository() {
+    public PluginRepository() : this(DefaultAssemblyLoader.Instance) { }
+
+    /// <summary>Initializes a new instance of the plugin repository</summary>
+    /// <param name="loader">
+    ///   Loader to use for loading assemblies into this repository
+    /// </param>
+    public PluginRepository(IAssemblyLoader loader) {
       this.assemblies = new List<Assembly>();
+      this.assemblyLoader = loader;
     }
 
     /// <summary>Loads all plugins matching a wildcard specification</summary>
@@ -63,38 +146,9 @@ namespace Nuclex.Support.Plugins {
       string[] assemblyFiles = Directory.GetFiles(directory, search);
       foreach(string assemblyFile in assemblyFiles) {
 
-        // A lot of errors can occur when attempting to load an assembly...
-        try {
-          AddAssembly(Assembly.LoadFile(assemblyFile));
-        }
-        // File not found - Most likely a missing dependency of the assembly we
-        // attempted to load since the assembly itself has been found by the GetFiles() method
-        catch(DllNotFoundException) {
-          Console.WriteLine(
-            "Assembly '" + assemblyFile + "' or one of its dependencies is missing"
-          );
-        }
-        // Unauthorized acccess - Either the assembly is not trusted because it contains
-        // code that imposes a security risk on the system or a user rights problem
-        catch(UnauthorizedAccessException) {
-          Console.WriteLine(
-            "Not authorized to load assembly '" + assemblyFile + "', " +
-            "possible rights problem"
-          );
-        }
-        // Bad image format - This exception is often thrown when the assembly we
-        // attempted to load requires a different version of the .NET framework
-        catch(BadImageFormatException) {
-          Console.WriteLine(
-            "'" + assemblyFile +"' is not a .NET assembly, requires a different version " +
-            "of the .NET Runtime or does not support the current instruction set (x86/x64)"
-          );
-        }
-        // Unknown error - Our last resort is to show a default error message
-        catch(Exception exception) {
-          Console.WriteLine(
-            "Failed to load plugin assembly '" + assemblyFile + "': " + exception.Message
-          );
+        Assembly loadedAssembly;
+        if(this.assemblyLoader.TryLoadFile(assemblyFile, out loadedAssembly)) {
+          AddAssembly(loadedAssembly);
         }
 
       }
@@ -121,6 +175,8 @@ namespace Nuclex.Support.Plugins {
 
     /// <summary>Loaded plugin assemblies</summary>
     private List<Assembly> assemblies;
+    /// <summary>Takes care of loading assemblies for the repositories</summary>
+    private IAssemblyLoader assemblyLoader;
 
   }
 

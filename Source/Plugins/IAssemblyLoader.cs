@@ -19,21 +19,22 @@ License along with this library
 #endregion
 
 using System;
-using System.IO;
-
-#if UNITTEST
-
-using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Nuclex.Support.Plugins {
 
-  /// <summary>Unit Test for the abstract factory interface</summary>
-  [TestFixture]
-  public class AbtractFactoryTest {
+  /// <summary>Interface for an assembly loading helper</summary>
+  public interface IAssemblyLoader {
+
+    /// <summary>Tries to loads an assembly from a file</summary>
+    /// <param name="path">Path to the file that is loaded as an assembly</param>
+    /// <param name="loadedAssembly">
+    ///   Output parameter that receives the loaded assembly or null
+    /// </param>
+    /// <returns>True if the assembly was loaded successfully, otherwise false</returns>
+    bool TryLoadFile(string path, out Assembly loadedAssembly);
 
   }
 
 } // namespace Nuclex.Support.Plugins
-
-#endif // UNITTEST

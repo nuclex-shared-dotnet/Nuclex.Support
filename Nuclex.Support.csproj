@@ -123,16 +123,14 @@
     <Compile Include="Source\PathHelper.Test.cs">
       <DependentUpon>PathHelper.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Plugins\AbstractFactory.cs" />
-    <Compile Include="Source\Plugins\AbstractFactory.Test.cs">
-      <DependentUpon>AbstractFactory.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Source\Plugins\IAbstractFactory.cs" />
     <Compile Include="Source\Plugins\Employer.Test.cs">
       <DependentUpon>Employer.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Plugins\FactoryEmployer.Test.cs">
       <DependentUpon>FactoryEmployer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Plugins\IAssemblyLoader.cs" />
     <Compile Include="Source\Plugins\InstanceEmployer.Test.cs">
       <DependentUpon>InstanceEmployer.cs</DependentUpon>
     </Compile>

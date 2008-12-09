@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Nuclex.Support.Plugins {
@@ -83,10 +84,8 @@ namespace Nuclex.Support.Plugins {
 
         // Types that have been tagged with the [NoPlugin] attribute will be ignored
         object[] attributes = type.GetCustomAttributes(true);
-        for(int index = 0; index < attributes.Length; ++index) {
-          if(attributes[index] is NoPluginAttribute) {
-            continue;
-          }
+        if(containsNoPluginAttribute(attributes)) {
+          continue;
         }
 
         // Type seems to be acceptable, assess and possibly employ it
@@ -96,12 +95,24 @@ namespace Nuclex.Support.Plugins {
           }
         }
         catch(Exception exception) {
-          System.Console.WriteLine(
-            "Could not employ " + type.ToString() + ": " + exception.Message
-          );
+          Trace.WriteLine("Could not employ " + type.ToString() + ": " + exception.Message);
         }
 
       }
+    }
+
+    /// <summary>
+    ///   Determines whether the specifies list of attributes contains a NoPluginAttribute
+    /// </summary>
+    /// <param name="attributes">List of attributes to check</param>
+    /// <returns>True if the list contained a NoPluginAttribute, false otherwise</returns>
+    private static bool containsNoPluginAttribute(object[] attributes) {
+      for(int index = 0; index < attributes.Length; ++index) {
+        if(attributes[index] is NoPluginAttribute) {
+          return true;
+        }
+      }
+      return false;
     }
 
     /// <summary>Employs and manages types in the loaded plugin assemblies</summary>
