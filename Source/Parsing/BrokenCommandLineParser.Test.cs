@@ -120,12 +120,22 @@ namespace Nuclex.Support.Parsing {
 
     /// <summary>
     ///   Tests whether the string constructor recognizes an unfinished argument
-    ///   (that is, and argument that gets 'nothing' assigned)
+    ///   (that is, an argument that gets 'nothing' assigned)
     /// </summary>
     [Test]
     public void TestStringConstructorWithUnfinishedAssignment() {
       CommandLineParser parser = new CommandLineParser("--hello= --world=");
       Assert.AreEqual(0, parser.Values.Count);
+    }
+
+    /// <summary>
+    ///   Tests whether the string constructor recognizes an argument with a space before
+    ///   its assigned value
+    /// </summary>
+    [Test]
+    public void TestStringConstructorWithSpacedAssignment() {
+      CommandLineParser parser = new CommandLineParser("--hello= world");
+      Assert.AreEqual(1, parser.Values.Count);
     }
 
   }

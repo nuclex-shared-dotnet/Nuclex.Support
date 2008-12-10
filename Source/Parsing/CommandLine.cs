@@ -71,6 +71,11 @@ namespace Nuclex.Support.Parsing {
   ///       </item>
   ///     </list>
   ///   </para>
+  ///   <para>
+  ///     What this parser doesn't support is spaced assignments (eg. '--format png') since
+  ///     these are ambiguous if the parser doesn't know beforehand whether "format" accepts
+  ///     a non-optional argument.
+  ///   </para>
   /// </remarks>
   public partial class CommandLine {
 
