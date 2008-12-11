@@ -26,6 +26,8 @@ using System.Text;
 
 using NUnit.Framework;
 
+#if ENABLE_BROKEN_COMMAND_LINE_PARSER
+
 namespace Nuclex.Support.Parsing {
 
   /// <summary>Ensures that the command line parser is working properly</summary>
@@ -360,5 +362,7 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
+
+#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER
 
 #endif // UNITTEST

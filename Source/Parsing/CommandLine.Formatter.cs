@@ -21,6 +21,8 @@ License along with this library
 using System;
 using System.Collections.Generic;
 
+#if ENABLE_BROKEN_COMMAND_LINE_PARSER
+
 namespace Nuclex.Support.Parsing {
 
   partial class CommandLine {
@@ -30,3 +32,5 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
+
+#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER
