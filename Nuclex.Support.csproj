@@ -246,6 +246,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Documents\CommandLine.txt" />
     <Content Include="Documents\Nuclex.Support.txt" />
     <Content Include="Documents\Request Framework.txt" />
   </ItemGroup>

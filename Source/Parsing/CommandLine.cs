@@ -20,7 +20,9 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
+
+using Nuclex.Support.Collections;
 
 namespace Nuclex.Support.Parsing {
 
@@ -55,7 +57,14 @@ namespace Nuclex.Support.Parsing {
   ///         </description>
   ///       </item>
   ///       <item>
-  ///         <term>Option / Argument</term>
+  ///         <term>Argument</term>
+  ///         <description>
+  ///           Either an option or a loose value (see below) that being specified on
+  ///           the command line
+  ///         </description>
+  ///       </item>
+  ///       <item>
+  ///         <term>Option</term>
   ///         <description>
   ///           Can be specified on the command line and typically alters the behavior
   ///           of the application or changes a setting. For example, '--normalize' or
@@ -80,14 +89,65 @@ namespace Nuclex.Support.Parsing {
   public partial class CommandLine {
 
     /// <summary>Initializes a new command line</summary>
-    public CommandLine() { }
+    public CommandLine() {
+      this.options = new List<Option>();
+      this.values = new List<string>();
+    }
 
     /// <summary>Parses the command line arguments from the provided string</summary>
     /// <param name="commandLineString">String containing the command line arguments</param>
     /// <returns>The parsed command line</returns>
     public static CommandLine Parse(string commandLineString) {
-      return Parser.Parse(commandLineString);
+      bool windowsMode = (Path.DirectorySeparatorChar != '/');
+      return Parser.Parse(commandLineString, windowsMode);
     }
+
+    /// <summary>Parses the command line arguments from the provided string</summary>
+    /// <param name="commandLineString">String containing the command line arguments</param>
+    /// <param name="windowsMode">Whether the / character initiates an argument</param>
+    /// <returns>The parsed command line</returns>
+    public static CommandLine Parse(string commandLineString, bool windowsMode) {
+      return Parser.Parse(commandLineString, windowsMode);
+    }
+
+    #region To Be Removed
+
+    /// <summary>Adds a loose value to the command line</summary>
+    /// <param name="value">Value taht will be added</param>
+    internal void addValue(StringSegment value) {
+      Console.WriteLine("Discovered loose value: '" + value.ToString() + "'");
+
+      this.values.Add(value.ToString());
+    }
+
+    /// <summary>Adds an option to the command line</summary>
+    /// <param name="option">Option that will be added</param>
+    internal void addOption(Option option) {
+      Console.WriteLine("Discovered option: '" + option.Raw.ToString() + "'");
+      Console.WriteLine("  Name: '" + option.Name + "'");
+      if(option.Value != null) {
+        Console.WriteLine("  Value: '" + option.Value + "'");
+      }
+
+      this.options.Add(option);
+    }
+
+    #endregion // To Be Removed
+
+    /// <summary>Options that were specified on the command line</summary>
+    public IList<Option> Options {
+      get { return this.options; }
+    }
+
+    /// <summary>Loose values that were given on the command line</summary>
+    public IList<string> Values {
+      get { return this.values; }
+    }
+
+    /// <summary>Options that were specified on the command line</summary>
+    private List<Option> options;
+    /// <summary>Loose values that were given on the command line</summary>
+    private List<string> values;
 
   }
 
