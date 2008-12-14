@@ -26,8 +26,21 @@ namespace Nuclex.Support {
 
   /// <summary>Helper routines for working with floating point numbers</summary>
   /// <remarks>
-  ///   The floating point comparison code is based on this excellent article:
-  ///   http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+  ///   <para>
+  ///     The floating point comparison code is based on this excellent article:
+  ///     http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+  ///   </para>
+  ///   <para>
+  ///     "ULP" means Unit in the Last Place and in the context of this library refers to
+  ///     the distance between two adjacent floating point numbers. IEEE floating point
+  ///     numbers can only represent a finite subset of natural numbers, with greater
+  ///     accuracy on the lower end of the range and lower accuracy for very large numbers.
+  ///   </para>
+  ///   <para>
+  ///     If a comparison is allowed "2 ulps" of deviation, that means the values are
+  ///     allowed to deviate by up to 2 adjacent floating point values, which might be
+  ///     as low as 0.0000001 for small numbers or as high as 10.0 for large numbers.
+  ///   </para>
   /// </remarks>
   public static class FloatHelper {
 
@@ -85,7 +98,7 @@ namespace Nuclex.Support {
     /// <returns>True if both numbers are equal or close to being equal</returns>
     /// <remarks>
     ///   <para>
-    ///     Floating point values can only represent a limited series of natural numbers.
+    ///     Floating point values can only represent a finite subset of natural numbers.
     ///     For example, the values 2.00000000 and 2.00000024 can be stored in a float,
     ///     but nothing inbetween them.
     ///   </para>
