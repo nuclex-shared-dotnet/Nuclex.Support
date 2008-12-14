@@ -40,6 +40,9 @@ namespace Nuclex.Support {
       Assert.AreEqual(4UL, IntegerHelper.NextPowerOf2(3UL));
       Assert.AreEqual(4UL, IntegerHelper.NextPowerOf2(4UL));
       Assert.AreEqual(
+        9223372036854775808UL, IntegerHelper.NextPowerOf2(4611686018427387905UL)
+      );
+      Assert.AreEqual(
         9223372036854775808UL, IntegerHelper.NextPowerOf2(9223372036854775807UL)
       );
       Assert.AreEqual(
@@ -57,6 +60,7 @@ namespace Nuclex.Support {
       Assert.AreEqual(2L, IntegerHelper.NextPowerOf2(2L));
       Assert.AreEqual(4L, IntegerHelper.NextPowerOf2(3L));
       Assert.AreEqual(4L, IntegerHelper.NextPowerOf2(4L));
+      Assert.AreEqual(4611686018427387904L, IntegerHelper.NextPowerOf2(2305843009213693953L));
       Assert.AreEqual(4611686018427387904L, IntegerHelper.NextPowerOf2(4611686018427387903L));
       Assert.AreEqual(4611686018427387904L, IntegerHelper.NextPowerOf2(4611686018427387904L));
     }
@@ -71,6 +75,7 @@ namespace Nuclex.Support {
       Assert.AreEqual(2U, IntegerHelper.NextPowerOf2(2U));
       Assert.AreEqual(4U, IntegerHelper.NextPowerOf2(3U));
       Assert.AreEqual(4U, IntegerHelper.NextPowerOf2(4U));
+      Assert.AreEqual(2147483648U, IntegerHelper.NextPowerOf2(1073741825U));
       Assert.AreEqual(2147483648U, IntegerHelper.NextPowerOf2(2147483647U));
       Assert.AreEqual(2147483648U, IntegerHelper.NextPowerOf2(2147483648U));
     }
@@ -85,6 +90,7 @@ namespace Nuclex.Support {
       Assert.AreEqual(2, IntegerHelper.NextPowerOf2(2));
       Assert.AreEqual(4, IntegerHelper.NextPowerOf2(3));
       Assert.AreEqual(4, IntegerHelper.NextPowerOf2(4));
+      Assert.AreEqual(1073741824, IntegerHelper.NextPowerOf2(536870913));
       Assert.AreEqual(1073741824, IntegerHelper.NextPowerOf2(1073741823));
       Assert.AreEqual(1073741824, IntegerHelper.NextPowerOf2(1073741824));
     }
