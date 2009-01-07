@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2008 Nuclex Development Labs
+Copyright (C) 2002-2009 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -246,8 +246,8 @@ namespace Nuclex.Support.Collections {
     /// <summary>Whether the ring buffer is empty</summary>
     /// <remarks>
     ///   This field is required to differentiate between the ring buffer being
-    ///   filled to the limit and being totally empty in the case that
-    ///   the start index and the end index are the same. 
+    ///   filled to the limit and being totally empty, because in both cases,
+    ///   the start index and the end index will be the same. 
     /// </remarks>
     private bool empty;
 

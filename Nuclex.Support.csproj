@@ -47,6 +47,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\AssertHelper.cs" />
+    <Compile Include="Source\AssertHelper.Test.cs">
+      <DependentUpon>AssertHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ItemEventArgs.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
       <DependentUpon>ItemEventArgs.cs</DependentUpon>

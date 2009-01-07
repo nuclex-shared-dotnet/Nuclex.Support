@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2008 Nuclex Development Labs
+Copyright (C) 2002-2009 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -64,7 +64,7 @@ namespace Nuclex.Support {
       Dummy strongReference = new Dummy();
       WeakReference<Dummy> weakReference = new WeakReference<Dummy>(strongReference);
 
-      // We can not just call GC.Collect() and base our test on the assumption, that
+      // We can not just call GC.Collect() and base our test on the assumption that
       // the garbage collector will actually collect the Dummy instance. This is up
       // to the garbage collector to decide. But we can keep a strong reference in
       // parallel and safely assume that the WeakReference will not be invalidated!

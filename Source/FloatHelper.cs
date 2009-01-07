@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2008 Nuclex Development Labs
+Copyright (C) 2002-2009 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -34,7 +34,7 @@ namespace Nuclex.Support {
   ///     "ULP" means Unit in the Last Place and in the context of this library refers to
   ///     the distance between two adjacent floating point numbers. IEEE floating point
   ///     numbers can only represent a finite subset of natural numbers, with greater
-  ///     accuracy on the lower end of the range and lower accuracy for very large numbers.
+  ///     accuracy for smaller numbers and lower accuracy for very large numbers.
   ///   </para>
   ///   <para>
   ///     If a comparison is allowed "2 ulps" of deviation, that means the values are
