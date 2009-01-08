@@ -64,7 +64,7 @@ namespace Nuclex.Support {
     [Test]
     public void TestAlmostEqualWithDoubles() {
       AssertHelper.AreAlmostEqual(exactDouble, minusOneDouble, 1);
-      AssertHelper.AreAlmostEqual(exactDouble, minusOneDouble, 1);
+      AssertHelper.AreAlmostEqual(exactDouble, plusOneDouble, 1);
     }
 
     /// <summary>

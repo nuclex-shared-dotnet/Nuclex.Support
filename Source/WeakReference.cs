@@ -33,7 +33,7 @@ namespace Nuclex.Support {
     where ReferencedType : class {
 
     /// <summary>
-    ///   Initializes a new instance of the System.WeakReference class, referencing
+    ///   Initializes a new instance of the WeakReference class, referencing
     ///   the specified object.
     /// </summary>
     /// <param name="target">The object to track or null.</param>
@@ -41,7 +41,7 @@ namespace Nuclex.Support {
       : base(target) { }
 
     /// <summary>
-    ///   Initializes a new instance of the System.WeakReference class, referencing
+    ///   Initializes a new instance of the WeakReference class, referencing
     ///   the specified object optionally using resurrection tracking.
     /// </summary>
     /// <param name="target">An object to track.</param>
@@ -53,7 +53,7 @@ namespace Nuclex.Support {
       : base(target, trackResurrection) { }
 
     /// <summary>
-    ///   Initializes a new instance of the System.WeakReference class, using deserialized
+    ///   Initializes a new instance of the WeakReference class, using deserialized
     ///   data from the specified serialization and stream objects.
     /// </summary>
     /// <param name="info">
@@ -71,7 +71,7 @@ namespace Nuclex.Support {
       : base(info, context) { }
 
     /// <summary>
-    ///   Gets or sets the object (the target) referenced by the current System.WeakReference
+    ///   Gets or sets the object (the target) referenced by the current WeakReference
     ///   object.
     /// </summary>
     /// <remarks>

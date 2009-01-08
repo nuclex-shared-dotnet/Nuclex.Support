@@ -58,9 +58,7 @@ namespace Nuclex.Support {
       //
       // Maybe this really is a defect in Shared<> and the class should be equipped with
       // a method such as Discard() or Dispose() to get rid of the instance?
-      Assert.IsTrue(
-        ReferenceEquals(dummyInstance, otherDummyInstance)
-      );
+      Assert.AreSame(dummyInstance, otherDummyInstance);
     }
 
   }
