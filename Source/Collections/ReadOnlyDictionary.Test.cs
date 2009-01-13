@@ -281,7 +281,7 @@ namespace Nuclex.Support.Collections {
         (outputNumbers as IDictionary).Add(entry.Key, entry.Value);
       }
 
-      CollectionAssert.AreEqual(numbers, outputNumbers);
+      CollectionAssert.AreEquivalent(numbers, outputNumbers);
     }
 
     /// <summary>
@@ -409,9 +409,16 @@ namespace Nuclex.Support.Collections {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
+      DictionaryEntry[] entries = new DictionaryEntry[numbers.Count];
+      (testDictionary as ICollection).CopyTo(entries, 0);
+
       KeyValuePair<int, string>[] items = new KeyValuePair<int, string>[numbers.Count];
-      (testDictionary as ICollection).CopyTo(items, 0);
-      CollectionAssert.AreEqual(numbers, items);
+      for(int index = 0; index < entries.Length; ++index) {
+        items[index] = new KeyValuePair<int, string>(
+          (int)entries[index].Key, (string)entries[index].Value
+        );
+      }
+      CollectionAssert.AreEquivalent(numbers, items);
     }
 
     /// <summary>
@@ -444,7 +451,7 @@ namespace Nuclex.Support.Collections {
         memory.Position = 0;
         object testDictionary2 = formatter.Deserialize(memory);
 
-        CollectionAssert.AreEqual(testDictionary1, (IEnumerable)testDictionary2);
+        CollectionAssert.AreEquivalent(testDictionary1, (IEnumerable)testDictionary2);
       }
     }
 
