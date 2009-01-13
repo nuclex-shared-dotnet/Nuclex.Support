@@ -127,6 +127,8 @@ namespace Nuclex.Support.Tracking {
       WaitHandle.WaitOne();
     }
 
+#if !COMPACTFRAMEWORK
+
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeout">
     ///   Time span after which to stop waiting and return immediately
@@ -137,6 +139,8 @@ namespace Nuclex.Support.Tracking {
     public virtual bool Wait(TimeSpan timeout) {
       return WaitHandle.WaitOne(timeout, false);
     }
+
+#endif // !COMPACTFRAMEWORK
 
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeoutMilliseconds">

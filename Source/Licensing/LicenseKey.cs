@@ -182,10 +182,10 @@ namespace Nuclex.Support.Licensing {
       );
 
       // Now build a nice, readable string from the decoded characters
-      resultBuilder.Insert(5, '-');
-      resultBuilder.Insert(11, '-');
-      resultBuilder.Insert(17, '-');
-      resultBuilder.Insert(23, '-');
+      resultBuilder.Insert(5, keyDelimiter, 0, 1);
+      resultBuilder.Insert(11, keyDelimiter, 0, 1);
+      resultBuilder.Insert(17, keyDelimiter, 0, 1);
+      resultBuilder.Insert(23, keyDelimiter, 0, 1);
       return resultBuilder.ToString();
     }
 
@@ -214,6 +214,13 @@ namespace Nuclex.Support.Licensing {
         bits[shuffle[i]] = temp[i];
       }
     }
+
+    /// <summary>Character used to delimit each 5 digit group in a license key</summary>
+    /// <remarks>
+    ///   Required to be a char array because the .NET Compact Framework only provides
+    ///   an overload for char[] in the StringBuilder.Insert() method.
+    /// </remarks>
+    private static char[] keyDelimiter = new char[] { '-' };
 
     /// <summary>Table with the individual characters in a key</summary>
     private static readonly string codeTable =

@@ -18,11 +18,11 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
-#if UNITTEST
 
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;

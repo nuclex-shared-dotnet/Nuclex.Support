@@ -57,9 +57,9 @@ namespace Nuclex.Support.Scheduling {
         "Operations cannot be re-run"
       );
       if(useThreadPool) {
-        ThreadPool.QueueUserWorkItem(callMethod);
+        ThreadPool.QueueUserWorkItem(new WaitCallback(callMethod));
       } else {
-        Thread thread = new Thread(callMethod);
+        Thread thread = new Thread(new ThreadStart(callMethod));
         thread.Name = "Nuclex.Support.Scheduling.ThreadOperation";
         thread.IsBackground = true;
         thread.Start();
@@ -72,6 +72,11 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Invokes the delegate passed as an argument</summary>
     /// <param name="state">Not used</param>
     private void callMethod(object state) {
+      callMethod();
+    }
+
+    /// <summary>Invokes the delegate passed as an argument</summary>
+    private void callMethod() {
       try {
         Execute();
         Debug.Assert(

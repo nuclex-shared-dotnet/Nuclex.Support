@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
 
@@ -99,3 +101,5 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
+
+#endif // UNITTEST

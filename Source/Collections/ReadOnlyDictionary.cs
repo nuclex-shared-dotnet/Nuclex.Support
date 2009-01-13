@@ -31,10 +31,14 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="ValueType">Type of the values used in the Dictionary</typeparam>
   [Serializable]
   public class ReadOnlyDictionary<KeyType, ValueType> :
-    IDictionary<KeyType, ValueType>,
-    IDictionary,
+#if !COMPACTFRAMEWORK
     ISerializable,
-    IDeserializationCallback {
+    IDeserializationCallback,
+#endif
+    IDictionary<KeyType, ValueType>,
+    IDictionary {
+
+#if !COMPACTFRAMEWORK
 
     #region class SerializedDictionary
 
@@ -65,13 +69,6 @@ namespace Nuclex.Support.Collections {
 
     #endregion // class SerializeDictionary
 
-    /// <summary>Initializes a new read-only Dictionary wrapper</summary>
-    /// <param name="dictionary">Dictionary that will be wrapped</param>
-    public ReadOnlyDictionary(IDictionary<KeyType, ValueType> dictionary) {
-      this.typedDictionary = dictionary;
-      this.objectDictionary = (this.typedDictionary as IDictionary);
-    }
-
     /// <summary>
     ///   Initializes a new instance of the System.WeakReference class, using deserialized
     ///   data from the specified serialization and stream objects.
@@ -89,6 +86,16 @@ namespace Nuclex.Support.Collections {
     /// </exception>
     protected ReadOnlyDictionary(SerializationInfo info, StreamingContext context) :
       this(new SerializedDictionary(info, context)) { }
+
+#endif // !COMPACTFRAMEWORK
+
+    /// <summary>Initializes a new read-only Dictionary wrapper</summary>
+    /// <param name="dictionary">Dictionary that will be wrapped</param>
+    public ReadOnlyDictionary(IDictionary<KeyType, ValueType> dictionary) {
+      this.typedDictionary = dictionary;
+      this.objectDictionary = (this.typedDictionary as IDictionary);
+    }
+
 
     /// <summary>Whether the directory is write-protected</summary>
     public bool IsReadOnly {
@@ -360,6 +367,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
+#if !COMPACTFRAMEWORK
     #region ISerializable implementation
 
     /// <summary>Serializes the Dictionary</summary>
@@ -380,6 +388,7 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion
+#endif //!COMPACTFRAMEWORK
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<KeyType, ValueType> typedDictionary;

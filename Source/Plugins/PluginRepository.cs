@@ -50,7 +50,7 @@ namespace Nuclex.Support.Plugins {
       /// <param name="path">Path the assembly will be loaded from</param>
       /// <returns>The loaded assembly</returns>
       protected virtual Assembly LoadAssemblyFromFile(string path) {
-        return Assembly.LoadFile(path);
+        return Assembly.LoadFrom(path);
       }
 
       /// <summary>Tries to loads an assembly from a file</summary>
@@ -66,6 +66,7 @@ namespace Nuclex.Support.Plugins {
           loadedAssembly = LoadAssemblyFromFile(path);
           return true;
         }
+#if !COMPACTFRAMEWORK
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
         catch(DllNotFoundException) {
@@ -73,6 +74,7 @@ namespace Nuclex.Support.Plugins {
             "Assembly '" + path + "' or one of its dependencies is missing"
           );
         }
+#endif // !COMPACTFRAMEWORK
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
         catch(UnauthorizedAccessException) {

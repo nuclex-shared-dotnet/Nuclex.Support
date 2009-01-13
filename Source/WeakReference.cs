@@ -52,6 +52,8 @@ namespace Nuclex.Support {
     public WeakReference(ReferencedType target, bool trackResurrection)
       : base(target, trackResurrection) { }
 
+#if !COMPACTFRAMEWORK
+
     /// <summary>
     ///   Initializes a new instance of the WeakReference class, using deserialized
     ///   data from the specified serialization and stream objects.
@@ -69,6 +71,8 @@ namespace Nuclex.Support {
     /// </exception>
     protected WeakReference(SerializationInfo info, StreamingContext context)
       : base(info, context) { }
+
+#endif // !COMPACTFRAMEWORK
 
     /// <summary>
     ///   Gets or sets the object (the target) referenced by the current WeakReference
