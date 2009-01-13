@@ -25,7 +25,6 @@ using System.IO;
 using System.Reflection;
 
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace Nuclex.Support.Plugins {
 

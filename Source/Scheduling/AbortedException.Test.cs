@@ -74,7 +74,7 @@ namespace Nuclex.Support.Scheduling {
         memory.Position = 0;
         object exception2 = formatter.Deserialize(memory);
 
-        Assert.IsInstanceOfType(typeof(AbortedException), exception2);
+        Assert.IsInstanceOf<AbortedException>(exception2);
         Assert.AreEqual(exception1.Message, ((AbortedException)exception2).Message);
       }
     }

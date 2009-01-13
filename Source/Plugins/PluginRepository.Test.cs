@@ -26,7 +26,6 @@ using System.Reflection;
 #if UNITTEST
 
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using NMock2;
 
 namespace Nuclex.Support.Plugins {

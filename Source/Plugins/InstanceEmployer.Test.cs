@@ -24,7 +24,6 @@ using System.IO;
 #if UNITTEST
 
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace Nuclex.Support.Plugins {
 
@@ -104,7 +103,7 @@ namespace Nuclex.Support.Plugins {
 
       Assert.AreEqual(1, testEmployer.Instances.Count);
       Assert.AreEqual(typeof(Derived), testEmployer.Instances[0].GetType());
-      Assert.IsInstanceOfType(typeof(Derived), testEmployer.Instances[0]);
+      Assert.IsInstanceOf<Derived>(testEmployer.Instances[0]);
     }
 
     /// <summary>
@@ -119,7 +118,7 @@ namespace Nuclex.Support.Plugins {
 
       Assert.AreEqual(1, testEmployer.Instances.Count);
       Assert.AreEqual(typeof(Unrelated), testEmployer.Instances[0].GetType());
-      Assert.IsInstanceOfType(typeof(Unrelated), testEmployer.Instances[0]);
+      Assert.IsInstanceOf<Unrelated>(testEmployer.Instances[0]);
     }
 
   }

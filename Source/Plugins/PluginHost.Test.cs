@@ -25,7 +25,6 @@ using System.Reflection;
 #if UNITTEST
 
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace Nuclex.Support.Plugins {
 
