@@ -276,12 +276,6 @@
     <Content Include="Documents\Nuclex.Support.txt" />
     <Content Include="Documents\Request Framework.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <NestedContentProject Include="Content\Content.contentproj">
-      <Project>d5a9e893-70bf-4882-bcbd-c9b6b6054a0e</Project>
-      <Visible>False</Visible>
-    </NestedContentProject>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
