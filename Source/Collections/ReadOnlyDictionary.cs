@@ -67,7 +67,7 @@ namespace Nuclex.Support.Collections {
 
     }
 
-    #endregion // class SerializeDictionary
+    #endregion // class SerializedDictionary
 
     /// <summary>
     ///   Initializes a new instance of the System.WeakReference class, using deserialized

@@ -66,7 +66,7 @@ namespace Nuclex.Support.Collections {
 
     }
 
-    #endregion // class SerializeDictionary
+    #endregion // class SerializedDictionary
 #endif // !COMPACTFRAMEWORK
 
     /// <summary>Raised when an item has been added to the dictionary</summary>
