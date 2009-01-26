@@ -34,23 +34,23 @@ namespace Nuclex.Support.Collections {
 
     #region interface IObservableCollectionSubscriber
 
-    /// <summary>Interface used to test the observable collection.</summary>
+    /// <summary>Interface used to test the observable collection</summary>
     public interface IObservableCollectionSubscriber {
 
       /// <summary>Called when the collection is about to clear its contents</summary>
       /// <param name="sender">Collection that is clearing its contents</param>
-      /// <param name="e">Not used</param>
-      void Clearing(object sender, EventArgs e);
+      /// <param name="arguments">Not used</param>
+      void Clearing(object sender, EventArgs arguments);
 
       /// <summary>Called when an item is added to the collection</summary>
       /// <param name="sender">Collection to which an item is being added</param>
-      /// <param name="e">Contains the item that is being added</param>
-      void ItemAdded(object sender, ItemEventArgs<int> e);
+      /// <param name="arguments">Contains the item that is being added</param>
+      void ItemAdded(object sender, ItemEventArgs<int> arguments);
 
       /// <summary>Called when an item is removed from the collection</summary>
       /// <param name="sender">Collection from which an item is being removed</param>
-      /// <param name="e">Contains the item that is being removed</param>
-      void ItemRemoved(object sender, ItemEventArgs<int> e);
+      /// <param name="arguments">Contains the item that is being removed</param>
+      void ItemRemoved(object sender, ItemEventArgs<int> arguments);
 
     }
 
@@ -73,8 +73,6 @@ namespace Nuclex.Support.Collections {
         new EventHandler<ItemEventArgs<int>>(
           this.mockedSubscriber.ItemRemoved
         );
-
-      this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
     /// <summary>Tests whether the Clearing event is fired</summary>

@@ -59,6 +59,10 @@
     <Compile Include="Source\Collections\ObservableCollection.Test.cs">
       <DependentUpon>ObservableCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ObservableDictionary.cs" />
+    <Compile Include="Source\Collections\ObservableDictionary.Test.cs">
+      <DependentUpon>ObservableDictionary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\PairPriorityQueue.cs" />
     <Compile Include="Source\Collections\PairPriorityQueue.Test.cs">
       <DependentUpon>PairPriorityQueue.cs</DependentUpon>

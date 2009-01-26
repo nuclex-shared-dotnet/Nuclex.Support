@@ -26,11 +26,11 @@ using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Collections {
 
-  /// <summary>Wraps a dictionary and prevents users from modifying it</summary>
+  /// <summary>A dictionary that sneds out change notifications</summary>
   /// <typeparam name="KeyType">Type of the keys used in the dictionary</typeparam>
   /// <typeparam name="ValueType">Type of the values used in the dictionary</typeparam>
   [Serializable]
-  public class ReadOnlyDictionary<KeyType, ValueType> :
+  public class ObservableDictionary<KeyType, ValueType> :
 #if !COMPACTFRAMEWORK
     ISerializable,
     IDeserializationCallback,
@@ -39,7 +39,6 @@ namespace Nuclex.Support.Collections {
     IDictionary {
 
 #if !COMPACTFRAMEWORK
-
     #region class SerializedDictionary
 
     /// <summary>
@@ -68,7 +67,26 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion // class SerializeDictionary
+#endif // !COMPACTFRAMEWORK
 
+    /// <summary>Raised when an item has been added to the dictionary</summary>
+    public event EventHandler<ItemEventArgs<KeyValuePair<KeyType, ValueType>>> ItemAdded;
+    /// <summary>Raised when an item is removed from the dictionary</summary>
+    public event EventHandler<ItemEventArgs<KeyValuePair<KeyType, ValueType>>> ItemRemoved;
+    /// <summary>Raised when the dictionary is about to be cleared</summary>
+    public event EventHandler Clearing;
+
+    /// <summary>Initializes a new observable dictionary</summary>
+    public ObservableDictionary() : this(new Dictionary<KeyType, ValueType>()) { }
+
+    /// <summary>Initializes a new observable Dictionary wrapper</summary>
+    /// <param name="dictionary">Dictionary that will be wrapped</param>
+    public ObservableDictionary(IDictionary<KeyType, ValueType> dictionary) {
+      this.typedDictionary = dictionary;
+      this.objectDictionary = (this.typedDictionary as IDictionary);
+    }
+
+#if !COMPACTFRAMEWORK
     /// <summary>
     ///   Initializes a new instance of the System.WeakReference class, using deserialized
     ///   data from the specified serialization and stream objects.
@@ -84,22 +102,13 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentNullException">
     ///   The info parameter is null.
     /// </exception>
-    protected ReadOnlyDictionary(SerializationInfo info, StreamingContext context) :
+    protected ObservableDictionary(SerializationInfo info, StreamingContext context) :
       this(new SerializedDictionary(info, context)) { }
-
 #endif // !COMPACTFRAMEWORK
-
-    /// <summary>Initializes a new read-only dictionary wrapper</summary>
-    /// <param name="dictionary">Dictionary that will be wrapped</param>
-    public ReadOnlyDictionary(IDictionary<KeyType, ValueType> dictionary) {
-      this.typedDictionary = dictionary;
-      this.objectDictionary = (this.typedDictionary as IDictionary);
-    }
-
 
     /// <summary>Whether the directory is write-protected</summary>
     public bool IsReadOnly {
-      get { return true; }
+      get { return this.typedDictionary.IsReadOnly; }
     }
 
     /// <summary>
@@ -142,28 +151,12 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Collection of all keys contained in the Dictionary</summary>
     public ICollection<KeyType> Keys {
-      get {
-        if(this.readonlyKeyCollection == null) {
-          this.readonlyKeyCollection = new ReadOnlyCollection<KeyType>(
-            this.typedDictionary.Keys
-          );
-        }
-
-        return this.readonlyKeyCollection;
-      }
+      get { return this.typedDictionary.Keys; }
     }
 
     /// <summary>Collection of all values contained in the Dictionary</summary>
     public ICollection<ValueType> Values {
-      get {
-        if(this.readonlyValueCollection == null) {
-          this.readonlyValueCollection = new ReadOnlyCollection<ValueType>(
-            this.typedDictionary.Values
-          );
-        }
-
-        return this.readonlyValueCollection;
-      }
+      get { return this.typedDictionary.Values; }
     }
 
     /// <summary>
@@ -184,40 +177,67 @@ namespace Nuclex.Support.Collections {
     /// <param name="key">Key of the item that will be accessed</param>
     public ValueType this[KeyType key] {
       get { return this.typedDictionary[key]; }
-    }
+      set {
+        bool removed;
+        ValueType oldValue;
+        removed = this.typedDictionary.TryGetValue(key, out oldValue);
 
-    #region IDictionary<,> implementation
+        this.typedDictionary[key] = value;
+
+        if(removed) {
+          OnRemoved(new KeyValuePair<KeyType, ValueType>(key, oldValue));
+        }
+        OnAdded(new KeyValuePair<KeyType, ValueType>(key, value));
+      }
+    }
 
     /// <summary>Inserts an item into the Dictionary</summary>
     /// <param name="key">Key under which to add the new item</param>
     /// <param name="value">Item that will be added to the Dictionary</param>
-    void IDictionary<KeyType, ValueType>.Add(KeyType key, ValueType value) {
-      throw new NotSupportedException(
-        "Adding items is not supported by the read-only Dictionary"
-      );
+    public void Add(KeyType key, ValueType value) {
+      this.typedDictionary.Add(key, value);
+      OnAdded(new KeyValuePair<KeyType, ValueType>(key, value));
     }
 
     /// <summary>Removes the item with the specified key from the Dictionary</summary>
     /// <param name="key">Key of the elementes that will be removed</param>
     /// <returns>True if an item with the specified key was found and removed</returns>
-    bool IDictionary<KeyType, ValueType>.Remove(KeyType key) {
-      throw new NotSupportedException(
-        "Removing items is not supported by the read-only Dictionary"
-      );
-    }
+    public bool Remove(KeyType key) {
+      ValueType oldValue;
+      this.typedDictionary.TryGetValue(key, out oldValue);
 
-    /// <summary>Accesses an item in the Dictionary by its key</summary>
-    /// <param name="key">Key of the item that will be accessed</param>
-    ValueType IDictionary<KeyType, ValueType>.this[KeyType key] {
-      get { return this.typedDictionary[key]; }
-      set {
-        throw new NotSupportedException(
-          "Assigning items is not supported in a read-only Dictionary"
-        );
+      bool removed = this.typedDictionary.Remove(key);
+      if(removed) {
+        OnRemoved(new KeyValuePair<KeyType, ValueType>(key, oldValue));
       }
+      return removed;
     }
 
-    #endregion
+    /// <summary>Removes all items from the Dictionary</summary>
+    public void Clear() {
+      OnClearing();
+      this.typedDictionary.Clear();
+    }
+
+    /// <summary>Fires the 'ItemAdded' event</summary>
+    /// <param name="item">Item that has been added to the collection</param>
+    protected virtual void OnAdded(KeyValuePair<KeyType, ValueType> item) {
+      if(ItemAdded != null)
+        ItemAdded(this, new ItemEventArgs<KeyValuePair<KeyType, ValueType>>(item));
+    }
+
+    /// <summary>Fires the 'ItemRemoved' event</summary>
+    /// <param name="item">Item that has been removed from the collection</param>
+    protected virtual void OnRemoved(KeyValuePair<KeyType, ValueType> item) {
+      if(ItemRemoved != null)
+        ItemRemoved(this, new ItemEventArgs<KeyValuePair<KeyType, ValueType>>(item));
+    }
+
+    /// <summary>Fires the 'Clearing' event</summary>
+    protected virtual void OnClearing() {
+      if(Clearing != null)
+        Clearing(this, EventArgs.Empty);
+    }
 
     #region IEnumerable implementation
 
@@ -231,20 +251,12 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
-    /// <summary>Removes all items from the Dictionary</summary>
-    void IDictionary.Clear() {
-      throw new NotSupportedException(
-        "Clearing is not supported in a read-only Dictionary"
-      );
-    }
-
     /// <summary>Adds an item into the Dictionary</summary>
     /// <param name="key">Key under which the item will be added</param>
     /// <param name="value">Item that will be added</param>
     void IDictionary.Add(object key, object value) {
-      throw new NotSupportedException(
-        "Adding items is not supported in a read-only Dictionary"
-      );
+      this.objectDictionary.Add(key, value);
+      OnAdded(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
     }
 
     /// <summary>Determines whether the specified key exists in the Dictionary</summary>
@@ -267,36 +279,23 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Returns a collection of all keys in the Dictionary</summary>
     ICollection IDictionary.Keys {
-      get {
-        if(this.readonlyKeyCollection == null) {
-          this.readonlyKeyCollection = new ReadOnlyCollection<KeyType>(
-            this.typedDictionary.Keys
-          );
-        }
-
-        return this.readonlyKeyCollection;
-      }
+      get { return this.objectDictionary.Keys; }
     }
 
     /// <summary>Returns a collection of all values stored in the Dictionary</summary>
     ICollection IDictionary.Values {
-      get {
-        if(this.readonlyValueCollection == null) {
-          this.readonlyValueCollection = new ReadOnlyCollection<ValueType>(
-            this.typedDictionary.Values
-          );
-        }
-
-        return this.readonlyValueCollection;
-      }
+      get { return this.objectDictionary.Values; }
     }
 
     /// <summary>Removes an item from the Dictionary</summary>
     /// <param name="key">Key of the item that will be removed</param>
     void IDictionary.Remove(object key) {
-      throw new NotSupportedException(
-        "Removing is not supported by the read-only Dictionary"
-      );
+      ValueType value;
+      bool removed = this.typedDictionary.TryGetValue((KeyType)key, out value);
+      this.objectDictionary.Remove(key);
+      if(removed) {
+        OnRemoved(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
+      }
     }
 
     /// <summary>Accesses an item in the Dictionary by its key</summary>
@@ -305,9 +304,16 @@ namespace Nuclex.Support.Collections {
     object IDictionary.this[object key] {
       get { return this.objectDictionary[key]; }
       set {
-        throw new NotSupportedException(
-          "Assigning items is not supported by the read-only Dictionary"
-        );
+        bool removed;
+        ValueType oldValue;
+        removed = this.typedDictionary.TryGetValue((KeyType)key, out oldValue);
+
+        this.objectDictionary[key] = value;
+
+        if(removed) {
+          OnRemoved(new KeyValuePair<KeyType, ValueType>((KeyType)key, oldValue));
+        }
+        OnAdded(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
       }
     }
 
@@ -320,16 +326,14 @@ namespace Nuclex.Support.Collections {
     void ICollection<KeyValuePair<KeyType, ValueType>>.Add(
       KeyValuePair<KeyType, ValueType> item
     ) {
-      throw new NotSupportedException(
-        "Adding items is not supported by the read-only Dictionary"
-      );
+      this.typedDictionary.Add(item);
+      OnAdded(item);
     }
 
     /// <summary>Removes all items from the Dictionary</summary>
     void ICollection<KeyValuePair<KeyType, ValueType>>.Clear() {
-      throw new NotSupportedException(
-        "Clearing is not supported in a read-only Dictionary"
-      );
+      OnClearing();
+      this.typedDictionary.Clear();
     }
 
     /// <summary>Removes all items from the Dictionary</summary>
@@ -337,9 +341,11 @@ namespace Nuclex.Support.Collections {
     bool ICollection<KeyValuePair<KeyType, ValueType>>.Remove(
       KeyValuePair<KeyType, ValueType> itemToRemove
     ) {
-      throw new NotSupportedException(
-        "Removing items is not supported in a read-only Dictionary"
-      );
+      bool removed = this.typedDictionary.Remove(itemToRemove);
+      if(removed) {
+        OnRemoved(itemToRemove);
+      }
+      return removed;
     }
 
     #endregion
@@ -394,10 +400,6 @@ namespace Nuclex.Support.Collections {
     private IDictionary<KeyType, ValueType> typedDictionary;
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
-    /// <summary>ReadOnly wrapper for the keys collection of the Dictionary</summary>
-    private ReadOnlyCollection<KeyType> readonlyKeyCollection;
-    /// <summary>ReadOnly wrapper for the values collection of the Dictionary</summary>
-    private ReadOnlyCollection<ValueType> readonlyValueCollection;
   }
 
 } // namespace Nuclex.Support.Collections

@@ -188,7 +188,7 @@ namespace Nuclex.Support.Collections {
     ///   Add() method is called via the generic IDictionary&lt;&gt; interface
     /// </summary>
     [Test, ExpectedException(typeof(NotSupportedException))]
-    public void TestThrowOnAddAtViaGenericIDictionary() {
+    public void TestThrowOnAddViaGenericIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
@@ -388,7 +388,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
-    ///   Clear() method is used via the generic ICollection&lt;&gt; interface
+    ///   Remove() method is used via the generic ICollection&lt;&gt; interface
     /// </summary>
     [Test, ExpectedException(typeof(NotSupportedException))]
     public void TestThrowOnRemoveViaGenericICollection() {
@@ -396,7 +396,7 @@ namespace Nuclex.Support.Collections {
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
       (testDictionary as ICollection<KeyValuePair<int, string>>).Remove(
-        new KeyValuePair<int, string>(24, "twenty-four")
+        new KeyValuePair<int, string>(42, "fourty-two")
       );
     }
 
