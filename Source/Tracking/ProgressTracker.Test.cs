@@ -40,13 +40,13 @@ namespace Nuclex.Support.Tracking {
 
       /// <summary>Called when the tracked progress changes</summary>
       /// <param name="sender">Progress tracker whose progress has changed</param>
-      /// <param name="e">Contains the new progress achieved</param>
-      void ProgressChanged(object sender, ProgressReportEventArgs e);
+      /// <param name="arguments">Contains the new progress achieved</param>
+      void ProgressChanged(object sender, ProgressReportEventArgs arguments);
 
       /// <summary>Called when the progress tracker's idle state changes</summary>
       /// <param name="sender">Progress tracker whose idle state has changed</param>
-      /// <param name="e">Contains the new idle state of the tracker</param>
-      void IdleStateChanged(object sender, IdleStateEventArgs e);
+      /// <param name="arguments">Contains the new idle state of the tracker</param>
+      void IdleStateChanged(object sender, IdleStateEventArgs arguments);
 
     }
 
@@ -54,10 +54,10 @@ namespace Nuclex.Support.Tracking {
 
     #region class ProgressUpdateEventArgsMatcher
 
-    /// <summary>Compares two ProgressUpdateEventArgsInstances for NMock validation</summary>
+    /// <summary>Compares two ProgressUpdateEventArgs instances</summary>
     private class ProgressReportEventArgsMatcher : Matcher {
 
-      /// <summary>Initializes a new ProgressUpdateEventArgsMatcher </summary>
+      /// <summary>Initializes a new ProgressUpdateEventArgsMatcher</summary>
       /// <param name="expected">Expected progress update event arguments</param>
       public ProgressReportEventArgsMatcher(ProgressReportEventArgs expected) {
         this.expected = expected;
@@ -140,14 +140,14 @@ namespace Nuclex.Support.Tracking {
     #region class EvilTransaction
 
     /// <summary>
-    ///   Transaction that tries to emulate a thread given a progress report at
+    ///   Transaction that tries to emulate a thread giving a progress report at
     ///   a very inconvenient time ;)
     /// </summary>
     private class EvilTransaction : Transaction, IProgressReporter {
 
       /// <summary>will be triggered to report when progress has been achieved</summary>
       public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged {
-        add {}
+        add { }
         remove {
           // Send a progress update right when the subscriber is trying to unsubscribe
           value(this, new ProgressReportEventArgs(0.5f));
@@ -175,19 +175,15 @@ namespace Nuclex.Support.Tracking {
 
         // Step 1
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("IdleStateChanged").
-            WithAnyArguments();
+          Expect.Once.On(mockedSubscriber).Method("IdleStateChanged").WithAnyArguments();
 
           // Since the progress is already at 0, these redundant reports are optional
-          Expect.Between(0, 2).On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
+          Expect.Between(0, 2).On(mockedSubscriber).Method("ProgressChanged").With(
+            new Matcher[] {
               new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
               new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
             }
-            );
+          );
 
           tracker.Track(test1);
           tracker.Track(test2);
@@ -195,14 +191,12 @@ namespace Nuclex.Support.Tracking {
 
         // Step 2
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
+          Expect.Once.On(mockedSubscriber).Method("ProgressChanged").With(
+            new Matcher[] {
               new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
               new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
             }
-            );
+          );
 
           test1.ChangeProgress(0.5f);
         }
@@ -311,7 +305,7 @@ namespace Nuclex.Support.Tracking {
     public void TestSoleEndedTransaction() {
       using(ProgressTracker tracker = new ProgressTracker()) {
         IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
-        
+
         Expect.Never.On(mockedSubscriber).Method("IdleStateChanged").WithAnyArguments();
         Expect.Never.On(mockedSubscriber).Method("ProgressChanged").WithAnyArguments();
 
