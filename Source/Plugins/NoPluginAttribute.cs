@@ -28,7 +28,7 @@ namespace Nuclex.Support.Plugins {
   ///   PluginHost and not become accessable as a plugin.
   /// </remarks>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-  public class NoPluginAttribute : System.Attribute {
+  public class NoPluginAttribute : Attribute {
 
     /// <summary>Initializes an instance of the NoPluginAttributes</summary>
     public NoPluginAttribute() : base() { }
