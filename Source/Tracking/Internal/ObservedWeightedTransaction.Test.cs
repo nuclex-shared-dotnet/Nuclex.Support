@@ -98,7 +98,10 @@ namespace Nuclex.Support.Tracking {
       IObservationSubscriber subscriber = this.mockery.NewMock<IObservationSubscriber>();
 
       Expect.AtLeast(0).On(subscriber).Method("ProgressUpdated");
-      Expect.Once.On(subscriber).Method("Ended");
+      // This should no be called because otherwise, the 'Ended' event would be raised
+      // to the transaction group before all transactions have been added into
+      // the internal list, leading to an early ending or even multiple endings.
+      Expect.Never.On(subscriber).Method("Ended");
 
       using(
         ObservedWeightedTransaction<Transaction> test =

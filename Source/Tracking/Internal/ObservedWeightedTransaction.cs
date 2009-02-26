@@ -58,7 +58,12 @@ namespace Nuclex.Support.Tracking {
         // prevent object coupling where none is neccessary and to save some processing time.
         this.progress = 1.0f;
         progressUpdateCallback();
-        endedCallback();
+        
+        // Do not call the ended callback here. This constructor is called when the
+        // TransactionGroup constructs its list of transactions. If this is called and
+        // the first transaction to be added to the group happens to be in the ended
+        // state, the transactionGroup will immediately think it has ended!
+        //!DONT!endedCallback();
 
         return;
 

@@ -21,6 +21,7 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 using Nuclex.Support.Collections;
 
@@ -35,17 +36,18 @@ namespace Nuclex.Support.Tracking {
     public event EventHandler<ProgressReportEventArgs> AsyncProgressChanged;
 
     /// <summary>Initializes a new transaction group</summary>
-    /// <param name="childs">Transactions to track with this group</param>
+    /// <param name="children">Transactions to track with this group</param>
     /// <remarks>
     ///   Uses a default weighting factor of 1.0 for all transactions.
     /// </remarks>
-    public TransactionGroup(IEnumerable<TransactionType> childs)
-      : this() {
+    public TransactionGroup(IEnumerable<TransactionType> children) {
+      List<ObservedWeightedTransaction<TransactionType>> childrenList =
+        new List<ObservedWeightedTransaction<TransactionType>>();
 
       // Construct a WeightedTransaction with the default weight for each
       // transaction and wrap it in an ObservedTransaction
-      foreach(TransactionType transaction in childs) {
-        this.children.Add(
+      foreach(TransactionType transaction in children) {
+        childrenList.Add(
           new ObservedWeightedTransaction<TransactionType>(
             new WeightedTransaction<TransactionType>(transaction),
             new ObservedWeightedTransaction<TransactionType>.ReportDelegate(
@@ -60,20 +62,26 @@ namespace Nuclex.Support.Tracking {
 
       // Since all transactions have a weight of 1.0, the total weight is
       // equal to the number of transactions in our list
-      this.totalWeight = (float)this.children.Count;
+      this.totalWeight = (float)childrenList.Count;
+      // Thread.MemoryBarrier(); // not needed because children is volatile
+      this.children = childrenList;
 
+      // Any asyncEnded events being receiving from the transactions until now
+      // would have been ignored, so we need to check again here
+      asyncChildEnded();
     }
 
     /// <summary>Initializes a new transaction group</summary>
-    /// <param name="childs">Transactions to track with this group</param>
+    /// <param name="children">Transactions to track with this group</param>
     public TransactionGroup(
-      IEnumerable<WeightedTransaction<TransactionType>> childs
-    )
-      : this() {
+      IEnumerable<WeightedTransaction<TransactionType>> children
+    ) {
+      List<ObservedWeightedTransaction<TransactionType>> childrenList =
+        new List<ObservedWeightedTransaction<TransactionType>>();
 
       // Construct an ObservedTransaction around each of the WeightedTransactions
-      foreach(WeightedTransaction<TransactionType> transaction in childs) {
-        this.children.Add(
+      foreach(WeightedTransaction<TransactionType> transaction in children) {
+        childrenList.Add(
           new ObservedWeightedTransaction<TransactionType>(
             transaction,
             new ObservedWeightedTransaction<TransactionType>.ReportDelegate(
@@ -89,11 +97,11 @@ namespace Nuclex.Support.Tracking {
         this.totalWeight += transaction.Weight;
       }
 
-    }
+      this.children = childrenList;
 
-    /// <summary>Performs common initialization for the public constructors</summary>
-    private TransactionGroup() {
-      this.children = new List<ObservedWeightedTransaction<TransactionType>>();
+      // Any asyncEnded events being receiving from the transactions until now
+      // would have been ignored, so we need to check again here
+      asyncChildEnded();
     }
 
     /// <summary>Immediately releases all resources owned by the object</summary>
@@ -162,6 +170,10 @@ namespace Nuclex.Support.Tracking {
     ///   Called when the progress of one of the observed transactions changes
     /// </summary>
     private void asyncProgressUpdated() {
+      if(this.children == null) {
+        return;
+      }
+
       float totalProgress = 0.0f;
 
       // Calculate the sum of the progress reported by our child transactions,
@@ -184,6 +196,15 @@ namespace Nuclex.Support.Tracking {
     /// </summary>
     private void asyncChildEnded() {
 
+      // If a transaction reports its end durign the constructor, it will end up here
+      // where the collection has not been assigned yet, allowing us to skip the
+      // check until all transactions are there (otherwise, we might invoke
+      // OnAsyncended() early, because all transactions in the list seem to have ended
+      // despite the fact that the constructor hasn't finished adding transactions yet)
+      if(this.children == null) {
+        return;
+      }
+
       // If there's still at least one transaction going, don't report that
       // the transaction group has finished yet.
       for(int index = 0; index < this.children.Count; ++index)
@@ -191,12 +212,14 @@ namespace Nuclex.Support.Tracking {
           return;
 
       // All child transactions have ended, so the set has now ended as well
-      OnAsyncEnded();
+      if(Interlocked.Exchange(ref this.endedCalled, 1) == 0) {
+        OnAsyncEnded();
+      }
 
     }
 
     /// <summary>Transactions being managed in the set</summary>
-    private List<ObservedWeightedTransaction<TransactionType>> children;
+    private volatile List<ObservedWeightedTransaction<TransactionType>> children;
     /// <summary>
     ///   Wrapper collection for exposing the child transactions under the
     ///   WeightedTransaction interface
@@ -204,6 +227,8 @@ namespace Nuclex.Support.Tracking {
     private volatile WeightedTransactionWrapperCollection<TransactionType> wrapper;
     /// <summary>Summed weight of all transactions in the set</summary>
     private float totalWeight;
+    /// <summary>Whether we already called OnAsyncEnded</summary>
+    private int endedCalled;
 
   }
 

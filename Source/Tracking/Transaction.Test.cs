@@ -18,12 +18,12 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-
-#if UNITTEST
 
 using NUnit.Framework;
 using NMock2;
@@ -92,7 +92,7 @@ namespace Nuclex.Support.Tracking {
         WithAnyArguments();
 
       test.End();
-      
+
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
@@ -140,7 +140,7 @@ namespace Nuclex.Support.Tracking {
       // Wait 0 milliseconds for the transaction to end. Of course, this will not happen,
       // so a timeout occurs and false is returned
       Assert.IsFalse(test.Wait(0));
-      
+
       test.End();
 
       // Wait another 0 milliseconds for the transaction to end. Now it has already ended

@@ -21,6 +21,7 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 #if UNITTEST
 
@@ -139,6 +140,53 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // class TestTransaction
 
+    #region class ChainEndingTransaction
+
+    /// <summary>
+    ///   Transaction that ends another transaction when its Ended property is called
+    /// </summary>
+    private class ChainEndingTransaction : Transaction {
+
+      /// <summary>Initializes a new chain ending transaction</summary>
+      public ChainEndingTransaction() {
+        this.chainedTransaction = new TestTransaction();
+      }
+
+      /// <summary>Transitions the transaction into the ended state</summary>
+      public void End() {
+        OnAsyncEnded();
+      }
+
+      /// <summary>
+      ///   Transaction that will end when this transaction's ended property is accessed
+      /// </summary>
+      public TestTransaction ChainedTransaction {
+        get { return this.chainedTransaction; }
+      }
+
+      /// <summary>Whether the transaction has ended already</summary>
+      public override bool Ended {
+        get {
+          if(Interlocked.Exchange(ref this.endedCalled, 1) == 0) {
+            this.chainedTransaction.End();
+          }
+
+          return base.Ended;
+        }
+      }
+
+      /// <summary>
+      ///   Transaction that will end when this transaction's ended property is accessed
+      /// </summary>
+      private TestTransaction chainedTransaction;
+
+      /// <summary>Whether we already ended the chained transaction and ourselves</summary>
+      private int endedCalled;
+
+    }
+
+    #endregion // class ChainEndingTransaction
+
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
@@ -236,6 +284,63 @@ namespace Nuclex.Support.Tracking {
         testTransactionGroup.Children[1].Transaction.End();
 
         this.mockery.VerifyAllExpectationsHaveBeenMet();
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the transaction group immediately enters the ended state when
+    ///   the contained transactions have already ended before the constructor
+    /// </summary>
+    /// <remarks>
+    ///   This was a bug at one time and should prevent a regression
+    /// </remarks>
+    [Test]
+    public void TestAlreadyEndedTransactions() {
+      using(
+        TransactionGroup<Transaction> testTransactionGroup =
+          new TransactionGroup<Transaction>(
+            new Transaction[] { Transaction.EndedDummy, Transaction.EndedDummy }
+          )
+      ) {
+        Assert.IsTrue(testTransactionGroup.Wait(1000));
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the transaction group doesn't think it's already ended when
+    ///   the first transaction being added is in the ended state
+    /// </summary>
+    /// <remarks>
+    ///   This was a bug at one time and should prevent a regression
+    /// </remarks>
+    [Test]
+    public void TestAlreadyEndedTransactionAsFirstTransaction() {
+      using(
+        TransactionGroup<Transaction> testTransactionGroup =
+          new TransactionGroup<Transaction>(
+            new Transaction[] { Transaction.EndedDummy, new TestTransaction() }
+          )
+      ) {
+        Assert.IsFalse(testTransactionGroup.Ended);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that a transaction ending while the constructor is running doesn't
+    ///   wreak havoc on the transaction group
+    /// </summary>
+    [Test]
+    public void TestTransactionEndingDuringConstructor() {
+      ChainEndingTransaction chainTransaction = new ChainEndingTransaction();
+      using(
+        TransactionGroup<Transaction> testTransactionGroup =
+          new TransactionGroup<Transaction>(
+            new Transaction[] { chainTransaction.ChainedTransaction, chainTransaction }
+          )
+      ) {
+        Assert.IsFalse(testTransactionGroup.Ended);
+        chainTransaction.End();
+        Assert.IsTrue(testTransactionGroup.Ended);
       }
     }
 
