@@ -18,10 +18,10 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.IO;
-
-#if UNITTEST
 
 using NUnit.Framework;
 

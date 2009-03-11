@@ -18,13 +18,13 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 
 using Nuclex.Support.Scheduling;
-
-#if UNITTEST
 
 using NUnit.Framework;
 using NMock2;
@@ -123,7 +123,6 @@ namespace Nuclex.Support.Tracking {
       Assert.IsTrue(failedDummy.Ended);
       failedDummy.Join();
     }
-
 
   }
 

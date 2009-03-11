@@ -128,6 +128,13 @@
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Test.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\WeakCollection.cs" />
+    <Compile Include="Source\Collections\WeakCollection.Interfaces.cs">
+      <DependentUpon>WeakCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\WeakCollection.Test.cs">
+      <DependentUpon>WeakCollection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\FloatHelper.cs" />
     <Compile Include="Source\FloatHelper.Test.cs">
       <DependentUpon>FloatHelper.cs</DependentUpon>

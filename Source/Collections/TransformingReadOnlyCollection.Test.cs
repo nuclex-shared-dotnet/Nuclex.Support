@@ -84,7 +84,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Verifies that the CopyTo() of the transforming read only collection works
+    ///   Verifies that the CopyTo() method of the transforming read only collection works
     /// </summary>
     [Test]
     public void TestCopyToArray() {
@@ -99,7 +99,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Verifies that the CopyTo() of the transforming read only collection throws
+    ///   Verifies that the CopyTo() method of the transforming read only collection throws
     ///   an exception if the target array is too small to hold the collection's contents
     /// </summary>
     [Test, ExpectedException(typeof(ArgumentException))]
@@ -415,8 +415,8 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
-    ///   Verifies that the CopyTo() of the transforming read only collection works
-    ///   if invoked via the ICollection interface
+    ///   Verifies that the CopyTo() method of the transforming read only collection
+    ///   works if invoked via the ICollection interface
     /// </summary>
     [Test]
     public void TestCopyToArrayViaICollection() {
