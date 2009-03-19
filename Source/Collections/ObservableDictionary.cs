@@ -36,7 +36,8 @@ namespace Nuclex.Support.Collections {
     IDeserializationCallback,
 #endif
     IDictionary<KeyType, ValueType>,
-    IDictionary {
+    IDictionary,
+    IObservableCollection<KeyValuePair<KeyType, ValueType>> {
 
 #if !COMPACTFRAMEWORK
     #region class SerializedDictionary

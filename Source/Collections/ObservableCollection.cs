@@ -25,7 +25,8 @@ using System.Collections.ObjectModel;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Collection which fires events when items are added or removed</summary>
-  public class ObservableCollection<ItemType> : Collection<ItemType> {
+  public class ObservableCollection<ItemType> :
+    Collection<ItemType>, IObservableCollection<ItemType> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
