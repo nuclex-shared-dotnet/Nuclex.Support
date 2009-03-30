@@ -260,10 +260,11 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>
-    ///   Validates that the ended event is triggered when the last transaction ends
+    ///   Validates that the ended event is triggered when the last transaction out of
+    ///   multiple transactions in the group ends.
     /// </summary>
     [Test]
-    public void TestEndedEvent() {
+    public void TestEndedEventWithTwoTransactions() {
       using(
         TransactionGroup<TestTransaction> testTransactionGroup =
           new TransactionGroup<TestTransaction>(
@@ -282,6 +283,34 @@ namespace Nuclex.Support.Tracking {
 
         testTransactionGroup.Children[0].Transaction.End();
         testTransactionGroup.Children[1].Transaction.End();
+
+        this.mockery.VerifyAllExpectationsHaveBeenMet();
+      }
+    }
+
+    /// <summary>
+    ///   Validates that the ended event is triggered when a single transaction contained
+    ///   in the group ends.
+    /// </summary>
+    [Test]
+    public void TestEndedEventWithSingleTransaction() {
+      using(
+        TransactionGroup<TestTransaction> testTransactionGroup =
+          new TransactionGroup<TestTransaction>(
+            new TestTransaction[] { new TestTransaction() }
+          )
+      ) {
+        ITransactionGroupSubscriber mockedSubscriber = mockSubscriber(testTransactionGroup);
+
+        Expect.Once.On(mockedSubscriber).
+          Method("ProgressChanged").
+          WithAnyArguments();
+
+        Expect.Once.On(mockedSubscriber).
+          Method("Ended").
+          WithAnyArguments();
+
+        testTransactionGroup.Children[0].Transaction.End();
 
         this.mockery.VerifyAllExpectationsHaveBeenMet();
       }
