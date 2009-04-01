@@ -207,13 +207,17 @@ namespace Nuclex.Support.Tracking {
       Assert.IsTrue(test.Wait(TimeSpan.Zero));
     }
 
+    /// <summary>
+    ///   Verifies that no error occurs when an even subscriber to the AsyncEnded event
+    ///   unsubscribes in the event callback handler
+    /// </summary>
     [Test]
     public void TestUnsubscribeInEndedCallback() {
       TestTransaction monitored = new TestTransaction();
       UnsubscribingTransaction test = new UnsubscribingTransaction(monitored);
 
       ITransactionSubscriber mockedSubscriber = mockSubscriber(monitored);
-      
+
       try {
         Expect.Once.On(mockedSubscriber).Method("Ended").WithAnyArguments();
         monitored.End();
