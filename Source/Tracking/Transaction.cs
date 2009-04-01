@@ -103,20 +103,24 @@ namespace Nuclex.Support.Tracking {
       }
       remove {
 
-        lock(this) {
+        if(!this.ended) {
+          lock(this) {
+            if(!this.ended) {
 
-          // Only try to remove the event handler if the subscriber list was created,
-          // otherwise, we can be sure that no actual subscribers exist.
-          if(!ReferenceEquals(this.endedEventSubscribers, null)) {
-            int eventHandlerIndex = this.endedEventSubscribers.IndexOf(value);
+              // Only try to remove the event handler if the subscriber list was created,
+              // otherwise, we can be sure that no actual subscribers exist.
+              if(!ReferenceEquals(this.endedEventSubscribers, null)) {
+                int eventHandlerIndex = this.endedEventSubscribers.IndexOf(value);
 
-            // Unsubscribing a non-subscribed delegate from an event is allowed and should
-            // not throw an exception.
-            if(eventHandlerIndex != -1) {
-              this.endedEventSubscribers.RemoveAt(eventHandlerIndex);
+                // Unsubscribing a non-subscribed delegate from an event is allowed and
+                // should not throw an exception.
+                if(eventHandlerIndex != -1) {
+                  this.endedEventSubscribers.RemoveAt(eventHandlerIndex);
+                }
+              }
+
             }
           }
-
         }
 
       }
@@ -202,9 +206,9 @@ namespace Nuclex.Support.Tracking {
       lock(this) {
 
         // No double lock here, this is an exception that indicates an implementation
-        // error that will not be triggered under normal circumstances. We don't want
+        // error that will not be triggered under normal circumstances. We don't need
         // to waste any effort optimizing the speed at which an implementation fault
-        // will be noticed.
+        // will be reported ;-)
         if(this.ended)
           throw new InvalidOperationException("The transaction has already been ended");
 
@@ -214,21 +218,20 @@ namespace Nuclex.Support.Tracking {
         // the event after we just saw it being null, it would be created in an already
         // set state due to the ended flag (see above) being set to true beforehand!
         // But since we've got a lock ready, we can even avoid that 1 in a million
-        // performance loss and prevent a second doneEvent from being created.
+        // performance loss and prevent the doneEvent from being signalled needlessly.
         if(this.doneEvent != null)
           this.doneEvent.Set();
 
       }
 
+      // Fire the ended events to all event subscribers. We can freely use the list
+      // without synchronization at this point on since once this.ended is set to true,
+      // the subscribers list will not be accessed any longer
       if(!ReferenceEquals(this.endedEventSubscribers, null)) {
-
-        // Fire the ended events to all event subscribers. We can freely use the list
-        // without synchronization at this point on since once this.ended is set to true,
-        // the subscribers list will not be accessed any longer
         for(int index = 0; index < this.endedEventSubscribers.Count; ++index) {
           this.endedEventSubscribers[index](this, EventArgs.Empty);
         }
-
+        this.endedEventSubscribers = null;
       }
 
     }

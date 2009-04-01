@@ -62,6 +62,46 @@ namespace Nuclex.Support.Tracking {
 
     #endregion // class TestWiatable
 
+    #region class UnsubscribingTransaction
+
+    /// <summary>Transaction that unsubscribes during an event callback</summary>
+    private class UnsubscribingTransaction : Transaction {
+
+      /// <summary>Initializes a new unsubscribing transaction</summary>
+      /// <param name="transactionToMonitor">
+      ///   Transaction whose AsyncEnded event will be monitored to trigger
+      ///   the this transaction unsubscribing from the event.
+      /// </param>
+      public UnsubscribingTransaction(Transaction transactionToMonitor) {
+        this.transactionToMonitor = transactionToMonitor;
+        this.monitoredTransactionEndedDelegate = new EventHandler(
+          monitoredTransactionEnded
+        );
+
+        this.transactionToMonitor.AsyncEnded += this.monitoredTransactionEndedDelegate;
+      }
+
+      /// <summary>Called when the monitored transaction has ended</summary>
+      /// <param name="sender">Monitored transaction that has ended</param>
+      /// <param name="arguments">Not used</param>
+      private void monitoredTransactionEnded(object sender, EventArgs arguments) {
+        this.transactionToMonitor.AsyncEnded -= this.monitoredTransactionEndedDelegate;
+      }
+
+      /// <summary>Transitions the transaction into the ended state</summary>
+      public void End() {
+        OnAsyncEnded();
+      }
+
+      /// <summary>Transaction whose ending in being monitored</summary>
+      private Transaction transactionToMonitor;
+      /// <summary>Delegate to the monitoredTransactionEnded() method</summary>
+      private EventHandler monitoredTransactionEndedDelegate;
+
+    }
+
+    #endregion // class TestWiatable
+
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
@@ -165,6 +205,23 @@ namespace Nuclex.Support.Tracking {
       // Wait another 0 milliseconds for the transaction to end. Now it has already ended
       // and no timeout will occur, even with a wait time of 0 milliseconds.
       Assert.IsTrue(test.Wait(TimeSpan.Zero));
+    }
+
+    [Test]
+    public void TestUnsubscribeInEndedCallback() {
+      TestTransaction monitored = new TestTransaction();
+      UnsubscribingTransaction test = new UnsubscribingTransaction(monitored);
+
+      ITransactionSubscriber mockedSubscriber = mockSubscriber(monitored);
+      
+      try {
+        Expect.Once.On(mockedSubscriber).Method("Ended").WithAnyArguments();
+        monitored.End();
+        this.mockery.VerifyAllExpectationsHaveBeenMet();
+      }
+      finally {
+        test.End();
+      }
     }
 
     /// <summary>Mocks a subscriber for the events of a transaction</summary>
