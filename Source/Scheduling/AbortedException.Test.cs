@@ -31,7 +31,7 @@ using NMock2;
 
 namespace Nuclex.Support.Scheduling {
 
-  /// <summary>Unit Test for the request class</summary>
+  /// <summary>Unit Test for the AbortedException class</summary>
   [TestFixture]
   public class AbortedExceptionTest {
 

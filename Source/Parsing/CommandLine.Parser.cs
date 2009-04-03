@@ -381,4 +381,4 @@ namespace Nuclex.Support.Parsing {
 
 } // namespace Nuclex.Support.Parsing
 
-#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER
+#endif  // ENABLE_BROKEN_COMMAND_LINE_PARSER
