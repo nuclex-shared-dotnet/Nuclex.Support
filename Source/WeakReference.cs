@@ -37,8 +37,8 @@ namespace Nuclex.Support {
     ///   the specified object.
     /// </summary>
     /// <param name="target">The object to track or null.</param>
-    public WeakReference(ReferencedType target)
-      : base(target) { }
+    public WeakReference(ReferencedType target) :
+      base(target) { }
 
     /// <summary>
     ///   Initializes a new instance of the WeakReference class, referencing
@@ -49,8 +49,8 @@ namespace Nuclex.Support {
     ///   Indicates when to stop tracking the object. If true, the object is tracked
     ///   after finalization; if false, the object is only tracked until finalization.
     /// </param>
-    public WeakReference(ReferencedType target, bool trackResurrection)
-      : base(target, trackResurrection) { }
+    public WeakReference(ReferencedType target, bool trackResurrection) :
+      base(target, trackResurrection) { }
 
 #if !COMPACTFRAMEWORK
 
@@ -69,8 +69,8 @@ namespace Nuclex.Support {
     /// <exception cref="System.ArgumentNullException">
     ///   The info parameter is null.
     /// </exception>
-    protected WeakReference(SerializationInfo info, StreamingContext context)
-      : base(info, context) { }
+    protected WeakReference(SerializationInfo info, StreamingContext context) :
+      base(info, context) { }
 
 #endif // !COMPACTFRAMEWORK
 
