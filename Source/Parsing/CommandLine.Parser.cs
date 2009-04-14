@@ -23,8 +23,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-#if ENABLE_BROKEN_COMMAND_LINE_PARSER
-
 namespace Nuclex.Support.Parsing {
 
   partial class CommandLine {
@@ -119,7 +117,7 @@ namespace Nuclex.Support.Parsing {
           // Windows style argument using '/' as its initiator
           case '/': {
             // The '/ character is only used to initiate argument on windows and can be
-            // toggled off. The application decides, whether this is done depending on the
+            // toggled off. The application decides whether this is done depending on the
             // operating system or whether uniform behavior across platforms is desired.
             if(!this.windowsMode) {
               goto default;
@@ -155,7 +153,7 @@ namespace Nuclex.Support.Parsing {
       /// </param>
       /// <returns>The number of characters consumed</returns>
       private void parsePotentialOption(
-        string commandLineString, int initiatorStartIndex, ref int index
+          string commandLineString, int initiatorStartIndex, ref int index
       ) {
 
         // If the string ends here this can only be considered as a loose value
@@ -174,14 +172,16 @@ namespace Nuclex.Support.Parsing {
 
         // Look for the first character that ends the option. If it is not an actual option,
         // the very first character might be the end
-        index = commandLineString.IndexOfAny(OptionNameEndingCharacters, nameStartIndex);
-        if(index == -1) {
-          index = commandLineString.Length;
+        if(commandLineString[index] != commandLineString[initiatorStartIndex]) {
+          index = commandLineString.IndexOfAny(NameEndingCharacters, nameStartIndex);
+          if(index == -1) {
+            index = commandLineString.Length;
+          }
         }
 
         // If the first character of the supposed option is not valid for an option name,
         // we have to consider this to be a loose value        
-        if(index == nameStartIndex) {
+        if((index == nameStartIndex)/* && !isAssignmentCharacter(commandLineString[index])*/) {
           index = commandLineString.IndexOfAny(WhitespaceCharacters, index);
           if(index == -1) {
             index = commandLineString.Length;
@@ -195,9 +195,10 @@ namespace Nuclex.Support.Parsing {
           return;
         }
 
-        parseOptionAssignment(
+        parsePotentialOptionAssignment(
           commandLineString, initiatorStartIndex, nameStartIndex, ref index
         );
+
       }
 
       /// <summary>Parses the value assignment in a command line option</summary>
@@ -209,49 +210,43 @@ namespace Nuclex.Support.Parsing {
       ///   Position of the first character in the option's name
       /// </param>
       /// <param name="index">Index at which the option name ended</param>
-      private void parseOptionAssignment(
-        string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
+      private void parsePotentialOptionAssignment(
+          string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
       ) {
         int nameEndIndex = index;
         int valueStartIndex;
         int valueEndIndex;
 
-        if(index == commandLineString.Length) {
-          valueStartIndex = -1;
-          valueEndIndex = -1;
-        } else {
+        // See if this is an assignment character. If it is, the assigned value
+        // should follow to the right.
+        bool isAssignment =
+          (index < commandLineString.Length) &&
+          isAssignmentCharacter(commandLineString[index]);
 
-          char currentCharacter = commandLineString[index];
-          bool isAssignment =
-            (currentCharacter == ':') ||
-            (currentCharacter == '=');
+        // If it's an assignment, we can proceed parsing the assigned value
+        if(isAssignment) {
+          ++index;
+          parseOptionValue(commandLineString, initiatorStartIndex, nameStartIndex, ref index);
+          return;
+        } else { // No, it's an option name without an assignment
 
-          // Does the string end after the suspected assignment character?
-          bool argumentEndReached = ((index + 1) == commandLineString.Length);
+          bool isModifier =
+            (commandLineString[index - 1] == '+') ||
+            (commandLineString[index - 1] == '-');
 
-          if(isAssignment) {
-            parseOptionValue(commandLineString, initiatorStartIndex, nameStartIndex, ref index);
-            return;
+          if(isModifier) {
+            valueStartIndex = index - 1;
+            valueEndIndex = index;
+            --nameEndIndex;
           } else {
-
-            bool isModifier =
-              (currentCharacter == '+') ||
-              (currentCharacter == '-');
-
-            if(isModifier) {
-              valueStartIndex = index;
-              ++index;
-              valueEndIndex = index;
-            } else {
-              valueStartIndex = -1;
-              valueEndIndex = -1;
-            }
+            valueStartIndex = -1;
+            valueEndIndex = -1;
           }
         }
 
         int argumentLength = index - initiatorStartIndex;
-        this.commandLine.addOption(
-          new Option(
+        this.commandLine.addArgument(
+          new Argument(
             new StringSegment(commandLineString, initiatorStartIndex, argumentLength),
             nameStartIndex, nameEndIndex - nameStartIndex,
             valueStartIndex, valueEndIndex - valueStartIndex
@@ -269,24 +264,23 @@ namespace Nuclex.Support.Parsing {
       /// </param>
       /// <param name="index">Index at which the option name ended</param>
       private void parseOptionValue(
-        string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
+          string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
       ) {
-        int nameEndIndex = index;
+        int nameEndIndex = index - 1;
         int valueStartIndex, valueEndIndex;
 
         // Does the string end after the suspected assignment character?
-        bool argumentEndReached = ((index + 1) == commandLineString.Length);
+        bool argumentEndReached = (index == commandLineString.Length);
 
         if(argumentEndReached) {
-          ++index;
           valueStartIndex = -1;
           valueEndIndex = -1;
         } else {
-          char nextCharacter = commandLineString[index + 1];
+          char nextCharacter = commandLineString[index];
 
           // Is this a quoted assignment
           if(nextCharacter == '"') {
-            index += 2;
+            ++index;
             valueStartIndex = index;
             index = commandLineString.IndexOf('"', index);
             if(index == -1) {
@@ -297,7 +291,6 @@ namespace Nuclex.Support.Parsing {
               ++index;
             }
           } else { // Nope, assuming unquoted assignment or empty assignment
-            ++index;
             valueStartIndex = index;
             index = commandLineString.IndexOfAny(WhitespaceCharacters, index);
             if(index == -1) {
@@ -315,8 +308,8 @@ namespace Nuclex.Support.Parsing {
         }
 
         int argumentLength = index - initiatorStartIndex;
-        this.commandLine.addOption(
-          new Option(
+        this.commandLine.addArgument(
+          new Argument(
             new StringSegment(commandLineString, initiatorStartIndex, argumentLength),
             nameStartIndex, nameEndIndex - nameStartIndex,
             valueStartIndex, valueEndIndex - valueStartIndex
@@ -328,19 +321,26 @@ namespace Nuclex.Support.Parsing {
       /// <param name="commandLineString">String the quoted value is parsed from</param>
       /// <param name="index">Index at which the quoted value begins</param>
       private void parseQuotedValue(string commandLineString, ref int index) {
+        int startIndex = index;
         char quoteCharacter = commandLineString[index];
-        int startIndex = index + 1;
+        int valueIndex = startIndex + 1;
 
         // Search for the closing quote
-        index = commandLineString.IndexOf(quoteCharacter, startIndex);
+        index = commandLineString.IndexOf(quoteCharacter, valueIndex);
         if(index == -1) {
           index = commandLineString.Length; // value ends at string end
-          commandLine.addValue(
-            new StringSegment(commandLineString, startIndex, index - startIndex)
+          commandLine.addArgument(
+            Argument.ValueOnly(
+              new StringSegment(commandLineString, startIndex, index - startIndex),
+              valueIndex, index - valueIndex
+            )
           );
         } else { // A closing quote was found
-          commandLine.addValue(
-            new StringSegment(commandLineString, startIndex, index - startIndex)
+          commandLine.addArgument(
+            Argument.ValueOnly(
+              new StringSegment(commandLineString, startIndex, index - startIndex + 1),
+              valueIndex, index - valueIndex
+            )
           );
           ++index; // Skip the closing quote
         }
@@ -362,9 +362,22 @@ namespace Nuclex.Support.Parsing {
         );
       }
 
+      /// <summary>
+      ///   Determines whether the specified character indicates an assignment
+      /// </summary>
+      /// <param name="character">
+      ///   Character that will be checked for being an assignemnt
+      /// </param>
+      /// <returns>
+      ///   True if the specified character indicated an assignment, otherwise false
+      /// </returns>
+      private static bool isAssignmentCharacter(char character) {
+        return (character == ':') || (character == '=');
+      }
+
       /// <summary>Characters which end an option name when they are encountered</summary>
-      private static readonly char[] OptionNameEndingCharacters = new char[] {
-        ' ', '\t', '=', ':', '/', '-', '+', '"'
+      private static readonly char[] NameEndingCharacters = new char[] {
+        ' ', '\t', '=', ':', '"'
       };
 
       /// <summary>Characters the parser considers to be whitespace</summary>
@@ -380,5 +393,3 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif  // ENABLE_BROKEN_COMMAND_LINE_PARSER

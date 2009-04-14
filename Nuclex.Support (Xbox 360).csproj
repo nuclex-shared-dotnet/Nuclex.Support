@@ -148,7 +148,7 @@
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Parsing\CommandLine.Option.cs">
+    <Compile Include="Source\Parsing\CommandLine.Argument.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Parsing\CommandLine.Formatter.cs">

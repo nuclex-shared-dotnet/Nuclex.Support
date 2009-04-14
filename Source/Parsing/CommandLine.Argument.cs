@@ -22,27 +22,40 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-#if ENABLE_BROKEN_COMMAND_LINE_PARSER
-
 namespace Nuclex.Support.Parsing {
 
   partial class CommandLine {
 
-    /// <summary>Option being specified on an application's command line</summary>
-    public class Option {
+    /// <summary>Argument being specified on an application's command line</summary>
+    public class Argument {
 
       /// <summary>Initializes a new option with only a name</summary>
       /// <param name="raw">
-      ///   String segment containing the entire option as it was given on the command line
+      ///   String segment with the entire argument as it was given on the command line
       /// </param>
-      /// <param name="nameStart">Absolute index the option name starts at</param>
+      /// <param name="nameStart">Absolute index the argument name starts at</param>
       /// <param name="nameLength">Number of characters in the option name</param>
       /// <returns>The newly created option</returns>
-      internal Option(
+      internal static Argument OptionOnly(
         StringSegment raw,
         int nameStart, int nameLength
-      )
-        : this(raw, nameStart, nameLength, -1, -1) { }
+      ) {
+        return new Argument(raw, nameStart, nameLength, -1, -1);
+      }
+
+      /// <summary>Initializes a new argument with only a value</summary>
+      /// <param name="raw">
+      ///   String segment with the entire argument as it was given on the command line
+      /// </param>
+      /// <param name="valueStart">Absolute index the value starts at</param>
+      /// <param name="valueLength">Number of characters in the value</param>
+      /// <returns>The newly created option</returns>
+      internal static Argument ValueOnly(
+        StringSegment raw,
+        int valueStart, int valueLength
+      ) {
+        return new Argument(raw, -1, -1, valueStart, valueLength);
+      }
 
       /// <summary>Creates a new option with a name and an assigned value</summary>
       /// <param name="raw">
@@ -53,7 +66,7 @@ namespace Nuclex.Support.Parsing {
       /// <param name="valueStart">Absolute index the value starts at</param>
       /// <param name="valueLength">Number of characters in the value</param>
       /// <returns>The newly created option</returns>
-      internal Option(
+      internal Argument(
         StringSegment raw,
         int nameStart, int nameLength,
         int valueStart, int valueLength
@@ -63,9 +76,6 @@ namespace Nuclex.Support.Parsing {
         this.nameLength = nameLength;
         this.valueStart = valueStart;
         this.valueLength = valueLength;
-
-        Debug.Assert(this.nameStart != -1, "Name start index must not be -1");
-        Debug.Assert(this.nameLength != -1, "Name length must not be -1");
       }
 
       /// <summary>Contains the raw string the command line argument was parsed from</summary>
@@ -76,32 +86,46 @@ namespace Nuclex.Support.Parsing {
       /// <summary>Characters used to initiate this option</summary>
       public string Initiator {
         get {
-          return this.raw.Text.Substring(
-            this.raw.Offset, this.nameStart - this.raw.Offset
-          );
+          if(this.nameStart == -1) {
+            return null;
+          } else {
+            return this.raw.Text.Substring(
+              this.raw.Offset, this.nameStart - this.raw.Offset
+            );
+          }
         }
       }
 
       /// <summary>Name of the command line option</summary>
       public string Name {
         get {
-          return this.raw.Text.Substring(this.nameStart, this.nameLength);
+          if(this.nameStart == -1) {
+            return null;
+          } else {
+            return this.raw.Text.Substring(this.nameStart, this.nameLength);
+          }
         }
       }
 
       /// <summary>Characters used to associate a value to this option</summary>
       public string Associator {
         get {
-          int associatorStart = this.nameStart + this.nameLength;
+          if(this.nameStart == -1) {
+            return null;
+          } else {
+            int associatorStart = this.nameStart + this.nameLength;
 
-          if(this.valueStart == -1) {
-            int characterCount = (this.raw.Offset + this.raw.Count) - associatorStart;
-            if(characterCount == 0) {
+            if(this.valueStart == -1) {
+              int characterCount = (this.raw.Offset + this.raw.Count) - associatorStart;
+              if(characterCount == 0) {
+                return null;
+              }
+            } else if(this.valueStart == associatorStart) {
               return null;
             }
-          }
 
-          return this.raw.Text.Substring(associatorStart, 1);
+            return this.raw.Text.Substring(associatorStart, 1);
+          }
         }
       }
 
@@ -135,5 +159,3 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER

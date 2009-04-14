@@ -26,118 +26,117 @@ using System.Text;
 
 using NUnit.Framework;
 
-#if ENABLE_BROKEN_COMMAND_LINE_PARSER
-
 namespace Nuclex.Support.Parsing {
 
   /// <summary>Ensures that the command line parser is working properly</summary>
   [TestFixture]
   public class CommandLineTest {
 
-    #region class OptionTest
+    #region class ArgumentTest
 
     /// <summary>Unit test for the command line option class</summary>
     [TestFixture]
-    public class OptionTest {
+    public class ArgumentTest {
 
       /// <summary>
-      ///   Verifies that the name of a command line option without a value can be extracted
+      ///   Verifies that the name of a command line argument without a value can
+      ///   be extracted
       /// </summary>
       [Test]
       public void TestNameExtraction() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = CommandLine.Argument.OptionOnly(
           new StringSegment("--test"), 2, 4
         );
 
-        Assert.AreEqual("--test", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.IsNull(option.Associator);
-        Assert.IsNull(option.Value);
+        Assert.AreEqual("--test", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.IsNull(argument.Associator);
+        Assert.IsNull(argument.Value);
       }
 
       /// <summary>
-      ///   Verifies that the name of a command line option without a value can be extracted
-      ///   when the option is contained in a substring of a larger string
+      ///   Verifies that the name of a command line argument without a value can be
+      ///   extracted when the argument is contained in a substring of a larger string
       /// </summary>
       [Test]
       public void TestNameExtractionFromSubstring() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = CommandLine.Argument.OptionOnly(
           new StringSegment("||--test||", 2, 6), 4, 4
         );
 
-        Assert.AreEqual("--test", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.IsNull(option.Associator);
-        Assert.IsNull(option.Value);
+        Assert.AreEqual("--test", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.IsNull(argument.Associator);
+        Assert.IsNull(argument.Value);
       }
 
       /// <summary>
-      ///   Varifies that the name and value of a command line option can be extracted
+      ///   Varifies that the name and value of a command line argument can be extracted
       /// </summary>
       [Test]
       public void TestValueExtraction() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = new CommandLine.Argument(
           new StringSegment("--test=123"), 2, 4, 7, 3
         );
 
-        Assert.AreEqual("--test=123", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.AreEqual("=", option.Associator);
-        Assert.AreEqual("123", option.Value);
+        Assert.AreEqual("--test=123", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.AreEqual("=", argument.Associator);
+        Assert.AreEqual("123", argument.Value);
       }
 
       /// <summary>
-      ///   Varifies that the name and value of a command line option can be extracted
-      ///   when the option is contained in a substring of a larger string
+      ///   Varifies that the name and value of a command line argument can be extracted
+      ///   when the argument is contained in a substring of a larger string
       /// </summary>
       [Test]
       public void TestValueExtractionFromSubstring() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = new CommandLine.Argument(
           new StringSegment("||--test=123||", 2, 10), 4, 4, 9, 3
         );
 
-        Assert.AreEqual("--test=123", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.AreEqual("=", option.Associator);
-        Assert.AreEqual("123", option.Value);
+        Assert.AreEqual("--test=123", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.AreEqual("=", argument.Associator);
+        Assert.AreEqual("123", argument.Value);
       }
 
       /// <summary>
-      ///   Varifies that the name and value of a command line option can be extracted
+      ///   Varifies that the name and value of a command line argument can be extracted
       ///   when the option is assigned a quoted value
       /// </summary>
       [Test]
       public void TestQuotedValueExtraction() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = new CommandLine.Argument(
           new StringSegment("--test=\"123\"", 0, 12), 2, 4, 8, 3
         );
 
-        Assert.AreEqual("--test=\"123\"", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.AreEqual("=", option.Associator);
-        Assert.AreEqual("123", option.Value);
+        Assert.AreEqual("--test=\"123\"", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.AreEqual("=", argument.Associator);
+        Assert.AreEqual("123", argument.Value);
       }
 
       /// <summary>
-      ///   Varifies that the associator of a command line option with an open ended value
-      ///   assignment can be retrieved
+      ///   Varifies that the associator of a command line argument with an open ended
+      ///   value assignment can be retrieved
       /// </summary>
       [Test]
       public void TestValuelessAssociatorRetrieval() {
-        CommandLine.Option option = new CommandLine.Option(
+        CommandLine.Argument argument = CommandLine.Argument.OptionOnly(
           new StringSegment("--test="), 2, 4
         );
 
-        Assert.AreEqual("--test=", option.Raw);
-        Assert.AreEqual("--", option.Initiator);
-        Assert.AreEqual("test", option.Name);
-        Assert.AreEqual("=", option.Associator);
-        Assert.IsNull(option.Value);
+        Assert.AreEqual("--test=", argument.Raw);
+        Assert.AreEqual("--", argument.Initiator);
+        Assert.AreEqual("test", argument.Name);
+        Assert.AreEqual("=", argument.Associator);
+        Assert.IsNull(argument.Value);
       }
 
       /// <summary>
@@ -147,8 +146,8 @@ namespace Nuclex.Support.Parsing {
       /// </summary>
       [Test]
       public void TestValuelessAssociatorRetrievalFromSubstring() {
-        CommandLine.Option option = new CommandLine.Option(
-          new StringSegment("||--test=||", 2, 7), 4, 4//, 9, -1
+        CommandLine.Argument option = CommandLine.Argument.OptionOnly(
+          new StringSegment("||--test=||", 2, 7), 4, 4
         );
 
         Assert.AreEqual("--test=", option.Raw);
@@ -158,21 +157,91 @@ namespace Nuclex.Support.Parsing {
         Assert.IsNull(option.Value);
       }
 
+      /// <summary>
+      ///   Varifies that a command line argument without an option name can be retrieved
+      /// </summary>
+      [Test]
+      public void TestNamelessValueRetrieval() {
+        CommandLine.Argument argument = CommandLine.Argument.ValueOnly(
+          new StringSegment("\"hello world\""), 1, 11
+        );
+
+        Assert.AreEqual("\"hello world\"", argument.Raw);
+        Assert.IsNull(argument.Initiator);
+        Assert.IsNull(argument.Name);
+        Assert.IsNull(argument.Associator);
+        Assert.AreEqual("hello world", argument.Value);
+      }
+
+      /// <summary>
+      ///   Varifies that a command line argument without an option name can be retrieved
+      ///   that is contained in a substring of larger string
+      /// </summary>
+      [Test]
+      public void TestNamelessValueRetrievalFromSubstring() {
+        CommandLine.Argument argument = CommandLine.Argument.ValueOnly(
+          new StringSegment("||\"hello world\"||", 2, 13), 3, 11
+        );
+
+        Assert.AreEqual("\"hello world\"", argument.Raw);
+        Assert.IsNull(argument.Initiator);
+        Assert.IsNull(argument.Name);
+        Assert.IsNull(argument.Associator);
+        Assert.AreEqual("hello world", argument.Value);
+      }
+
     }
 
-    #endregion // class OptionTest
+    #endregion // class ArgumentTest
 
     /// <summary>
-    ///   Validates that the parser can handle an argument initiator without an obvious name
+    ///   Validates that the parser can handle an argument initiator with an
+    ///   assignment that is missing a name
     /// </summary>
     [Test]
     public void TestParseAmbiguousNameResolution() {
       CommandLine commandLine = CommandLine.Parse("--:test");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(1, commandLine.Options.Count);
-      Assert.AreEqual("-", commandLine.Options[0].Name);
-      Assert.AreEqual("test", commandLine.Options[0].Value);
+      // Without a name, this is not a valid command line option, so it will
+      // be parsed as a loose value instead.
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("--:test", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("--:test", commandLine.Arguments[0].Value);
+    }
+
+    /// <summary>
+    ///   Verifies that a lone short argument initiator without anything behind
+    ///   can be parsed
+    /// </summary>
+    [Test]
+    public void TestParseShortArgumentInitiatorOnly() {
+      CommandLine commandLine = CommandLine.Parse("-");
+
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("-", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("-", commandLine.Arguments[0].Value);
+    }
+
+    /// <summary>
+    ///   Verifies that a lone long argument initiator without anything behind
+    ///   can be parsed
+    /// </summary>
+    [Test]
+    public void TestParseLongArgumentInitiatorOnly() {
+      CommandLine commandLine = CommandLine.Parse("--");
+
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("--", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("--", commandLine.Arguments[0].Value);
     }
 
     /// <summary>
@@ -183,25 +252,51 @@ namespace Nuclex.Support.Parsing {
     public void TestParseArgumentInitiatorAtEnd() {
       CommandLine commandLine = CommandLine.Parse("-hello:-world -");
 
-      Assert.AreEqual(1, commandLine.Values.Count);
-      Assert.AreEqual(1, commandLine.Options.Count);
-      Assert.AreEqual("hello", commandLine.Options[0].Name);
-      Assert.AreEqual("-world", commandLine.Options[0].Value);
-      Assert.AreEqual("-", commandLine.Values[0]);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("-hello:-world", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Name);
+      Assert.AreEqual(":", commandLine.Arguments[0].Associator);
+      Assert.AreEqual("-world", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-", commandLine.Arguments[1].Raw);
+      Assert.IsNull(commandLine.Arguments[1].Initiator);
+      Assert.IsNull(commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.AreEqual("-", commandLine.Arguments[1].Value);
     }
 
     /// <summary>Validates that quoted arguments can be parsed</summary>
     [Test]
-    public void TestParseQuotedOption() {
+    public void TestParseQuotedValue() {
       CommandLine commandLine = CommandLine.Parse("hello -world --this -is=\"a test\"");
 
-      Assert.AreEqual(1, commandLine.Values.Count);
-      Assert.AreEqual(3, commandLine.Options.Count);
-      Assert.AreEqual("hello", commandLine.Values[0]);
-      Assert.AreEqual("world", commandLine.Options[0].Name);
-      Assert.AreEqual("this", commandLine.Options[1].Name);
-      Assert.AreEqual("is", commandLine.Options[2].Name);
-      Assert.AreEqual("a test", commandLine.Options[2].Value);
+      Assert.AreEqual(4, commandLine.Arguments.Count);
+
+      Assert.AreEqual("hello", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-world", commandLine.Arguments[1].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[1].Initiator);
+      Assert.AreEqual("world", commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.IsNull(commandLine.Arguments[1].Value);
+
+      Assert.AreEqual("--this", commandLine.Arguments[2].Raw);
+      Assert.AreEqual("--", commandLine.Arguments[2].Initiator);
+      Assert.AreEqual("this", commandLine.Arguments[2].Name);
+      Assert.IsNull(commandLine.Arguments[2].Associator);
+      Assert.IsNull(commandLine.Arguments[2].Value);
+
+      Assert.AreEqual("-is=\"a test\"", commandLine.Arguments[3].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[3].Initiator);
+      Assert.AreEqual("is", commandLine.Arguments[3].Name);
+      Assert.AreEqual("=", commandLine.Arguments[3].Associator);
+      Assert.AreEqual("a test", commandLine.Arguments[3].Value);
     }
 
     /// <summary>Validates that null can be parsed</summary>
@@ -209,8 +304,7 @@ namespace Nuclex.Support.Parsing {
     public void TestParseNull() {
       CommandLine commandLine = CommandLine.Parse(null);
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(0, commandLine.Options.Count);
+      Assert.AreEqual(0, commandLine.Arguments.Count);
     }
 
     /// <summary>Validates that a single argument without quotes can be parsed</summary>
@@ -218,9 +312,12 @@ namespace Nuclex.Support.Parsing {
     public void TestParseSingleNakedValue() {
       CommandLine commandLine = CommandLine.Parse("hello");
 
-      Assert.AreEqual(1, commandLine.Values.Count);
-      Assert.AreEqual(0, commandLine.Options.Count);
-      Assert.AreEqual("hello", commandLine.Values[0]);
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Value);
     }
 
     /// <summary>
@@ -231,9 +328,28 @@ namespace Nuclex.Support.Parsing {
     public void TestParseQuotedArgumentWithoutClosingQuote() {
       CommandLine commandLine = CommandLine.Parse("\"Quoted argument");
 
-      Assert.AreEqual(1, commandLine.Values.Count);
-      Assert.AreEqual(0, commandLine.Options.Count);
-      Assert.AreEqual("Quoted argument", commandLine.Values[0]);
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("\"Quoted argument", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("Quoted argument", commandLine.Arguments[0].Value);
+    }
+
+    /// <summary>
+    ///   Validates that the parser correctly handles a quoted value assignment that's
+    ///   missing the closing quote
+    /// </summary>
+    [Test]
+    public void TestParseQuotedValueWithoutClosingQuote() {
+      CommandLine commandLine = CommandLine.Parse("--test=\"Quoted argument");
+
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("--test=\"Quoted argument", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("--", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("test", commandLine.Arguments[0].Name);
+      Assert.AreEqual("=", commandLine.Arguments[0].Associator);
+      Assert.AreEqual("Quoted argument", commandLine.Arguments[0].Value);
     }
 
     /// <summary>
@@ -243,8 +359,23 @@ namespace Nuclex.Support.Parsing {
     public void TestParseSpacesOnly() {
       CommandLine commandLine = CommandLine.Parse(" \t ");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(0, commandLine.Options.Count);
+      Assert.AreEqual(0, commandLine.Arguments.Count);
+    }
+
+    /// <summary>
+    ///   Validates that the parser can handle a quoted option
+    /// </summary>
+    [Test]
+    public void TestParseQuotedOption() {
+      CommandLine commandLine = CommandLine.Parse("--\"hello\"");
+
+      // Quoted options are not supported, so this becomes a loose value
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("--\"hello\"", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("--\"hello\"", commandLine.Arguments[0].Value);
     }
 
     /// <summary>
@@ -255,10 +386,19 @@ namespace Nuclex.Support.Parsing {
     public void TestParseMultipleLoneArgumentInitiators() {
       CommandLine commandLine = CommandLine.Parse("--- --");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(2, commandLine.Options.Count);
-      Assert.AreEqual("-", commandLine.Options[1].Name);
-      Assert.AreEqual("-", commandLine.Options[2].Name);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("---", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("---", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("--", commandLine.Arguments[1].Raw);
+      Assert.IsNull(commandLine.Arguments[1].Initiator);
+      Assert.IsNull(commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.AreEqual("--", commandLine.Arguments[1].Value);
     }
 
     /// <summary>
@@ -268,10 +408,19 @@ namespace Nuclex.Support.Parsing {
     public void TestParseOptionWithEmbeddedInitiator() {
       CommandLine commandLine = CommandLine.Parse("-hello/world=123 -test-case");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(2, commandLine.Options.Count);
-      Assert.AreEqual("hello/world", commandLine.Options[0].Name);
-      Assert.AreEqual("test-case", commandLine.Options[1].Name);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("-hello/world=123", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("hello/world", commandLine.Arguments[0].Name);
+      Assert.AreEqual("=", commandLine.Arguments[0].Associator);
+      Assert.AreEqual("123", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-test-case", commandLine.Arguments[1].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[1].Initiator);
+      Assert.AreEqual("test-case", commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.IsNull(commandLine.Arguments[1].Value);
     }
 
     /// <summary>
@@ -281,11 +430,25 @@ namespace Nuclex.Support.Parsing {
     public void TestParseOptionAndValueWithoutSpaces() {
       CommandLine commandLine = CommandLine.Parse("\"value\"-option\"value\"");
 
-      Assert.AreEqual(2, commandLine.Values.Count);
-      Assert.AreEqual(1, commandLine.Options.Count);
-      Assert.AreEqual("value", commandLine.Values[0]);
-      Assert.AreEqual("option", commandLine.Options[0].Name);
-      Assert.AreEqual("value", commandLine.Values[1]);
+      Assert.AreEqual(3, commandLine.Arguments.Count);
+
+      Assert.AreEqual("\"value\"", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("value", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-option", commandLine.Arguments[1].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[1].Initiator);
+      Assert.AreEqual("option", commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.IsNull(commandLine.Arguments[1].Value);
+
+      Assert.AreEqual("\"value\"", commandLine.Arguments[2].Raw);
+      Assert.IsNull(commandLine.Arguments[2].Initiator);
+      Assert.IsNull(commandLine.Arguments[2].Name);
+      Assert.IsNull(commandLine.Arguments[2].Associator);
+      Assert.AreEqual("value", commandLine.Arguments[2].Value);
     }
 
     /// <summary>
@@ -296,10 +459,19 @@ namespace Nuclex.Support.Parsing {
     public void TestParseOptionWithModifierAtEnd() {
       CommandLine commandLine = CommandLine.Parse("--test-value- -test+");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(2, commandLine.Options.Count);
-      Assert.AreEqual("test-value", commandLine.Options[0].Name);
-      Assert.AreEqual("test", commandLine.Options[1].Name);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("--test-value-", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("--", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("test-value", commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("-", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-test+", commandLine.Arguments[1].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[1].Initiator);
+      Assert.AreEqual("test", commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.AreEqual("+", commandLine.Arguments[1].Value);
     }
 
     /// <summary>
@@ -307,14 +479,21 @@ namespace Nuclex.Support.Parsing {
     /// </summary>
     [Test]
     public void TestParseOptionWithAssignment() {
-      CommandLine commandLine = CommandLine.Parse("-hello:123 -world=321");
+      CommandLine commandLine = CommandLine.Parse("-hello: -world=321");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(2, commandLine.Options.Count);
-      Assert.AreEqual("hello", commandLine.Options[0].Name);
-      Assert.AreEqual("123", commandLine.Options[0].Value);
-      Assert.AreEqual("world", commandLine.Options[1].Name);
-      Assert.AreEqual("321", commandLine.Options[1].Value);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("-hello:", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Name);
+      Assert.AreEqual(":", commandLine.Arguments[0].Associator);
+      Assert.IsNull(commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("-world=321", commandLine.Arguments[1].Raw);
+      Assert.AreEqual("-", commandLine.Arguments[1].Initiator);
+      Assert.AreEqual("world", commandLine.Arguments[1].Name);
+      Assert.AreEqual("=", commandLine.Arguments[1].Associator);
+      Assert.AreEqual("321", commandLine.Arguments[1].Value);
     }
 
     /// <summary>
@@ -325,9 +504,12 @@ namespace Nuclex.Support.Parsing {
     public void TestParseOptionAtEndOfString() {
       CommandLine commandLine = CommandLine.Parse("--test:");
 
-      Assert.AreEqual(0, commandLine.Values.Count);
-      Assert.AreEqual(1, commandLine.Options.Count);
-      Assert.AreEqual("test", commandLine.Options[0].Name);
+      Assert.AreEqual(1, commandLine.Arguments.Count);
+      Assert.AreEqual("--test:", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("--", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("test", commandLine.Arguments[0].Name);
+      Assert.AreEqual(":", commandLine.Arguments[0].Associator);
+      Assert.IsNull(commandLine.Arguments[0].Value);
     }
 
     /// <summary>
@@ -338,11 +520,19 @@ namespace Nuclex.Support.Parsing {
     public void TestWindowsOptionInitiator() {
       CommandLine commandLine = CommandLine.Parse("/hello //world", true);
 
-      Assert.AreEqual(1, commandLine.Values.Count);
-      Assert.AreEqual(2, commandLine.Options.Count);
-      Assert.AreEqual("hello", commandLine.Options[0].Name);
-      Assert.AreEqual("/", commandLine.Options[0].Value);
-      Assert.AreEqual("world", commandLine.Options[1].Name);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("/hello", commandLine.Arguments[0].Raw);
+      Assert.AreEqual("/", commandLine.Arguments[0].Initiator);
+      Assert.AreEqual("hello", commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.IsNull(commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("//world", commandLine.Arguments[1].Raw);
+      Assert.IsNull(commandLine.Arguments[1].Initiator);
+      Assert.IsNull(commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.AreEqual("//world", commandLine.Arguments[1].Value);
     }
 
     /// <summary>
@@ -353,16 +543,23 @@ namespace Nuclex.Support.Parsing {
     public void TestNonWindowsOptionValues() {
       CommandLine commandLine = CommandLine.Parse("/hello //world", false);
 
-      Assert.AreEqual(2, commandLine.Values.Count);
-      Assert.AreEqual(0, commandLine.Options.Count);
-      Assert.AreEqual("/hello", commandLine.Values[0]);
-      Assert.AreEqual("//world", commandLine.Values[1]);
+      Assert.AreEqual(2, commandLine.Arguments.Count);
+
+      Assert.AreEqual("/hello", commandLine.Arguments[0].Raw);
+      Assert.IsNull(commandLine.Arguments[0].Initiator);
+      Assert.IsNull(commandLine.Arguments[0].Name);
+      Assert.IsNull(commandLine.Arguments[0].Associator);
+      Assert.AreEqual("/hello", commandLine.Arguments[0].Value);
+
+      Assert.AreEqual("//world", commandLine.Arguments[1].Raw);
+      Assert.IsNull(commandLine.Arguments[1].Initiator);
+      Assert.IsNull(commandLine.Arguments[1].Name);
+      Assert.IsNull(commandLine.Arguments[1].Associator);
+      Assert.AreEqual("//world", commandLine.Arguments[1].Value);
     }
 
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER
 
 #endif // UNITTEST

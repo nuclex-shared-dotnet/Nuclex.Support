@@ -21,7 +21,7 @@ License along with this library
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
-#if false // Too bugged. 100% test coverage not possible.
+#if ENABLE_BROKEN_COMMAND_LINE_PARSER // Too bugged. 100% test coverage not possible.
 
 namespace Nuclex.Support.Parsing {
 
@@ -182,4 +182,4 @@ namespace Nuclex.Support.Parsing {
 
 } // namespace Nuclex.Support.Parsing
 
-#endif
+#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER

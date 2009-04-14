@@ -24,13 +24,9 @@ using System.IO;
 
 using Nuclex.Support.Collections;
 
-#if ENABLE_BROKEN_COMMAND_LINE_PARSER
-
 namespace Nuclex.Support.Parsing {
 
-  /// <summary>
-  ///   Manages an application's command line parameters
-  /// </summary>
+  /// <summary>Parses and stores an application's command line parameters</summary>
   /// <remarks>
   ///   <para>
   ///     At the time of the creation of this component, there are already several command
@@ -39,14 +35,14 @@ namespace Nuclex.Support.Parsing {
   ///     arrive at their results.
   ///   </para>
   ///   <para>
-  ///     This class does nothing more than represent the command line to the application.
-  ///     It can parse a command line
-  ///     parse the command line arguments. It doesn't
-  ///     interpret them and it doesn't check them for validity. This promotes simplicity
-  ///     and allows t
-  ///     be unit-tested and is an ideal building block to create actual command line
-  ///     interpreters that connect the parameters to program instructions and or fill
-  ///     structures in code.
+  ///     This command line parser does nothing more than represent the command line to
+  ///     the application through a convenient interface. It parses a command line and
+  ///     extracts the arguments, but doesn't interpret them and or check them for validity.
+  ///   </para>
+  ///   <para>
+  ///     This design promotes simplicity and makes is an ideal building block to create
+  ///     actual command line interpreters that connect the parameters to program
+  ///     instructions and or fill structures in code.
   ///   </para>
   ///   <para>
   ///     Terminology
@@ -82,18 +78,12 @@ namespace Nuclex.Support.Parsing {
   ///       </item>
   ///     </list>
   ///   </para>
-  ///   <para>
-  ///     What this parser doesn't support is spaced assignments (eg. '--format png') since
-  ///     these are ambiguous if the parser doesn't know beforehand whether "format" accepts
-  ///     a non-optional argument.
-  ///   </para>
   /// </remarks>
   public partial class CommandLine {
 
     /// <summary>Initializes a new command line</summary>
     public CommandLine() {
-      this.options = new List<Option>();
-      this.values = new List<string>();
+      this.arguments = new List<Argument>();
     }
 
     /// <summary>Parses the command line arguments from the provided string</summary>
@@ -117,42 +107,39 @@ namespace Nuclex.Support.Parsing {
     /// <summary>Adds a loose value to the command line</summary>
     /// <param name="value">Value taht will be added</param>
     internal void addValue(StringSegment value) {
+      /*
       Console.WriteLine("Discovered loose value: '" + value.ToString() + "'");
+      */
 
-      this.values.Add(value.ToString());
+      this.arguments.Add(
+        Argument.ValueOnly(value, value.Offset, value.Count)
+      );
     }
 
-    /// <summary>Adds an option to the command line</summary>
-    /// <param name="option">Option that will be added</param>
-    internal void addOption(Option option) {
-      Console.WriteLine("Discovered option: '" + option.Raw.ToString() + "'");
-      Console.WriteLine("  Name: '" + option.Name + "'");
-      if(option.Value != null) {
-        Console.WriteLine("  Value: '" + option.Value + "'");
+    /// <summary>Adds an argument to the command line</summary>
+    /// <param name="argument">Argument that will be added</param>
+    internal void addArgument(Argument argument) {
+      /*
+      Console.WriteLine("Discovered option: '" + argument.Raw.ToString() + "'");
+      Console.WriteLine("  Name: '" + argument.Name + "'");
+      if(argument.Value != null) {
+        Console.WriteLine("  Value: '" + argument.Value + "'");
       }
+      */
 
-      this.options.Add(option);
+      this.arguments.Add(argument);
     }
 
     #endregion // To Be Removed
 
     /// <summary>Options that were specified on the command line</summary>
-    public IList<Option> Options {
-      get { return this.options; }
-    }
-
-    /// <summary>Loose values that were given on the command line</summary>
-    public IList<string> Values {
-      get { return this.values; }
+    public IList<Argument> Arguments {
+      get { return this.arguments; }
     }
 
     /// <summary>Options that were specified on the command line</summary>
-    private List<Option> options;
-    /// <summary>Loose values that were given on the command line</summary>
-    private List<string> values;
+    private List<Argument> arguments;
 
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif // ENABLE_BROKEN_COMMAND_LINE_PARSER
