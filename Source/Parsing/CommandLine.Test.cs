@@ -194,6 +194,14 @@ namespace Nuclex.Support.Parsing {
 
     #endregion // class ArgumentTest
 
+    /// <summary>Verifies that the default constructor is working</summary>
+    [Test]
+    public void TestDefaultConstructor() {
+      CommandLine commandLine = new CommandLine();
+
+      Assert.AreEqual(0, commandLine.Arguments.Count);
+    }
+
     /// <summary>
     ///   Validates that the parser can handle an argument initiator with an
     ///   assignment that is missing a name
@@ -302,7 +310,7 @@ namespace Nuclex.Support.Parsing {
     /// <summary>Validates that null can be parsed</summary>
     [Test]
     public void TestParseNull() {
-      CommandLine commandLine = CommandLine.Parse(null);
+      CommandLine commandLine = CommandLine.Parse((string)null);
 
       Assert.AreEqual(0, commandLine.Arguments.Count);
     }
@@ -556,6 +564,19 @@ namespace Nuclex.Support.Parsing {
       Assert.IsNull(commandLine.Arguments[1].Name);
       Assert.IsNull(commandLine.Arguments[1].Associator);
       Assert.AreEqual("//world", commandLine.Arguments[1].Value);
+    }
+
+    /// <summary>
+    ///   Tests whether the existence of named arguments can be checked
+    /// </summary>
+    [Test]
+    public void TestHasArgument() {
+      CommandLine test = CommandLine.Parse("/first:x /second:y /second:z third");
+
+      Assert.IsTrue(test.HasArgument("first"));
+      Assert.IsTrue(test.HasArgument("second"));
+      Assert.IsFalse(test.HasArgument("third"));
+      Assert.IsFalse(test.HasArgument("fourth"));
     }
 
   }

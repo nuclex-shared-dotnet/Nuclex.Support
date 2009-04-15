@@ -34,19 +34,34 @@ namespace Nuclex.Support.Parsing {
       /// <param name="windowsMode">Whether the / character initiates an argument</param>
       private Parser(bool windowsMode) {
         this.windowsMode = windowsMode;
-        this.commandLine = new CommandLine();
+        this.arguments = new List<CommandLine.Argument>();
       }
 
       /// <summary>Parses a string containing command line arguments</summary>
       /// <param name="commandLineString">String that will be parsed</param>
       /// <param name="windowsMode">Whether the / character initiates an argument</param>
       /// <returns>The parsed command line arguments from the string</returns>
-      public static CommandLine Parse(string commandLineString, bool windowsMode) {
-        Console.WriteLine("Parsing '" + commandLineString + "'");
+      public static List<CommandLine.Argument> Parse(
+        string commandLineString, bool windowsMode
+      ) {
         Parser theParser = new Parser(windowsMode);
         theParser.parseFullCommandLine(commandLineString);
-        return theParser.commandLine;
+        return theParser.arguments;
       }
+
+#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
+      /// <summary>Parses a string containing command line arguments</summary>
+      /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
+      /// <param name="windowsMode">Whether the / character initiates an argument</param>
+      /// <returns>The parsed command line arguments from the string</returns>
+      public static List<CommandLine.Argument> Parse(
+        string[] commandLineArguments, bool windowsMode
+      ) {
+        Parser theParser = new Parser(windowsMode);
+        theParser.parseSplitCommandLine(commandLineArguments);
+        return theParser.arguments;
+      }
+#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
 
       /// <summary>
       ///   Parses the provided string and adds the parameters found to
@@ -79,6 +94,31 @@ namespace Nuclex.Support.Parsing {
         }
       }
 
+#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
+      /// <summary>
+      ///   Parses the command line from a series pre-split argument tokens
+      /// </summary>
+      /// <param name="commandLineParts">Split argument tokens that will be parsed</param>
+      private void parseSplitCommandLine(string[] commandLineParts) {
+        if(commandLineParts == null) {
+          return;
+        }
+
+        // Walk through the command line character by character and gather
+        // the parameters and values to build the command line representation from
+        for(int index = 0; index < commandLineParts.Length; ++index) {
+
+          if(commandLineParts[index] != null) {
+            int characterIndex = 0;
+            parseChunk(commandLineParts[index], ref characterIndex);
+
+            Debug.Assert(characterIndex == commandLineParts[index].Length);
+          }
+
+        }
+      }
+#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
+
       /// <summary>
       ///   Parses a chunk of characters and adds it as an option or a loose value to
       ///   the command line representation we're building
@@ -100,7 +140,7 @@ namespace Nuclex.Support.Parsing {
 
             // Does the string end here? Stop parsing.
             if(index >= commandLineString.Length) {
-              this.commandLine.addValue(new StringSegment(commandLineString, startIndex, 1));
+              addValue(new StringSegment(commandLineString, startIndex, 1));
               break;
             }
 
@@ -153,12 +193,12 @@ namespace Nuclex.Support.Parsing {
       /// </param>
       /// <returns>The number of characters consumed</returns>
       private void parsePotentialOption(
-          string commandLineString, int initiatorStartIndex, ref int index
+        string commandLineString, int initiatorStartIndex, ref int index
       ) {
 
         // If the string ends here this can only be considered as a loose value
         if(index == commandLineString.Length) {
-          this.commandLine.addValue(
+          addValue(
             new StringSegment(
               commandLineString,
               initiatorStartIndex,
@@ -187,7 +227,7 @@ namespace Nuclex.Support.Parsing {
             index = commandLineString.Length;
           }
 
-          commandLine.addValue(
+          addValue(
             new StringSegment(
               commandLineString, initiatorStartIndex, index - initiatorStartIndex
             )
@@ -211,7 +251,7 @@ namespace Nuclex.Support.Parsing {
       /// </param>
       /// <param name="index">Index at which the option name ended</param>
       private void parsePotentialOptionAssignment(
-          string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
+        string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
       ) {
         int nameEndIndex = index;
         int valueStartIndex;
@@ -245,7 +285,7 @@ namespace Nuclex.Support.Parsing {
         }
 
         int argumentLength = index - initiatorStartIndex;
-        this.commandLine.addArgument(
+        this.arguments.Add(
           new Argument(
             new StringSegment(commandLineString, initiatorStartIndex, argumentLength),
             nameStartIndex, nameEndIndex - nameStartIndex,
@@ -264,7 +304,7 @@ namespace Nuclex.Support.Parsing {
       /// </param>
       /// <param name="index">Index at which the option name ended</param>
       private void parseOptionValue(
-          string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
+        string commandLineString, int initiatorStartIndex, int nameStartIndex, ref int index
       ) {
         int nameEndIndex = index - 1;
         int valueStartIndex, valueEndIndex;
@@ -308,7 +348,7 @@ namespace Nuclex.Support.Parsing {
         }
 
         int argumentLength = index - initiatorStartIndex;
-        this.commandLine.addArgument(
+        this.arguments.Add(
           new Argument(
             new StringSegment(commandLineString, initiatorStartIndex, argumentLength),
             nameStartIndex, nameEndIndex - nameStartIndex,
@@ -329,14 +369,14 @@ namespace Nuclex.Support.Parsing {
         index = commandLineString.IndexOf(quoteCharacter, valueIndex);
         if(index == -1) {
           index = commandLineString.Length; // value ends at string end
-          commandLine.addArgument(
+          this.arguments.Add(
             Argument.ValueOnly(
               new StringSegment(commandLineString, startIndex, index - startIndex),
               valueIndex, index - valueIndex
             )
           );
         } else { // A closing quote was found
-          commandLine.addArgument(
+          this.arguments.Add(
             Argument.ValueOnly(
               new StringSegment(commandLineString, startIndex, index - startIndex + 1),
               valueIndex, index - valueIndex
@@ -357,8 +397,14 @@ namespace Nuclex.Support.Parsing {
           index = commandLineString.Length;
         }
 
-        commandLine.addValue(
-          new StringSegment(commandLineString, startIndex, index - startIndex)
+        addValue(new StringSegment(commandLineString, startIndex, index - startIndex));
+      }
+
+      /// <summary>Adds a loose value to the command line</summary>
+      /// <param name="value">Value taht will be added</param>
+      private void addValue(StringSegment value) {
+        this.arguments.Add(
+          Argument.ValueOnly(value, value.Offset, value.Count)
         );
       }
 
@@ -383,8 +429,8 @@ namespace Nuclex.Support.Parsing {
       /// <summary>Characters the parser considers to be whitespace</summary>
       private static readonly char[] WhitespaceCharacters = new char[] { ' ', '\t' };
 
-      /// <summary>Command line currently being built by the parser</summary>
-      private CommandLine commandLine;
+      /// <summary>Argument list being filled by the parser</summary>
+      private List<CommandLine.Argument> arguments;
       /// <summary>Whether the '/' character initiates an argument</summary>
       private bool windowsMode;
 

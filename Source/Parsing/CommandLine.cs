@@ -21,6 +21,7 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using Nuclex.Support.Collections;
 
@@ -82,55 +83,120 @@ namespace Nuclex.Support.Parsing {
   public partial class CommandLine {
 
     /// <summary>Initializes a new command line</summary>
-    public CommandLine() {
-      this.arguments = new List<Argument>();
+    public CommandLine() : this(new List<Argument>()) { }
+
+    /// <summary>Initializes a new command line</summary>
+    /// <param name="argumentList">List containing the parsed arguments</param>
+    private CommandLine(List<Argument> argumentList) {
+      this.arguments = argumentList;
     }
+
+#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
+    /// <summary>Parses the command line arguments from the provided string</summary>
+    /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
+    /// <returns>The parsed command line</returns>
+    public static CommandLine Parse(string[] commandLineArguments) {
+      bool windowsMode = (Path.DirectorySeparatorChar != '/');
+      return Parse(commandLineArguments, windowsMode);
+    }
+
+    /// <summary>Parses the command line arguments from the provided string</summary>
+    /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
+    /// <param name="windowsMode">Whether the / character initiates an argument</param>
+    /// <returns>The parsed command line</returns>
+    public static CommandLine Parse(string[] commandLineArguments, bool windowsMode) {
+      return new CommandLine(
+        Parser.Parse(commandLineArguments, windowsMode)
+      );
+    }
+#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
 
     /// <summary>Parses the command line arguments from the provided string</summary>
     /// <param name="commandLineString">String containing the command line arguments</param>
     /// <returns>The parsed command line</returns>
+    /// <remarks>
+    ///   You should always pass Environment.CommandLine to this methods to avoid
+    ///   some problems with the build-in command line tokenizer in .NET
+    ///   (which splits '--test"hello world"/v' into '--testhello world/v')
+    /// </remarks>
     public static CommandLine Parse(string commandLineString) {
       bool windowsMode = (Path.DirectorySeparatorChar != '/');
-      return Parser.Parse(commandLineString, windowsMode);
+      return Parse(commandLineString, windowsMode);
     }
 
     /// <summary>Parses the command line arguments from the provided string</summary>
     /// <param name="commandLineString">String containing the command line arguments</param>
     /// <param name="windowsMode">Whether the / character initiates an argument</param>
     /// <returns>The parsed command line</returns>
+    /// <remarks>
+    ///   You should always pass Environment.CommandLine to this methods to avoid
+    ///   some problems with the build-in command line tokenizer in .NET
+    ///   (which splits '--test"hello world"/v' into '--testhello world/v')
+    /// </remarks>
     public static CommandLine Parse(string commandLineString, bool windowsMode) {
-      return Parser.Parse(commandLineString, windowsMode);
-    }
-
-    #region To Be Removed
-
-    /// <summary>Adds a loose value to the command line</summary>
-    /// <param name="value">Value taht will be added</param>
-    internal void addValue(StringSegment value) {
-      /*
-      Console.WriteLine("Discovered loose value: '" + value.ToString() + "'");
-      */
-
-      this.arguments.Add(
-        Argument.ValueOnly(value, value.Offset, value.Count)
+      return new CommandLine(
+        Parser.Parse(commandLineString, windowsMode)
       );
     }
 
-    /// <summary>Adds an argument to the command line</summary>
-    /// <param name="argument">Argument that will be added</param>
-    internal void addArgument(Argument argument) {
-      /*
-      Console.WriteLine("Discovered option: '" + argument.Raw.ToString() + "'");
-      Console.WriteLine("  Name: '" + argument.Name + "'");
-      if(argument.Value != null) {
-        Console.WriteLine("  Value: '" + argument.Value + "'");
-      }
-      */
-
-      this.arguments.Add(argument);
+    /// <summary>Returns whether an argument with the specified name exists</summary>
+    /// <param name="name">Name of the argument whose existence will be checked</param>
+    /// <returns>True if an argument with the specified name exists</returns>
+    public bool HasArgument(string name) {
+      return (indexOfArgument(name) != -1);
     }
 
-    #endregion // To Be Removed
+#if false
+    /// <summary>Retrieves the value of the specified argument</summary>
+    /// <param name="name">Name of the argument whose value will be retrieved</param>
+    /// <returns>The value of the specified argument</returns>
+    public string GetValue(string name) {
+      int index = indexOfArgument(name);
+      if(index == -1) {
+        return null;
+      }
+
+      // Does this argument have a value?
+      Argument argument = this.arguments[index];
+      if(argument.Value != null) {
+        return argument.Value;
+      } else { // No, it might be a spaced argument
+
+        // See if anything more follows this argument
+        ++index;
+        if(index < this.arguments.Count) {
+
+          // If something follows the argument, and it is not an option of its own,
+          // use its value as the value for the preceding argument
+          argument = this.arguments[index];
+          if(argument.Name == null) {
+            return argument.Value;
+          }
+
+        }
+
+      }
+
+      // No argument found
+      return null;
+    }
+#endif
+
+    /// <summary>Retrieves the index of the argument with the specified name</summary>
+    /// <param name="name">Name of the argument whose index will be returned</param>
+    /// <returns>
+    ///   The index of the indicated argument of -1 if no argument with that name exists
+    /// </returns>
+    private int indexOfArgument(string name) {
+      for(int index = 0; index < this.arguments.Count; ++index) {
+        if(this.arguments[index].Name == name) {
+          return index;
+        }
+      }
+
+      return -1;
+    }
+
 
     /// <summary>Options that were specified on the command line</summary>
     public IList<Argument> Arguments {
