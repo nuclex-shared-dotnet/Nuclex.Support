@@ -50,7 +50,7 @@ namespace Nuclex.Support {
     /// <exception cref="System.ArgumentNullException">String is null</exception>
     public StringSegment(string text) {
       if(text == null) { // questionable, but matches behavior of ArraySegment class
-        throw new ArgumentNullException("text");
+        throw new ArgumentNullException("text", "Text must not be null");
       }
 
       this.text = text;

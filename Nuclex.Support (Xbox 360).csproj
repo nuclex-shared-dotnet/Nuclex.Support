@@ -224,6 +224,10 @@
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\IO\ChainStream.cs" />
+    <Compile Include="Source\IO\ChainStream.Test.cs">
+      <DependentUpon>ChainStream.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\StringHelper.cs" />
     <Compile Include="Source\StringHelper.Test.cs">
       <DependentUpon>StringHelper.cs</DependentUpon>

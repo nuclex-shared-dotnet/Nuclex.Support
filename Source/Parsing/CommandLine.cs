@@ -58,7 +58,7 @@ namespace Nuclex.Support.Parsing {
   ///       <item>
   ///         <term>Argument</term>
   ///         <description>
-  ///           Either an option or a loose value (see below) that being specified on
+  ///           Either an option or a loose value (see below) being specified on
   ///           the command line
   ///         </description>
   ///       </item>
