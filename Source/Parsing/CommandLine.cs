@@ -91,26 +91,6 @@ namespace Nuclex.Support.Parsing {
       this.arguments = argumentList;
     }
 
-#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
-    /// <summary>Parses the command line arguments from the provided string</summary>
-    /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
-    /// <returns>The parsed command line</returns>
-    public static CommandLine Parse(string[] commandLineArguments) {
-      bool windowsMode = (Path.DirectorySeparatorChar != '/');
-      return Parse(commandLineArguments, windowsMode);
-    }
-
-    /// <summary>Parses the command line arguments from the provided string</summary>
-    /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
-    /// <param name="windowsMode">Whether the / character initiates an argument</param>
-    /// <returns>The parsed command line</returns>
-    public static CommandLine Parse(string[] commandLineArguments, bool windowsMode) {
-      return new CommandLine(
-        Parser.Parse(commandLineArguments, windowsMode)
-      );
-    }
-#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
-
     /// <summary>Parses the command line arguments from the provided string</summary>
     /// <param name="commandLineString">String containing the command line arguments</param>
     /// <returns>The parsed command line</returns>
@@ -146,41 +126,101 @@ namespace Nuclex.Support.Parsing {
       return (indexOfArgument(name) != -1);
     }
 
-#if false
-    /// <summary>Retrieves the value of the specified argument</summary>
-    /// <param name="name">Name of the argument whose value will be retrieved</param>
-    /// <returns>The value of the specified argument</returns>
-    public string GetValue(string name) {
-      int index = indexOfArgument(name);
-      if(index == -1) {
-        return null;
+    /// <summary>Adds a value to the command line</summary>
+    /// <param name="value">Value that will be added</param>
+    public void AddValue(string value) {
+      bool valueContainsSpaces = (value.IndexOfAny(new char[] { ' ', '\t' }) != -1);
+
+      if(valueContainsSpaces) {
+        StringBuilder builder = new StringBuilder(value.Length + 2);
+        builder.Append('"');
+        builder.Append(value);
+        builder.Append('"');
+
+        this.arguments.Add(
+          Argument.ValueOnly(
+            new StringSegment(builder.ToString(), 0, value.Length + 2),
+            1,
+            value.Length
+          )
+        );
+      } else {
+        this.arguments.Add(
+          Argument.ValueOnly(new StringSegment(value), 0, value.Length)
+        );
       }
-
-      // Does this argument have a value?
-      Argument argument = this.arguments[index];
-      if(argument.Value != null) {
-        return argument.Value;
-      } else { // No, it might be a spaced argument
-
-        // See if anything more follows this argument
-        ++index;
-        if(index < this.arguments.Count) {
-
-          // If something follows the argument, and it is not an option of its own,
-          // use its value as the value for the preceding argument
-          argument = this.arguments[index];
-          if(argument.Name == null) {
-            return argument.Value;
-          }
-
-        }
-
-      }
-
-      // No argument found
-      return null;
     }
-#endif
+
+    /// <summary>Adds an option to the command line</summary>
+    /// <param name="name">Name of the option that will be added</param>
+    public void AddOption(string name) {
+      AddOption("-", name);
+    }
+
+    /// <summary>Adds an option to the command line</summary>
+    /// <param name="initiator">Initiator that will be used to start the option</param>
+    /// <param name="name">Name of the option that will be added</param>
+    public void AddOption(string initiator, string name) {
+      StringBuilder builder = new StringBuilder(
+        initiator.Length + name.Length
+      );
+      builder.Append(initiator);
+      builder.Append(name);
+
+      this.arguments.Add(
+        Argument.OptionOnly(
+          new StringSegment(builder.ToString()),
+          initiator.Length,
+          name.Length
+        )
+      );
+    }
+
+    /// <summary>Adds an option with an assignment to the command line</summary>
+    /// <param name="name">Name of the option that will be added</param>
+    /// <param name="value">Value that will be assigned to the option</param>
+    public void AddAssignment(string name, string value) {
+      AddAssignment("-", name, value);
+    }
+
+    /// <summary>Adds an option with an assignment to the command line</summary>
+    /// <param name="initiator">Initiator that will be used to start the option</param>
+    /// <param name="name">Name of the option that will be added</param>
+    /// <param name="value">Value that will be assigned to the option</param>
+    public void AddAssignment(string initiator, string name, string value) {
+      bool valueContainsSpaces = (value.IndexOfAny(new char[] { ' ', '\t' }) != -1);
+      StringBuilder builder = new StringBuilder(
+        initiator.Length + name.Length + 1 + value.Length +
+          (valueContainsSpaces ? 2 : 0)
+      );
+      builder.Append(initiator);
+      builder.Append(name);
+      builder.Append('=');
+      if(valueContainsSpaces) {
+        builder.Append('"');
+        builder.Append(value);
+        builder.Append('"');
+      } else {
+        builder.Append(value);
+      }
+
+      this.arguments.Add(
+        new Argument(
+          new StringSegment(builder.ToString()),
+          initiator.Length,
+          name.Length,
+          initiator.Length + name.Length + 1 +
+            (valueContainsSpaces ? 1 : 0),
+          value.Length
+        )
+      );
+    }
+
+    /// <summary>Returns a string that contains the entire command line</summary>
+    /// <returns>The entire command line as a single string</returns>
+    public override string ToString() {
+      return Formatter.FormatCommandLine(this);
+    }
 
     /// <summary>Retrieves the index of the argument with the specified name</summary>
     /// <param name="name">Name of the argument whose index will be returned</param>
@@ -196,7 +236,6 @@ namespace Nuclex.Support.Parsing {
 
       return -1;
     }
-
 
     /// <summary>Options that were specified on the command line</summary>
     public IList<Argument> Arguments {

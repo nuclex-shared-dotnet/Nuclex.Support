@@ -579,6 +579,50 @@ namespace Nuclex.Support.Parsing {
       Assert.IsFalse(test.HasArgument("fourth"));
     }
 
+    /// <summary>
+    ///   Tests whether a command line can be built with the command line class
+    /// </summary>
+    [Test]
+    public void TestCommandLineFormatting() {
+      CommandLine commandLine = new CommandLine();
+
+      commandLine.AddValue("single");
+      commandLine.AddValue("with space");
+      commandLine.AddOption("option");
+      commandLine.AddOption("@@", "extravagant-option");
+      commandLine.AddAssignment("name", "value");
+      commandLine.AddAssignment("name", "value with spaces");
+      commandLine.AddAssignment("@@", "name", "value");
+      commandLine.AddAssignment("@@", "name", "value with spaces");
+
+      Assert.AreEqual(8, commandLine.Arguments.Count);
+      Assert.AreEqual("single", commandLine.Arguments[0].Value);
+      Assert.AreEqual("with space", commandLine.Arguments[1].Value);
+      Assert.AreEqual("option", commandLine.Arguments[2].Name);
+      Assert.AreEqual("@@", commandLine.Arguments[3].Initiator);
+      Assert.AreEqual("extravagant-option", commandLine.Arguments[3].Name);
+      Assert.AreEqual("name", commandLine.Arguments[4].Name);
+      Assert.AreEqual("value", commandLine.Arguments[4].Value);
+      Assert.AreEqual("name", commandLine.Arguments[5].Name);
+      Assert.AreEqual("value with spaces", commandLine.Arguments[5].Value);
+      Assert.AreEqual("@@", commandLine.Arguments[6].Initiator);
+      Assert.AreEqual("name", commandLine.Arguments[6].Name);
+      Assert.AreEqual("value", commandLine.Arguments[6].Value);
+      Assert.AreEqual("name", commandLine.Arguments[7].Name);
+      Assert.AreEqual("@@", commandLine.Arguments[7].Initiator);
+      Assert.AreEqual("value with spaces", commandLine.Arguments[7].Value);
+
+      string commandLineString = commandLine.ToString();
+      Assert.AreEqual(
+        "single \"with space\" " +
+        "-option @@extravagant-option " +
+        "-name=value -name=\"value with spaces\" " +
+        "@@name=value @@name=\"value with spaces\"",
+        commandLineString
+      );
+
+    }
+
   }
 
 } // namespace Nuclex.Support.Parsing

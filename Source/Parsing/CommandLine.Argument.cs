@@ -140,6 +140,11 @@ namespace Nuclex.Support.Parsing {
         }
       }
 
+      /// <summary>The raw length of the command line argument</summary>
+      internal int RawLength {
+        get { return this.raw.Count; }
+      }
+
       /// <summary>
       ///   Contains the entire option as it was specified on the command line
       /// </summary>

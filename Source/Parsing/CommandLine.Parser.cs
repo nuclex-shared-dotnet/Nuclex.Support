@@ -49,20 +49,6 @@ namespace Nuclex.Support.Parsing {
         return theParser.arguments;
       }
 
-#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
-      /// <summary>Parses a string containing command line arguments</summary>
-      /// <param name="commandLineArguments">Command line tokens that will be parsed</param>
-      /// <param name="windowsMode">Whether the / character initiates an argument</param>
-      /// <returns>The parsed command line arguments from the string</returns>
-      public static List<CommandLine.Argument> Parse(
-        string[] commandLineArguments, bool windowsMode
-      ) {
-        Parser theParser = new Parser(windowsMode);
-        theParser.parseSplitCommandLine(commandLineArguments);
-        return theParser.arguments;
-      }
-#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
-
       /// <summary>
       ///   Parses the provided string and adds the parameters found to
       ///   the command line representation
@@ -93,31 +79,6 @@ namespace Nuclex.Support.Parsing {
 
         }
       }
-
-#if ENABLE_TOKENIZED_COMMAND_LINE_PARSING // don't enable, it's broken!
-      /// <summary>
-      ///   Parses the command line from a series pre-split argument tokens
-      /// </summary>
-      /// <param name="commandLineParts">Split argument tokens that will be parsed</param>
-      private void parseSplitCommandLine(string[] commandLineParts) {
-        if(commandLineParts == null) {
-          return;
-        }
-
-        // Walk through the command line character by character and gather
-        // the parameters and values to build the command line representation from
-        for(int index = 0; index < commandLineParts.Length; ++index) {
-
-          if(commandLineParts[index] != null) {
-            int characterIndex = 0;
-            parseChunk(commandLineParts[index], ref characterIndex);
-
-            Debug.Assert(characterIndex == commandLineParts[index].Length);
-          }
-
-        }
-      }
-#endif // ENABLE_TOKENIZED_COMMAND_LINE_PARSING
 
       /// <summary>
       ///   Parses a chunk of characters and adds it as an option or a loose value to

@@ -37,7 +37,6 @@ namespace Nuclex.Support.Licensing {
       new LicenseKey();
     }
 
-
     /// <summary>Validates the correct translation of keys to GUIDs and back</summary>
     [Test]
     public void TestGuidKeyConversion() {
