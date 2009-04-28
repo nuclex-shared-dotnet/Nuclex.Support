@@ -118,8 +118,8 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Collections\RingMemoryStream.cs" />
-    <Compile Include="Source\Collections\RingMemoryStream.Test.cs">
+    <Compile Include="Source\IO\RingMemoryStream.cs" />
+    <Compile Include="Source\IO\RingMemoryStream.Test.cs">
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />

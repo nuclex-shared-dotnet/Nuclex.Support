@@ -21,7 +21,7 @@ License along with this library
 using System;
 using System.IO;
 
-namespace Nuclex.Support.Collections {
+namespace Nuclex.Support.IO {
 
   /// <summary>Specialized memory stream for ring buffers</summary>
   /// <remarks>
@@ -253,4 +253,4 @@ namespace Nuclex.Support.Collections {
 
   }
 
-} // namespace Nuclex.Support.Collections
+} // namespace Nuclex.Support.IO

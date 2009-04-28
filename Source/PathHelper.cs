@@ -75,7 +75,7 @@ namespace Nuclex.Support {
       }
 
       // Now that we're in the common root folder, enter the folders that
-      // the absolute path has in addition to the 
+      // the absolute target path has in addition to the root folder.
       for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; index++) {
         if(relativePath.Length > 0) // We don't want the path to start with a slash
           relativePath.Append(Path.DirectorySeparatorChar);

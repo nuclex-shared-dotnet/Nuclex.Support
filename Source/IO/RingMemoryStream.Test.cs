@@ -25,7 +25,7 @@ using System.IO;
 
 using NUnit.Framework;
 
-namespace Nuclex.Support.Collections {
+namespace Nuclex.Support.IO {
 
   /// <summary>Unit Test for the ring buffer class</summary>
   [TestFixture]
@@ -312,6 +312,6 @@ namespace Nuclex.Support.Collections {
 
   }
 
-} // namespace Nuclex.Support.Collections
+} // namespace Nuclex.Support.IO
 
 #endif // UNITTEST
