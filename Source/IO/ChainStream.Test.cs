@@ -227,7 +227,7 @@ namespace Nuclex.Support.IO {
     [Test]
     public void TestPartitionedRead() {
       ChainStream chainer = chainTwoStreamsOfTenBytes();
-      
+
       ((MemoryStream)chainer.ChainedStreams[0]).Write(
         new byte[] { 1, 2, 3, 4, 5 }, 0, 5
       );
@@ -310,7 +310,7 @@ namespace Nuclex.Support.IO {
 
       byte[] buffer = new byte[5];
       int readByteCount = chainer.Read(buffer, 0, 3);
-      
+
       Assert.AreEqual(3, readByteCount);
       Assert.AreEqual(new byte[] { 0, 9, 8, 0, 0 }, buffer);
 

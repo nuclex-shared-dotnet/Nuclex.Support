@@ -119,10 +119,10 @@ namespace Nuclex.Support.Scheduling {
         copy(this, eventArguments);
     }
 
-    /// <summary>Prepares the current operation and calls its Begin() method</summary>
+    /// <summary>Prepares the current operation and calls its Start() method</summary>
     /// <remarks>
     ///   This subscribes the queue to the events of to the current operation
-    ///   and launches the operation by calling its Begin() method.
+    ///   and launches the operation by calling its Start() method.
     /// </remarks>
     private void startCurrentOperation() {
       OperationType operation = this.children[this.currentOperationIndex].Transaction;
@@ -168,8 +168,8 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Called when the current executing operation ends</summary>
     /// <param name="sender">Operation that ended</param>
-    /// <param name="e">Not used</param>
-    private void asyncOperationEnded(object sender, EventArgs e) {
+    /// <param name="arguments">Not used</param>
+    private void asyncOperationEnded(object sender, EventArgs arguments) {
 
       // Unsubscribe from the current operation's events and update the
       // accumulating progress counter
@@ -196,16 +196,17 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Called when currently executing operation makes progress</summary>
     /// <param name="sender">Operation that has achieved progress</param>
-    /// <param name="e">Not used</param>
-    private void asyncOperationProgressChanged(object sender, ProgressReportEventArgs e) {
+    /// <param name="arguments">Not used</param>
+    private void asyncOperationProgressChanged(
+      object sender, ProgressReportEventArgs arguments
+    ) {
 
       // Determine the completed weight of the currently executing operation
-      float currentOperationCompletedWeight =
-        e.Progress * this.children[this.currentOperationIndex].Weight;
+      float operationWeight = this.children[this.currentOperationIndex].Weight;
+      float operationCompletedWeight = arguments.Progress * operationWeight;
 
       // Build the total normalized amount of progress for the queue
-      float progress =
-        (this.completedWeight + currentOperationCompletedWeight) / this.totalWeight;
+      float progress = (this.completedWeight + operationCompletedWeight) / this.totalWeight;
 
       // Done, we can send the actual progress to any event subscribers
       OnAsyncProgressChanged(progress);

@@ -100,6 +100,10 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\IO\PartialStream.cs" />
+    <Compile Include="Source\IO\PartialStream.Test.cs">
+      <DependentUpon>PartialStream.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\IO\RingMemoryStream.cs" />
     <Compile Include="Source\IO\RingMemoryStream.Test.cs">
       <DependentUpon>RingMemoryStream.cs</DependentUpon>
