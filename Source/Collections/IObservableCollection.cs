@@ -26,7 +26,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Interface for collections that can be observed</summary>
   /// <typeparam name="ItemType">Type of items managed in the collection</typeparam>
-  interface IObservableCollection<ItemType> {
+  public interface IObservableCollection<ItemType> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
