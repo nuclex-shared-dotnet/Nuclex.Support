@@ -44,18 +44,22 @@ namespace Nuclex.Support {
     ///   Tests whether the almost equal check detects a floating point value that is
     ///   just barely too low
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
-    public void TestThrowOnAlmostEqualWithTooLowFloat() {
-      AssertHelper.AreAlmostEqual(exactFloat, minusTwoFloat, 1);
+    [Test]
+    public void TestAlmostEqualWithTooLowFloat() {
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(exactFloat, minusTwoFloat, 1); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the almost equal check detects a floating point value that is
     ///   just barely too high
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
-    public void TestThrowOnAlmostEqualWithTooHighFloat() {
-      AssertHelper.AreAlmostEqual(exactFloat, plusTwoFloat, 1);
+    [Test]
+    public void TestAlmostEqualWithTooHighFloat() {
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(exactFloat, plusTwoFloat, 1); }
+      );
     }
 
     /// <summary>
@@ -71,18 +75,22 @@ namespace Nuclex.Support {
     ///   Tests whether the almost equal check detects a double precision floating point
     ///   value that is just barely too low
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
-    public void TestThrowOnAlmostEqualWithTooLowDouble() {
-      AssertHelper.AreAlmostEqual(exactDouble, minusTwoDouble, 1);
+    [Test]
+    public void TestAlmostEqualWithTooLowDouble() {
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(exactDouble, minusTwoDouble, 1); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the almost equal check detects a double precision floating point
     ///   value that is just barely too high
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
-    public void TestThrowOnAlmostEqualWithTooHighDouble() {
-      AssertHelper.AreAlmostEqual(exactDouble, plusTwoDouble, 1);
+    [Test]
+    public void TestAlmostEqualWithTooHighDouble() {
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(exactDouble, plusTwoDouble, 1); }
+      );
     }
 
     /// <summary>
@@ -112,24 +120,28 @@ namespace Nuclex.Support {
     ///   Verifies that the AreAlmostEqual() helper throws an exception if two arrays
     ///   of different length are compared to each other
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
-    public void TestThrowOnAlmostEqualWithFloatArraysOfDifferentLength() {
+    [Test]
+    public void TestAlmostEqualWithFloatArraysOfDifferentLength() {
       float[] referenceArray = new float[] { exactFloat, exactFloat, exactFloat };
       float[] testArray = new float[] { exactFloat, exactFloat };
 
-      AssertHelper.AreAlmostEqual(referenceArray, testArray, 1);
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(referenceArray, testArray, 1); }
+      );
     }
 
     /// <summary>
     ///   Verifies that the AreAlmostEqual() helper throws an exception if the two
     ///   arrays contain elements that deviate by more than the allowed amount
     /// </summary>
-    [Test, ExpectedException(typeof(AssertionException))]
+    [Test]
     public void TestThrowOnAlmostEqualWithBarelyDifferingFloatArrays() {
       float[] referenceArray = new float[] { exactFloat, exactFloat, exactFloat };
       float[] testArray = new float[] { plusOneFloat, minusOneFloat, plusTwoFloat };
 
-      AssertHelper.AreAlmostEqual(referenceArray, testArray, 1);
+      Assert.Throws<AssertionException>(
+        delegate() { AssertHelper.AreAlmostEqual(referenceArray, testArray, 1); }
+      );
     }
 
     /// <summary>
