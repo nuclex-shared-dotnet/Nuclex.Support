@@ -207,12 +207,13 @@ namespace Nuclex.Support.IO {
     ///   Verifies that the partial stream constructor throws an exception if
     ///   it's invoked with an invalid start offset
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnInvalidStartInConstructor() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         memoryStream.SetLength(123);
-        PartialStream partialStream = new PartialStream(memoryStream, -1, 10);
-        Assert.AreNotEqual(partialStream.Length, partialStream.Length);
+        Assert.Throws<ArgumentException>(
+          delegate() { Console.WriteLine(new PartialStream(memoryStream, -1, 10)); }
+        );
       }
     }
 
@@ -220,12 +221,13 @@ namespace Nuclex.Support.IO {
     ///   Verifies that the partial stream constructor throws an exception if
     ///   it's invoked with an invalid start offset
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnInvalidLengthInConstructor() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         memoryStream.SetLength(123);
-        PartialStream partialStream = new PartialStream(memoryStream, 100, 24);
-        Assert.AreNotEqual(partialStream.Length, partialStream.Length);
+        Assert.Throws<ArgumentException>(
+          delegate() { Console.WriteLine(new PartialStream(memoryStream, 100, 24)); }
+        );
       }
     }
 
@@ -233,13 +235,14 @@ namespace Nuclex.Support.IO {
     ///   Verifies that the partial stream constructor throws an exception if
     ///   it's invoked with a start offset on an unseekable stream
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnUnseekableStreamWithOffsetInConstructor() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         memoryStream.SetLength(123);
         TestStream testStream = new TestStream(memoryStream, true, true, false);
-        PartialStream partialStream = new PartialStream(testStream, 23, 100);
-        Assert.AreNotEqual(partialStream.Length, partialStream.Length);
+        Assert.Throws<ArgumentException>(
+          delegate() { Console.WriteLine(new PartialStream(testStream, 23, 100)); }
+        );
       }
     }
 
@@ -351,13 +354,15 @@ namespace Nuclex.Support.IO {
     ///   Tests whether the Position property throws an exception if the stream does
     ///   not support seeking.
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnGetPositionOnUnseekableStream() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         TestStream testStream = new TestStream(memoryStream, true, true, false);
 
         PartialStream partialStream = new PartialStream(testStream, 0, 0);
-        Assert.AreEqual(-12345, partialStream.Position);
+        Assert.Throws<NotSupportedException>(
+          delegate() { Console.WriteLine(partialStream.Position); }
+        );
       }
     }
 
@@ -365,13 +370,15 @@ namespace Nuclex.Support.IO {
     ///   Tests whether the Position property throws an exception if the stream does
     ///   not support seeking.
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnSetPositionOnUnseekableStream() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         TestStream testStream = new TestStream(memoryStream, true, true, false);
 
         PartialStream partialStream = new PartialStream(testStream, 0, 0);
-        partialStream.Position = 0;
+        Assert.Throws<NotSupportedException>(
+          delegate() { partialStream.Position = 0; }
+        );
       }
     }
 
@@ -379,16 +386,16 @@ namespace Nuclex.Support.IO {
     ///   Tests whether the Read() method throws an exception if the stream does
     ///   not support reading
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReadFromUnreadableStream() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         TestStream testStream = new TestStream(memoryStream, false, true, true);
         PartialStream partialStream = new PartialStream(testStream, 0, 0);
 
         byte[] test = new byte[10];
-        int bytesRead = partialStream.Read(test, 0, 10);
-
-        Assert.AreNotEqual(bytesRead, bytesRead);
+        Assert.Throws<NotSupportedException>(
+          delegate() { Console.WriteLine(partialStream.Read(test, 0, 10)); }
+        );
       }
     }
 
@@ -411,11 +418,13 @@ namespace Nuclex.Support.IO {
     ///   Tests whether the Seek() method throws an exception if an invalid
     ///   reference point is provided
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnInvalidSeekReferencePoint() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         PartialStream partialStream = new PartialStream(memoryStream, 0, 0);
-        partialStream.Seek(1, (SeekOrigin)12345);
+        Assert.Throws<ArgumentException>(
+          delegate() { partialStream.Seek(1, (SeekOrigin)12345); }
+        );
       }
     }
 
@@ -423,11 +432,13 @@ namespace Nuclex.Support.IO {
     ///   Verifies that the partial stream throws an exception if the attempt is
     ///   made to change the length of the stream
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnLengthChange() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         PartialStream partialStream = new PartialStream(memoryStream, 0, 0);
-        partialStream.SetLength(123);
+        Assert.Throws<NotSupportedException>(
+          delegate() { partialStream.SetLength(123); }
+        );
       }
     }
 
@@ -497,14 +508,16 @@ namespace Nuclex.Support.IO {
     ///   Verifies that an exception is thrown if the Write() method of the partial stream
     ///   is attempted to be used to extend the partial stream's length
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnExtendPartialStream() {
       using(MemoryStream memoryStream = new MemoryStream()) {
         memoryStream.SetLength(25);
 
         PartialStream partialStream = new PartialStream(memoryStream, 10, 10);
         partialStream.Position = 5;
-        partialStream.Write(new byte[] { 1, 2, 3, 4, 5, 6 }, 0, 6);
+        Assert.Throws<NotSupportedException>(
+          delegate() { partialStream.Write(new byte[] { 1, 2, 3, 4, 5, 6 }, 0, 6); }
+        );
       }
     }
 

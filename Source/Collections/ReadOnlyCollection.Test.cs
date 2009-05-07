@@ -81,28 +81,34 @@ namespace Nuclex.Support.Collections {
     /// <summary>
     ///   Ensures that the Add() method of the read only collection throws an exception
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAdd() {
       ReadOnlyCollection<int> testCollection = new ReadOnlyCollection<int>(new int[0]);
-      (testCollection as ICollection<int>).Add(123);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<int>).Add(123); }
+      );
     }
 
     /// <summary>
     ///   Ensures that the Remove() method of the read only collection throws an exception
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemove() {
       ReadOnlyCollection<int> testCollection = new ReadOnlyCollection<int>(new int[0]);
-      (testCollection as ICollection<int>).Remove(123);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<int>).Remove(123); }
+      );
     }
 
     /// <summary>
     ///   Ensures that the Clear() method of the read only collection throws an exception
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClear() {
       ReadOnlyCollection<int> testCollection = new ReadOnlyCollection<int>(new int[0]);
-      (testCollection as ICollection<int>).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<int>).Clear(); }
+      );
     }
 
     /// <summary>
@@ -118,7 +124,7 @@ namespace Nuclex.Support.Collections {
         outputIntegers.Add(value);
       }
 
-      CollectionAssert.AreEqual(inputIntegers, outputIntegers);      
+      CollectionAssert.AreEqual(inputIntegers, outputIntegers);
     }
 
     /// <summary>

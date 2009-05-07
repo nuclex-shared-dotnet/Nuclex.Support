@@ -95,30 +95,35 @@ namespace Nuclex.Support.Licensing {
     }
 
     /// <summary>Tests whether license keys can be modified without destroying them</summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestParseInvalidLicenseKey() {
-      LicenseKey.Parse("hello world");
+      Assert.Throws<ArgumentException>(
+        delegate() { LicenseKey.Parse("hello world"); }
+      );
     }
 
     /// <summary>
     ///   Tests whether an exception is thrown if the indexer of a license key is used
     ///   with an invalid index to retrieve a component of the key
     /// </summary>
-    [Test, ExpectedException(typeof(IndexOutOfRangeException))]
+    [Test]
     public void TestGetByIndexerWithInvalidIndex() {
       LicenseKey key = new LicenseKey();
-      int indexMinusOne = key[-1];
-      Console.WriteLine(indexMinusOne.ToString());
+      Assert.Throws<IndexOutOfRangeException>(
+        delegate() { Console.WriteLine(key[-1]); }
+      );
     }
 
     /// <summary>
     ///   Tests whether an exception is thrown if the indexer of a license key is used
     ///   with an invalid index to set a component of the key
     /// </summary>
-    [Test, ExpectedException(typeof(IndexOutOfRangeException))]
+    [Test]
     public void TestSetByIndexerWithInvalidIndex() {
       LicenseKey key = new LicenseKey();
-      key[-1] = 0;
+      Assert.Throws<IndexOutOfRangeException>(
+        delegate() { key[-1] = 0; }
+      );
     }
 
     /// <summary>

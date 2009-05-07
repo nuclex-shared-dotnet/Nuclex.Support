@@ -104,13 +104,15 @@ namespace Nuclex.Support.Collections {
     ///   Test whether the non-typesafe Add() method throws an exception if an object is
     ///   added that is not compatible to the collection's item type
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnAddIncompatibleObject() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
       );
 
-      (dummies as IList).Add(new object());
+      Assert.Throws<ArgumentException>(
+        delegate() { (dummies as IList).Add(new object()); }
+      );
     }
 
     /// <summary>
@@ -243,13 +245,15 @@ namespace Nuclex.Support.Collections {
     ///   Verifies that an exception is thrown if an incompatible object is passed to
     ///   the non-typesafe variant of the IndexOf() method
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnIndexOfWithIncompatibleObject() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
       );
 
-      Assert.IsNull((dummies as IList).IndexOf(new object()));
+      Assert.Throws<ArgumentException>(
+        delegate() { Assert.IsNull((dummies as IList).IndexOf(new object())); }
+      );
     }
 
     /// <summary>Test whether the IndexOf() method can cope with null references</summary>
@@ -289,7 +293,7 @@ namespace Nuclex.Support.Collections {
     ///   Verifies that the CopyTo() method of the weak collection throws an exception
     ///   if the target array is too small to hold the collection's contents
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnCopyToTooSmallArray() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
@@ -300,7 +304,9 @@ namespace Nuclex.Support.Collections {
       dummies.Add(fourFiveSixDummy);
 
       Dummy[] outputStrings = new Dummy[dummies.Count - 1];
-      dummies.CopyTo(outputStrings, 0);
+      Assert.Throws<ArgumentException>(
+        delegate() { dummies.CopyTo(outputStrings, 0); }
+      );
     }
 
     /// <summary>
@@ -368,7 +374,7 @@ namespace Nuclex.Support.Collections {
     ///   Verifies that the non-typesafe Insert() method correctly shifts items in
     ///   the collection
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnInsertIncompatibleObject() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
@@ -377,7 +383,9 @@ namespace Nuclex.Support.Collections {
       dummies.Add(oneTwoThreeDummy);
 
       Dummy fourFiveSixDummy = new Dummy(456);
-      (dummies as IList).Insert(0, new object());
+      Assert.Throws<ArgumentException>(
+        delegate() { (dummies as IList).Insert(0, new object()); }
+      );
     }
 
     /// <summary>
@@ -476,7 +484,7 @@ namespace Nuclex.Support.Collections {
     ///   Tests whether the non-typesafe indexer of the weak collection throws
     ///   the correct exception if an incompatible object is assigned
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnIndexerWithIncompatibleObject() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
@@ -484,7 +492,9 @@ namespace Nuclex.Support.Collections {
       Dummy oneTwoThreeDummy = new Dummy(123);
       dummies.Add(oneTwoThreeDummy);
 
-      (dummies as IList)[0] = new object();
+      Assert.Throws<ArgumentException>(
+        delegate() { (dummies as IList)[0] = new object(); }
+      );
     }
 
     /// <summary>Tests the Remove() method of the weak collection</summary>
@@ -540,12 +550,14 @@ namespace Nuclex.Support.Collections {
     ///   an exception if an object is tried to be removed that is incompatible with
     ///   the collection's item type
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnRemoveIncompatibleObject() {
       WeakCollection<Dummy> dummies = new WeakCollection<Dummy>(
         new List<WeakReference<Dummy>>()
       );
-      (dummies as IList).Remove(new object());
+      Assert.Throws<ArgumentException>(
+        delegate() { (dummies as IList).Remove(new object()); }
+      );
     }
 
     /// <summary>Tests the RemoveAt() method of the weak collection</summary>

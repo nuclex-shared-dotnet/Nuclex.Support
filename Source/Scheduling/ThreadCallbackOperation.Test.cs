@@ -110,7 +110,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Verifies that the threaded operation forwards an exception that occurred in
     ///   a thread pool thread.
     /// </summary>
-    [Test, ExpectedException(typeof(AbortedException))]
+    [Test]
     public void TestForwardExceptionFromThreadPool() {
       ThreadCallbackOperation test = new ThreadCallbackOperation(
         new ThreadStart(errorCallback), false
@@ -118,14 +118,16 @@ namespace Nuclex.Support.Scheduling {
 
       Assert.IsFalse(test.Ended);
       test.Start();
-      test.Join();
+      Assert.Throws<AbortedException>(
+        delegate() { test.Join(); }
+      );
     }
 
     /// <summary>
     ///   Verifies that the threaded operation forwards an exception that occurred in
     ///   an explicit thread.
     /// </summary>
-    [Test, ExpectedException(typeof(AbortedException))]
+    [Test]
     public void TestForwardExceptionFromExplicitThread() {
       ThreadCallbackOperation test = new ThreadCallbackOperation(
         new ThreadStart(errorCallback), false
@@ -133,7 +135,9 @@ namespace Nuclex.Support.Scheduling {
 
       Assert.IsFalse(test.Ended);
       test.Start();
-      test.Join();
+      Assert.Throws<AbortedException>(
+        delegate() { test.Join(); }
+      );
     }
 
     /// <summary>

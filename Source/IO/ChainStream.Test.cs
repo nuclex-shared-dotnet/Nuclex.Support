@@ -323,35 +323,39 @@ namespace Nuclex.Support.IO {
     /// <summary>
     ///   Tests reading from a stream chainer that contains an unreadable stream
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReadFromUnreadableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, false, true, true);
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-
-      chainer.Read(new byte[5], 0, 5);
+      Assert.Throws<NotSupportedException>(
+        delegate() { chainer.Read(new byte[5], 0, 5); }
+      );
     }
 
     /// <summary>
     ///   Tests writing to a stream chainer that contains an unwriteable stream
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnWriteToUnwriteableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, true, false, true);
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-
-      chainer.Write(new byte[] { 1, 2, 3, 4, 5 }, 0, 5);
+      Assert.Throws<NotSupportedException>(
+        delegate() { chainer.Write(new byte[] { 1, 2, 3, 4, 5 }, 0, 5); }
+      );
     }
 
     /// <summary>
     ///   Verifies that the stream chainer throws an exception if the attempt is
     ///   made to change the length of the stream
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnLengthChange() {
       ChainStream chainer = chainTwoStreamsOfTenBytes();
-      chainer.SetLength(123);
+      Assert.Throws<NotSupportedException>(
+        delegate() { chainer.SetLength(123); }
+      );
     }
 
     /// <summary>
@@ -409,52 +413,60 @@ namespace Nuclex.Support.IO {
     ///   Tests whether an exception is thrown if the Seek() method is called on
     ///   a stream chainer with streams that do not support seeking
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnSeekWithUnseekableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, true, true, false);
 
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-      chainer.Seek(123, SeekOrigin.Begin);
+      Assert.Throws<NotSupportedException>(
+        delegate() { chainer.Seek(123, SeekOrigin.Begin); }
+      );
     }
 
     /// <summary>
     ///   Tests whether an exception is thrown if the Position property is retrieved
     ///   on a stream chainer with streams that do not support seeking
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnGetPositionWithUnseekableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, true, true, false);
 
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-      Assert.IsTrue(chainer.Position != chainer.Position); // ;-)
+      Assert.Throws<NotSupportedException>(
+        delegate() { Console.WriteLine(chainer.Position); }
+      );
     }
 
     /// <summary>
     ///   Tests whether an exception is thrown if the Position property is set
     ///   on a stream chainer with streams that do not support seeking
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnSetPositionWithUnseekableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, true, true, false);
 
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-      chainer.Position = 123;
+      Assert.Throws<NotSupportedException>(
+        delegate() { chainer.Position = 123; }
+      );
     }
 
     /// <summary>
     ///   Tests whether an exception is thrown if the Length property is retrieved
     ///   on a stream chainer with streams that do not support seeking
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnGetLengthWithUnseekableStream() {
       MemoryStream memoryStream = new MemoryStream();
       TestStream testStream = new TestStream(memoryStream, true, true, false);
 
       ChainStream chainer = new ChainStream(new Stream[] { testStream });
-      Assert.IsTrue(chainer.Length != chainer.Length); // ;-)
+      Assert.Throws<NotSupportedException>(
+        delegate() { Assert.IsTrue(chainer.Length != chainer.Length); }
+      );
     }
 
     /// <summary>
@@ -486,10 +498,12 @@ namespace Nuclex.Support.IO {
     ///   Tests whether the Seek() method throws an exception if an invalid
     ///   reference point is provided
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnInvalidSeekReferencePoint() {
       ChainStream chainer = chainTwoStreamsOfTenBytes();
-      chainer.Seek(1, (SeekOrigin)12345);
+      Assert.Throws<ArgumentException>(
+        delegate() { chainer.Seek(1, (SeekOrigin)12345); }
+      );
     }
 
     /// <summary>Verifies that the position property works correctly</summary>

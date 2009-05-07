@@ -287,7 +287,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Validates that the operation queue delivers an exception occuring in one of the
     ///   contained operations to the operation queue joiner
     /// </summary>
-    [Test, ExpectedException(typeof(AbortedException))]
+    [Test]
     public void TestExceptionPropagation() {
       TestOperation operation1 = new TestOperation();
       TestOperation operation2 = new TestOperation();
@@ -307,7 +307,9 @@ namespace Nuclex.Support.Scheduling {
       Assert.IsFalse(testQueueOperation.Ended);
       operation2.SetEnded(new AbortedException("Hello World"));
 
-      testQueueOperation.Join();
+      Assert.Throws<AbortedException>(
+        delegate() { testQueueOperation.Join(); }
+      );
     }
 
     /// <summary>
@@ -321,7 +323,7 @@ namespace Nuclex.Support.Scheduling {
       );
       WeightedTransaction<TestOperation> operation2 = new WeightedTransaction<TestOperation>(
         new TestOperation()
-      );      
+      );
 
       OperationQueue<TestOperation> testQueueOperation =
         new OperationQueue<TestOperation>(

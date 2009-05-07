@@ -42,9 +42,11 @@ namespace Nuclex.Support.IO {
     /// <summary>
     ///   Ensures that the ring buffer blocks write attempts that would exceed its capacity
     /// </summary>
-    [Test, ExpectedException(typeof(OverflowException))]
+    [Test]
     public void TestWriteTooLargeChunk() {
-      new RingMemoryStream(10).Write(this.testBytes, 0, 11);
+      Assert.Throws<OverflowException>(
+        delegate() { new RingMemoryStream(10).Write(this.testBytes, 0, 11); }
+      );
     }
 
     /// <summary>
@@ -93,13 +95,15 @@ namespace Nuclex.Support.IO {
     ///   Ensures that the ring buffer still detects write that would exceed its capacity
     ///   if they write into the gap after the ring buffer's data has become split
     /// </summary>
-    [Test, ExpectedException(typeof(OverflowException))]
+    [Test]
     public void TestWriteSplitAndLinearTooLargeBlock() {
       RingMemoryStream testRing = new RingMemoryStream(10);
       testRing.Write(this.testBytes, 0, 8);
       testRing.Read(this.testBytes, 0, 5);
       testRing.Write(this.testBytes, 0, 5);
-      testRing.Write(this.testBytes, 0, 3);
+      Assert.Throws<OverflowException>(
+        delegate() { testRing.Write(this.testBytes, 0, 3); }
+      );
     }
 
     /// <summary>Tests whether the ring buffer correctly handles fragmentation</summary>
@@ -182,12 +186,14 @@ namespace Nuclex.Support.IO {
     ///   Checks that an exception is thrown when the ring buffer's capacity is
     ///   reduced so much it would have to give up some of its contained data
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [Test]
     public void TestCapacityDecreaseException() {
       RingMemoryStream testRing = new RingMemoryStream(20);
       testRing.Write(this.testBytes, 0, 20);
 
-      testRing.Capacity = 10;
+      Assert.Throws<ArgumentOutOfRangeException>(
+        delegate() { testRing.Capacity = 10; }
+      );
     }
 
     /// <summary>Tests whether the Capacity property returns the current capacity</summary>
@@ -238,37 +244,44 @@ namespace Nuclex.Support.IO {
     ///   Verifies that an exception is thrown when the Position property of the ring
     ///   memory stream is used to retrieve the current file pointer position
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRetrievePosition() {
-      long position = new RingMemoryStream(10).Position;
-      Console.WriteLine(position.ToString());
+      Assert.Throws<NotSupportedException>(
+        delegate() { Console.WriteLine(new RingMemoryStream(10).Position); }
+      );
     }
 
     /// <summary>
     ///   Verifies that an exception is thrown when the Position property of the ring
     ///   memory stream is used to modify the current file pointer position
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAssignPosition() {
-      new RingMemoryStream(10).Position = 0;
+      Assert.Throws<NotSupportedException>(
+        delegate() { new RingMemoryStream(10).Position = 0; }
+      );
     }
 
     /// <summary>
     ///   Verifies that an exception is thrown when the Seek() method of the ring memory
     ///   stream is attempted to be used
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnSeek() {
-      new RingMemoryStream(10).Seek(0, SeekOrigin.Begin);
+      Assert.Throws<NotSupportedException>(
+        delegate() { new RingMemoryStream(10).Seek(0, SeekOrigin.Begin); }
+      );
     }
 
     /// <summary>
     ///   Verifies that an exception is thrown when the SetLength() method of the ring
     ///   memory stream is attempted to be used
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnSetLength() {
-      new RingMemoryStream(10).SetLength(10);
+      Assert.Throws<NotSupportedException>(
+        delegate() { new RingMemoryStream(10).SetLength(10); }
+      );
     }
 
     /// <summary>

@@ -71,14 +71,16 @@ namespace Nuclex.Support.Tracking {
     ///   Verifies that the FailedDummy request is in the ended state and throws
     ///   an exception when Join()ing
     /// </summary>
-    [Test, ExpectedException(typeof(AbortedException))]
+    [Test]
     public void TestFailedDummy() {
       Request failedDummy = Request.CreateFailedDummy(
         new AbortedException("Hello World")
       );
 
       Assert.IsTrue(failedDummy.Ended);
-      failedDummy.Join();
+      Assert.Throws<AbortedException>(
+        delegate() { failedDummy.Join(); }
+      );
     }
 
     /// <summary>
@@ -114,14 +116,16 @@ namespace Nuclex.Support.Tracking {
     ///   Verifies that the FailedDummy request is in the ended state and throws
     ///   an exception when Join()ing
     /// </summary>
-    [Test, ExpectedException(typeof(AbortedException))]
+    [Test]
     public void TestFailedDummy() {
       Request<int> failedDummy = Request<int>.CreateFailedDummy(
         new AbortedException("Hello World")
       );
 
       Assert.IsTrue(failedDummy.Ended);
-      failedDummy.Join();
+      Assert.Throws<AbortedException>(
+        delegate() { failedDummy.Join(); }
+      );
     }
 
   }

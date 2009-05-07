@@ -112,20 +112,24 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only list will throw an exception if its Insert() method
     ///   is called via the generic IList&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnInsertViaGenericIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[0]);
-      (testList as IList<int>).Insert(0, 12345);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList<int>).Insert(0, 12345); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its RemoveAt() method
     ///   is called via the generic IList&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
-      (testList as IList<int>).RemoveAt(0);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList<int>).RemoveAt(0); }
+      );
     }
 
     /// <summary>
@@ -147,43 +151,51 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the indexer method of the read only list will throw an exception
     ///   if it is attempted to be used for replacing an item
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaGenericIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
 
-      (testList as IList<int>)[0] = 12345;
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList<int>)[0] = 12345; }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its Add() method
     ///   is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaGenericICollection() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[0]);
-      (testList as ICollection<int>).Add(12345);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as ICollection<int>).Add(12345); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its Clear() method
     ///   is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaGenericICollection() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
-      (testList as ICollection<int>).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as ICollection<int>).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its Remove() method
     ///   is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericICollection() {
       int[] integers = new int[] { 12, 34, 67, 89 };
       ReadOnlyList<int> testList = new ReadOnlyList<int>(integers);
 
-      (testList as ICollection<int>).Remove(89);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as ICollection<int>).Remove(89); }
+      );
     }
 
     /// <summary>
@@ -206,20 +218,24 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only list will throw an exception if its Clear() method
     ///   is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
-      (testList as IList).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its Add() method
     ///   is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[0]);
-      (testList as IList).Add(12345);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList).Add(12345); }
+      );
     }
 
     /// <summary>
@@ -254,10 +270,12 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only list will throw an exception if its Insert() method
     ///   is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnInsertViaIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[0]);
-      (testList as IList).Insert(0, 12345);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList).Insert(0, 12345); }
+      );
     }
 
     /// <summary>
@@ -276,23 +294,27 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only list will throw an exception if its Remove() method
     ///   is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaIList() {
       int[] integers = new int[] { 1234, 6789 };
       ReadOnlyList<int> testList = new ReadOnlyList<int>(integers);
 
-      (testList as IList).Remove(6789);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList).Remove(6789); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only list will throw an exception if its Remove() method
     ///   is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveAtViaIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
 
-      (testList as IList).RemoveAt(0);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList).RemoveAt(0); }
+      );
     }
 
     /// <summary>
@@ -314,11 +336,13 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the indexer method of the read only list will throw an exception
     ///   if it is attempted to be used for replacing an item
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaIList() {
       ReadOnlyList<int> testList = new ReadOnlyList<int>(new int[1]);
 
-      (testList as IList)[0] = 12345;
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testList as IList)[0] = 12345; }
+      );
     }
 
     /// <summary>

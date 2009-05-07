@@ -174,37 +174,42 @@ namespace Nuclex.Support.Collections {
     ///   Tests whether an exception is thrown if the indexer of the read only dictionary
     ///   is used to attempt to retrieve a non-existing value
     /// </summary>
-    [Test, ExpectedException(typeof(KeyNotFoundException))]
+    [Test]
     public void TestThrowOnRetrieveNonExistingValueByIndexer() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      string numberName = testDictionary[24];
-      Console.WriteLine(numberName);
+      Assert.Throws<KeyNotFoundException>(
+        delegate() { Console.WriteLine(testDictionary[24]); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Add() method is called via the generic IDictionary&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaGenericIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary<int, string>).Add(10, "ten");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary<int, string>).Add(10, "ten"); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Remove() method is called via the generic IDictionary&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary<int, string>).Remove(3);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary<int, string>).Remove(3); }
+      );
     }
 
     /// <summary>
@@ -222,36 +227,42 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   indexer is used to insert an item via the generic IDictionar&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaGenericIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary<int, string>)[24] = "twenty-four";
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary<int, string>)[24] = "twenty-four"; }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Clear() method is called via the IDictionary interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Add() method is called via the IDictionary interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
-
-      (testDictionary as IDictionary).Add(24, "twenty-four");
+      
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary).Add(24, "twenty-four"); }
+      );
     }
 
     /// <summary>
@@ -328,12 +339,14 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Remove() method is called via the IDictionary interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary).Remove(3);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary).Remove(3); }
+      );
     }
 
     /// <summary>
@@ -352,25 +365,31 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   indexer is used to insert an item via the IDictionary interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaIDictionary() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as IDictionary)[24] = "twenty-four";
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as IDictionary)[24] = "twenty-four"; }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Add() method is used via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaGenericICollection() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as ICollection<KeyValuePair<int, string>>).Add(
-        new KeyValuePair<int, string>(24, "twenty-four")
+      Assert.Throws<NotSupportedException>(
+        delegate() {
+          (testDictionary as ICollection<KeyValuePair<int, string>>).Add(
+            new KeyValuePair<int, string>(24, "twenty-four")
+          );
+        }
       );
     }
 
@@ -378,25 +397,31 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Clear() method is used via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaGenericICollection() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as ICollection<KeyValuePair<int, string>>).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testDictionary as ICollection<KeyValuePair<int, string>>).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the read only dictionary will throw an exception if its
     ///   Remove() method is used via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericICollection() {
       Dictionary<int, string> numbers = createTestDictionary();
       ReadOnlyDictionary<int, string> testDictionary = makeReadOnly(numbers);
 
-      (testDictionary as ICollection<KeyValuePair<int, string>>).Remove(
-        new KeyValuePair<int, string>(42, "fourty-two")
+      Assert.Throws<NotSupportedException>(
+        delegate() {
+          (testDictionary as ICollection<KeyValuePair<int, string>>).Remove(
+            new KeyValuePair<int, string>(42, "fourty-two")
+          );
+        }
       );
     }
 

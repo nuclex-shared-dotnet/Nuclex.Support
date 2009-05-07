@@ -73,22 +73,26 @@ namespace Nuclex.Support.Plugins {
     ///   Tests whether the factory employer throws an exception when it is asked to
     ///   employ an abstract class
     /// </summary>
-    [Test, ExpectedException(typeof(MissingMethodException))]
+    [Test]
     public void TestThrowOnEmployAbstractClass() {
       FactoryEmployer<Base> testEmployer = new FactoryEmployer<Base>();
 
-      testEmployer.Employ(typeof(Base));
+      Assert.Throws<MissingMethodException>(
+        delegate() { testEmployer.Employ(typeof(Base)); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the factory employer throws an exception when it is asked to
     ///   employ a class that is not the product type or a derivative thereof
     /// </summary>
-    [Test, ExpectedException(typeof(InvalidCastException))]
+    [Test]
     public void TestThrowOnEmployUnrelatedClass() {
       FactoryEmployer<Base> testEmployer = new FactoryEmployer<Base>();
 
-      testEmployer.Employ(typeof(Unrelated));
+      Assert.Throws<InvalidCastException>(
+        delegate() { testEmployer.Employ(typeof(Unrelated)); }
+      );
     }
 
     /// <summary>

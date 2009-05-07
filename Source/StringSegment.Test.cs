@@ -35,9 +35,11 @@ namespace Nuclex.Support {
     ///   Tests whether the default constructor of the StringSegment class throws the
     ///   right exception when being passed 'null' instead of a string
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentNullException))]
+    [Test]
     public void TestNullStringInSimpleConstructor() {
-      new StringSegment(null);
+      Assert.Throws<ArgumentNullException>(
+        delegate() { new StringSegment(null); }
+      );
     }
 
     /// <summary>
@@ -53,9 +55,11 @@ namespace Nuclex.Support {
     ///   Tests whether the full constructor of the StringSegment class throws the
     ///   right exception when being passed 'null' instead of a string
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentNullException))]
+    [Test]
     public void TestNullStringInFullConstructor() {
-      new StringSegment(null, 0, 0);
+      Assert.Throws<ArgumentNullException>(
+        delegate() { new StringSegment(null, 0, 0); }
+      );
     }
 
     /// <summary>
@@ -71,27 +75,33 @@ namespace Nuclex.Support {
     ///   Tests whether the full constructor of the StringSegment class throws the
     ///   right exception when being passed an invalid start offset
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [Test]
     public void TestInvalidOffsetInConstructor() {
-      new StringSegment(string.Empty, -1, 0);
+      Assert.Throws<ArgumentOutOfRangeException>(
+        delegate() { new StringSegment(string.Empty, -1, 0); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the full constructor of the StringSegment class throws the
     ///   right exception when being passed an invalid string length
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [Test]
     public void TestInvalidLengthInConstructor() {
-      new StringSegment(string.Empty, 0, -1);
+      Assert.Throws<ArgumentOutOfRangeException>(
+        delegate() { new StringSegment(string.Empty, 0, -1); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the full constructor of the StringSegment class throws the
     ///   right exception when being passed a string length that's too large
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestExcessiveLengthInConstructor() {
-      new StringSegment("hello", 3, 3);
+      Assert.Throws<ArgumentException>(
+        delegate() { new StringSegment("hello", 3, 3); }
+      );
     }
 
     /// <summary>Tests whether the 'Text' property works as expected</summary>
@@ -198,28 +208,31 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Tests the ToString() method of the string segment with an invalid string
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentNullException))]
+    [Test]
     public void TestToStringWithInvalidString() {
-      StringSegment helloWorldSegment = new StringSegment(null, 4, 3);
-      Assert.IsNotNull(helloWorldSegment.ToString());
+      Assert.Throws<ArgumentNullException>(
+        delegate() { new StringSegment(null, 4, 3); }
+      );
     }
 
     /// <summary>
     ///   Tests the ToString() method of the string segment with an invalid offset
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [Test]
     public void TestToStringWithInvalidOffset() {
-      StringSegment helloWorldSegment = new StringSegment("hello world", -4, 3);
-      Assert.IsNotNull(helloWorldSegment.ToString());
+      Assert.Throws<ArgumentOutOfRangeException>(
+        delegate() { new StringSegment("hello world", -4, 3); }
+      );
     }
 
     /// <summary>
     ///   Tests the ToString() method of the string segment with an invalid count
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [Test]
     public void TestToStringWithInvalidCount() {
-      StringSegment helloWorldSegment = new StringSegment("hello world", 4, -3);
-      Assert.IsNotNull(helloWorldSegment.ToString());
+      Assert.Throws<ArgumentOutOfRangeException>(
+        delegate() { new StringSegment("hello world", 4, -3); }
+      );
     }
 
   }

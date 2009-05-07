@@ -100,33 +100,39 @@ namespace Nuclex.Support.Collections {
     ///   Tests whether the priority queue's enumerators are invalidated when the queue's
     ///   contents are modified
     /// </summary>
-    [Test, ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void TestEnumeratorInvalidationOnModify() {
       PriorityQueue<int> testQueue = new PriorityQueue<int>();
       IEnumerator<int> testQueueEnumerator = testQueue.GetEnumerator();
 
       testQueue.Enqueue(123);
-      
-      testQueueEnumerator.MoveNext();
+
+      Assert.Throws<InvalidOperationException>(
+        delegate() { testQueueEnumerator.MoveNext(); }
+      );
     }
 #endif
 
     /// <summary>
     ///   Verifies that an exception is thrown when Peek() is called on an empty queue
     /// </summary>
-    [Test, ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void TestPeekEmptyQueue() {
       PriorityQueue<int> testQueue = new PriorityQueue<int>();
-      testQueue.Peek();
+      Assert.Throws<InvalidOperationException>(
+        delegate() { testQueue.Peek(); }
+      );
     }
 
     /// <summary>
     ///   Verifies that an exception is thrown when Dequeue() is called on an empty queue
     /// </summary>
-    [Test, ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void TestDequeueEmptyQueue() {
       PriorityQueue<int> testQueue = new PriorityQueue<int>();
-      testQueue.Dequeue();
+      Assert.Throws<InvalidOperationException>(
+        delegate() { testQueue.Dequeue(); }
+      );
     }
 
     /// <summary>

@@ -111,11 +111,13 @@ namespace Nuclex.Support.Tracking {
     /// <summary>
     ///   Verifies that the transaction throws an exception when it is ended multiple times
     /// </summary>
-    [Test, ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void TestThrowOnRepeatedlyEndedTransaction() {
       TestTransaction test = new TestTransaction();
       test.End();
-      test.End();
+      Assert.Throws<InvalidOperationException>(
+        delegate() { test.End(); }
+      );
     }
 
     /// <summary>

@@ -228,10 +228,11 @@ namespace Nuclex.Support.Collections {
     ///   Tests whether an exception is thrown if the indexer of the observable dictionary
     ///   is used to attempt to retrieve a non-existing value
     /// </summary>
-    [Test, ExpectedException(typeof(KeyNotFoundException))]
-    public void TestThrowOnRetrieveNonExistingValueByIndexer() {
-      string numberName = this.observedDictionary[24];
-      Console.WriteLine(numberName);
+    [Test]
+    public void TestRetrieveNonExistingValueByIndexer() {
+      Assert.Throws<KeyNotFoundException>(
+        delegate() { Console.WriteLine(this.observedDictionary[24]); }
+      );
     }
 
     /// <summary>

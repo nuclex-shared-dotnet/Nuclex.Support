@@ -102,13 +102,15 @@ namespace Nuclex.Support.Collections {
     ///   Verifies that the CopyTo() method of the transforming read only collection throws
     ///   an exception if the target array is too small to hold the collection's contents
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnCopyToTooSmallArray() {
       int[] inputIntegers = new int[] { 12, 34, 56, 78 };
       StringTransformer testCollection = new StringTransformer(inputIntegers);
 
       string[] outputStrings = new string[testCollection.Count - 1];
-      testCollection.CopyTo(outputStrings, 0);
+      Assert.Throws<ArgumentException>(
+        delegate() { testCollection.CopyTo(outputStrings, 0); }
+      );
     }
 
     /// <summary>
@@ -203,20 +205,24 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Insert() method is called via the generic IList&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnInsertViaGenericIList() {
       StringTransformer testCollection = new StringTransformer(new int[0]);
-      (testCollection as IList<string>).Insert(0, "12345");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList<string>).Insert(0, "12345"); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its RemoveAt() method is called via the generic IList&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericIList() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
-      (testCollection as IList<string>).RemoveAt(0);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList<string>).RemoveAt(0); }
+      );
     }
 
     /// <summary>
@@ -238,43 +244,51 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the indexer method of the transforming read only collection
     ///   will throw an exception if it is attempted to be used for replacing an item
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaGenericIList() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
 
-      (testCollection as IList<string>)[0] = "12345";
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList<string>)[0] = "12345"; }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Add() method is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaGenericICollection() {
       StringTransformer testCollection = new StringTransformer(new int[0]);
-      (testCollection as ICollection<string>).Add("12345");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<string>).Add("12345"); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Clear() method is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaGenericICollection() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
-      (testCollection as ICollection<string>).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<string>).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Remove() method is called via the generic ICollection&lt;&gt; interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaGenericICollection() {
       int[] integers = new int[] { 12, 34, 67, 89 };
       StringTransformer testCollection = new StringTransformer(integers);
 
-      (testCollection as ICollection<string>).Remove("89");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as ICollection<string>).Remove("89"); }
+      );
     }
 
     /// <summary>
@@ -298,20 +312,24 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Clear() method is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnClearViaIList() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
-      (testCollection as IList).Clear();
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList).Clear(); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Add() method is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnAddViaIList() {
       StringTransformer testCollection = new StringTransformer(new int[0]);
-      (testCollection as IList).Add("12345");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList).Add("12345"); }
+      );
     }
 
     /// <summary>
@@ -346,10 +364,12 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Insert() method is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnInsertViaIList() {
       StringTransformer testCollection = new StringTransformer(new int[0]);
-      (testCollection as IList).Insert(0, "12345");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList).Insert(0, "12345"); }
+      );
     }
 
     /// <summary>
@@ -369,23 +389,27 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Remove() method is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveViaIList() {
       int[] integers = new int[] { 1234, 6789 };
       StringTransformer testCollection = new StringTransformer(integers);
 
-      (testCollection as IList).Remove("6789");
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList).Remove("6789"); }
+      );
     }
 
     /// <summary>
     ///   Checks whether the transforming read only collection will throw an exception
     ///   if its Remove() method is called via the IList interface
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnRemoveAtViaIList() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
 
-      (testCollection as IList).RemoveAt(0);
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList).RemoveAt(0); }
+      );
     }
 
     /// <summary>
@@ -407,11 +431,13 @@ namespace Nuclex.Support.Collections {
     ///   Checks whether the indexer method of the transforming read only collection
     ///   will throw an exception if it is attempted to be used for replacing an item
     /// </summary>
-    [Test, ExpectedException(typeof(NotSupportedException))]
+    [Test]
     public void TestThrowOnReplaceByIndexerViaIList() {
       StringTransformer testCollection = new StringTransformer(new int[1]);
 
-      (testCollection as IList)[0] = "12345";
+      Assert.Throws<NotSupportedException>(
+        delegate() { (testCollection as IList)[0] = "12345"; }
+      );
     }
 
     /// <summary>

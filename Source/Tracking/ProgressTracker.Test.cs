@@ -468,12 +468,14 @@ namespace Nuclex.Support.Tracking {
     ///   Verifies that the progress tracker throws an exception if it is instructed
     ///   to untrack a transaction it doesn't know about
     /// </summary>
-    [Test, ExpectedException(typeof(ArgumentException))]
+    [Test]
     public void TestThrowOnUntrackNonTrackedTransaction() {
       using(ProgressTracker tracker = new ProgressTracker()) {
         TestTransaction test1 = new TestTransaction();
 
-        tracker.Untrack(test1);
+        Assert.Throws<ArgumentException>(
+          delegate() { tracker.Untrack(test1); }
+        );
       }
     }
 
