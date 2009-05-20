@@ -198,6 +198,18 @@ namespace Nuclex.Support.Tracking {
     ///   Allows the specific request implementation to re-throw an exception if
     ///   the background process finished unsuccessfully
     /// </summary>
+    protected override void ReraiseExceptions() {
+      // Request and discard the result, so the implementor can do all error handling
+      // in the GatherResults() method. This is a good default implementation as long
+      // as the returned object does not require IDispose. It if does, this method
+      // needs to be overridden.
+      GatherResults();
+    }
+
+    /// <summary>
+    ///   Allows the specific request to return the results of the Request to the
+    ///   caller of the Join() method
+    /// </summary>
     protected abstract ResultType GatherResults();
 
   }

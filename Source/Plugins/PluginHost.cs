@@ -37,8 +37,8 @@ namespace Nuclex.Support.Plugins {
 
     /// <summary>Initializes a plugin host using a new repository</summary>
     /// <param name="employer">Employer used assess and employ the plugin types</param>
-    public PluginHost(Employer employer)
-      : this(employer, new PluginRepository()) { }
+    public PluginHost(Employer employer) :
+      this(employer, new PluginRepository()) { }
 
     /// <summary>Initializes the plugin using an existing repository</summary>
     /// <param name="employer">Employer used assess and employ the plugin types</param>
@@ -47,8 +47,9 @@ namespace Nuclex.Support.Plugins {
       this.employer = employer;
       this.repository = repository;
 
-      foreach(Assembly assembly in this.repository.LoadedAssemblies)
+      foreach(Assembly assembly in this.repository.LoadedAssemblies) {
         employAssemblyTypes(assembly);
+      }
 
       this.repository.AssemblyLoaded += new AssemblyLoadEventHandler(assemblyLoadHandler);
     }
@@ -75,7 +76,9 @@ namespace Nuclex.Support.Plugins {
     private void employAssemblyTypes(Assembly assembly) {
 
       // Iterate all types contained in the assembly
-      foreach(Type type in assembly.GetTypes()) {
+      Type[] types = assembly.GetTypes();
+      for(int index = 0; index < types.Length; ++index) {
+        Type type = types[index];
 
         // We'll ignore abstract and non-public types
         if(!type.IsPublic || type.IsAbstract) {
@@ -97,7 +100,6 @@ namespace Nuclex.Support.Plugins {
         catch(Exception exception) {
           Trace.WriteLine("Could not employ " + type.ToString() + ": " + exception.Message);
         }
-
       }
     }
 

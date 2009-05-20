@@ -100,6 +100,15 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Services\Instancing.cs" />
+    <Compile Include="Source\Services\ProgressTracking\IProgressPublishingService.cs" />
+    <Compile Include="Source\Services\ProgressTracking\IProgressTrackingService.cs" />
+    <Compile Include="Source\Services\ProgressTracking\ITrackedProcess.cs" />
+    <Compile Include="Source\Services\ProgressTracking\ProgressTrackingComponent.cs" />
+    <Compile Include="Source\Services\ServiceManager.cs" />
+    <Compile Include="Source\Services\ServiceManager.For.cs">
+      <DependentUpon>ServiceManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">
       <DependentUpon>PartialStream.cs</DependentUpon>
@@ -267,6 +276,10 @@
     <Compile Include="Source\WeakReference.cs" />
     <Compile Include="Source\WeakReference.Test.cs">
       <DependentUpon>WeakReference.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\XmlHelper.cs" />
+    <Compile Include="Source\XmlHelper.Test.cs">
+      <DependentUpon>XmlHelper.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

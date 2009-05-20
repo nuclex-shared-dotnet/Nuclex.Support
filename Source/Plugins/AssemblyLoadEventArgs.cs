@@ -24,6 +24,8 @@ using System.Reflection;
 
 namespace Nuclex.Support.Plugins {
 
+#if XBOX360
+
   /// <summary>Signature for the AssemblyLoad event</summary>
   /// <param name="sender">Object that is reporting that an assembly was loaded</param>
   /// <param name="arguments">Contains the loaded assembly</param>
@@ -49,5 +51,7 @@ namespace Nuclex.Support.Plugins {
     private Assembly loadedAssembly;
 
   }
+
+#endif // XBOX360
 
 } // namespace Nuclex.Support.Plugins
