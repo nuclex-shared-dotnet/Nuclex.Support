@@ -41,29 +41,31 @@ namespace Nuclex.Support.Plugins {
   ///     a human-readable name, capabilities or an icon.
   ///   </para>
   /// </remarks>
-  public class FactoryEmployer<ProductType> : Employer
-    where ProductType : class {
+  public class FactoryEmployer<ProductType> : Employer where ProductType : class {
 
     #region class ConcreteFactory
 
     /// <summary>Concrete factory for the types in a plugin assembly</summary>
-    private class ConcreteFactory : IAbstractFactory<ProductType> {
+    private class ConcreteFactory : IAbstractFactory<ProductType>, IAbstractFactory {
 
-      /// <summary>Initializes a factory and configures it for the specified product</summary>
+      /// <summary>
+      ///   Initializes a factory and configures it for the specified product
+      /// </summary>
       /// <param name="type">Type of which the factory creates instances</param>
       public ConcreteFactory(Type type) {
         this.concreteType = type;
       }
 
-      /// <summary>The concrete type as produced by the factory</summary>
-      public Type ConcreteType {
-        get { return this.concreteType; }
-      }
-
-      /// <summary>Create a new instance of the type that the factory is configured to</summary>
+      /// <summary>Create a new instance of the type the factory is configured to</summary>
       /// <returns>The newly created instance</returns>
       public ProductType CreateInstance() {
         return (ProductType)Activator.CreateInstance(this.concreteType);
+      }
+
+      /// <summary>Create a new instance of the type the factory is configured to</summary>
+      /// <returns>The newly created instance</returns>
+      object IAbstractFactory.CreateInstance() {
+        return Activator.CreateInstance(this.concreteType);
       }
 
       /// <summary>Concrete product which the factory instance creates</summary>

@@ -70,6 +70,23 @@ namespace Nuclex.Support.Plugins {
     }
 
     /// <summary>
+    ///   Tests whether the factory employer can use the non-generic IAbstractFactory
+    ///   interface instead of its generic variant
+    /// </summary>
+    [Test]
+    public void TestNonGenericCreateInstance() {
+      FactoryEmployer<Base> testEmployer = new FactoryEmployer<Base>();
+      testEmployer.Employ(typeof(Derived));
+
+      Assert.That(testEmployer.Factories.Count, Is.AtLeast(1));
+      
+      IAbstractFactory factory = testEmployer.Factories[0] as IAbstractFactory;
+      Assert.IsNotNull(factory);
+
+      Assert.IsInstanceOf<Derived>(factory.CreateInstance());
+    }
+
+    /// <summary>
     ///   Tests whether the factory employer throws an exception when it is asked to
     ///   employ an abstract class
     /// </summary>
@@ -105,7 +122,6 @@ namespace Nuclex.Support.Plugins {
       testEmployer.Employ(typeof(Derived));
 
       Assert.AreEqual(1, testEmployer.Factories.Count);
-      Assert.AreEqual(typeof(Derived), testEmployer.Factories[0].ConcreteType);
       Assert.IsInstanceOf<Derived>(testEmployer.Factories[0].CreateInstance());
     }
 
@@ -120,7 +136,6 @@ namespace Nuclex.Support.Plugins {
       testEmployer.Employ(typeof(Unrelated));
 
       Assert.AreEqual(1, testEmployer.Factories.Count);
-      Assert.AreEqual(typeof(Unrelated), testEmployer.Factories[0].ConcreteType);
       Assert.IsInstanceOf<Unrelated>(testEmployer.Factories[0].CreateInstance());
     }
 

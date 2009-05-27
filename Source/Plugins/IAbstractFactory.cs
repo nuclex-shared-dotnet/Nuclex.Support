@@ -24,13 +24,25 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Plugins {
 
   /// <summary>Abstract factory for a concrete type</summary>
-  /// <typeparam name="ProductType">Interface or base class of the product of the factory</typeparam>
+  public interface IAbstractFactory {
+
+    /// <summary>
+    ///   Creates a new instance of the type to which the factory is specialized
+    /// </summary>
+    /// <returns>The newly created instance</returns>
+    object CreateInstance();    
+  
+  }
+
+  /// <summary>Abstract factory for a concrete type</summary>
+  /// <typeparam name="ProductType">
+  ///   Interface or base class of the product of the factory
+  /// </typeparam>
   public interface IAbstractFactory<ProductType> {
 
-    /// <summary>The concrete type as implemented by the factory instance</summary>
-    Type ConcreteType { get; }
-
-    /// <summary>Creates a new instance of the type to which the factory is specialized</summary>
+    /// <summary>
+    ///   Creates a new instance of the type to which the factory is specialized
+    /// </summary>
     /// <returns>The newly created instance</returns>
     ProductType CreateInstance();
 
