@@ -20,25 +20,22 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using Nuclex.Support.Plugins;
 
 namespace Nuclex.Support.Services {
 
-  /// <summary>Modes in which services can be instantiated</summary>
-  public enum Instancing {
+  /// <summary>
+  ///   Provides a type list the service manager uses to locate components
+  /// </summary>
+  public interface ITypeLister {
 
-    /// <summary>Disallow any service from being created for a contract</summary>
-    Never,
-
-    /// <summary>There will only be one service in the whole process</summary>
-    Singleton,
-
-    /// <summary>Each thread will be assigned its own service</summary>
-    InstancePerThread,
-
-    /// <summary>A new service will be created each time it is queried for</summary>
-    Factory
+    /// <summary>
+    ///   Returns an enumerable list of types that will be checked by the service manager
+    /// </summary>
+    /// <returns>An enumerable list of types for the service manager</returns>
+    IEnumerable<Type> GetTypes();
 
   }
 

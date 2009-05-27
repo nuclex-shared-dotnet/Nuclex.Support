@@ -1,12 +1,40 @@
-﻿using System;
+﻿#region CPL License
+/*
+Nuclex Framework
+Copyright (C) 2002-2009 Nuclex Development Labs
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the IBM Common Public License as
+published by the IBM Corporation; either version 1.0 of the
+License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+IBM Common Public License for more details.
+
+You should have received a copy of the IBM Common Public
+License along with this library
+*/
+#endregion
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 
 using Nuclex.Support.Plugins;
 
 namespace Nuclex.Support.Services {
 
 #if false
+
+  // Allow Dependency on Container
+  //   public Foo(IServiceProvider serviceProvider)
+  //   public Foo(IserviceLocator serviceLocator)
+  //   public Foo(Container container)
+
   /// <summary>
   ///   Inversion of Control container that manages the services of an application
   /// </summary>
@@ -56,9 +84,110 @@ namespace Nuclex.Support.Services {
   /// </remarks>
   public partial class ServiceManager : IServiceProvider {
 
+    #region class Contract
+
+    /// <summary>Stores the settings for an individual contract</summary>
+    private class Contract {
+
+      /// <summary>
+      ///   Factory by which instances of the contract implementation can be created
+      /// </summary>
+      public IAbstractFactory Factory;
+
+      /// <summary>How instances of the implementation are to be managed</summary>
+      public Instancing Instancing;
+
+      /// <summary>Single global instance of the contract implementation</summary>
+      /// <remarks>
+      ///   Used only if <paramref name="Instancing" /> is set to Singleton
+      /// </remarks>
+      public object SingletonInstance;
+
+      /// <summary>Thread-local instance of the contract implementation</summary>
+      /// <remarks>
+      ///   Used only if <paramref name="Instancing" />is set to InstancePerThread
+      /// </remarks>
+      public object ThreadLocalInstance {
+        get {
+          initializeThreadLocalData();
+          return Thread.GetData(this.threadLocalDataSlot);
+        }
+        set {
+          initializeThreadLocalData();
+          Thread.SetData(this.threadLocalDataSlot, value);
+        }
+      }
+
+      /// <summary>Initializes the thread-local data slot</summary>
+      private void initializeThreadLocalData() {
+        if(this.threadLocalDataSlot == null) {
+          lock(this) {
+            if(this.threadLocalDataSlot == null) {
+              this.threadLocalDataSlot = Thread.AllocateDataSlot();
+            }
+          }
+        }
+      }
+
+      /// <summary>Arguments to be passed to the component constructor</summary>
+      private Dictionary<string, object> arguments;
+
+      /// <summary>Data slot for thread local storage</summary>
+      /// <remarks>
+      ///   We're using an explicit data slot because the ThreadStaticAttribute class
+      ///   can only be used on static fields and also because this class is not
+      ///   supported by the .NET Compact Framework.
+      /// </remarks>
+      private volatile LocalDataStoreSlot threadLocalDataSlot;
+
+    }
+
+    #endregion // class Contract
+
+#if !XBOX360
+
     /// <summary>Initializes a new service manager</summary>
-    public ServiceManager() {
-      this.pluginRepository = new PluginRepository();
+    /// <remarks>
+    ///   This overload will automatically use a type lister that causes all types
+    ///   in all loaded assemblies of the calling app domain to be considered
+    ///   by the service manager for obtaining contract implementations.
+    /// </remarks>
+    public ServiceManager() : this(new AppDomainTypeLister()) { }
+
+#endif // !XBOX360
+
+    /// <summary>Initializes a new service manager</summary>
+    /// <param name="typeLister">
+    ///   Type lister providing the types considered by the service manager for
+    ///   obtaining contract implementations.
+    /// </param>
+    public ServiceManager(ITypeLister typeLister) {
+      this.typeLister = typeLister;
+
+      resolveContractMethod = GetType().GetMethod(
+        "resolve", BindingFlags.NonPublic | BindingFlags.Instance
+      );
+      Debug.Assert(this.resolveContractMethod.IsGenericMethodDefinition);
+    }
+
+    /// <summary>
+    ///   Returns all available implementations for the specified contract
+    /// </summary>
+    /// <returns>
+    ///   A new enumerator for the available contract implementations
+    /// </returns>
+    public IEnumerable<Type> GetComponents<ContractType>() where ContractType : class {
+      Type contractType = typeof(ContractType);
+
+      foreach(Type checkedType in this.typeLister.GetTypes()) {
+        bool isImplementationOfContract =
+          (!checkedType.IsAbstract) &&
+          contractType.IsAssignableFrom(checkedType);
+
+        if(isImplementationOfContract) {
+          yield return checkedType;
+        }
+      }
     }
 
     /// <summary>
@@ -71,31 +200,30 @@ namespace Nuclex.Support.Services {
     /// <returns>
     ///   A new enumerator for the available contract implementations
     /// </returns>
-    IEnumerable<ContractType> GetImplementations<ContractType>(bool completeOnly)
+    public IEnumerable<Type> GetComponents<ContractType>(bool completeOnly)
       where ContractType : class {
-      Type contractType = typeof(ContractType);
+      if(completeOnly) {
+        return filterCompleteComponents(GetComponents<ContractType>());
+      } else {
+        return GetComponents<ContractType>();
+      }
+    }
 
-      Assembly[] loadedAssemblies = this.pluginRepository.LoadedAssemblies.ToArray();
-      for(int index = 0; index < loadedAssemblies.Length; ++index) {
-        Type[] assemblyTypes = loadedAssemblies[index].GetTypes();
-
-        for(int typeIndex = 0; typeIndex < assemblyTypes.Length; ++typeIndex) {
-          Type checkedType = assemblyTypes[typeIndex];
-          if(contractType.IsAssignableFrom(checkedType)) {
-            
-          }
-        }
+    /// <summary>
+    ///   Filters a list of components so only components whose dependencies can be
+    ///   completely provided are enumerated
+    /// </summary>
+    /// <param name="types">Enumerable type list that will be filtered</param>
+    /// <returns>
+    ///   Only those components whose dependencies can be completely provided
+    /// </returns>
+    private IEnumerable<Type> filterCompleteComponents(IEnumerable<Type> types) {
+      foreach(Type type in types) {
+        yield return type;
       }
 
-      yield return null;
+      yield break;
     }
-    
-    private struct CachedContractLookUp {
-      public Type[] ValidComponents;
-      public int Version;
-    }
-    private Dictionary<Type, CachedContractLookUp> cachedContracts;
-    private int version;
 
     /// <summary>
     ///   Allows the adjustment of the container's behavior in regard to
@@ -127,11 +255,11 @@ namespace Nuclex.Support.Services {
       return new ForContext(this, contractType);
     }
 
-    // Allow Dependency on Container
-    //   public Foo(IServiceProvider serviceProvider)
-    //   public Foo(IserviceLocator serviceLocator)
-    //   public Foo(Container container)
-    
+    /// <summary>Retrieves the service of the specified type</summary>
+    /// <param name="contractType">
+    ///   Contract for which the service will be retrieved
+    /// </param>
+    /// <returns>The service for the specified contract</returns>
     public ContractType GetService<ContractType>() where ContractType : class {
       throw new NotImplementedException();
     }
@@ -141,16 +269,44 @@ namespace Nuclex.Support.Services {
     ///   Contract for which the service will be retrieved
     /// </param>
     /// <returns>The service for the specified contract</returns>
-    object IServiceProvider.GetService(Type contractType) {
-      throw new NotImplementedException();
+    public object GetService(Type contractType) {
+      MethodInfo methodInstance = this.resolveContractMethod.MakeGenericMethod(
+        new Type[] { contractType }
+      );
+      return methodInstance.Invoke(this, null);
     }
 
     /// <summary>
-    ///   Contains all assemblies partaking in the dependency injection scheme
+    ///   Resolves all dependencies required to create a service for a contract
     /// </summary>
-    private PluginRepository pluginRepository;
+    /// <typeparam name="ContractType">
+    ///   Type of contract for which to resolve the implementation
+    /// </typeparam>
+    /// <returns>The settings for the contract including a valid factory</returns>
+    private Contract resolveContract<ContractType>() where ContractType : class {
+      throw new NotImplementedException();
+    }
+
+    private Contract resolveContract(Type contractType) {
+      Contract contract;
+      if(this.contracts.TryGetValue(contractType, out contract)) {
+        return contract;
+      }
+
+
+
+      throw new NotImplementedException();
+    }
+
+    /// <summary>MethodInfo for the resolve() method of this instance</summary>
+    private MethodInfo resolveContractMethod;
+    /// <summary>Lists all types partaking in the dependency injection</summary>
+    private ITypeLister typeLister;
+    /// <summary>Dictionary with settings for each individual contract</summary>
+    private Dictionary<Type, Contract> contracts;
 
   }
+
 #endif
 
-} // namespace Nuclex.Support.DependencyInjection
+} // namespace Nuclex.Support.Services
