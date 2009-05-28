@@ -28,7 +28,7 @@ using Nuclex.Support.Plugins;
 
 namespace Nuclex.Support.Services {
 
-#if false
+#if ENABLE_SERVICEMANAGER
 
   // Allow Dependency on Container
   //   public Foo(IServiceProvider serviceProvider)
@@ -163,11 +163,7 @@ namespace Nuclex.Support.Services {
     /// </param>
     public ServiceManager(ITypeLister typeLister) {
       this.typeLister = typeLister;
-
-      resolveContractMethod = GetType().GetMethod(
-        "resolve", BindingFlags.NonPublic | BindingFlags.Instance
-      );
-      Debug.Assert(this.resolveContractMethod.IsGenericMethodDefinition);
+      this.contracts = new Dictionary<Type, Contract>();
     }
 
     /// <summary>
@@ -219,10 +215,30 @@ namespace Nuclex.Support.Services {
     /// </returns>
     private IEnumerable<Type> filterCompleteComponents(IEnumerable<Type> types) {
       foreach(Type type in types) {
-        yield return type;
-      }
 
-      yield break;
+        bool isCandidate =
+          (!type.IsValueType) &&
+          (!type.IsAbstract) &&
+          (type.IsPublic || type.IsNestedPublic);
+
+        if(isCandidate) {
+
+          ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public);
+          
+
+
+          // If a contract has been 
+          Contract contract;
+          if(this.contracts.TryGetValue(type, out contract)) {
+            yield return type;
+          } else {
+          }
+
+          yield return type;
+
+        }
+
+      }
     }
 
     /// <summary>
@@ -256,12 +272,12 @@ namespace Nuclex.Support.Services {
     }
 
     /// <summary>Retrieves the service of the specified type</summary>
-    /// <param name="contractType">
+    /// <typeparam name="ContractType">
     ///   Contract for which the service will be retrieved
-    /// </param>
+    /// </typeparam>
     /// <returns>The service for the specified contract</returns>
     public ContractType GetService<ContractType>() where ContractType : class {
-      throw new NotImplementedException();
+      return (ContractType)GetService(typeof(ContractType));
     }
 
     /// <summary>Retrieves the service of the specified type</summary>
@@ -270,36 +286,34 @@ namespace Nuclex.Support.Services {
     /// </param>
     /// <returns>The service for the specified contract</returns>
     public object GetService(Type contractType) {
-      MethodInfo methodInstance = this.resolveContractMethod.MakeGenericMethod(
-        new Type[] { contractType }
-      );
-      return methodInstance.Invoke(this, null);
+      Contract c = resolveContract(contractType);
+      return c.Factory.CreateInstance(); // TODO: Honor the contract settings
     }
 
     /// <summary>
     ///   Resolves all dependencies required to create a service for a contract
     /// </summary>
-    /// <typeparam name="ContractType">
+    /// <param name="contractType">
     ///   Type of contract for which to resolve the implementation
-    /// </typeparam>
+    /// </param>
     /// <returns>The settings for the contract including a valid factory</returns>
-    private Contract resolveContract<ContractType>() where ContractType : class {
-      throw new NotImplementedException();
-    }
-
     private Contract resolveContract(Type contractType) {
-      Contract contract;
-      if(this.contracts.TryGetValue(contractType, out contract)) {
-        return contract;
+      if(contractType.IsValueType) {
+        throw new ArgumentException(
+          "Contracts have to be interfaces or classes", "contractType"
+        );
       }
-
+      /*
+            Contract contract;
+            if(this.contracts.TryGetValue(contractType, out contract)) {
+              return contract;
+            }
+      */
 
 
       throw new NotImplementedException();
     }
 
-    /// <summary>MethodInfo for the resolve() method of this instance</summary>
-    private MethodInfo resolveContractMethod;
     /// <summary>Lists all types partaking in the dependency injection</summary>
     private ITypeLister typeLister;
     /// <summary>Dictionary with settings for each individual contract</summary>
@@ -307,6 +321,6 @@ namespace Nuclex.Support.Services {
 
   }
 
-#endif
+#endif // ENABLE_SERVICEMANAGER
 
 } // namespace Nuclex.Support.Services

@@ -30,7 +30,7 @@ namespace Nuclex.Support.Services {
 
   /// <summary>Unit Test for the predefined type lister</summary>
   [TestFixture]
-  public class PredefinedTypeListerTest {
+  public class ExplicitTypeListerTest {
 
     /// <summary>
     ///   Verifies that the type lister correctly takes over a list of types
@@ -38,13 +38,13 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestPredefinedTypesFromParams() {
-      ITypeLister testLister = new PredefinedTypeLister(
-        typeof(PredefinedTypeListerTest), typeof(TestAttribute)
+      ITypeLister testLister = new ExplicitTypeLister(
+        typeof(ExplicitTypeListerTest), typeof(TestAttribute)
       );
 
       Assert.That(
         testLister.GetTypes(),
-        Has.Member(typeof(PredefinedTypeListerTest)).And.Member(typeof(TestAttribute))
+        Has.Member(typeof(ExplicitTypeListerTest)).And.Member(typeof(TestAttribute))
       );
     }
 
@@ -54,11 +54,11 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestPredefinedTypesFromEnumerable() {
-      IEnumerable<Type> types = typeof(PredefinedTypeListerTest).Assembly.GetTypes();
-      ITypeLister testLister = new PredefinedTypeLister(types);
+      IEnumerable<Type> types = typeof(ExplicitTypeListerTest).Assembly.GetTypes();
+      ITypeLister testLister = new ExplicitTypeLister(types);
 
       Assert.That(
-        testLister.GetTypes(), Has.Member(typeof(PredefinedTypeListerTest))
+        testLister.GetTypes(), Has.Member(typeof(ExplicitTypeListerTest))
       );
     }
 
@@ -67,16 +67,16 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestRemoveTypesFromLister() {
-      PredefinedTypeLister testLister = new PredefinedTypeLister(
-        typeof(PredefinedTypeListerTest).Assembly.GetTypes()
+      ExplicitTypeLister testLister = new ExplicitTypeLister(
+        typeof(ExplicitTypeListerTest).Assembly.GetTypes()
       );
 
       Assert.That(
-        testLister.GetTypes(), Has.Member(typeof(PredefinedTypeListerTest))
+        testLister.GetTypes(), Has.Member(typeof(ExplicitTypeListerTest))
       );
-      testLister.Types.Remove(typeof(PredefinedTypeListerTest));
+      testLister.Types.Remove(typeof(ExplicitTypeListerTest));
       Assert.That(
-        testLister.GetTypes(), Has.No.Member(typeof(PredefinedTypeListerTest))
+        testLister.GetTypes(), Has.No.Member(typeof(ExplicitTypeListerTest))
       );
     }
 
@@ -85,7 +85,7 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestAddTypesToLister() {
-      PredefinedTypeLister testLister = new PredefinedTypeLister();
+      ExplicitTypeLister testLister = new ExplicitTypeLister();
 
       Assert.That(
         testLister.GetTypes(), Has.No.Member(typeof(TestAttribute))

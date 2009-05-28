@@ -25,7 +25,7 @@ using System.Reflection;
 namespace Nuclex.Support.Services {
 
   /// <summary>Lists all types in a changing set of assemblies</summary>
-  public abstract class AssemblyTypeLister : ITypeLister {
+  public abstract class MultiAssemblyTypeLister : ITypeLister {
 
     #region class AssemblyTypes
 
@@ -50,7 +50,7 @@ namespace Nuclex.Support.Services {
     #endregion // class AssemblyTypes
 
     /// <summary>Initializes a new assembly type lister</summary>
-    public AssemblyTypeLister() {
+    public MultiAssemblyTypeLister() {
       this.assemblyTypes = new LinkedList<AssemblyTypes>();
     }
 
@@ -97,7 +97,10 @@ namespace Nuclex.Support.Services {
         } else { // Otherwise, figure out whether the assembly list has changed
 
           // Try to locate the cached entry for this assembly. If we have to skip entries,
-          // we know that an assembly might have been removed from the set.
+          // we know that an assembly might have been removed from the set. This will be
+          // handled by moved all matched assemblies to the beginning, so that when we
+          // finish, the assemblies after the last checked one automatically become those
+          // which are no longer in the set.
           LinkedListNode<AssemblyTypes> existingNode = node;
           while(existingNode.Value.Assembly != assembly) {
             existingNode = existingNode.Next;
@@ -106,17 +109,33 @@ namespace Nuclex.Support.Services {
             }
           }
 
-          // If this assembly wasn't found in the cache, add it in the same order
-          // it was returned by the enumerator.
+          // Is this assembly not yet in the cache?
           if(existingNode == null) {
+
+            // If this assembly wasn't found in the cache, add it in the same order
+            // it was returned by the enumerator. This will improve efficiency later
+            // since the update algorithm is designed to perform optimally if the order
+            // remains the same between calls.
             this.assemblyTypes.AddBefore(
               node, new AssemblyTypes(assembly, assembly.GetTypes())
             );
-          } else if(existingNode != node) { // Cached assemblies were skipped, reorder
+
+          } else if(existingNode != node) { // Did we skip other cached assemblies?
+
+            // If other cached assemblies had to be skipped, this indicates that
+            // the set of assemblies has changed. Move the list nodes to the same order
+            // in which the assemblies are returned by the enumerator. Any cached
+            // assemblies that have been completely removed from the set will therefore
+            // end up at the bottom of the list after the update has completed.
             this.assemblyTypes.Remove(existingNode);
             this.assemblyTypes.AddBefore(node, existingNode);
-          } else { // Everything as expected
+
+          } else { // Assembly was found in the expected place
+
+            // If the assembly was found in the same place as it was found during
+            // the last check, the assembly list is unchanged at this entry.
             node = node.Next;
+
           }
         }
 

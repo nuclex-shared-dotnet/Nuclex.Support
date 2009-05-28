@@ -21,11 +21,15 @@ License along with this library
 using System;
 using System.IO;
 
+using Nuclex.Support.Plugins;
+
 #if UNITTEST
 
 using NUnit.Framework;
 
 namespace Nuclex.Support.Services {
+
+#if ENABLE_SERVICEMANAGER
 
   /// <summary>Unit Test for the service manager class</summary>
   [TestFixture]
@@ -117,14 +121,13 @@ namespace Nuclex.Support.Services {
 
     #endregion // class NeedWorld
 
-#if false
     /// <summary>
     ///   Tests whether the GetComponents() method behaves correctly if it is used
     ///   without any assemblies loaded
     /// </summary>
     [Test]
     public void TestGetComponentsWithoutAssembly() {
-      ServiceManager serviceManager = new ServiceManager();
+      ServiceManager serviceManager = new ServiceManager(new PredefinedTypeLister());
       Assert.That(serviceManager.GetComponents<IDisposable>(), Is.Empty);
     }
 
@@ -133,8 +136,9 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestGetComponents() {
-      ServiceManager serviceManager = new ServiceManager();
-      serviceManager.Repository.AddAssembly(typeof(ServiceManagerTest).Assembly);
+      RepositoryTypeLister typeLister = new RepositoryTypeLister();
+      ServiceManager serviceManager = new ServiceManager(typeLister);
+      typeLister.Repository.AddAssembly(typeof(ServiceManagerTest).Assembly);
 
       Assert.That(
         serviceManager.GetComponents<IHelloContract>(),
@@ -148,8 +152,9 @@ namespace Nuclex.Support.Services {
     /// </summary>
     [Test]
     public void TestFilteredGetComponents() {
-      ServiceManager serviceManager = new ServiceManager();
-      serviceManager.Repository.AddAssembly(typeof(ServiceManagerTest).Assembly);
+      RepositoryTypeLister typeLister = new RepositoryTypeLister();
+      ServiceManager serviceManager = new ServiceManager(typeLister);
+      typeLister.Repository.AddAssembly(typeof(ServiceManagerTest).Assembly);
 
       Assert.That(
         serviceManager.GetComponents<IWorldContract>(false),
@@ -174,17 +179,20 @@ namespace Nuclex.Support.Services {
     ///   Verifies that the right exception is thrown if the non-generic GetService()
     ///   is used on a value type
     /// </summary>
-    [Test]    
+    [Test]
     public void TestGetComponentOnValueType() {
-      ServiceManager serviceManager = new ServiceManager();
-      serviceManager.Repository.AddAssembly(typeof(int).Assembly);
+      RepositoryTypeLister typeLister = new RepositoryTypeLister();
+      ServiceManager serviceManager = new ServiceManager(typeLister);
+      typeLister.Repository.AddAssembly(typeof(int).Assembly);
 
       Assert.Throws<ArgumentException>(
         delegate() { serviceManager.GetService(typeof(int)); }
       );
     }
-#endif
+
   }
+
+#endif // ENABLE_SERVICEMANAGER
 
 } // namespace Nuclex.Support.Services
 

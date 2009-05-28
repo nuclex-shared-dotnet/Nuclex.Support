@@ -108,14 +108,14 @@
     <Compile Include="Source\Services\AppDomainTypeLister.Test.cs">
       <DependentUpon>AppDomainTypeLister.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Services\AssemblyTypeLister.cs" />
-    <Compile Include="Source\Services\AssemblyTypeLister.Test.cs">
-      <DependentUpon>AssemblyTypeLister.cs</DependentUpon>
+    <Compile Include="Source\Services\MultiAssemblyTypeLister.cs" />
+    <Compile Include="Source\Services\ExplicitTypeLister.Test.cs">
+      <DependentUpon>ExplicitTypeLister.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Services\Instancing.cs" />
     <Compile Include="Source\Services\ITypeLister.cs" />
-    <Compile Include="Source\Services\PredefinedTypeLister.Test.cs">
-      <DependentUpon>PredefinedTypeLister.cs</DependentUpon>
+    <Compile Include="Source\Services\MultiAssemblyTypeLister.Test.cs">
+      <DependentUpon>MultiAssemblyTypeLister.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Services\ProgressTracking\IProgressPublishingService.cs" />
     <Compile Include="Source\Services\ProgressTracking\IProgressCollectingService.cs" />
@@ -124,6 +124,9 @@
     <Compile Include="Source\Services\RepositoryTypeLister.cs" />
     <Compile Include="Source\Services\RepositoryTypeLister.Test.cs">
       <DependentUpon>RepositoryTypeLister.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Services\ServiceManager.Analyzer.cs">
+      <DependentUpon>ServiceManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Services\ServiceManager.cs" />
     <Compile Include="Source\Services\ServiceManager.For.cs">
@@ -238,7 +241,7 @@
     <Compile Include="Source\Services\ServiceManager.Test.cs">
       <DependentUpon>ServiceManager.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Services\PredefinedTypeLister.cs" />
+    <Compile Include="Source\Services\ExplicitTypeLister.cs" />
     <Compile Include="Source\Shared.cs" />
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>

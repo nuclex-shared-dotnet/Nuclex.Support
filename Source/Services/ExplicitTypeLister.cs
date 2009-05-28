@@ -25,17 +25,17 @@ using System.Text;
 namespace Nuclex.Support.Services {
 
   /// <summary>Type lister that returns a predefined list of types</summary>
-  public class PredefinedTypeLister : ITypeLister {
+  public class ExplicitTypeLister : ITypeLister {
 
     /// <summary>Initializes a new predefined type lister</summary>
     /// <param name="types">Types the predefined type lister will list</param>
-    public PredefinedTypeLister(params Type[] types) {
+    public ExplicitTypeLister(params Type[] types) {
       this.types = new List<Type>(types);
     }
 
     /// <summary>Initializes a new predefined type lister</summary>
     /// <param name="types">Types the predefined type lister will list</param>
-    public PredefinedTypeLister(IEnumerable<Type> types) {
+    public ExplicitTypeLister(IEnumerable<Type> types) {
       this.types = new List<Type>(types);
     }
 

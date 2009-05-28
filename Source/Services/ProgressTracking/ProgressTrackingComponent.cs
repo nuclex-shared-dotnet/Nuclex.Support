@@ -25,7 +25,8 @@ using Nuclex.Support.Tracking;
 
 namespace Nuclex.Support.Services.ProgressTracking {
 
-#if false
+#if ENABLE_SERVICEMANAGER
+
   /// <summary>Tracks the progress of running background processes</summary>
   public class ProgressTrackingComponent :
     IProgressCollectingService,
@@ -71,6 +72,7 @@ namespace Nuclex.Support.Services.ProgressTracking {
     }
 
   }
-#endif
+
+#endif // ENABLE_SERVICEMANAGER
 
 } // namespace Nuclex.Support.Services.ProgressTracking

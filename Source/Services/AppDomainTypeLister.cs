@@ -27,7 +27,7 @@ namespace Nuclex.Support.Services {
 #if !XBOX360
 
   /// <summary>Lists the types of all assemblies in an application domain</summary>
-  public class AppDomainTypeLister : AssemblyTypeLister {
+  public class AppDomainTypeLister : MultiAssemblyTypeLister {
 
     /// <summary>
     ///   Initializes a new application domain type lister using the application domain

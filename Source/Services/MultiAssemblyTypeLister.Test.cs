@@ -30,12 +30,12 @@ namespace Nuclex.Support.Services {
 
   /// <summary>Unit Test for the cached assembly type lister</summary>
   [TestFixture]
-  public class AssemblyTypeListerTest {
+  public class MultiAssemblyTypeListerTest {
 
     #region class TestAssemblyTypeLister
 
     /// <summary>Test implementation of a cached assembly type lister</summary>
-    private class TestAssemblyTypeLister : AssemblyTypeLister {
+    private class TestAssemblyTypeLister : MultiAssemblyTypeLister {
 
       /// <summary>Initializes a new test assembly type lister</summary>
       /// <param name="assemblies">Assemblies whose types will be listed</param>
@@ -68,11 +68,11 @@ namespace Nuclex.Support.Services {
     [Test]
     public void TestAssemblyListGeneration() {
       TestAssemblyTypeLister testLister = new TestAssemblyTypeLister(
-        typeof(AssemblyTypeListerTest).Assembly
+        typeof(MultiAssemblyTypeListerTest).Assembly
       );
 
       Assert.That(
-        testLister.GetTypes(), Has.Member(typeof(AssemblyTypeListerTest))
+        testLister.GetTypes(), Has.Member(typeof(MultiAssemblyTypeListerTest))
       );
     }
 
@@ -89,17 +89,17 @@ namespace Nuclex.Support.Services {
 
       Assert.That(
         testLister.GetTypes(),
-        Has.Member(typeof(TestAttribute)).And.Not.Member(typeof(AssemblyTypeListerTest))
+        Has.Member(typeof(TestAttribute)).And.Not.Member(typeof(MultiAssemblyTypeListerTest))
       );
 
       testLister.ReplaceAssemblyList(
         typeof(Assembly).Assembly,
-        typeof(AssemblyTypeListerTest).Assembly
+        typeof(MultiAssemblyTypeListerTest).Assembly
       );
 
       Assert.That(
         testLister.GetTypes(),
-        Has.Member(typeof(AssemblyTypeListerTest)).And.Not.Member(typeof(TestAttribute))
+        Has.Member(typeof(MultiAssemblyTypeListerTest)).And.Not.Member(typeof(TestAttribute))
       );
     }
 
@@ -112,22 +112,22 @@ namespace Nuclex.Support.Services {
       TestAssemblyTypeLister testLister = new TestAssemblyTypeLister(
         typeof(Assembly).Assembly,
         typeof(TestAttribute).Assembly,
-        typeof(AssemblyTypeListerTest).Assembly
+        typeof(MultiAssemblyTypeListerTest).Assembly
       );
 
       Assert.That(
         testLister.GetTypes(),
-        Has.Member(typeof(TestAttribute)).And.Member(typeof(AssemblyTypeListerTest))
+        Has.Member(typeof(TestAttribute)).And.Member(typeof(MultiAssemblyTypeListerTest))
       );
 
       testLister.ReplaceAssemblyList(
         typeof(Assembly).Assembly,
-        typeof(AssemblyTypeListerTest).Assembly
+        typeof(MultiAssemblyTypeListerTest).Assembly
       );
 
       Assert.That(
         testLister.GetTypes(),
-        Has.Member(typeof(AssemblyTypeListerTest)).And.Not.Member(typeof(TestAttribute))
+        Has.Member(typeof(MultiAssemblyTypeListerTest)).And.Not.Member(typeof(TestAttribute))
       );
     }
 

@@ -24,7 +24,8 @@ using System.Text;
 
 namespace Nuclex.Support.Services {
 
-#if false
+#if ENABLE_SERVICEMANAGER
+
   partial class ServiceManager {
 
     #region class ForContext
@@ -109,6 +110,7 @@ namespace Nuclex.Support.Services {
     #endregion // class ForContext<>
 
   }
-#endif
+
+#endif // ENABLE_SERVICEMANAGER
 
 } // namespace Nuclex.Support.Services

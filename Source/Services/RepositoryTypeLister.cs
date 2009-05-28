@@ -29,7 +29,7 @@ namespace Nuclex.Support.Services {
   /// <summary>
   ///   Lists the types of all assemblies contained in an assembly repository
   /// </summary>
-  public class RepositoryTypeLister : AssemblyTypeLister {
+  public class RepositoryTypeLister : MultiAssemblyTypeLister {
 
     /// <summary>
     ///   Initializes a new repository type lister using a new repository
