@@ -128,7 +128,9 @@ namespace Nuclex.Support.Tracking {
 
     /// <summary>Waits until the background process finishes</summary>
     public virtual void Wait() {
-      WaitHandle.WaitOne();
+      if(!this.ended) {
+        WaitHandle.WaitOne();
+      }
     }
 
 #if !COMPACTFRAMEWORK
@@ -141,6 +143,10 @@ namespace Nuclex.Support.Tracking {
     ///   True if the background process completed, false if the timeout was reached
     /// </returns>
     public virtual bool Wait(TimeSpan timeout) {
+      if(this.ended) {
+        return true;
+      }
+
       return WaitHandle.WaitOne(timeout, false);
     }
 
@@ -154,6 +160,10 @@ namespace Nuclex.Support.Tracking {
     ///   True if the background process completed, false if the timeout was reached
     /// </returns>
     public virtual bool Wait(int timeoutMilliseconds) {
+      if(this.ended) {
+        return true;
+      }
+
       return WaitHandle.WaitOne(timeoutMilliseconds, false);
     }
 
