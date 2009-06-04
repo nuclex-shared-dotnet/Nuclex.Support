@@ -146,7 +146,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Fires the progress update event</summary>
     /// <param name="progress">Progress to report (ranging from 0.0 to 1.0)</param>
     /// <remarks>
-    ///   Informs the observers of this transactions about the achieved progress.
+    ///   Informs the observers of this transaction about the achieved progress.
     /// </remarks>
     protected virtual void OnAsyncProgressChanged(float progress) {
       OnAsyncProgressChanged(new ProgressReportEventArgs(progress));

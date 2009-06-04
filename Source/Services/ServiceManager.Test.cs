@@ -18,18 +18,18 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.IO;
 
 using Nuclex.Support.Plugins;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
-namespace Nuclex.Support.Services {
-
 #if ENABLE_SERVICEMANAGER
+
+namespace Nuclex.Support.Services {
 
   /// <summary>Unit Test for the service manager class</summary>
   [TestFixture]
@@ -192,8 +192,8 @@ namespace Nuclex.Support.Services {
 
   }
 
-#endif // ENABLE_SERVICEMANAGER
-
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER
 
 #endif // UNITTEST

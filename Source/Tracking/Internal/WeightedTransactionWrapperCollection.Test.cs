@@ -29,7 +29,9 @@ using NMock2;
 
 namespace Nuclex.Support.Tracking {
 
-  /// <summary>Unit Test for the observation wrapper collection of weighted transactions</summary>
+  /// <summary>
+  ///   Unit Test for the observation wrapper collection of weighted transactions
+  /// </summary>
   [TestFixture]
   public class WeightedTransactionWrapperCollectionTest {
 
@@ -42,11 +44,12 @@ namespace Nuclex.Support.Tracking {
         Transaction.EndedDummy
       );
 
-      ObservedWeightedTransaction<Transaction> observed = new ObservedWeightedTransaction<Transaction>(
-        transaction,
-        endedCallback,
-        progressUpdatedCallback
-      );
+      ObservedWeightedTransaction<Transaction> observed =
+        new ObservedWeightedTransaction<Transaction>(
+          transaction,
+          endedCallback,
+          progressUpdatedCallback
+        );
 
       WeightedTransactionWrapperCollection<Transaction> wrapper =
         new WeightedTransactionWrapperCollection<Transaction>(

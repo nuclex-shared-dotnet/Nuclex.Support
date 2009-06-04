@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services {
 
   /// <summary>Type lister that returns a predefined list of types</summary>
@@ -58,3 +60,5 @@ namespace Nuclex.Support.Services {
   }
 
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER

@@ -23,9 +23,9 @@ using System.Collections.Generic;
 
 using Nuclex.Support.Tracking;
 
-namespace Nuclex.Support.Services.ProgressTracking {
-
 #if ENABLE_SERVICEMANAGER
+
+namespace Nuclex.Support.Services.ProgressTracking {
 
   /// <summary>Tracks the progress of running background processes</summary>
   public class ProgressTrackingComponent :
@@ -73,6 +73,6 @@ namespace Nuclex.Support.Services.ProgressTracking {
 
   }
 
-#endif // ENABLE_SERVICEMANAGER
-
 } // namespace Nuclex.Support.Services.ProgressTracking
+
+#endif // ENABLE_SERVICEMANAGER

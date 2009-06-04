@@ -22,9 +22,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Nuclex.Support.Services {
-
 #if ENABLE_SERVICEMANAGER
+
+namespace Nuclex.Support.Services {
 
   partial class ServiceManager {
 
@@ -111,6 +111,6 @@ namespace Nuclex.Support.Services {
 
   }
 
-#endif // ENABLE_SERVICEMANAGER
-
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER

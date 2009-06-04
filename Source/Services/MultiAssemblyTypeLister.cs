@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services {
 
   /// <summary>Lists all types in a changing set of assemblies</summary>
@@ -160,3 +162,5 @@ namespace Nuclex.Support.Services {
   }
 
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER

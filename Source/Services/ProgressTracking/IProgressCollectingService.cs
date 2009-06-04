@@ -23,6 +23,8 @@ using System.Collections.Generic;
 
 using Nuclex.Support.Tracking;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services.ProgressTracking {
 
   /// <summary>Allows application-wide tracking of progress</summary>
@@ -86,3 +88,5 @@ namespace Nuclex.Support.Services.ProgressTracking {
   }
 
 } // namespace Nuclex.Support.DependencyInjection.ProgressTracking
+
+#endif // ENABLE_SERVICEMANAGER

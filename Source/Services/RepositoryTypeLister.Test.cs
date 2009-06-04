@@ -26,6 +26,8 @@ using System.Reflection;
 
 using NUnit.Framework;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services {
 
   /// <summary>Unit Test for the cached assembly repository type lister</summary>
@@ -59,5 +61,7 @@ namespace Nuclex.Support.Services {
   }
 
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER
 
 #endif // UNITTEST

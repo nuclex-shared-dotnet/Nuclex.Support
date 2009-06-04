@@ -24,6 +24,8 @@ using System.Reflection;
 
 using Nuclex.Support.Plugins;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services {
 
   /// <summary>
@@ -70,3 +72,5 @@ namespace Nuclex.Support.Services {
   }
 
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER

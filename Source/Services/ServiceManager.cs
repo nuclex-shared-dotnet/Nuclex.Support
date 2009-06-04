@@ -26,9 +26,9 @@ using System.Threading;
 
 using Nuclex.Support.Plugins;
 
-namespace Nuclex.Support.Services {
-
 #if ENABLE_SERVICEMANAGER
+
+namespace Nuclex.Support.Services {
 
   // Allow Dependency on Container
   //   public Foo(IServiceProvider serviceProvider)
@@ -84,7 +84,7 @@ namespace Nuclex.Support.Services {
   /// </remarks>
   public partial class ServiceManager : IServiceProvider {
 
-    #region class Contract
+#region class Contract
 
     /// <summary>Stores the settings for an individual contract</summary>
     private class Contract {
@@ -321,6 +321,6 @@ namespace Nuclex.Support.Services {
 
   }
 
-#endif // ENABLE_SERVICEMANAGER
-
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER

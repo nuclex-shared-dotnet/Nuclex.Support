@@ -20,30 +20,23 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Diagnostics;
 
-using Nuclex.Support.Plugins;
+namespace Nuclex.Support.Scheduling {
 
-#if ENABLE_SERVICEMANAGER
+#if false
 
-namespace Nuclex.Support.Services {
+  /// <summary>Schedules actions for execution at a future point in time</summary>
+  public class Scheduler : IDisposable {
 
-  /// <summary>Modes in which services can be instantiated</summary>
-  public enum Instancing {
+    /// <summary>Immediately releases all resources owned by the instance</summary>
+    public void Dispose() {
+    }
 
-    /// <summary>Disallow any service from being created for a contract</summary>
-    Never,
-
-    /// <summary>There will only be one service in the whole process</summary>
-    Singleton,
-
-    /// <summary>Each thread will be assigned its own service</summary>
-    InstancePerThread,
-
-    /// <summary>A new service will be created each time it is queried for</summary>
-    Factory
 
   }
 
-} // namespace Nuclex.Support.Services
+#endif
 
-#endif // ENABLE_SERVICEMANAGER
+} // namespace Nuclex.Support.Scheduling

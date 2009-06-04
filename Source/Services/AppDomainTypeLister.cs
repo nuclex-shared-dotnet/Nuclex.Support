@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
+#if ENABLE_SERVICEMANAGER
+
 namespace Nuclex.Support.Services {
 
 #if !XBOX360
@@ -57,3 +59,5 @@ namespace Nuclex.Support.Services {
 #endif // !XBOX360
 
 } // namespace Nuclex.Support.Services
+
+#endif // ENABLE_SERVICEMANAGER
