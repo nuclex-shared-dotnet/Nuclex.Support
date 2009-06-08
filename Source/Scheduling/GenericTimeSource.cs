@@ -26,12 +26,19 @@ using System.Threading;
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>
-  ///   Default time source implementation using the Stopwatch or Environment.TickCount
+  ///   Generic time source implementation using the Stopwatch or Environment.TickCount
   /// </summary>
-  public class DefaultTimeSource : ITimeSource {
+  public class GenericTimeSource : ITimeSource {
 
     /// <summary>Number of ticks (100 ns intervals) in a millisecond</summary>
     private const long TicksPerMillisecond = 10000;
+
+    /// <summary>Tolerance for the detection of a date/time adjustment</summary>
+    /// <remarks>
+    ///   If the current system date/time jumps by more than this tolerance into any
+    ///   direction, the default time source will trigger the DateTimeAdjusted event.
+    /// </remarks>
+    private const long TimeAdjustmentToleranceTicks = 75 * TicksPerMillisecond;
 
     /// <summary>Called when the system date/time are adjusted</summary>
     /// <remarks>
@@ -42,13 +49,13 @@ namespace Nuclex.Support.Scheduling {
     public event EventHandler DateTimeAdjusted;
 
     /// <summary>Initializes the static fields of the default time source</summary>
-    static DefaultTimeSource() {
+    static GenericTimeSource() {
       tickFrequency = 10000000.0;
       tickFrequency /= (double)Stopwatch.Frequency;
     }
 
     /// <summary>Initializes the default time source</summary>
-    public DefaultTimeSource() : this(Stopwatch.IsHighResolution) { }
+    public GenericTimeSource() : this(Stopwatch.IsHighResolution) { }
 
     /// <summary>Initializes the default time source</summary>
     /// <param name="useStopwatch">
@@ -67,23 +74,25 @@ namespace Nuclex.Support.Scheduling {
     ///     but then your won't profit from the high-resolution timer if one is available.
     ///   </para>
     /// </remarks>
-    public DefaultTimeSource(bool useStopwatch) {
+    public GenericTimeSource(bool useStopwatch) {
       this.useStopwatch = useStopwatch;
+
+      checkForTimeAdjustment();
     }
 
-    /// <summary>Waits for an AutoResetEvent become signalled</summary>
+    /// <summary>Waits for an AutoResetEvent to become signalled</summary>
     /// <param name="waitHandle">WaitHandle the method will wait for</param>
     /// <param name="ticks">Number of ticks to wait</param>
     /// <returns>
     ///   True if the WaitHandle was signalled, false if the timeout was reached
     /// </returns>
     public virtual bool WaitOne(AutoResetEvent waitHandle, long ticks) {
+      checkForTimeAdjustment();
 
       // Force a timeout at least each second so the caller can check the system time
       // since we're not able to provide the DateTimeAdjusted notification
       int milliseconds = (int)(ticks / TicksPerMillisecond);
       return waitHandle.WaitOne(Math.Min(1000, milliseconds), false);
-
     }
 
     /// <summary>Current system time in UTC format</summary>
@@ -126,6 +135,41 @@ namespace Nuclex.Support.Scheduling {
         copy(sender, arguments);
       }
     }
+
+    /// <summary>
+    ///   Checks whether the system/date time have been adjusted since the last call
+    /// </summary>
+    private void checkForTimeAdjustment() {
+
+      // Grab the current date/time and timer ticks in one go
+      DateTime currentLocalTime = DateTime.Now;
+      long currentTicks = Ticks;
+
+      // Calculate the number of timer ticks that have passed since the last check and
+      // extrapolate the local date/time we should be expecting to see
+      long ticksSinceLastCheck = currentTicks - lastCheckedTicks;
+      DateTime expectedLocalTime = new DateTime(
+        lastCheckedLocalTime.Ticks + ticksSinceLastCheck, DateTimeKind.Local
+      );
+
+      // Find out by what amount the actual local date/time deviates from
+      // the extrapolated date/time and trigger the date/time adjustment event if
+      // we can reasonably assume that the system date/time have been adjusted.
+      long deviationTicks = Math.Abs(expectedLocalTime.Ticks - currentLocalTime.Ticks);
+      if(deviationTicks > TimeAdjustmentToleranceTicks) {
+        OnDateTimeAdjusted(this, EventArgs.Empty);
+      }
+
+      // Remember the current local date/time and timer ticks for the next run
+      this.lastCheckedLocalTime = currentLocalTime;
+      this.lastCheckedTicks = currentTicks;
+
+    }
+
+    /// <summary>Last local time we checked for a date/time adjustment</summary>
+    private DateTime lastCheckedLocalTime;
+    /// <summary>Timer ticks at which we last checked the local time</summary>
+    private long lastCheckedTicks;
 
     /// <summary>Number of ticks per Stopwatch time unit</summary>
     private static double tickFrequency;

@@ -25,7 +25,7 @@ using System.Threading;
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>Provides time measurement and change notification services</summary>
-  interface ITimeSource {
+  public interface ITimeSource {
 
     /// <summary>Called when the system date/time are adjusted</summary>
     /// <remarks>
@@ -35,7 +35,7 @@ namespace Nuclex.Support.Scheduling {
     /// </remarks>
     event EventHandler DateTimeAdjusted;
 
-    /// <summary>Waits for an AutoResetEvent become signalled</summary>
+    /// <summary>Waits for an AutoResetEvent to become signalled</summary>
     /// <param name="waitHandle">WaitHandle the method will wait for</param>
     /// <param name="ticks">Number of ticks to wait</param>
     /// <returns>

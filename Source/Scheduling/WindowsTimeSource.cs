@@ -31,7 +31,7 @@ namespace Nuclex.Support.Scheduling {
   /// <summary>
   ///   Time source that makes use of additional features only available on Windows
   /// </summary>
-  public class WindowsTimeSource : DefaultTimeSource, IDisposable {
+  public class WindowsTimeSource : GenericTimeSource, IDisposable {
 
     /// <summary>Number of ticks (100 ns intervals) in a millisecond</summary>
     private const long TicksPerMillisecond = 10000;
@@ -50,7 +50,7 @@ namespace Nuclex.Support.Scheduling {
       }
     }
 
-    /// <summary>Waits for an AutoResetEvent become signalled</summary>
+    /// <summary>Waits for an AutoResetEvent to become signalled</summary>
     /// <param name="waitHandle">WaitHandle the method will wait for</param>
     /// <param name="ticks">Number of ticks to wait</param>
     /// <returns>

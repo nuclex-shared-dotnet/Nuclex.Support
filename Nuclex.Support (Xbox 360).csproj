@@ -122,12 +122,15 @@
     <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
       <DependentUpon>PrototypeFactory.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Scheduling\DefaultTimeSource.Test.cs">
-      <DependentUpon>DefaultTimeSource.cs</DependentUpon>
+    <Compile Include="Source\Scheduling\GenericTimeSource.Test.cs">
+      <DependentUpon>GenericTimeSource.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Scheduling\ITimeSource.cs" />
     <Compile Include="Source\Scheduling\Scheduler.cs" />
-    <Compile Include="Source\Scheduling\DefaultTimeSource.cs" />
+    <Compile Include="Source\Scheduling\GenericTimeSource.cs" />
+    <Compile Include="Source\Scheduling\Scheduler.Test.cs">
+      <DependentUpon>Scheduler.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\WindowsTimeSource.cs" />
     <Compile Include="Source\Scheduling\WindowsTimeSource.Test.cs">
       <DependentUpon>WindowsTimeSource.cs</DependentUpon>

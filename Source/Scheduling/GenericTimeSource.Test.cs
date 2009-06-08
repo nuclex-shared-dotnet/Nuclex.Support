@@ -28,16 +28,16 @@ using NUnit.Framework;
 
 namespace Nuclex.Support.Scheduling {
 
-  /// <summary>Unit Test for the default scheduler time source</summary>
+  /// <summary>Unit Test for the generic scheduler time source</summary>
   [TestFixture]
-  public class DefaultTimeSourceTest {
+  public class GenericTimeSourceTest {
 
     /// <summary>
     ///   Verifies that the time source's default constructor is working
     /// </summary>
     [Test]
     public void TestDefaultConstructor() {
-      DefaultTimeSource timeSource = new DefaultTimeSource();
+      GenericTimeSource timeSource = new GenericTimeSource();
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace Nuclex.Support.Scheduling {
     /// </summary>
     [Test]
     public void TestCurrentUtcTime() {
-      DefaultTimeSource timeSource = new DefaultTimeSource();
+      GenericTimeSource timeSource = new GenericTimeSource();
 
       Assert.That(
         timeSource.CurrentUtcTime, Is.EqualTo(DateTime.UtcNow).Within(10).Seconds
@@ -58,7 +58,7 @@ namespace Nuclex.Support.Scheduling {
     /// </summary>
     [Test]
     public void TestTicksWithStopwatch() {
-      DefaultTimeSource timeSource = new DefaultTimeSource(true);
+      GenericTimeSource timeSource = new GenericTimeSource(true);
       long ticks1 = timeSource.Ticks;
       long ticks2 = timeSource.Ticks;
 
@@ -71,7 +71,7 @@ namespace Nuclex.Support.Scheduling {
     /// </summary>
     [Test]
     public void TestTicksWithTickCount() {
-      DefaultTimeSource timeSource = new DefaultTimeSource(false);
+      GenericTimeSource timeSource = new GenericTimeSource(false);
       long ticks1 = timeSource.Ticks;
       long ticks2 = timeSource.Ticks;
 
@@ -83,7 +83,7 @@ namespace Nuclex.Support.Scheduling {
     /// </summary>
     [Test]
     public void TestWaitOne() {
-      DefaultTimeSource timeSource = new DefaultTimeSource();
+      GenericTimeSource timeSource = new GenericTimeSource();
       AutoResetEvent waitEvent = new AutoResetEvent(true);
 
       Assert.IsTrue(timeSource.WaitOne(waitEvent, TimeSpan.FromMilliseconds(1).Ticks));
