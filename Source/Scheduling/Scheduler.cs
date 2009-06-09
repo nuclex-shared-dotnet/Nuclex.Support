@@ -419,7 +419,9 @@ namespace Nuclex.Support.Scheduling {
           this.notificationWaitEvent.WaitOne();
         } else {
           long remainingTicks = nextDueNotification.NextDueTicks - this.timeSource.Ticks;
-          this.timeSource.WaitOne(this.notificationWaitEvent, remainingTicks);
+          if(remainingTicks > 0) {
+            this.timeSource.WaitOne(this.notificationWaitEvent, remainingTicks);
+          }
         }
 
         // Have we been woken up because the Scheduler is being disposed?
