@@ -87,12 +87,18 @@ namespace Nuclex.Support.Scheduling {
     ///   True if the WaitHandle was signalled, false if the timeout was reached
     /// </returns>
     public virtual bool WaitOne(AutoResetEvent waitHandle, long ticks) {
-      checkForTimeAdjustment();
 
       // Force a timeout at least each second so the caller can check the system time
       // since we're not able to provide the DateTimeAdjusted notification
       int milliseconds = (int)(ticks / TicksPerMillisecond);
-      return waitHandle.WaitOne(Math.Min(1000, milliseconds), false);
+      bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds), false);
+
+      // See whether the system date/time have been adjusted while we were asleep.
+      checkForTimeAdjustment();
+
+      // Now tell the caller whether his even was signalled
+      return signalled;
+
     }
 
     /// <summary>Current system time in UTC format</summary>

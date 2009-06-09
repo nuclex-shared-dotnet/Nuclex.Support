@@ -18,13 +18,13 @@ License along with this library
 */
 #endregion
 
-#if !XBOX360
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
+#if !XBOX360
 using Microsoft.Win32;
+#endif
 
 namespace Nuclex.Support.Scheduling {
 
@@ -38,16 +38,24 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Initializes a new Windows time source</summary>
     public WindowsTimeSource() {
+#if XBOX360
+      throw new InvalidOperationException(
+        "Windows time source is not available on the XBox 360"
+      );
+#else
       this.onDateTimeAdjustedDelegate = new EventHandler(OnDateTimeAdjusted);
       SystemEvents.TimeChanged += this.onDateTimeAdjustedDelegate;
+#endif
     }
 
     /// <summary>Immediately releases all resources owned by the instance</summary>
     public void Dispose() {
+#if !XBOX360
       if(this.onDateTimeAdjustedDelegate != null) {
         SystemEvents.TimeChanged -= this.onDateTimeAdjustedDelegate;
         this.onDateTimeAdjustedDelegate = null;
       }
+#endif
     }
 
     /// <summary>Waits for an AutoResetEvent to become signalled</summary>
@@ -57,7 +65,7 @@ namespace Nuclex.Support.Scheduling {
     ///   True if the WaitHandle was signalled, false if the timeout was reached
     /// </returns>
     public override bool WaitOne(AutoResetEvent waitHandle, long ticks) {
-      return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond));
+      return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
     }
 
     /// <summary>
@@ -73,5 +81,3 @@ namespace Nuclex.Support.Scheduling {
   }
 
 } // namespace Nuclex.Support.Scheduling
-
-#endif // !XBOX360

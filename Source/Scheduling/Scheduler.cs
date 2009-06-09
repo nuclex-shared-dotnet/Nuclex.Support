@@ -25,8 +25,6 @@ using System.Diagnostics;
 
 using Nuclex.Support.Collections;
 
-#if false
-
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>Schedules actions for execution at a future point in time</summary>
@@ -35,7 +33,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>One tick is 100 ns, meaning 10000 ticks equal 1 ms</summary>
     private const long TicksPerMillisecond = 10000;
 
-#region class TimeSourceSingleton
+    #region class TimeSourceSingleton
 
     /// <summary>
     ///   Manages the singleton instance of the scheduler's default time source
@@ -55,7 +53,7 @@ namespace Nuclex.Support.Scheduling {
 
     #endregion // class TimeSourceSingleton
 
-#region class Notification
+    #region class Notification
 
     /// <summary>Scheduled notification</summary>
     private class Notification {
@@ -77,7 +75,7 @@ namespace Nuclex.Support.Scheduling {
         long intervalTicks,
         long nextDueTicks,
         DateTime absoluteUtcTime,
-        Delegate callback
+        WaitCallback callback
       ) {
         this.IntervalTicks = intervalTicks;
         this.NextDueTicks = nextDueTicks;
@@ -100,7 +98,7 @@ namespace Nuclex.Support.Scheduling {
       /// </remarks>
       public DateTime AbsoluteUtcTime;
       /// <summary>Callback that will be invoked when the notification is due</summary>
-      public Delegate Callback;
+      public WaitCallback Callback;
       /// <summary>Whether the notification has been cancelled</summary>
       public bool Cancelled;
 
@@ -108,14 +106,44 @@ namespace Nuclex.Support.Scheduling {
 
     #endregion // class Notification
 
+    #region class NotificationComparer
+
+    /// <summary>Compares two notifications to each other</summary>
+    private class NotificationComparer : IComparer<Notification> {
+
+      /// <summary>The default instance of the notification comparer</summary>
+      public static readonly NotificationComparer Default = new NotificationComparer();
+
+      /// <summary>Compares two notifications to each other based on their time</summary>
+      /// <param name="left">Notification that will be compared on the left side</param>
+      /// <param name="right">Notification that will be comapred on the right side</param>
+      /// <returns>The relation of the two notification's times to each other</returns>
+      public int Compare(Notification left, Notification right) {
+        if(left.NextDueTicks > right.NextDueTicks) {
+          return -1;
+        } else if(left.NextDueTicks < right.NextDueTicks) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+
+    #endregion // class NotificationComparer
+
+    }
+
     /// <summary>Initializes a new scheduler using the default time source</summary>
     public Scheduler() : this(DefaultTimeSource) { }
 
     /// <summary>Initializes a new scheduler using the specified time source</summary>
     /// <param name="timeSource">Source source the scheduler will use</param>
     public Scheduler(ITimeSource timeSource) {
+      this.dateTimeAdjustedDelegate = new EventHandler(dateTimeAdjusted);
+
       this.timeSource = timeSource;
-      this.notifications = new PriorityQueue<Notification>();
+      this.timeSource.DateTimeAdjusted += this.dateTimeAdjustedDelegate;
+
+      this.notifications = new PriorityQueue<Notification>(NotificationComparer.Default);
       this.notificationWaitEvent = new AutoResetEvent(false);
 
       this.timerThread = new Thread(new ThreadStart(runTimerThread));
@@ -138,6 +166,13 @@ namespace Nuclex.Support.Scheduling {
           this.timerThread.Join(2500), "Scheduler timer thread did not exit in time"
         );
 
+        // Unsubscribe from the time source to avoid surprise events during or
+        // after shutdown
+        if(this.timeSource != null) {
+          this.timeSource.DateTimeAdjusted -= this.dateTimeAdjustedDelegate;
+          this.timeSource = null;
+        }
+
         // Get rid of the notification wait event now that we've made sure that
         // the timer thread is down.
         this.notificationWaitEvent.Close();
@@ -145,7 +180,6 @@ namespace Nuclex.Support.Scheduling {
         // Help the GC a bit
         this.notificationWaitEvent = null;
         this.notifications = null;
-        this.timeSource = null;
 
         // Set to null so we don't attempt to end the thread again if Dispose() is
         // called multiple times.
@@ -168,7 +202,7 @@ namespace Nuclex.Support.Scheduling {
     ///   the notification. So if you need to be notified after a fixed time, use
     ///   the NotifyIn() method instead.
     /// </remarks>
-    public object NotifyAt(DateTime notificationTime, Delegate callback) {
+    public object NotifyAt(DateTime notificationTime, WaitCallback callback) {
       if(notificationTime.Kind == DateTimeKind.Unspecified) {
         throw new ArgumentException(
           "Notification time is neither UTC or local", "notificationTime"
@@ -176,7 +210,9 @@ namespace Nuclex.Support.Scheduling {
       }
 
       DateTime notificationTimeUtc = notificationTime.ToUniversalTime();
-      long remainingTicks = notificationTimeUtc.Ticks - DateTime.UtcNow.Ticks;
+      DateTime now = this.timeSource.CurrentUtcTime;
+
+      long remainingTicks = notificationTimeUtc.Ticks - now.Ticks;
       long nextDueTicks = this.timeSource.Ticks + remainingTicks;
 
       return scheduleNotification(
@@ -195,7 +231,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Callback that will be invoked when the notification is due
     /// </param>
     /// <returns>A handle that can be used to cancel the notification</returns>
-    public object NotifyIn(TimeSpan delay, Delegate callback) {
+    public object NotifyIn(TimeSpan delay, WaitCallback callback) {
       return scheduleNotification(
         new Notification(
           0,
@@ -216,7 +252,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Callback that will be invoked when the notification is due
     /// </param>
     /// <returns>A handle that can be used to cancel the notification</returns>
-    public object NotifyIn(int delayMilliseconds, Delegate callback) {
+    public object NotifyIn(int delayMilliseconds, WaitCallback callback) {
       return scheduleNotification(
         new Notification(
           0,
@@ -236,7 +272,7 @@ namespace Nuclex.Support.Scheduling {
     ///   Callback that will be invoked when the notification is due
     /// </param>
     /// <returns>A handle that can be used to cancel the notification</returns>
-    public object NotifyEach(TimeSpan delay, TimeSpan interval, Delegate callback) {
+    public object NotifyEach(TimeSpan delay, TimeSpan interval, WaitCallback callback) {
       return scheduleNotification(
         new Notification(
           interval.Ticks,
@@ -261,7 +297,7 @@ namespace Nuclex.Support.Scheduling {
     /// </param>
     /// <returns>A handle that can be used to cancel the notification</returns>
     public object NotifyEach(
-      int delayMilliseconds, int intervalMilliseconds, Delegate callback
+      int delayMilliseconds, int intervalMilliseconds, WaitCallback callback
     ) {
       return scheduleNotification(
         new Notification(
@@ -271,6 +307,17 @@ namespace Nuclex.Support.Scheduling {
           callback
         )
       );
+    }
+
+    /// <summary>Cancels a scheduled notification</summary>
+    /// <param name="notificationHandle">
+    ///   Handle of the notification that will be cancelled
+    /// </param>
+    public void Cancel(object notificationHandle) {
+      Notification notification = notificationHandle as Notification;
+      if(notification != null) {
+        notification.Cancelled = true;
+      }
     }
 
     /// <summary>Returns the default time source for the scheduler</summary>
@@ -297,11 +344,54 @@ namespace Nuclex.Support.Scheduling {
       return CreateTimeSource(WindowsTimeSource.Available);
     }
 
+    /// <summary>Called when the system date/time have been adjusted</summary>
+    /// <param name="sender">Time source which detected the adjustment</param>
+    /// <param name="arguments">Not used</param>
+    private void dateTimeAdjusted(object sender, EventArgs arguments) {
+      lock(this.timerThread) {
+        long currentTicks = this.timeSource.Ticks;
+        DateTime currentTime = this.timeSource.CurrentUtcTime;
+
+        PriorityQueue<Notification> updatedQueue = new PriorityQueue<Notification>(
+          NotificationComparer.Default
+        );
+
+        // Copy all notifications from the original queue to a new one, adjusting
+        // those with an absolute notification time along the way to a new due tick
+        while(this.notifications.Count > 0) {
+          Notification notification = this.notifications.Dequeue();
+          if(!notification.Cancelled) {
+
+            // If this notification has an absolute due time, adjust its due tick
+            if(notification.AbsoluteUtcTime != DateTime.MinValue) {
+
+              // Combining recurrent notifications with absolute time isn't allowed
+              Debug.Assert(notification.IntervalTicks == 0);
+
+              // Make the adjustment
+              long remainingTicks = (notification.AbsoluteUtcTime - currentTime).Ticks;
+              notification.NextDueTicks = currentTicks + remainingTicks;
+
+            }
+
+            // Notification processed, move it over to the next priority queue
+            updatedQueue.Enqueue(notification);
+
+          }
+        }
+
+        // Replace the working queue with the update queue
+        this.notifications = updatedQueue;
+      }
+
+      this.notificationWaitEvent.Set();
+    }
+
     /// <summary>Schedules a notification for processing by the timer thread</summary>
     /// <param name="notification">Notification that will be scheduled</param>
     /// <returns>The scheduled notification</returns>
     private object scheduleNotification(Notification notification) {
-      lock(this.notifications) {
+      lock(this.timerThread) {
         this.notifications.Enqueue(notification);
 
         // If this notification has become that next due notification, wake up
@@ -316,12 +406,15 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Executes the timer thread</summary>
     private void runTimerThread() {
+      Notification nextDueNotification;
+      lock(this.timerThread) {
+        nextDueNotification = getNextDueNotification();
+      }
 
+      // Keep processing notifications until we're told to quit
       for(; ; ) {
 
-        // Get the notification that is due next and wait for it. When no notifications
-        // are queued, wait indefinitely until we're signalled
-        Notification nextDueNotification = getNextDueNotification();
+        // Wait until the nextmost notification is due or something else wakes us up
         if(nextDueNotification == null) {
           this.notificationWaitEvent.WaitOne();
         } else {
@@ -334,27 +427,52 @@ namespace Nuclex.Support.Scheduling {
           break;
         }
 
+        // Process all notifications that are due by handing them over to the thread pool.
+        // The notification queue might have been updated while we were sleeping, so
+        // look for the notification that is due next again
+        long ticks = this.timeSource.Ticks;
+        lock(this.timerThread) {
+          for(; ; ) {
+            nextDueNotification = getNextDueNotification();
+            if(nextDueNotification == null) {
+              break;
+            }
 
-        //if(nextDueNotification.AbsoluteUtcTime !=         
+            // If the next notification is more than a millisecond away, we've reached
+            // the end of the notifications we need to process.
+            long remainingTicks = (nextDueNotification.NextDueTicks - ticks);
+            if(remainingTicks >= TicksPerMillisecond) {
+              break;
+            }
 
-      }
+            if(!nextDueNotification.Cancelled) {
+              ThreadPool.QueueUserWorkItem(nextDueNotification.Callback);
+            }
 
+            this.notifications.Dequeue();
+            if(nextDueNotification.IntervalTicks != 0) {
+              nextDueNotification.NextDueTicks += nextDueNotification.IntervalTicks;
+              this.notifications.Enqueue(nextDueNotification);
+            }
+          } // for
+        } // lock
+
+      } // for
     }
 
     /// <summary>Retrieves the notification that is due next</summary>
     /// <returns>The notification that is due next</returns>
     private Notification getNextDueNotification() {
-      lock(this.notifications) {
-        if(this.notifications.Count == 0) {
-          return null;
-        } else {
-          Notification nextDueNotification = this.notifications.Peek();
-          while(nextDueNotification.Cancelled) {
-            this.notifications.Dequeue();
-            nextDueNotification = this.notifications.Peek();
-          }
-          return nextDueNotification;
+      if(this.notifications.Count == 0) {
+        return null;
+      } else {
+        Notification nextDueNotification = this.notifications.Peek();
+        while(nextDueNotification.Cancelled) {
+          this.notifications.Dequeue();
+          nextDueNotification = this.notifications.Peek();
         }
+
+        return nextDueNotification;
       }
     }
 
@@ -370,8 +488,9 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Whether the timer thread should end</summary>
     private volatile bool endRequested;
 
+    /// <summary>Delegate for the dateTimeAdjusted() method</summary>
+    private EventHandler dateTimeAdjustedDelegate;
+
   }
 
 } // namespace Nuclex.Support.Scheduling
-
-#endif
