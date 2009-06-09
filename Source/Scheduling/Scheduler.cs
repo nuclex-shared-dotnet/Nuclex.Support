@@ -374,13 +374,13 @@ namespace Nuclex.Support.Scheduling {
 
             }
 
-            // Notification processed, move it over to the next priority queue
+            // Notification processed, move it over to the new priority queue
             updatedQueue.Enqueue(notification);
 
           }
         }
 
-        // Replace the working queue with the update queue
+        // Replace the working queue with the updated queue
         this.notifications = updatedQueue;
       }
 
