@@ -128,9 +128,9 @@ namespace Nuclex.Support.Scheduling {
         }
       }
 
-    #endregion // class NotificationComparer
-
     }
+
+    #endregion // class NotificationComparer
 
     /// <summary>Initializes a new scheduler using the default time source</summary>
     public Scheduler() : this(DefaultTimeSource) { }
@@ -235,7 +235,7 @@ namespace Nuclex.Support.Scheduling {
       return scheduleNotification(
         new Notification(
           0,
-          delay.Ticks,
+          this.timeSource.Ticks + delay.Ticks,
           DateTime.MinValue,
           callback
         )
@@ -256,7 +256,7 @@ namespace Nuclex.Support.Scheduling {
       return scheduleNotification(
         new Notification(
           0,
-          (long)delayMilliseconds * TicksPerMillisecond,
+          this.timeSource.Ticks + ((long)delayMilliseconds * TicksPerMillisecond),
           DateTime.MinValue,
           callback
         )
@@ -276,7 +276,7 @@ namespace Nuclex.Support.Scheduling {
       return scheduleNotification(
         new Notification(
           interval.Ticks,
-          delay.Ticks,
+          this.timeSource.Ticks + delay.Ticks,
           DateTime.MinValue,
           callback
         )
@@ -302,7 +302,7 @@ namespace Nuclex.Support.Scheduling {
       return scheduleNotification(
         new Notification(
           (long)intervalMilliseconds * TicksPerMillisecond,
-          (long)delayMilliseconds * TicksPerMillisecond,
+          this.timeSource.Ticks + ((long)delayMilliseconds * TicksPerMillisecond),
           DateTime.MinValue,
           callback
         )

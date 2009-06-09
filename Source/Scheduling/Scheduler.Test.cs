@@ -47,6 +47,7 @@ namespace Nuclex.Support.Scheduling {
       /// <param name="utcStartTime">Start time in UTC format</param>
       public MockTimeSource(DateTime utcStartTime) {
         this.currentTime = utcStartTime;
+        this.currentTicks = 1000000000;
       }
 
       /// <summary>Waits for an AutoResetEvent to become signalled</summary>
