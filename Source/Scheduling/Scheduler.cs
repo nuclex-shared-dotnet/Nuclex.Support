@@ -136,7 +136,7 @@ namespace Nuclex.Support.Scheduling {
     public Scheduler() : this(DefaultTimeSource) { }
 
     /// <summary>Initializes a new scheduler using the specified time source</summary>
-    /// <param name="timeSource">Source source the scheduler will use</param>
+    /// <param name="timeSource">Time source the scheduler will use</param>
     public Scheduler(ITimeSource timeSource) {
       this.dateTimeAdjustedDelegate = new EventHandler(dateTimeAdjusted);
 
@@ -394,7 +394,7 @@ namespace Nuclex.Support.Scheduling {
       lock(this.timerThread) {
         this.notifications.Enqueue(notification);
 
-        // If this notification has become that next due notification, wake up
+        // If this notification has become the next due notification, wake up
         // the timer thread so it can adjust its sleep period.
         if(ReferenceEquals(this.notifications.Peek(), notification)) {
           this.notificationWaitEvent.Set();
