@@ -167,7 +167,10 @@ namespace Nuclex.Support.Tracking {
       TestTransaction test = new TestTransaction();
 
       // We can only do a positive test here without slowing down the unit test
-      test.End();
+      ThreadPool.QueueUserWorkItem(
+        (WaitCallback)delegate(object state) { test.End(); }
+      );
+
       test.Wait();
     }
 
