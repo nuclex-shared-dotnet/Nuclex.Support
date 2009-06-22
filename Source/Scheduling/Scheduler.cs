@@ -465,17 +465,16 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Retrieves the notification that is due next</summary>
     /// <returns>The notification that is due next</returns>
     private Notification getNextDueNotification() {
-      if(this.notifications.Count == 0) {
-        return null;
-      } else {
+      while(this.notifications.Count > 0) {
         Notification nextDueNotification = this.notifications.Peek();
-        while(nextDueNotification.Cancelled) {
+        if(nextDueNotification.Cancelled) {
           this.notifications.Dequeue();
-          nextDueNotification = this.notifications.Peek();
+        } else {
+          return nextDueNotification;
         }
-
-        return nextDueNotification;
       }
+
+      return null;
     }
 
     /// <summary>Time source used by the scheduler</summary>
