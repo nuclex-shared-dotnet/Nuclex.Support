@@ -207,8 +207,7 @@ namespace Nuclex.Support.Scheduling {
       ITimeSource timeSource = Scheduler.CreateTimeSource(true);
       try {
         Assert.That(timeSource is WindowsTimeSource);
-      }
-      finally {
+      } finally {
         IDisposable disposableTimeSource = timeSource as IDisposable;
         if(disposableTimeSource != null) {
           disposableTimeSource.Dispose();
@@ -224,8 +223,7 @@ namespace Nuclex.Support.Scheduling {
       ITimeSource timeSource = Scheduler.CreateTimeSource(false);
       try {
         Assert.That(timeSource is GenericTimeSource);
-      }
-      finally {
+      } finally {
         IDisposable disposableTimeSource = timeSource as IDisposable;
         if(disposableTimeSource != null) {
           disposableTimeSource.Dispose();
@@ -241,8 +239,7 @@ namespace Nuclex.Support.Scheduling {
       ITimeSource timeSource = Scheduler.CreateDefaultTimeSource();
       try {
         Assert.IsNotNull(timeSource);
-      }
-      finally {
+      } finally {
         IDisposable disposableTimeSource = timeSource as IDisposable;
         if(disposableTimeSource != null) {
           disposableTimeSource.Dispose();
@@ -435,6 +432,25 @@ namespace Nuclex.Support.Scheduling {
               break;
             }
           }
+        }
+      }
+    }
+
+    /// <summary>
+    ///   Reproduction case for a bug that occurred when the final notification in
+    ///   the scheduler was cancelled (call to PriorityQueue.Peek() on empty queue)
+    /// </summary>
+    [Test]
+    public void TestCancelFinalNotification() {
+      MockTimeSource mockTimeSource = new MockTimeSource(new DateTime(2010, 1, 1));
+      using(TestSubscriber subscriber = new TestSubscriber()) {
+        using(Scheduler scheduler = new Scheduler(mockTimeSource)) {
+          scheduler.Cancel(
+            scheduler.NotifyIn(TimeSpan.FromHours(12), subscriber.Callback)
+          );
+
+          mockTimeSource.AdvanceTime(TimeSpan.FromHours(14));
+          Thread.Sleep(1);
         }
       }
     }
