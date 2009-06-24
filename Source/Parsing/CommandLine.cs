@@ -82,21 +82,40 @@ namespace Nuclex.Support.Parsing {
   /// </remarks>
   public partial class CommandLine {
 
+    /// <summary>
+    ///   Whether the command line should use Windows mode by default
+    /// </summary>
+    public static readonly bool WindowsModeDefault =
+      (Path.DirectorySeparatorChar == '\\');
+
     /// <summary>Initializes a new command line</summary>
-    public CommandLine() : this(new List<Argument>()) { }
+    public CommandLine() :
+      this(new List<Argument>(), WindowsModeDefault) { }
+
+    /// <summary>Initializes a new command line</summary>
+    /// <param name="windowsMode">Whether the / character initiates an argument</param>
+    public CommandLine(bool windowsMode) :
+      this(new List<Argument>(), windowsMode) { }
 
     /// <summary>Initializes a new command line</summary>
     /// <param name="argumentList">List containing the parsed arguments</param>
-    private CommandLine(List<Argument> argumentList) {
+    private CommandLine(List<Argument> argumentList) :
+      this(argumentList, WindowsModeDefault) { }
+
+    /// <summary>Initializes a new command line</summary>
+    /// <param name="argumentList">List containing the parsed arguments</param>
+    /// <param name="windowsMode">Whether the / character initiates an argument</param>
+    private CommandLine(List<Argument> argumentList, bool windowsMode) {
       this.arguments = argumentList;
+      this.windowsMode = windowsMode;
     }
 
     /// <summary>Parses the command line arguments from the provided string</summary>
     /// <param name="commandLineString">String containing the command line arguments</param>
     /// <returns>The parsed command line</returns>
     /// <remarks>
-    ///   You should always pass Environment.CommandLine to this methods to avoid
-    ///   some problems with the build-in command line tokenizer in .NET
+    ///   You should always pass Environment.CommandLine to this method to avoid
+    ///   some problems with the built-in command line tokenizer in .NET
     ///   (which splits '--test"hello world"/v' into '--testhello world/v')
     /// </remarks>
     public static CommandLine Parse(string commandLineString) {
@@ -110,7 +129,7 @@ namespace Nuclex.Support.Parsing {
     /// <returns>The parsed command line</returns>
     /// <remarks>
     ///   You should always pass Environment.CommandLine to this methods to avoid
-    ///   some problems with the build-in command line tokenizer in .NET
+    ///   some problems with the built-in command line tokenizer in .NET
     ///   (which splits '--test"hello world"/v' into '--testhello world/v')
     /// </remarks>
     public static CommandLine Parse(string commandLineString, bool windowsMode) {
@@ -129,24 +148,24 @@ namespace Nuclex.Support.Parsing {
     /// <summary>Adds a value to the command line</summary>
     /// <param name="value">Value that will be added</param>
     public void AddValue(string value) {
-      bool valueContainsSpaces = (value.IndexOfAny(new char[] { ' ', '\t' }) != -1);
+      int valueLength = (value != null) ? value.Length : 0;
 
-      if(valueContainsSpaces) {
-        StringBuilder builder = new StringBuilder(value.Length + 2);
+      if(requiresQuotes(value)) {
+        StringBuilder builder = new StringBuilder(valueLength + 2);
         builder.Append('"');
         builder.Append(value);
         builder.Append('"');
 
         this.arguments.Add(
           Argument.ValueOnly(
-            new StringSegment(builder.ToString(), 0, value.Length + 2),
+            new StringSegment(builder.ToString(), 0, valueLength + 2),
             1,
-            value.Length
+            valueLength
           )
         );
       } else {
         this.arguments.Add(
-          Argument.ValueOnly(new StringSegment(value), 0, value.Length)
+          Argument.ValueOnly(new StringSegment(value), 0, valueLength)
         );
       }
     }
@@ -161,9 +180,7 @@ namespace Nuclex.Support.Parsing {
     /// <param name="initiator">Initiator that will be used to start the option</param>
     /// <param name="name">Name of the option that will be added</param>
     public void AddOption(string initiator, string name) {
-      StringBuilder builder = new StringBuilder(
-        initiator.Length + name.Length
-      );
+      StringBuilder builder = new StringBuilder(initiator.Length + name.Length);
       builder.Append(initiator);
       builder.Append(name);
 
@@ -188,10 +205,9 @@ namespace Nuclex.Support.Parsing {
     /// <param name="name">Name of the option that will be added</param>
     /// <param name="value">Value that will be assigned to the option</param>
     public void AddAssignment(string initiator, string name, string value) {
-      bool valueContainsSpaces = (value.IndexOfAny(new char[] { ' ', '\t' }) != -1);
+      bool valueContainsSpaces = containsWhitespace(value);
       StringBuilder builder = new StringBuilder(
-        initiator.Length + name.Length + 1 + value.Length +
-          (valueContainsSpaces ? 2 : 0)
+        initiator.Length + name.Length + 1 + value.Length + (valueContainsSpaces ? 2 : 0)
       );
       builder.Append(initiator);
       builder.Append(name);
@@ -209,8 +225,7 @@ namespace Nuclex.Support.Parsing {
           new StringSegment(builder.ToString()),
           initiator.Length,
           name.Length,
-          initiator.Length + name.Length + 1 +
-            (valueContainsSpaces ? 1 : 0),
+          initiator.Length + name.Length + 1 + (valueContainsSpaces ? 1 : 0),
           value.Length
         )
       );
@@ -242,8 +257,50 @@ namespace Nuclex.Support.Parsing {
       get { return this.arguments; }
     }
 
+    /// <summary>
+    ///   Determines whether the string requires quotes to survive the command line
+    /// </summary>
+    /// <param name="value">Value that will be checked for requiring quotes</param>
+    /// <returns>True if the value requires quotes to survive the command line</returns>
+    private bool requiresQuotes(string value) {
+
+      // If the value is empty, it needs quotes to become visible as an argument
+      // (versus being intepreted as spacing between other arguments)
+      if(string.IsNullOrEmpty(value)) {
+        return true;
+      }
+
+      // Any whitespace characters force us to use quotes, so does a minus sign
+      // at the beginning of the value (otherwise, it would become an option argument)
+      bool requiresQuotes =
+        containsWhitespace(value) ||
+        (value[0] == '-');
+
+      // On windows, option arguments can also be starten with the forward slash
+      // character, so we require quotes as well if the value starts with one
+      if(this.windowsMode) {
+        requiresQuotes |= (value[0] == '/');
+      }
+
+      return requiresQuotes;
+
+    }
+
+    /// <summary>
+    ///   Determines whether the string contains any whitespace characters
+    /// </summary>
+    /// <param name="value">String that will be scanned for whitespace characters</param>
+    /// <returns>True if the provided string contains whitespace characters</returns>
+    private static bool containsWhitespace(string value) {
+      return
+        (value.IndexOf(' ') != -1) ||
+        (value.IndexOf('\t') != -1);
+    }
+
     /// <summary>Options that were specified on the command line</summary>
     private List<Argument> arguments;
+    /// <summary>Whether the / character initiates an argument</summary>
+    private bool windowsMode;
 
   }
 

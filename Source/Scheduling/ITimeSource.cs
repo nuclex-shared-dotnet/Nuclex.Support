@@ -44,7 +44,7 @@ namespace Nuclex.Support.Scheduling {
     /// </returns>
     /// <remarks>
     ///   Depending on whether the system will provide notifications when date/time
-    ///   is adjusted, the time source will be forced to let thid method block for
+    ///   is adjusted, the time source will be forced to let this method block for
     ///   less than the indicated time before returning a timeout in order to give
     ///   the caller a chance to recheck the system time.
     /// </remarks>

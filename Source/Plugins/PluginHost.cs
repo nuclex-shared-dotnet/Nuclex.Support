@@ -101,6 +101,7 @@ namespace Nuclex.Support.Plugins {
           Trace.WriteLine("Could not employ " + type.ToString() + ": " + exception.Message);
         }
       }
+
     }
 
     /// <summary>

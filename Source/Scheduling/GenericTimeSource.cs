@@ -77,6 +77,7 @@ namespace Nuclex.Support.Scheduling {
     public GenericTimeSource(bool useStopwatch) {
       this.useStopwatch = useStopwatch;
 
+      // Update the lastCheckedTime and lastCheckedTicks fields
       checkForTimeAdjustment();
     }
 
@@ -96,7 +97,7 @@ namespace Nuclex.Support.Scheduling {
       // See whether the system date/time have been adjusted while we were asleep.
       checkForTimeAdjustment();
 
-      // Now tell the caller whether his even was signalled
+      // Now tell the caller whether his event was signalled
       return signalled;
 
     }

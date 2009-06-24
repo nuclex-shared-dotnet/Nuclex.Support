@@ -584,7 +584,7 @@ namespace Nuclex.Support.Parsing {
     /// </summary>
     [Test]
     public void TestCommandLineFormatting() {
-      CommandLine commandLine = new CommandLine();
+      CommandLine commandLine = new CommandLine(true);
 
       commandLine.AddValue("single");
       commandLine.AddValue("with space");
@@ -621,6 +621,23 @@ namespace Nuclex.Support.Parsing {
         commandLineString
       );
 
+    }
+
+    /// <summary>
+    ///   Tests whether a command line can be built that contains empty arguments
+    /// </summary>
+    [Test]
+    public void TestNullArgumentFormatting() {
+      CommandLine commandLine = new CommandLine(false);
+
+      commandLine.AddValue(string.Empty);
+      commandLine.AddValue("hello");
+      commandLine.AddValue(null);
+      commandLine.AddValue("-test");
+
+      Assert.AreEqual(4, commandLine.Arguments.Count);
+      string commandLineString = commandLine.ToString();
+      Assert.AreEqual("\"\" hello \"\" \"-test\"", commandLineString);
     }
 
   }
