@@ -149,34 +149,32 @@ namespace Nuclex.Support.Scheduling {
     private void checkForTimeAdjustment() {
 
       // Grab the current date/time and timer ticks in one go
-      DateTime currentLocalTime = DateTime.Now;
-      long currentTicks = Ticks;
+      long currentDateTimeTicks = DateTime.UtcNow.Ticks;
+      long currentStopwatchTicks = Ticks;
 
       // Calculate the number of timer ticks that have passed since the last check and
       // extrapolate the local date/time we should be expecting to see
-      long ticksSinceLastCheck = currentTicks - lastCheckedTicks;
-      DateTime expectedLocalTime = new DateTime(
-        lastCheckedLocalTime.Ticks + ticksSinceLastCheck, DateTimeKind.Local
-      );
+      long ticksSinceLastCheck = currentStopwatchTicks - lastCheckedStopwatchTicks;
+      long expectedLocalTimeTicks = this.lastCheckedDateTimeTicks + ticksSinceLastCheck;
 
       // Find out by what amount the actual local date/time deviates from
       // the extrapolated date/time and trigger the date/time adjustment event if
       // we can reasonably assume that the system date/time have been adjusted.
-      long deviationTicks = Math.Abs(expectedLocalTime.Ticks - currentLocalTime.Ticks);
+      long deviationTicks = Math.Abs(expectedLocalTimeTicks - currentDateTimeTicks);
       if(deviationTicks > TimeAdjustmentToleranceTicks) {
         OnDateTimeAdjusted(this, EventArgs.Empty);
       }
 
       // Remember the current local date/time and timer ticks for the next run
-      this.lastCheckedLocalTime = currentLocalTime;
-      this.lastCheckedTicks = currentTicks;
+      this.lastCheckedDateTimeTicks = currentDateTimeTicks;
+      this.lastCheckedStopwatchTicks = currentStopwatchTicks;
 
     }
 
     /// <summary>Last local time we checked for a date/time adjustment</summary>
-    private DateTime lastCheckedLocalTime;
+    private long lastCheckedDateTimeTicks;
     /// <summary>Timer ticks at which we last checked the local time</summary>
-    private long lastCheckedTicks;
+    private long lastCheckedStopwatchTicks;
 
     /// <summary>Number of ticks per Stopwatch time unit</summary>
     private static double tickFrequency;
