@@ -43,6 +43,8 @@ namespace Nuclex.Support.Scheduling {
     /// <param name="inner">Preceding exception that has caused this exception</param>
     public AbortedException(string message, Exception inner) : base(message, inner) { }
 
+#if !NO_SERIALIZATION
+
     /// <summary>Initializes the exception from its serialized state</summary>
     /// <param name="info">Contains the serialized fields of the exception</param>
     /// <param name="context">Additional environmental informations</param>
@@ -51,6 +53,8 @@ namespace Nuclex.Support.Scheduling {
       System.Runtime.Serialization.StreamingContext context
     ) :
       base(info, context) { }
+
+#endif // !NO_SERIALIZATION
 
   }
 
