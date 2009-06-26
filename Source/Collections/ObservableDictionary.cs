@@ -31,15 +31,15 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="ValueType">Type of the values used in the dictionary</typeparam>
   [Serializable]
   public class ObservableDictionary<KeyType, ValueType> :
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
     ISerializable,
     IDeserializationCallback,
 #endif
-    IDictionary<KeyType, ValueType>,
+ IDictionary<KeyType, ValueType>,
     IDictionary,
     IObservableCollection<KeyValuePair<KeyType, ValueType>> {
 
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
     #region class SerializedDictionary
 
     /// <summary>
@@ -87,7 +87,8 @@ namespace Nuclex.Support.Collections {
       this.objectDictionary = (this.typedDictionary as IDictionary);
     }
 
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
+
     /// <summary>
     ///   Initializes a new instance of the System.WeakReference class, using deserialized
     ///   data from the specified serialization and stream objects.
@@ -105,7 +106,8 @@ namespace Nuclex.Support.Collections {
     /// </exception>
     protected ObservableDictionary(SerializationInfo info, StreamingContext context) :
       this(new SerializedDictionary(info, context)) { }
-#endif // !COMPACTFRAMEWORK
+
+#endif // !NO_SERIALIZATION
 
     /// <summary>Whether the directory is write-protected</summary>
     public bool IsReadOnly {
@@ -374,7 +376,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
     #region ISerializable implementation
 
     /// <summary>Serializes the Dictionary</summary>
@@ -395,7 +397,7 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion
-#endif //!COMPACTFRAMEWORK
+#endif //!NO_SERIALIZATION
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<KeyType, ValueType> typedDictionary;

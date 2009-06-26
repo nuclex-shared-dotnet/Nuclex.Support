@@ -66,7 +66,7 @@ namespace Nuclex.Support.Plugins {
           loadedAssembly = LoadAssemblyFromFile(path);
           return true;
         }
-#if !COMPACTFRAMEWORK
+#if !XBOX360
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
         catch(DllNotFoundException) {
@@ -74,7 +74,7 @@ namespace Nuclex.Support.Plugins {
             "Assembly '" + path + "' or one of its dependencies is missing"
           );
         }
-#endif // !COMPACTFRAMEWORK
+#endif // !XBOX360
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
         catch(UnauthorizedAccessException) {

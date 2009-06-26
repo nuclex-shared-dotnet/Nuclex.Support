@@ -133,7 +133,7 @@ namespace Nuclex.Support.Tracking {
       }
     }
 
-#if !COMPACTFRAMEWORK
+#if !XBOX360
 
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeout">
@@ -150,7 +150,7 @@ namespace Nuclex.Support.Tracking {
       return WaitHandle.WaitOne(timeout, false);
     }
 
-#endif // !COMPACTFRAMEWORK
+#endif // !XBOX360
 
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeoutMilliseconds">

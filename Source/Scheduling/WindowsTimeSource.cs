@@ -75,8 +75,12 @@ namespace Nuclex.Support.Scheduling {
       get { return Environment.OSVersion.Platform == PlatformID.Win32NT; }
     }
 
+#if !XBOX360
+
     /// <summary>Delegate for the timeChanged() callback method</summary>
     private EventHandler onDateTimeAdjustedDelegate;
+
+#endif // !XBOX360
 
   }
 

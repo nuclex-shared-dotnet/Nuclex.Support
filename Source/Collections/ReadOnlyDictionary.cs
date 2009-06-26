@@ -31,14 +31,14 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="ValueType">Type of the values used in the dictionary</typeparam>
   [Serializable]
   public class ReadOnlyDictionary<KeyType, ValueType> :
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
     ISerializable,
     IDeserializationCallback,
 #endif
     IDictionary<KeyType, ValueType>,
     IDictionary {
 
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
 
     #region class SerializedDictionary
 
@@ -87,7 +87,7 @@ namespace Nuclex.Support.Collections {
     protected ReadOnlyDictionary(SerializationInfo info, StreamingContext context) :
       this(new SerializedDictionary(info, context)) { }
 
-#endif // !COMPACTFRAMEWORK
+#endif // !NO_SERIALIZATION
 
     /// <summary>Initializes a new read-only dictionary wrapper</summary>
     /// <param name="dictionary">Dictionary that will be wrapped</param>
@@ -367,7 +367,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-#if !COMPACTFRAMEWORK
+#if !NO_SERIALIZATION
     #region ISerializable implementation
 
     /// <summary>Serializes the Dictionary</summary>
@@ -388,7 +388,7 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion
-#endif //!COMPACTFRAMEWORK
+#endif //!NO_SERIALIZATION
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<KeyType, ValueType> typedDictionary;
