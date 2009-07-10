@@ -329,7 +329,6 @@ namespace Nuclex.Support.IO {
 
         Assert.AreEqual(10, bytesRead);
         Assert.AreEqual(20, partialStream.Position);
-
       }
     }
 

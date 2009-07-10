@@ -51,6 +51,10 @@
     <Compile Include="Source\AssertHelper.Test.cs">
       <DependentUpon>AssertHelper.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\Deque.cs" />
+    <Compile Include="Source\Collections\Deque.Test.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\IObservableCollection.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
