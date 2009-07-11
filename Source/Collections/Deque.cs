@@ -4,7 +4,8 @@ using System.Collections;
 
 namespace Nuclex.Support.Collections {
 
-#if false
+#if true
+
   /// <summary>A double-ended queue that allocates memory in blocks</summary>
   /// <typeparam name="ItemType">Type of the items being stored in the queue</typeparam>
   /// <remarks>
@@ -81,6 +82,8 @@ namespace Nuclex.Support.Collections {
       if(this.count == 0) {
         throw new InvalidOperationException("Cannot remove items from empty deque");
       }
+      
+      // TODO: Zero removed array entry if array is kept
 
       ++this.firstBlockStartIndex;
       if(this.firstBlockStartIndex >= this.blockSize) { // Block became empty
@@ -100,6 +103,8 @@ namespace Nuclex.Support.Collections {
       if(this.count == 0) {
         throw new InvalidOperationException("Cannot remove items from empty deque");
       }
+
+      // TODO: Zero removed array entry if array is kept
 
       --this.lastBlockEndIndex;
       if(this.lastBlockEndIndex == 0) { // Block became empty
@@ -142,17 +147,118 @@ namespace Nuclex.Support.Collections {
       ++this.count;
     }
 
+    /// <summary>Inserts the item at the specified index</summary>
+    /// <param name="index">Index the item will be inserted at</param>
+    /// <param name="item">Item that will be inserted</param>
     public void Insert(int index, ItemType item) {
+      // TODO: Not perfect. Can shift to left or to right in a deque.
+      //       Rewrite!
       if(index == this.count) {
         AddLast(item);
       } else {
         int blockIndex, subIndex;
         findIndex(index, out blockIndex, out subIndex);
 
-        //for(int block = this.blocks.Count - 1; block > 
+        int lastBlock = this.blocks.Count - 1;
+        int blockLength;
+
+        // If the lastmost block is full, we need to add another block
+        if(this.lastBlockEndIndex == this.blockSize) {
+          this.blocks.Add(new ItemType[this.blockSize]);
+          this.blocks[lastBlock + 1][0] = this.blocks[lastBlock][this.blockSize - 1];
+          this.lastBlockEndIndex = 1;
+
+          blockLength = this.blockSize - 1;
+        } else {
+          blockLength = this.lastBlockEndIndex;
+          ++this.lastBlockEndIndex;
+        }
+
+        // If the insertion point is not in the lastmost block
+        if(blockIndex != lastBlock) {
+          Array.Copy(
+            this.blocks[lastBlock], 0, this.blocks[lastBlock], 1, blockLength
+          );
+          this.blocks[lastBlock][0] = this.blocks[lastBlock - 1][this.blockSize - 1];
+
+          // Move all the blocks following the insertion point to the right by one item.
+          // If there are no blocks inbetween, this for loop will not run.
+          for(int tempIndex = lastBlock - 1; tempIndex > blockIndex; --tempIndex) {
+            Array.Copy(
+              this.blocks[tempIndex], 0, this.blocks[tempIndex], 1, this.blockSize - 1
+            );
+            this.blocks[tempIndex][0] = this.blocks[tempIndex - 1][this.blockSize - 1];
+          }
+
+          blockLength = this.blockSize - 1;
+        }
+
+        // Finally, move the items in the block the insertion takes place in
+        Array.Copy(
+          this.blocks[blockIndex], subIndex,
+          this.blocks[blockIndex], subIndex + 1,
+          blockLength - subIndex
+        );
+
+        this.blocks[blockIndex][subIndex] = item;
+        ++this.count;
       }
     }
-    // http://www.codeproject.com/KB/dotnet/ccnetsandcastle.aspx
+
+    /// <summary>Removes the item at the specified index</summary>
+    /// <param name="index">Index of the item that will be removed</param>
+    public void RemoveAt(int index) {
+      // TODO: Not perfect. Can shift to left or to right in a deque.
+      //       Rewrite!
+      if(index == this.count - 1) {
+        RemoveLast();
+      } else {
+        int blockIndex, subIndex;
+        findIndex(index, out blockIndex, out subIndex);
+
+        int lastBlock = this.blocks.Count - 1;
+        int startIndex;
+
+        if(blockIndex < lastBlock) {
+          Array.Copy(
+            this.blocks[blockIndex], subIndex + 1,
+            this.blocks[blockIndex], subIndex,
+            this.blockSize - subIndex - 1
+          );
+          this.blocks[blockIndex][this.blockSize - 1] = this.blocks[blockIndex + 1][0];
+
+          for(int tempIndex = blockIndex + 1; tempIndex < lastBlock; ++tempIndex) {
+            Array.Copy(
+              this.blocks[tempIndex], 1,
+              this.blocks[tempIndex], 0,
+              this.blockSize - 1
+            );
+            this.blocks[tempIndex][this.blockSize - 1] = this.blocks[tempIndex + 1][0];
+          }
+          
+          startIndex = 0;
+        } else {
+          startIndex = subIndex;
+        }
+
+        Array.Copy(
+          this.blocks[lastBlock], startIndex + 1,
+          this.blocks[lastBlock], startIndex,
+          this.lastBlockEndIndex - startIndex - 1
+        );
+
+        if(this.lastBlockEndIndex == 1) {
+          this.blocks.RemoveAt(lastBlock);
+          this.lastBlockEndIndex = this.blockSize;
+        } else {
+          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
+          --this.lastBlockEndIndex;
+        }
+
+        --this.count;
+      }
+    }
+
     /*
         public int IndexOf(ItemType item) {
           switch(this.blocks.Count) {
@@ -239,6 +345,7 @@ namespace Nuclex.Support.Collections {
     private int lastBlockEndIndex;
 
   }
+
 #endif
 
 } // namespace Nuclex.Support.Collections

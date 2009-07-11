@@ -193,7 +193,7 @@ namespace Nuclex.Support.Tracking {
       this.mockery = new Mockery();
     }
 
-    /// <summary>Validates that the set transaction properly sums the progress</summary>
+    /// <summary>Validates that the transaction group correctly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
       using(
