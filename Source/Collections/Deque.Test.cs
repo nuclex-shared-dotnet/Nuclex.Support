@@ -28,8 +28,6 @@ using NMock2;
 
 namespace Nuclex.Support.Collections {
 
-#if true
-
   /// <summary>Unit Test for the double ended queue</summary>
   [TestFixture]
   public class DequeTest {
@@ -94,6 +92,111 @@ namespace Nuclex.Support.Collections {
       }
     }
 
+
+    /// <summary>Verifies that the Insert() method works in all cases</summary>
+    /// <remarks>
+    ///   We have several different cases here that will be tested. The deque can
+    ///   shift items to the left or right (depending on which end is closer to
+    ///   the insertion point) and the insertion point may fall in an only partially
+    ///   occupied block, requiring elaborate index calculations
+    /// </remarks>
+    [Test]
+    public void TestInsert() {
+      for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
+        Deque<int> intDeque = new Deque<int>(16);
+        for(int item = 0; item < 96; ++item) {
+          intDeque.AddLast(item);
+        }
+
+        intDeque.Insert(testedIndex, 12345);
+
+        Assert.AreEqual(97, intDeque.Count);
+
+        for(int index = 0; index < testedIndex; ++index) {
+          Assert.AreEqual(index, intDeque[index]);
+        }
+        Assert.AreEqual(12345, intDeque[testedIndex]);
+        for(int index = testedIndex + 1; index < 97; ++index) {
+          Assert.AreEqual(index - 1, intDeque[index]);
+        }
+      }
+    }
+
+    /// <summary>Verifies that the Insert() method works in all cases</summary>
+    [Test]
+    public void TestInsertNonNormalized() {
+      for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
+        Deque<int> intDeque = new Deque<int>(16);
+        for(int item = 4; item < 96; ++item) {
+          intDeque.AddLast(item);
+        }
+        intDeque.AddFirst(3);
+        intDeque.AddFirst(2);
+        intDeque.AddFirst(1);
+        intDeque.AddFirst(0);
+
+        intDeque.Insert(testedIndex, 12345);
+
+        Assert.AreEqual(97, intDeque.Count);
+
+        for(int index = 0; index < testedIndex; ++index) {
+          Assert.AreEqual(index, intDeque[index]);
+        }
+        Assert.AreEqual(12345, intDeque[testedIndex]);
+        for(int index = testedIndex + 1; index < 97; ++index) {
+          Assert.AreEqual(index - 1, intDeque[index]);
+        }
+      }
+    }
+
+    /// <summary>Verifies the the RemoveAt() method works in all cases</summary>
+    [Test]
+    public void TestRemoveAt() {
+      for(int testedIndex = 0; testedIndex < 96; ++testedIndex) {
+        Deque<int> intDeque = new Deque<int>(16);
+        for(int item = 0; item < 96; ++item) {
+          intDeque.AddLast(item);
+        }
+
+        intDeque.RemoveAt(testedIndex);
+
+        Assert.AreEqual(95, intDeque.Count);
+
+        for(int index = 0; index < testedIndex; ++index) {
+          Assert.AreEqual(index, intDeque[index]);
+        }
+        for(int index = testedIndex; index < 95; ++index) {
+          Assert.AreEqual(index + 1, intDeque[index]);
+        }
+      }
+    }
+
+    /// <summary>Verifies the the RemoveAt() method works in all cases</summary>
+    [Test]
+    public void TestRemoveAtNonNormalized() {
+      for(int testedIndex = 0; testedIndex < 96; ++testedIndex) {
+        Deque<int> intDeque = new Deque<int>(16);
+        for(int item = 4; item < 96; ++item) {
+          intDeque.AddLast(item);
+        }
+        intDeque.AddFirst(3);
+        intDeque.AddFirst(2);
+        intDeque.AddFirst(1);
+        intDeque.AddFirst(0);
+
+        intDeque.RemoveAt(testedIndex);
+
+        Assert.AreEqual(95, intDeque.Count);
+
+        for(int index = 0; index < testedIndex; ++index) {
+          Assert.AreEqual(index, intDeque[index]);
+        }
+        for(int index = testedIndex; index < 95; ++index) {
+          Assert.AreEqual(index + 1, intDeque[index]);
+        }
+      }
+    }
+
     /// <summary>
     ///   Validates that an exception is thrown if the 'First' property is accessed
     ///   in an empty deque
@@ -141,178 +244,7 @@ namespace Nuclex.Support.Collections {
         delegate() { intDeque.RemoveLast(); }
       );
     }
-    
-    /// <summary>
-    ///   Tests whether the Insert() method of the deque can insert an item at
-    ///   the end of the deque
-    /// </summary>
-    [Test]
-    public void TestInsertAtEnd() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 48; ++item) {
-        intDeque.AddLast(item);
-      }
-      
-      intDeque.Insert(intDeque.Count, 12345);
 
-      Assert.AreEqual(12345, intDeque.Last);
-    }
-
-    /// <summary>
-    ///   Tests whether the Insert() method of the deque can insert an item into
-    ///   the last block of the deque when that last block is already full
-    /// </summary>
-    [Test]
-    public void TestInsertInLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 48; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.Insert(45, 12345);
-
-      Assert.AreEqual(49, intDeque.Count);
-      for(int index = 0; index < 44; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      Assert.AreEqual(12345, intDeque[45]);
-      for(int index = 46; index < 49; ++index) {
-        Assert.AreEqual(index - 1, intDeque[index]);
-      }
-    }
-
-    /// <summary>
-    ///   Tests whether the Insert() method of the deque can insert an item into
-    ///   the second-to-last block of the deque
-    /// </summary>
-    [Test]
-    public void TestInsertInSecondToLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 40; ++item) {
-        intDeque.AddLast(item);
-      }
-      
-      intDeque.Insert(24, 12345);
-
-      Assert.AreEqual(41, intDeque.Count);
-      for(int index = 0; index < 24; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      Assert.AreEqual(12345, intDeque[24]);
-      for(int index = 25; index < 41; ++index) {
-        Assert.AreEqual(index - 1, intDeque[index]);
-      }
-    }
-
-    /// <summary>
-    ///   Tests whether the Insert() method of the deque can insert an item into
-    ///   the third-to-last block of the deque
-    /// </summary>
-    [Test]
-    public void TestInsertInThirdToLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 40; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.Insert(8, 12345);
-
-      Assert.AreEqual(41, intDeque.Count);
-
-      for(int index = 0; index < 8; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      Assert.AreEqual(12345, intDeque[8]);
-      for(int index = 9; index < 41; ++index) {
-        Assert.AreEqual(index - 1, intDeque[index]);
-      }
-    }
-
-    /// <summary>
-    ///   Tests whether the RemoveAt() method of the deque can remove an item from
-    ///   the end of the deque
-    /// </summary>
-    [Test]
-    public void TestRemoveAtEnd() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 48; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.RemoveAt(intDeque.Count - 1);
-
-      Assert.AreEqual(46, intDeque.Last);
-    }
-
-    /// <summary>
-    ///   Tests whether the RemoveAt() method of the deque can remove an item
-    ///   from the last block of the deque
-    /// </summary>
-    [Test]
-    public void TestRemoveFromLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 48; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.RemoveAt(45);
-
-      Assert.AreEqual(47, intDeque.Count);
-
-      for(int index = 0; index < 45; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      for(int index = 45; index < 47; ++index) {
-        Assert.AreEqual(index + 1, intDeque[index]);
-      }
-    }
-
-    /// <summary>
-    ///   Tests whether the RemoveAt() method of the deque can remove an item from
-    ///   the second-to-last block of the deque
-    /// </summary>
-    [Test]
-    public void TestRemoveFromSecondToLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 40; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.RemoveAt(24);
-
-      Assert.AreEqual(39, intDeque.Count);
-
-      for(int index = 0; index < 24; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      for(int index = 24; index < 39; ++index) {
-        Assert.AreEqual(index + 1, intDeque[index]);
-      }
-    }
-
-    /// <summary>
-    ///   Tests whether the RemoveAt() method of the deque can remove an item from
-    ///   the third-to-last block of the deque
-    /// </summary>
-    [Test]
-    public void TestRemoveFromThirdToLastBlock() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 33; ++item) {
-        intDeque.AddLast(item);
-      }
-
-      intDeque.RemoveAt(8);
-
-      Assert.AreEqual(32, intDeque.Count);
-
-      for(int index = 0; index < 8; ++index) {
-        Assert.AreEqual(index, intDeque[index]);
-      }
-      for(int index = 8; index < 32; ++index) {
-        Assert.AreEqual(index + 1, intDeque[index]);
-      }
-    }
-    
     /// <summary>
     ///   Verifies that items can be assigned by their index
     /// </summary>
@@ -324,7 +256,7 @@ namespace Nuclex.Support.Collections {
       }
       intDeque[16] = 12345;
       intDeque[17] = 54321;
-      
+
       for(int index = 0; index < 16; ++index) {
         intDeque.RemoveFirst();
       }
@@ -343,15 +275,29 @@ namespace Nuclex.Support.Collections {
       for(int item = 0; item < 32; ++item) {
         intDeque.AddLast(item);
       }
-      
+
       Assert.Throws<ArgumentOutOfRangeException>(
         delegate() { Console.WriteLine(intDeque[32]); }
       );
     }
 
-  }
+    /// <summary>Tests the IndexOf() method</summary>
+    [Test, TestCase(0), TestCase(16), TestCase(32), TestCase(48)]
+    public void TestIndexOf(int count) {
+      Deque<int> intDeque = new Deque<int>(16);
+      for(int item = 4; item < count; ++item) {
+        intDeque.AddLast(item);
+      }
+      if(count > 3) { intDeque.AddFirst(3); }
+      if(count > 2) { intDeque.AddFirst(2); }
+      if(count > 1) { intDeque.AddFirst(1); }
+      if(count > 0) { intDeque.AddFirst(0); }
 
-#endif
+      Assert.AreEqual(count - 1, intDeque.IndexOf(count - 1));
+      Assert.AreEqual(-1, intDeque.IndexOf(count));
+    }
+
+  }
 
 } // namespace Nuclex.Support.Collections
 

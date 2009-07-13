@@ -4,8 +4,6 @@ using System.Collections;
 
 namespace Nuclex.Support.Collections {
 
-#if true
-
   /// <summary>A double-ended queue that allocates memory in blocks</summary>
   /// <typeparam name="ItemType">Type of the items being stored in the queue</typeparam>
   /// <remarks>
@@ -20,7 +18,7 @@ namespace Nuclex.Support.Collections {
   ///     require items to be copied around and still can be accessed by index.
   ///   </para>
   /// </remarks>
-  public class Deque<ItemType> /*: IList<ItemType>, IList*/ {
+  public partial class Deque<ItemType> /*: IList<ItemType>, IList*/ {
 
     /// <summary>Initializes a new deque</summary>
     public Deque() : this(512) { }
@@ -77,249 +75,60 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Removes the first item in the double-ended queue</summary>
-    public void RemoveFirst() {
-      if(this.count == 0) {
-        throw new InvalidOperationException("Cannot remove items from empty deque");
-      }
-      
-      // TODO: Zero removed array entry if array is kept
-
-      ++this.firstBlockStartIndex;
-      if(this.firstBlockStartIndex >= this.blockSize) { // Block became empty
-        if(this.count > 1) { // Still more blocks in queue, remove block
-          this.blocks.RemoveAt(0);
-          this.firstBlockStartIndex = 0;
-        } else { // Last block - do not remove
-          this.firstBlockStartIndex = 0;
-          this.lastBlockEndIndex = 0;
-        }
-      }
-      --this.count;
-    }
-
-    /// <summary>Removes the last item in the double-ended queue</summary>
-    public void RemoveLast() {
-      if(this.count == 0) {
-        throw new InvalidOperationException("Cannot remove items from empty deque");
-      }
-
-      // TODO: Zero removed array entry if array is kept
-
-      --this.lastBlockEndIndex;
-      if(this.lastBlockEndIndex == 0) { // Block became empty
-        if(this.count > 1) {
-          this.blocks.RemoveAt(this.blocks.Count - 1);
-          this.lastBlockEndIndex = this.blockSize;
-        } else { // Last block - do not remove
-          this.firstBlockStartIndex = 0;
-          this.lastBlockEndIndex = 0;
-        }
-      }
-      --this.count;
-    }
-
-    /// <summary>Inserts an item at the beginning of the double-ended queue</summary>
-    /// <param name="item">Item that will be inserted into the queue</param>
-    public void AddFirst(ItemType item) {
-      if(this.firstBlockStartIndex > 0) {
-        --this.firstBlockStartIndex;
-      } else { // Need to allocate a new block
-        this.blocks.Insert(0, new ItemType[this.blockSize]);
-        this.firstBlockStartIndex = this.blockSize - 1;
-      }
-
-      this.blocks[0][this.firstBlockStartIndex] = item;
-      ++this.count;
-    }
-
-    /// <summary>Appends an item to the end of the double-ended queue</summary>
-    /// <param name="item">Item that will be appended to the queue</param>
-    public void AddLast(ItemType item) {
-      if(this.lastBlockEndIndex < this.blockSize) {
-        ++this.lastBlockEndIndex;
-      } else { // Need to allocate a new block
-        this.blocks.Add(new ItemType[this.blockSize]);
-        this.lastBlockEndIndex = 1;
-      }
-
-      this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1] = item;
-      ++this.count;
-    }
-
-    /// <summary>Inserts the item at the specified index</summary>
-    /// <param name="index">Index the item will be inserted at</param>
-    /// <param name="item">Item that will be inserted</param>
-    public void Insert(int index, ItemType item) {
-      // TODO: Not perfect. Can shift to left or to right in a deque.
-      //       Rewrite!
-      if(index == this.count) {
-        AddLast(item);
-      } else {
-        int blockIndex, subIndex;
-        findIndex(index, out blockIndex, out subIndex);
-
-        int lastBlock = this.blocks.Count - 1;
-        int blockLength;
-
-        // If the lastmost block is full, we need to add another block
-        if(this.lastBlockEndIndex == this.blockSize) {
-          this.blocks.Add(new ItemType[this.blockSize]);
-          this.blocks[lastBlock + 1][0] = this.blocks[lastBlock][this.blockSize - 1];
-          this.lastBlockEndIndex = 1;
-
-          blockLength = this.blockSize - 1;
-        } else {
-          blockLength = this.lastBlockEndIndex;
-          ++this.lastBlockEndIndex;
-        }
-
-        // If the insertion point is not in the lastmost block
-        if(blockIndex != lastBlock) {
-          Array.Copy(
-            this.blocks[lastBlock], 0, this.blocks[lastBlock], 1, blockLength
-          );
-          this.blocks[lastBlock][0] = this.blocks[lastBlock - 1][this.blockSize - 1];
-
-          // Move all the blocks following the insertion point to the right by one item.
-          // If there are no blocks inbetween, this for loop will not run.
-          for(int tempIndex = lastBlock - 1; tempIndex > blockIndex; --tempIndex) {
-            Array.Copy(
-              this.blocks[tempIndex], 0, this.blocks[tempIndex], 1, this.blockSize - 1
-            );
-            this.blocks[tempIndex][0] = this.blocks[tempIndex - 1][this.blockSize - 1];
-          }
-
-          blockLength = this.blockSize - 1;
-        }
-
-        // Finally, move the items in the block the insertion takes place in
-        Array.Copy(
-          this.blocks[blockIndex], subIndex,
-          this.blocks[blockIndex], subIndex + 1,
-          blockLength - subIndex
+    /// <summary>
+    ///   Determines the index of the first occurence of the specified item in the deque
+    /// </summary>
+    /// <param name="item">Item that will be located in the deque</param>
+    /// <returns>The index of the item or -1 if it wasn't found</returns>
+    public int IndexOf(ItemType item) {
+      if(this.blocks.Count == 1) { // Only one block to scan?
+        int length = this.lastBlockEndIndex - this.firstBlockStartIndex;
+        int index = Array.IndexOf<ItemType>(
+          this.blocks[0], item, this.firstBlockStartIndex, length
         );
 
-        this.blocks[blockIndex][subIndex] = item;
-        ++this.count;
-      }
-    }
-
-    /// <summary>Removes the item at the specified index</summary>
-    /// <param name="index">Index of the item that will be removed</param>
-    public void RemoveAt(int index) {
-      // TODO: Not perfect. Can shift to left or to right in a deque.
-      //       Rewrite!
-      if(index == this.count - 1) {
-        RemoveLast();
-      } else {
-        int blockIndex, subIndex;
-        findIndex(index, out blockIndex, out subIndex);
-
-        int lastBlock = this.blocks.Count - 1;
-        int startIndex;
-
-        if(blockIndex < lastBlock) {
-          Array.Copy(
-            this.blocks[blockIndex], subIndex + 1,
-            this.blocks[blockIndex], subIndex,
-            this.blockSize - subIndex - 1
-          );
-          this.blocks[blockIndex][this.blockSize - 1] = this.blocks[blockIndex + 1][0];
-
-          for(int tempIndex = blockIndex + 1; tempIndex < lastBlock; ++tempIndex) {
-            Array.Copy(
-              this.blocks[tempIndex], 1,
-              this.blocks[tempIndex], 0,
-              this.blockSize - 1
-            );
-            this.blocks[tempIndex][this.blockSize - 1] = this.blocks[tempIndex + 1][0];
-          }
-          
-          startIndex = 0;
+        // If we found something, we need to adjust its index so the first item in
+        // the deque always appears at index 0 to the user
+        if(index != -1) {
+          return (index - this.firstBlockStartIndex);
         } else {
-          startIndex = subIndex;
+          return -1;
         }
+      } else { // At least two blocks exist
 
-        Array.Copy(
-          this.blocks[lastBlock], startIndex + 1,
-          this.blocks[lastBlock], startIndex,
-          this.lastBlockEndIndex - startIndex - 1
+        // Scan the first block for the item and if found, return the index
+        int length = this.blockSize - this.firstBlockStartIndex;
+        int index = Array.IndexOf<ItemType>(
+          this.blocks[0], item, this.firstBlockStartIndex, length
         );
 
-        if(this.lastBlockEndIndex == 1) {
-          this.blocks.RemoveAt(lastBlock);
-          this.lastBlockEndIndex = this.blockSize;
-        } else {
-          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
-          --this.lastBlockEndIndex;
+        // If we found something, we need to adjust its index
+        if(index != -1) {
+          return (index - this.firstBlockStartIndex);
         }
 
-        --this.count;
+        int lastBlock = this.blocks.Count - 1;
+        for(int tempIndex = 1; tempIndex < lastBlock; ++tempIndex) {
+          index = Array.IndexOf<ItemType>(
+            this.blocks[1], item, 0, this.blockSize
+          );
+          if(index != -1) {
+            return (index - this.firstBlockStartIndex + tempIndex * this.blockSize);
+          }
+        }
+
+        // Nothing found, continue the search in the 
+        index = Array.IndexOf<ItemType>(
+          this.blocks[lastBlock], item, 0, this.lastBlockEndIndex
+        );
+        if(index == -1) {
+          return -1;
+        } else {
+          return (index - this.firstBlockStartIndex + lastBlock * this.blockSize);
+        }
       }
     }
 
-    /*
-        public int IndexOf(ItemType item) {
-          switch(this.blocks.Count) {
-
-            // No block exist, so the item cannot be found
-            case 0: {
-              return -1;
-            }
-
-            // Only one block exists, start index and end index apply to the same block
-            case 1: {
-              int count = this.lastBlockEndIndex - this.firstBlockStartIndex;
-              int index = Array.IndexOf<ItemType>(
-                this.blocks[0], item, this.firstBlockStartIndex, count
-              );
-
-              // If we found something, we need to adjust its index so the first item in
-              // the deque always appears at index 0 to the user
-              if(index != -1) {
-                return (index - this.firstBlockStartIndex);
-              } else {
-                return -1;
-              }
-            }
-
-            // Two blocks exist, start index is in first block, end index in second block
-            case 2: {
-
-              // Scan the first block for the item and if found, return the index
-              int count = this.blockSize - this.firstBlockStartIndex;
-              int index = Array.IndexOf<ItemType>(
-                this.blocks[0], item, this.firstBlockStartIndex, this.blockSize
-              );
-
-              // If we found something, we need to adjust its index
-              if(index != -1) {
-                return (index - this.firstBlockStartIndex);
-              }
-
-              // Nothing found, continue the search in the 
-              index = Array.IndexOf<ItemType>(
-                this.blocks[1], item, 0, this.lastBlockEndIndex
-              );
-              if(index == -1) {
-                return -1;
-              } else {
-                return (index - this.firstBlockStartIndex + this.blockSize);
-              }
-            }
-
-            default: {
-              int count = this.blockSize - this.firstBlockStartIndex;
-              int index = Array.IndexOf<ItemType>(
-                this.blocks[0], item, this.firstBlockStartIndex, this.blockSize
-              );
-              return -1;
-            }
-
-          }
-        }
-    */
     /// <summary>Calculates the block index and local sub index of an entry</summary>
     /// <param name="index">Index of the entry that will be located</param>
     /// <param name="blockIndex">Index of the block the entry is contained in</param>
@@ -345,7 +154,5 @@ namespace Nuclex.Support.Collections {
     private int lastBlockEndIndex;
 
   }
-
-#endif
 
 } // namespace Nuclex.Support.Collections

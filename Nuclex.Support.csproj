@@ -52,6 +52,12 @@
       <DependentUpon>AssertHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\Deque.cs" />
+    <Compile Include="Source\Collections\Deque.Insertion.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Removal.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\Deque.Test.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
