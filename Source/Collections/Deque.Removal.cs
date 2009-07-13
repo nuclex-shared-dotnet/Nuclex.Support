@@ -12,7 +12,9 @@ namespace Nuclex.Support.Collections {
         throw new InvalidOperationException("Cannot remove items from empty deque");
       }
 
-      // TODO: Zero removed array entry if array is kept
+      // This is necessary to make sure the deque doesn't hold dead objects alive
+      // in unreachable spaces of its memory.
+      this.blocks[0][this.firstBlockStartIndex] = default(ItemType);
 
       ++this.firstBlockStartIndex;
       if(this.firstBlockStartIndex >= this.blockSize) { // Block became empty
@@ -33,12 +35,15 @@ namespace Nuclex.Support.Collections {
         throw new InvalidOperationException("Cannot remove items from empty deque");
       }
 
-      // TODO: Zero removed array entry if array is kept
+      // This is necessary to make sure the deque doesn't hold dead objects alive
+      // in unreachable spaces of its memory.
+      int lastBlock = this.blocks.Count - 1;
+      this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
 
       --this.lastBlockEndIndex;
       if(this.lastBlockEndIndex == 0) { // Block became empty
         if(this.count > 1) {
-          this.blocks.RemoveAt(this.blocks.Count - 1);
+          this.blocks.RemoveAt(lastBlock);
           this.lastBlockEndIndex = this.blockSize;
         } else { // Last block - do not remove
           this.firstBlockStartIndex = 0;
@@ -65,49 +70,49 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     /// <param name="index">Index of the item that will be removed</param>
     private void removeFromLeft(int index) {
-      if(index == this.count - 1) {
-        RemoveLast();
+      if(index == 0) {
+        RemoveFirst();
       } else {
         int blockIndex, subIndex;
         findIndex(index, out blockIndex, out subIndex);
 
-        int lastBlock = this.blocks.Count - 1;
-        int startIndex;
+        int firstBlock = 0;
+        int endIndex;
 
-        if(blockIndex < lastBlock) {
+        if(blockIndex > firstBlock) {
           Array.Copy(
-            this.blocks[blockIndex], subIndex + 1,
-            this.blocks[blockIndex], subIndex,
-            this.blockSize - subIndex - 1
+            this.blocks[blockIndex], 0,
+            this.blocks[blockIndex], 1,
+            subIndex
           );
-          this.blocks[blockIndex][this.blockSize - 1] = this.blocks[blockIndex + 1][0];
+          this.blocks[blockIndex][0] = this.blocks[blockIndex - 1][this.blockSize - 1];
 
-          for(int tempIndex = blockIndex + 1; tempIndex < lastBlock; ++tempIndex) {
+          for(int tempIndex = blockIndex - 1; tempIndex > firstBlock; --tempIndex) {
             Array.Copy(
-              this.blocks[tempIndex], 1,
               this.blocks[tempIndex], 0,
+              this.blocks[tempIndex], 1,
               this.blockSize - 1
             );
-            this.blocks[tempIndex][this.blockSize - 1] = this.blocks[tempIndex + 1][0];
+            this.blocks[tempIndex][0] = this.blocks[tempIndex - 1][this.blockSize - 1];
           }
 
-          startIndex = 0;
+          endIndex = this.blockSize - 1;
         } else {
-          startIndex = subIndex;
+          endIndex = subIndex;
         }
 
         Array.Copy(
-          this.blocks[lastBlock], startIndex + 1,
-          this.blocks[lastBlock], startIndex,
-          this.lastBlockEndIndex - startIndex - 1
+          this.blocks[firstBlock], this.firstBlockStartIndex,
+          this.blocks[firstBlock], this.firstBlockStartIndex + 1,
+          endIndex - this.firstBlockStartIndex
         );
 
-        if(this.lastBlockEndIndex == 1) {
-          this.blocks.RemoveAt(lastBlock);
-          this.lastBlockEndIndex = this.blockSize;
+        if(this.firstBlockStartIndex == this.blockSize - 1) {
+          this.blocks.RemoveAt(0);
+          this.firstBlockStartIndex = 0;
         } else {
-          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
-          --this.lastBlockEndIndex;
+          this.blocks[0][this.firstBlockStartIndex] = default(ItemType);
+          ++this.firstBlockStartIndex;
         }
 
         --this.count;

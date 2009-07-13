@@ -126,6 +126,7 @@ namespace Nuclex.Support.Collections {
         } else {
           return (index - this.firstBlockStartIndex + lastBlock * this.blockSize);
         }
+
       }
     }
 
