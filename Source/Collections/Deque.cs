@@ -110,7 +110,7 @@ namespace Nuclex.Support.Collections {
         int lastBlock = this.blocks.Count - 1;
         for(int tempIndex = 1; tempIndex < lastBlock; ++tempIndex) {
           index = Array.IndexOf<ItemType>(
-            this.blocks[1], item, 0, this.blockSize
+            this.blocks[tempIndex], item, 0, this.blockSize
           );
           if(index != -1) {
             return (index - this.firstBlockStartIndex + tempIndex * this.blockSize);

@@ -122,7 +122,10 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Verifies that the Insert() method works in all cases</summary>
+    /// <summary>
+    ///   Verifies that the Insert() method works in all cases when the deque doesn't
+    ///   start at a block boundary
+    /// </summary>
     [Test]
     public void TestInsertNonNormalized() {
       for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
@@ -171,7 +174,10 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Verifies the the RemoveAt() method works in all cases</summary>
+    /// <summary>
+    ///   Verifies the the RemoveAt() method works in all cases when the deque doesn't
+    ///   start at a block boundary
+    /// </summary>
     [Test]
     public void TestRemoveAtNonNormalized() {
       for(int testedIndex = 0; testedIndex < 96; ++testedIndex) {
@@ -194,6 +200,51 @@ namespace Nuclex.Support.Collections {
         for(int index = testedIndex; index < 95; ++index) {
           Assert.AreEqual(index + 1, intDeque[index]);
         }
+      }
+    }
+    
+    /// <summary>
+    ///   Tests whether the RemoveAt() method keeps the state of the deque intact when
+    ///   it has to remove a block from the left end of the deque
+    /// </summary>
+    [Test]
+    public void TestRemoveAtEmptiesLeftBlock() {
+      Deque<int> intDeque = new Deque<int>(16);
+      for(int item = 1; item <= 16; ++item) {
+        intDeque.AddLast(item);
+      }
+      intDeque.AddFirst(0);
+      intDeque.RemoveAt(3);
+
+      Assert.AreEqual(16, intDeque.Count);
+
+      for(int index = 0; index < 3; ++index) {
+        Assert.AreEqual(index, intDeque[index]);
+      }
+      for(int index = 3; index < 16; ++index) {
+        Assert.AreEqual(index + 1, intDeque[index]);
+      }
+    }
+
+    /// <summary>
+    ///   Tests whether the RemoveAt() method keeps the state of the deque intact when
+    ///   it has to remove a block from the right end of the deque
+    /// </summary>
+    [Test]
+    public void TestRemoveAtEmptiesRightBlock() {
+      Deque<int> intDeque = new Deque<int>(16);
+      for(int item = 0; item <= 16; ++item) {
+        intDeque.AddLast(item);
+      }
+      intDeque.RemoveAt(13);
+
+      Assert.AreEqual(16, intDeque.Count);
+
+      for(int index = 0; index < 13; ++index) {
+        Assert.AreEqual(index, intDeque[index]);
+      }
+      for(int index = 13; index < 16; ++index) {
+        Assert.AreEqual(index + 1, intDeque[index]);
       }
     }
 
@@ -285,6 +336,22 @@ namespace Nuclex.Support.Collections {
     [Test, TestCase(0), TestCase(16), TestCase(32), TestCase(48)]
     public void TestIndexOf(int count) {
       Deque<int> intDeque = new Deque<int>(16);
+      for(int item = 0; item < count; ++item) {
+        intDeque.AddLast(item);
+      }
+
+      for(int item = 0; item < count; ++item) {
+        Assert.AreEqual(item, intDeque.IndexOf(item));
+      }
+      Assert.AreEqual(-1, intDeque.IndexOf(count));
+    }
+
+    /// <summary>
+    ///   Tests the IndexOf() method with the deque not starting at a block boundary
+    /// </summary>
+    [Test, TestCase(0), TestCase(16), TestCase(32), TestCase(48)]
+    public void TestIndexOfNonNormalized(int count) {
+      Deque<int> intDeque = new Deque<int>(16);
       for(int item = 4; item < count; ++item) {
         intDeque.AddLast(item);
       }
@@ -293,7 +360,9 @@ namespace Nuclex.Support.Collections {
       if(count > 1) { intDeque.AddFirst(1); }
       if(count > 0) { intDeque.AddFirst(0); }
 
-      Assert.AreEqual(count - 1, intDeque.IndexOf(count - 1));
+      for(int item = 0; item < count; ++item) {
+        Assert.AreEqual(item, intDeque.IndexOf(item));
+      }
       Assert.AreEqual(-1, intDeque.IndexOf(count));
     }
 
