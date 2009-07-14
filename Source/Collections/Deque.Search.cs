@@ -13,7 +13,7 @@ namespace Nuclex.Support.Collections {
     /// <returns>The index of the item or -1 if it wasn't found</returns>
     public int IndexOf(ItemType item) {
       if(this.blocks.Count == 1) { // Only one block to scan?
-        int length = this.lastBlockCount - this.firstBlockStartIndex;
+        int length = this.lastBlockEndIndex - this.firstBlockStartIndex;
         int index = Array.IndexOf<ItemType>(
           this.blocks[0], item, this.firstBlockStartIndex, length
         );
@@ -50,7 +50,7 @@ namespace Nuclex.Support.Collections {
 
         // Nothing found, continue the search in the 
         index = Array.IndexOf<ItemType>(
-          this.blocks[lastBlock], item, 0, this.lastBlockCount
+          this.blocks[lastBlock], item, 0, this.lastBlockEndIndex
         );
         if(index == -1) {
           return -1;

@@ -606,13 +606,54 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests the non-typesafe CopyTo() method</summary>
     [Test]
     public void TestCopyToObjectArray() {
-      // TODO Write a unit test for the non-typesafe CopyTo() method
+      Deque<int> intDeque = createNonNormalizedDeque(40);
+
+      int[] array = new int[40];
+      ((ICollection)intDeque).CopyTo(array, 0);
+
+      Assert.AreEqual(intDeque, array);
     }
 
     /// <summary>Tests the CopyTo() method</summary>
     [Test]
     public void TestCopyToArray() {
-      // TODO Write a unit test for the typesafe CopyTo() method
+      Deque<int> intDeque = createDeque(12);
+      intDeque.RemoveFirst();
+      intDeque.RemoveFirst();
+
+      int[] array = new int[14];
+      intDeque.CopyTo(array, 4);
+
+      Assert.AreEqual(
+        new int[] { 0, 0, 0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 },
+        array
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that the non-typesafe CopyTo() method throws an exception if
+    ///   the array is of an incompatible type
+    /// </summary>
+    [Test]
+    public void TestThrowOnCopyToIncompatibleObjectArray() {
+      Deque<int> intDeque = createDeque(4);
+
+      short[] array = new short[4];
+      Assert.Throws<ArgumentException>(
+        delegate() { ((ICollection)intDeque).CopyTo(array, 4); }
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that the CopyTo() method throws an exception if the target array
+    ///   is too small
+    /// </summary>
+    [Test]
+    public void TestThrowOnCopyToTooSmallArray() {
+      Deque<int> intDeque = createDeque(8);
+      Assert.Throws<ArgumentException>(
+        delegate() { intDeque.CopyTo(new int[7], 0); }
+      );
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ namespace Nuclex.Support.Collections {
 
         // Clear the items in the block to release any reference we may be keeping alive
         for(
-          int index = this.firstBlockStartIndex; index < this.lastBlockCount; ++index
+          int index = this.firstBlockStartIndex; index < this.lastBlockEndIndex; ++index
         ) {
           this.blocks[0][index] = default(ItemType);
         }
@@ -32,7 +32,7 @@ namespace Nuclex.Support.Collections {
 
       // Reset the counters to restart the deque from scratch
       this.firstBlockStartIndex = 0;
-      this.lastBlockCount = 0;
+      this.lastBlockEndIndex = 0;
       this.count = 0;
     }
 
@@ -68,7 +68,7 @@ namespace Nuclex.Support.Collections {
           this.firstBlockStartIndex = 0;
         } else { // Last block - do not remove
           this.firstBlockStartIndex = 0;
-          this.lastBlockCount = 0;
+          this.lastBlockEndIndex = 0;
         }
       }
       --this.count;
@@ -83,18 +83,18 @@ namespace Nuclex.Support.Collections {
       // This is necessary to make sure the deque doesn't hold dead objects alive
       // in unreachable spaces of its memory.
       int lastBlock = this.blocks.Count - 1;
-      this.blocks[lastBlock][this.lastBlockCount - 1] = default(ItemType);
+      this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
 
       // Cut off the last item in the last block. If the block became empty and it's
       // not the last remaining block, remove it as well.
-      --this.lastBlockCount;
-      if(this.lastBlockCount == 0) { // Block became empty
+      --this.lastBlockEndIndex;
+      if(this.lastBlockEndIndex == 0) { // Block became empty
         if(this.count > 1) {
           this.blocks.RemoveAt(lastBlock);
-          this.lastBlockCount = this.blockSize;
+          this.lastBlockEndIndex = this.blockSize;
         } else { // Last block - do not remove
           this.firstBlockStartIndex = 0;
-          this.lastBlockCount = 0;
+          this.lastBlockEndIndex = 0;
         }
       }
       --this.count;
@@ -206,15 +206,15 @@ namespace Nuclex.Support.Collections {
         Array.Copy(
           this.blocks[lastBlock], startIndex + 1,
           this.blocks[lastBlock], startIndex,
-          this.lastBlockCount - startIndex - 1
+          this.lastBlockEndIndex - startIndex - 1
         );
 
-        if(this.lastBlockCount == 1) {
+        if(this.lastBlockEndIndex == 1) {
           this.blocks.RemoveAt(lastBlock);
-          this.lastBlockCount = this.blockSize;
+          this.lastBlockEndIndex = this.blockSize;
         } else {
-          this.blocks[lastBlock][this.lastBlockCount - 1] = default(ItemType);
-          --this.lastBlockCount;
+          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
+          --this.lastBlockEndIndex;
         }
 
         --this.count;

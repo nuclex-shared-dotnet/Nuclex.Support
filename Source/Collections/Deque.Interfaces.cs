@@ -61,7 +61,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Whether the deque is read-only</summary>
     bool IList.IsReadOnly {
-      get { throw new NotImplementedException(); }
+      get { return false; }
     }
 
     /// <summary>Removes the specified item from the deque</summary>
@@ -106,7 +106,11 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array the contents of the deque will be copied into</param>
     /// <param name="index">Index at which writing into the array will begin</param>
     void ICollection.CopyTo(Array array, int index) {
-      throw new NotImplementedException();
+      if(!(array is ItemType[])) {
+        throw new ArgumentException("Incompatible array type", "array");
+      }
+
+      CopyTo((ItemType[])array, index);
     }
 
     /// <summary>Whether the deque is thread-synchronized</summary>

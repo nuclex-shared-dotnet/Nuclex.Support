@@ -31,7 +31,7 @@ namespace Nuclex.Support.Collections {
         this.deque = deque;
         this.blockSize = this.deque.blockSize;
         this.lastBlock = this.deque.blocks.Count - 1;
-        this.lastBlockEndIndex = this.deque.lastBlockCount - 1;
+        this.lastBlockEndIndex = this.deque.lastBlockEndIndex - 1;
 
         Reset();
       }
@@ -175,7 +175,7 @@ namespace Nuclex.Support.Collections {
         if(this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
         }
-        return this.blocks[this.blocks.Count - 1][this.lastBlockCount - 1];
+        return this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1];
       }
     }
 
@@ -190,7 +190,51 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array the contents of the deque will be copied into</param>
     /// <param name="arrayIndex">Array index the deque contents will begin at</param>
     public void CopyTo(ItemType[] array, int arrayIndex) {
-      throw new NotImplementedException();
+      if(this.count > (array.Length - arrayIndex)) {
+        throw new ArgumentException(
+          "Array too small to hold the collection items starting at the specified index"
+        );
+      }
+
+      if(this.blocks.Count == 1) { // Does only one block exist?
+
+        // Copy the one and only block there is
+        Array.Copy(
+          this.blocks[0], this.firstBlockStartIndex,
+          array, arrayIndex,
+          this.lastBlockEndIndex - this.firstBlockStartIndex
+        );
+
+      } else { // Multiple blocks exist
+
+        // Copy the first block which is filled from the start index to its end
+        int length = this.blockSize - this.firstBlockStartIndex;
+        Array.Copy(
+          this.blocks[0], this.firstBlockStartIndex,
+          array, arrayIndex,
+          length
+        );
+        arrayIndex += length;
+
+        // Copy all intermediate blocks (if there are any). These are completely filled
+        int lastBlock = this.blocks.Count - 1;
+        for(int index = 1; index < lastBlock; ++index) {
+          Array.Copy(
+            this.blocks[index], 0,
+            array, arrayIndex,
+            this.blockSize
+          );
+          arrayIndex += this.blockSize;
+        }
+
+        // Copy the final block which is filled from the beginning to the end index
+        Array.Copy(
+          this.blocks[lastBlock], 0,
+          array, arrayIndex,
+          this.lastBlockEndIndex
+        );
+
+      }
     }
 
     /// <summary>Obtains a new enumerator for the contents of the deque</summary>
@@ -238,7 +282,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Starting index of data in the first block</summary>
     private int firstBlockStartIndex;
     /// <summary>End index of data in the last block</summary>
-    private int lastBlockCount;
+    private int lastBlockEndIndex;
 
   }
 
