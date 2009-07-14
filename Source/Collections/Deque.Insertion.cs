@@ -23,14 +23,14 @@ namespace Nuclex.Support.Collections {
     /// <summary>Appends an item to the end of the double-ended queue</summary>
     /// <param name="item">Item that will be appended to the queue</param>
     public void AddLast(ItemType item) {
-      if(this.lastBlockEndIndex < this.blockSize) {
-        ++this.lastBlockEndIndex;
+      if(this.lastBlockCount < this.blockSize) {
+        ++this.lastBlockCount;
       } else { // Need to allocate a new block
         this.blocks.Add(new ItemType[this.blockSize]);
-        this.lastBlockEndIndex = 1;
+        this.lastBlockCount = 1;
       }
 
-      this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1] = item;
+      this.blocks[this.blocks.Count - 1][this.lastBlockCount - 1] = item;
       ++this.count;
     }
 
@@ -137,15 +137,15 @@ namespace Nuclex.Support.Collections {
         int blockLength;
 
         // If the lastmost block is full, we need to add another block
-        if(this.lastBlockEndIndex == this.blockSize) {
+        if(this.lastBlockCount == this.blockSize) {
           this.blocks.Add(new ItemType[this.blockSize]);
           this.blocks[lastBlock + 1][0] = this.blocks[lastBlock][this.blockSize - 1];
-          this.lastBlockEndIndex = 1;
+          this.lastBlockCount = 1;
 
           blockLength = this.blockSize - 1;
         } else {
-          blockLength = this.lastBlockEndIndex;
-          ++this.lastBlockEndIndex;
+          blockLength = this.lastBlockCount;
+          ++this.lastBlockCount;
         }
 
         // If the insertion point is not in the lastmost block

@@ -6,6 +6,49 @@ namespace Nuclex.Support.Collections {
 
   partial class Deque<ItemType> {
 
+    /// <summary>Removes all items from the deque</summary>
+    public void Clear() {
+      if(this.blocks.Count > 1) { // Are there multiple blocks?
+
+        // Clear the items in the first block to avoid holding on to references
+        // in memory unreachable to the user
+        for(int index = this.firstBlockStartIndex; index < this.blockSize; ++index) {
+          this.blocks[0][index] = default(ItemType);
+        }
+
+        // Remove any other blocks
+        this.blocks.RemoveRange(1, this.blocks.Count - 1);
+
+      } else { // Nope, only a single block exists
+
+        // Clear the items in the block to release any reference we may be keeping alive
+        for(
+          int index = this.firstBlockStartIndex; index < this.lastBlockCount; ++index
+        ) {
+          this.blocks[0][index] = default(ItemType);
+        }
+
+      }
+
+      // Reset the counters to restart the deque from scratch
+      this.firstBlockStartIndex = 0;
+      this.lastBlockCount = 0;
+      this.count = 0;
+    }
+
+    /// <summary>Removes the specified item from the deque</summary>
+    /// <param name="item">Item that will be removed from the deque</param>
+    /// <returns>True if the item was found and removed</returns>
+    public bool Remove(ItemType item) {
+      int index = IndexOf(item);
+      if(index == -1) {
+        return false;
+      }
+
+      RemoveAt(index);
+      return true;
+    }
+
     /// <summary>Removes the first item in the double-ended queue</summary>
     public void RemoveFirst() {
       if(this.count == 0) {
@@ -16,6 +59,8 @@ namespace Nuclex.Support.Collections {
       // in unreachable spaces of its memory.
       this.blocks[0][this.firstBlockStartIndex] = default(ItemType);
 
+      // Cut off the item from the first block. If the block became empty and it's
+      // not the last remaining block, remove it as well.
       ++this.firstBlockStartIndex;
       if(this.firstBlockStartIndex >= this.blockSize) { // Block became empty
         if(this.count > 1) { // Still more blocks in queue, remove block
@@ -23,7 +68,7 @@ namespace Nuclex.Support.Collections {
           this.firstBlockStartIndex = 0;
         } else { // Last block - do not remove
           this.firstBlockStartIndex = 0;
-          this.lastBlockEndIndex = 0;
+          this.lastBlockCount = 0;
         }
       }
       --this.count;
@@ -38,16 +83,18 @@ namespace Nuclex.Support.Collections {
       // This is necessary to make sure the deque doesn't hold dead objects alive
       // in unreachable spaces of its memory.
       int lastBlock = this.blocks.Count - 1;
-      this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
+      this.blocks[lastBlock][this.lastBlockCount - 1] = default(ItemType);
 
-      --this.lastBlockEndIndex;
-      if(this.lastBlockEndIndex == 0) { // Block became empty
+      // Cut off the last item in the last block. If the block became empty and it's
+      // not the last remaining block, remove it as well.
+      --this.lastBlockCount;
+      if(this.lastBlockCount == 0) { // Block became empty
         if(this.count > 1) {
           this.blocks.RemoveAt(lastBlock);
-          this.lastBlockEndIndex = this.blockSize;
+          this.lastBlockCount = this.blockSize;
         } else { // Last block - do not remove
           this.firstBlockStartIndex = 0;
-          this.lastBlockEndIndex = 0;
+          this.lastBlockCount = 0;
         }
       }
       --this.count;
@@ -159,15 +206,15 @@ namespace Nuclex.Support.Collections {
         Array.Copy(
           this.blocks[lastBlock], startIndex + 1,
           this.blocks[lastBlock], startIndex,
-          this.lastBlockEndIndex - startIndex - 1
+          this.lastBlockCount - startIndex - 1
         );
 
-        if(this.lastBlockEndIndex == 1) {
+        if(this.lastBlockCount == 1) {
           this.blocks.RemoveAt(lastBlock);
-          this.lastBlockEndIndex = this.blockSize;
+          this.lastBlockCount = this.blockSize;
         } else {
-          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
-          --this.lastBlockEndIndex;
+          this.blocks[lastBlock][this.lastBlockCount - 1] = default(ItemType);
+          --this.lastBlockCount;
         }
 
         --this.count;

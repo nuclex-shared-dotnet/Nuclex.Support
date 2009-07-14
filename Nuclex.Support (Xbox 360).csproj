@@ -73,7 +73,13 @@
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\Deque.Interfaces.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\Deque.Removal.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Search.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\Deque.Test.cs">

@@ -18,7 +18,111 @@ namespace Nuclex.Support.Collections {
   ///     require items to be copied around and still can be accessed by index.
   ///   </para>
   /// </remarks>
-  public partial class Deque<ItemType> /*: IList<ItemType>, IList*/ {
+  public partial class Deque<ItemType> : IList<ItemType>, IList {
+
+    #region class Enumerator
+
+    /// <summary>Enumerates over the items in a deque</summary>
+    private class Enumerator : IEnumerator<ItemType>, IEnumerator {
+
+      /// <summary>Initializes a new deque enumerator</summary>
+      /// <param name="deque">Deque whose items will be enumerated</param>
+      public Enumerator(Deque<ItemType> deque) {
+        this.deque = deque;
+        this.blockSize = this.deque.blockSize;
+        this.lastBlock = this.deque.blocks.Count - 1;
+        this.lastBlockEndIndex = this.deque.lastBlockCount - 1;
+
+        Reset();
+      }
+
+      /// <summary>Immediately releases all resources owned by the instance</summary>
+      public void Dispose() {
+        this.deque = null;
+        this.currentBlock = null;
+      }
+
+      /// <summary>The item at the enumerator's current position</summary>
+      public ItemType Current {
+        get {
+          if(this.currentBlock == null) {
+            throw new InvalidOperationException("Enumerator is not on a valid position");
+          }
+
+          return this.currentBlock[this.subIndex];
+        }
+      }
+
+      /// <summary>Advances the enumerator to the next item</summary>
+      /// <returns>True if there was a next item</returns>
+      public bool MoveNext() {
+
+        // If we haven't reached the last block yet      
+        if(this.currentBlockIndex < this.lastBlock) {
+
+          // Advance to the next item. If the end of the current block is reached,
+          // go to the next block's first item
+          ++this.subIndex;
+          if(this.subIndex >= this.blockSize) {
+            ++this.currentBlockIndex;
+            this.currentBlock = this.deque.blocks[this.currentBlockIndex];
+            if(this.currentBlockIndex == 0) {
+              this.subIndex = this.deque.firstBlockStartIndex;
+            } else {
+              this.subIndex = 0;
+            }
+          }
+
+          // Item found. If the current block wasn't the last block, an item *has*
+          // to follow since otherwise, no further blocks would exist!
+          return true;
+
+        } else { // We in or beyond the last block
+
+          // Are there any items left to advance to?
+          if(this.subIndex < this.lastBlockEndIndex) {
+            ++this.subIndex;
+            return true;
+          } else { // Nope, we've reached the end of the deque
+            this.currentBlock = null;
+            return false;
+          }
+
+        }
+
+      }
+
+      /// <summary>Resets the enumerator to its initial position</summary>
+      public void Reset() {
+        this.currentBlock = null;
+        this.currentBlockIndex = -1;
+        this.subIndex = this.deque.blockSize - 1;
+      }
+
+      /// <summary>The item at the enumerator's current position</summary>
+      object IEnumerator.Current {
+        get { return Current; }
+      }
+
+      /// <summary>Deque the enumerator belongs to</summary>
+      private Deque<ItemType> deque;
+      /// <summary>Size of the blocks in the deque</summary>
+      private int blockSize;
+      /// <summary>Index of the last block in the deque</summary>
+      private int lastBlock;
+      /// <summary>End index of the items in the deque's last block</summary>
+      private int lastBlockEndIndex;
+
+      /// <summary>Index of the block the enumerator currently is in</summary>
+      private int currentBlockIndex;
+      /// <summary>Reference to the block being enumerated</summary>
+      private ItemType[] currentBlock;
+      /// <summary>Index in the current block</summary>
+      private int subIndex;
+
+    }
+
+    #endregion // class Enumerator
 
     /// <summary>Initializes a new deque</summary>
     public Deque() : this(512) { }
@@ -58,7 +162,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>The first item in the double-ended queue</summary>
     public ItemType First {
       get {
-        if(this.lastBlockEndIndex <= this.firstBlockStartIndex) {
+        if(this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
         }
         return this.blocks[0][this.firstBlockStartIndex];
@@ -68,66 +172,31 @@ namespace Nuclex.Support.Collections {
     /// <summary>The last item in the double-ended queue</summary>
     public ItemType Last {
       get {
-        if(this.lastBlockEndIndex <= this.firstBlockStartIndex) {
+        if(this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
         }
-        return this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1];
+        return this.blocks[this.blocks.Count - 1][this.lastBlockCount - 1];
       }
     }
 
-    /// <summary>
-    ///   Determines the index of the first occurence of the specified item in the deque
-    /// </summary>
-    /// <param name="item">Item that will be located in the deque</param>
-    /// <returns>The index of the item or -1 if it wasn't found</returns>
-    public int IndexOf(ItemType item) {
-      if(this.blocks.Count == 1) { // Only one block to scan?
-        int length = this.lastBlockEndIndex - this.firstBlockStartIndex;
-        int index = Array.IndexOf<ItemType>(
-          this.blocks[0], item, this.firstBlockStartIndex, length
-        );
+    /// <summary>Determines whether the deque contains the specified item</summary>
+    /// <param name="item">Item the deque will be scanned for</param>
+    /// <returns>True if the deque contains the item, false otherwise</returns>
+    public bool Contains(ItemType item) {
+      return (IndexOf(item) != -1);
+    }
 
-        // If we found something, we need to adjust its index so the first item in
-        // the deque always appears at index 0 to the user
-        if(index != -1) {
-          return (index - this.firstBlockStartIndex);
-        } else {
-          return -1;
-        }
-      } else { // At least two blocks exist
+    /// <summary>Copies the contents of the deque into an array</summary>
+    /// <param name="array">Array the contents of the deque will be copied into</param>
+    /// <param name="arrayIndex">Array index the deque contents will begin at</param>
+    public void CopyTo(ItemType[] array, int arrayIndex) {
+      throw new NotImplementedException();
+    }
 
-        // Scan the first block for the item and if found, return the index
-        int length = this.blockSize - this.firstBlockStartIndex;
-        int index = Array.IndexOf<ItemType>(
-          this.blocks[0], item, this.firstBlockStartIndex, length
-        );
-
-        // If we found something, we need to adjust its index
-        if(index != -1) {
-          return (index - this.firstBlockStartIndex);
-        }
-
-        int lastBlock = this.blocks.Count - 1;
-        for(int tempIndex = 1; tempIndex < lastBlock; ++tempIndex) {
-          index = Array.IndexOf<ItemType>(
-            this.blocks[tempIndex], item, 0, this.blockSize
-          );
-          if(index != -1) {
-            return (index - this.firstBlockStartIndex + tempIndex * this.blockSize);
-          }
-        }
-
-        // Nothing found, continue the search in the 
-        index = Array.IndexOf<ItemType>(
-          this.blocks[lastBlock], item, 0, this.lastBlockEndIndex
-        );
-        if(index == -1) {
-          return -1;
-        } else {
-          return (index - this.firstBlockStartIndex + lastBlock * this.blockSize);
-        }
-
-      }
+    /// <summary>Obtains a new enumerator for the contents of the deque</summary>
+    /// <returns>The new enumerator</returns>
+    public IEnumerator<ItemType> GetEnumerator() {
+      return new Enumerator(this);
     }
 
     /// <summary>Calculates the block index and local sub index of an entry</summary>
@@ -143,6 +212,23 @@ namespace Nuclex.Support.Collections {
       blockIndex = Math.DivRem(index, this.blockSize, out subIndex);
     }
 
+    /// <summary>
+    ///   Determines whether the provided object can be placed in the deque
+    /// </summary>
+    /// <param name="value">Value that will be checked for compatibility</param>
+    /// <returns>True if the value can be placed in the deque</returns>
+    private static bool isCompatibleObject(object value) {
+      return ((value is ItemType) || ((value == null) && !typeof(ItemType).IsValueType));
+    }
+
+    /// <summary>Verifies that the provided object matches the deque's type</summary>
+    /// <param name="value">Value that will be checked for compatibility</param>
+    private static void verifyCompatibleObject(object value) {
+      if(!isCompatibleObject(value)) {
+        throw new ArgumentException("Value does not match the deque's type", "value");
+      }
+    }
+
     /// <summary>Number if items currently stored in the deque</summary>
     private int count;
     /// <summary>Size of a single deque block</summary>
@@ -152,7 +238,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Starting index of data in the first block</summary>
     private int firstBlockStartIndex;
     /// <summary>End index of data in the last block</summary>
-    private int lastBlockEndIndex;
+    private int lastBlockCount;
 
   }
 

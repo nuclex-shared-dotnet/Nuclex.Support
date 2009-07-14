@@ -21,6 +21,7 @@ License along with this library
 #if UNITTEST
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -103,10 +104,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void TestInsert() {
       for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
-        Deque<int> intDeque = new Deque<int>(16);
-        for(int item = 0; item < 96; ++item) {
-          intDeque.AddLast(item);
-        }
+        Deque<int> intDeque = createDeque(96);
 
         intDeque.Insert(testedIndex, 12345);
 
@@ -129,14 +127,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void TestInsertNonNormalized() {
       for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
-        Deque<int> intDeque = new Deque<int>(16);
-        for(int item = 4; item < 96; ++item) {
-          intDeque.AddLast(item);
-        }
-        intDeque.AddFirst(3);
-        intDeque.AddFirst(2);
-        intDeque.AddFirst(1);
-        intDeque.AddFirst(0);
+        Deque<int> intDeque = createNonNormalizedDeque(96);
 
         intDeque.Insert(testedIndex, 12345);
 
@@ -202,7 +193,7 @@ namespace Nuclex.Support.Collections {
         }
       }
     }
-    
+
     /// <summary>
     ///   Tests whether the RemoveAt() method keeps the state of the deque intact when
     ///   it has to remove a block from the left end of the deque
@@ -301,10 +292,7 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestIndexAssignment() {
-      Deque<int> intDeque = new Deque<int>(16);
-      for(int item = 0; item < 32; ++item) {
-        intDeque.AddLast(item);
-      }
+      Deque<int> intDeque = createDeque(32);
       intDeque[16] = 12345;
       intDeque[17] = 54321;
 
@@ -351,7 +339,290 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test, TestCase(0), TestCase(16), TestCase(32), TestCase(48)]
     public void TestIndexOfNonNormalized(int count) {
+      Deque<int> intDeque = createNonNormalizedDeque(count);
+
+      for(int item = 0; item < count; ++item) {
+        Assert.AreEqual(item, intDeque.IndexOf(item));
+      }
+      Assert.AreEqual(-1, intDeque.IndexOf(count));
+    }
+
+    /// <summary>Verifies that the deque's enumerator works</summary>
+    [Test]
+    public void TestEnumerator() {
+      Deque<int> intDeque = createNonNormalizedDeque(40);
+
+      for(int testRun = 0; testRun < 2; ++testRun) {
+        using(IEnumerator<int> enumerator = intDeque.GetEnumerator()) {
+          for(int index = 0; index < intDeque.Count; ++index) {
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(index, enumerator.Current);
+          }
+
+          Assert.IsFalse(enumerator.MoveNext());
+
+          enumerator.Reset();
+        }
+      }
+    }
+
+    /// <summary>Verifies that the deque's enumerator works</summary>
+    [Test]
+    public void TestObjectEnumerator() {
+      Deque<int> intDeque = createNonNormalizedDeque(40);
+
+      for(int testRun = 0; testRun < 2; ++testRun) {
+        IEnumerator enumerator = ((IEnumerable)intDeque).GetEnumerator();
+        for(int index = 0; index < intDeque.Count; ++index) {
+          Assert.IsTrue(enumerator.MoveNext());
+          Assert.AreEqual(index, enumerator.Current);
+        }
+
+        Assert.IsFalse(enumerator.MoveNext());
+
+        enumerator.Reset();
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that an exception is thrown if the enumerator is accessed in
+    ///   an invalid position
+    /// </summary>
+    [Test]
+    public void TestThrowOnInvalidEnumeratorPosition() {
+      Deque<int> intDeque = createNonNormalizedDeque(40);
+
+      using(IEnumerator<int> enumerator = intDeque.GetEnumerator()) {
+        Assert.Throws<InvalidOperationException>(
+          delegate() { Console.WriteLine(enumerator.Current); }
+        );
+
+        while(enumerator.MoveNext()) { }
+
+        Assert.Throws<InvalidOperationException>(
+          delegate() { Console.WriteLine(enumerator.Current); }
+        );
+      }
+    }
+
+    /// <summary>Tests whether a small deque can be cleared</summary>
+    [Test]
+    public void TestClearSmallDeque() {
+      Deque<int> intDeque = createDeque(12);
+      intDeque.Clear();
+      Assert.AreEqual(0, intDeque.Count);
+    }
+
+    /// <summary>Tests whether a large deque can be cleared</summary>
+    [Test]
+    public void TestClearLargeDeque() {
+      Deque<int> intDeque = createDeque(40);
+      intDeque.Clear();
+      Assert.AreEqual(0, intDeque.Count);
+    }
+
+    /// <summary>Verifies that the non-typesafe Add() method is working</summary>
+    [Test]
+    public void TestAddObject() {
+      Deque<int> intDeque = new Deque<int>();
+      Assert.AreEqual(0, ((IList)intDeque).Add(123));
+      Assert.AreEqual(1, intDeque.Count);
+    }
+
+    /// <summary>
+    ///   Tests whether an exception is thrown if the non-typesafe Add() method is
+    ///   used to add an incompatible object into the deque
+    /// </summary>
+    [Test]
+    public void TestThrowOnAddIncompatibleObject() {
+      Deque<int> intDeque = new Deque<int>();
+      Assert.Throws<ArgumentException>(
+        delegate() { ((IList)intDeque).Add("Hello World"); }
+      );
+    }
+
+    /// <summary>Verifies that the Add() method is working</summary>
+    [Test]
+    public void TestAdd() {
+      Deque<int> intDeque = new Deque<int>();
+      ((IList<int>)intDeque).Add(123);
+      Assert.AreEqual(1, intDeque.Count);
+    }
+
+    /// <summary>Tests whether the Contains() method is working</summary>
+    [Test]
+    public void TestContains() {
+      Deque<int> intDeque = createDeque(16);
+      Assert.IsTrue(intDeque.Contains(14));
+      Assert.IsFalse(intDeque.Contains(16));
+    }
+
+    /// <summary>Tests the non-typesafe Contains() method</summary>
+    [Test]
+    public void TestContainsObject() {
+      Deque<int> intDeque = createDeque(16);
+      Assert.IsTrue(((IList)intDeque).Contains(14));
+      Assert.IsFalse(((IList)intDeque).Contains(16));
+      Assert.IsFalse(((IList)intDeque).Contains("Hello World"));
+    }
+
+    /// <summary>Tests the non-typesafe Contains() method</summary>
+    [Test]
+    public void TestIndexOfObject() {
+      Deque<int> intDeque = createDeque(16);
+      Assert.AreEqual(14, ((IList)intDeque).IndexOf(14));
+      Assert.AreEqual(-1, ((IList)intDeque).IndexOf(16));
+      Assert.AreEqual(-1, ((IList)intDeque).IndexOf("Hello World"));
+    }
+
+    /// <summary>Tests wether the non-typesafe Insert() method is working</summary>
+    [Test]
+    public void TestInsertObject() {
+      for(int testedIndex = 0; testedIndex <= 96; ++testedIndex) {
+        Deque<int> intDeque = createDeque(96);
+
+        ((IList)intDeque).Insert(testedIndex, 12345);
+
+        Assert.AreEqual(97, intDeque.Count);
+
+        for(int index = 0; index < testedIndex; ++index) {
+          Assert.AreEqual(index, intDeque[index]);
+        }
+        Assert.AreEqual(12345, intDeque[testedIndex]);
+        for(int index = testedIndex + 1; index < 97; ++index) {
+          Assert.AreEqual(index - 1, intDeque[index]);
+        }
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that an exception is thrown if an incompatible object is inserted
+    ///   into the deque
+    /// </summary>
+    [Test]
+    public void TestThrowOnInsertIncompatibleObject() {
+      Deque<int> intDeque = createDeque(12);
+      Assert.Throws<ArgumentException>(
+        delegate() { ((IList)intDeque).Insert(8, "Hello World"); }
+      );
+    }
+
+    /// <summary>Validates that the IsFixedObject property is set to false</summary>
+    [Test]
+    public void TestIsFixedObject() {
+      Deque<int> intDeque = new Deque<int>();
+      Assert.IsFalse(((IList)intDeque).IsFixedSize);
+    }
+
+    /// <summary>Validates that the IsSynchronized property is set to false</summary>
+    [Test]
+    public void TestIsSynchronized() {
+      Deque<int> intDeque = new Deque<int>();
+      Assert.IsFalse(((IList)intDeque).IsSynchronized);
+    }
+
+    /// <summary>
+    ///   Verifies that items can be assigned by their index using the non-typesafe
+    ///   IList interface
+    /// </summary>
+    [Test]
+    public void TestObjectIndexAssignment() {
+      Deque<int> intDeque = createDeque(32);
+
+      ((IList)intDeque)[16] = 12345;
+      ((IList)intDeque)[17] = 54321;
+
+      Assert.AreEqual(12345, ((IList)intDeque)[16]);
+      Assert.AreEqual(54321, ((IList)intDeque)[17]);
+    }
+
+    /// <summary>
+    ///   Tests whether an exception is thrown if an incompatible object is assigned
+    ///   to the deque
+    /// </summary>
+    [Test]
+    public void TestIncompatibleObjectIndexAssignment() {
+      Deque<int> intDeque = createDeque(2);
+      Assert.Throws<ArgumentException>(
+        delegate() { ((IList)intDeque)[0] = "Hello World"; }
+      );
+    }
+
+    /// <summary>Verifies that the Remove() method is working correctly</summary>
+    [Test]
+    public void TestRemove() {
+      Deque<int> intDeque = createDeque(16);
+      Assert.AreEqual(16, intDeque.Count);
+      Assert.IsTrue(intDeque.Remove(13));
+      Assert.IsFalse(intDeque.Remove(13));
+      Assert.AreEqual(15, intDeque.Count);
+    }
+
+    /// <summary>Tests the non-typesafe remove method</summary>
+    [Test]
+    public void TestRemoveObject() {
+      Deque<int> intDeque = createDeque(10);
+      Assert.IsTrue(intDeque.Contains(8));
+      Assert.AreEqual(10, intDeque.Count);
+      ((IList)intDeque).Remove(8);
+      Assert.IsFalse(intDeque.Contains(8));
+      Assert.AreEqual(9, intDeque.Count);
+    }
+
+    /// <summary>
+    ///   Tests the non-typesafe remove method used to remove an incompatible object
+    /// </summary>
+    [Test]
+    public void TestRemoveIncompatibleObject() {
+      Deque<int> intDeque = createDeque(10);
+      ((IList)intDeque).Remove("Hello World"); // should simply do nothing
+      Assert.AreEqual(10, intDeque.Count);
+    }
+
+    /// <summary>
+    ///   Verifies that the IsSynchronized property and the SyncRoot property are working
+    /// </summary>
+    [Test]
+    public void TestSynchronization() {
+      Deque<int> intDeque = new Deque<int>();
+
+      if(!(intDeque as ICollection).IsSynchronized) {
+        lock((intDeque as ICollection).SyncRoot) {
+          Assert.AreEqual(0, intDeque.Count);
+        }
+      }
+    }
+
+    /// <summary>
+    ///   Validates that the IsReadOnly property of the deque returns false
+    /// </summary>
+    [Test]
+    public void TestIsReadOnly() {
+      Deque<int> intDeque = new Deque<int>();
+      Assert.IsFalse(((IList)intDeque).IsReadOnly);
+      Assert.IsFalse(((ICollection<int>)intDeque).IsReadOnly);
+    }
+
+    /// <summary>Tests the non-typesafe CopyTo() method</summary>
+    [Test]
+    public void TestCopyToObjectArray() {
+      // TODO Write a unit test for the non-typesafe CopyTo() method
+    }
+
+    /// <summary>Tests the CopyTo() method</summary>
+    [Test]
+    public void TestCopyToArray() {
+      // TODO Write a unit test for the typesafe CopyTo() method
+    }
+
+    /// <summary>
+    ///   Creates a deque whose first element does not coincide with a block boundary
+    /// </summary>
+    /// <param name="count">Number of items the deque will be filled with</param>
+    /// <returns>The newly created deque</returns>
+    private static Deque<int> createNonNormalizedDeque(int count) {
       Deque<int> intDeque = new Deque<int>(16);
+
       for(int item = 4; item < count; ++item) {
         intDeque.AddLast(item);
       }
@@ -360,10 +631,21 @@ namespace Nuclex.Support.Collections {
       if(count > 1) { intDeque.AddFirst(1); }
       if(count > 0) { intDeque.AddFirst(0); }
 
+      return intDeque;
+    }
+
+    /// <summary>Creates a deque filled with the specified number of items
+    /// </summary>
+    /// <param name="count">Number of items the deque will be filled with</param>
+    /// <returns>The newly created deque</returns>
+    private static Deque<int> createDeque(int count) {
+      Deque<int> intDeque = new Deque<int>(16);
+
       for(int item = 0; item < count; ++item) {
-        Assert.AreEqual(item, intDeque.IndexOf(item));
+        intDeque.AddLast(item);
       }
-      Assert.AreEqual(-1, intDeque.IndexOf(count));
+
+      return intDeque;
     }
 
   }
