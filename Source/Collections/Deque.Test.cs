@@ -93,7 +93,6 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-
     /// <summary>Verifies that the Insert() method works in all cases</summary>
     /// <remarks>
     ///   We have several different cases here that will be tested. The deque can
@@ -655,6 +654,23 @@ namespace Nuclex.Support.Collections {
         delegate() { intDeque.CopyTo(new int[7], 0); }
       );
     }
+    
+#if DEBUG
+    /// <summary>
+    ///   Tests whether the deque enumerator detects when it runs out of sync
+    /// </summary>
+    [Test]
+    public void TestInvalidatedEnumeratorDetection() {
+      Deque<int> intDeque = createDeque(8);
+      using(IEnumerator<int> enumerator = intDeque.GetEnumerator()) {
+        Assert.IsTrue(enumerator.MoveNext());
+        intDeque.AddFirst(12345);
+        Assert.Throws<InvalidOperationException>(
+          delegate() { enumerator.MoveNext(); }
+        );
+      }      
+    }
+#endif
 
     /// <summary>
     ///   Creates a deque whose first element does not coincide with a block boundary

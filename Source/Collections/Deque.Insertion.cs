@@ -38,6 +38,9 @@ namespace Nuclex.Support.Collections {
 
       this.blocks[0][this.firstBlockStartIndex] = item;
       ++this.count;
+#if DEBUG
+      ++this.version;
+#endif      
     }
 
     /// <summary>Appends an item to the end of the double-ended queue</summary>
@@ -52,6 +55,9 @@ namespace Nuclex.Support.Collections {
 
       this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1] = item;
       ++this.count;
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>Inserts the item at the specified index</summary>
@@ -64,6 +70,9 @@ namespace Nuclex.Support.Collections {
       } else { // Nope, we're closer to the right end
         shiftRightAndInsert(index, item);
       }
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>

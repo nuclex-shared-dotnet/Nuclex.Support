@@ -54,6 +54,9 @@ namespace Nuclex.Support.Collections {
       this.firstBlockStartIndex = 0;
       this.lastBlockEndIndex = 0;
       this.count = 0;
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>Removes the specified item from the deque</summary>
@@ -66,6 +69,9 @@ namespace Nuclex.Support.Collections {
       }
 
       RemoveAt(index);
+#if DEBUG
+      ++this.version;
+#endif
       return true;
     }
 
@@ -92,6 +98,9 @@ namespace Nuclex.Support.Collections {
         }
       }
       --this.count;
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>Removes the last item in the double-ended queue</summary>
@@ -118,6 +127,9 @@ namespace Nuclex.Support.Collections {
         }
       }
       --this.count;
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>Removes the item at the specified index</summary>
@@ -129,6 +141,9 @@ namespace Nuclex.Support.Collections {
       } else { // Nope, we're closer to the right end
         removeFromRight(index);
       }
+#if DEBUG
+      ++this.version;
+#endif
     }
 
     /// <summary>

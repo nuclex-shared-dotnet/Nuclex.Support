@@ -65,6 +65,9 @@ namespace Nuclex.Support.Collections {
       /// <summary>The item at the enumerator's current position</summary>
       public ItemType Current {
         get {
+#if DEBUG
+          checkVersion();
+#endif
           if(this.currentBlock == null) {
             throw new InvalidOperationException("Enumerator is not on a valid position");
           }
@@ -76,6 +79,10 @@ namespace Nuclex.Support.Collections {
       /// <summary>Advances the enumerator to the next item</summary>
       /// <returns>True if there was a next item</returns>
       public bool MoveNext() {
+
+#if DEBUG
+        checkVersion();
+#endif
 
         // If we haven't reached the last block yet      
         if(this.currentBlockIndex < this.lastBlock) {
@@ -117,12 +124,21 @@ namespace Nuclex.Support.Collections {
         this.currentBlock = null;
         this.currentBlockIndex = -1;
         this.subIndex = this.deque.blockSize - 1;
+        this.expectedVersion = this.deque.version;
       }
 
       /// <summary>The item at the enumerator's current position</summary>
       object IEnumerator.Current {
         get { return Current; }
       }
+
+#if DEBUG
+      /// <summary>Ensures that the deque has not changed</summary>
+      private void checkVersion() {
+        if(this.expectedVersion != this.deque.version)
+          throw new InvalidOperationException("Deque has been modified");
+      }
+#endif
 
       /// <summary>Deque the enumerator belongs to</summary>
       private Deque<ItemType> deque;
@@ -139,6 +155,9 @@ namespace Nuclex.Support.Collections {
       private ItemType[] currentBlock;
       /// <summary>Index in the current block</summary>
       private int subIndex;
+
+      /// <summary>Version the deque is expected to have</summary>
+      private int expectedVersion;
 
     }
 
@@ -303,6 +322,10 @@ namespace Nuclex.Support.Collections {
     private int firstBlockStartIndex;
     /// <summary>End index of data in the last block</summary>
     private int lastBlockEndIndex;
+#if DEBUG
+    /// <summary>Used to detect when enumerators go out of sync</summary>
+    private int version;
+#endif
 
   }
 

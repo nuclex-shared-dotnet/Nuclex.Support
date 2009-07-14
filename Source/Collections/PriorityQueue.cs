@@ -43,7 +43,7 @@ namespace Nuclex.Support.Collections {
       public void Reset() {
         this.index = -1;
 #if DEBUG
-        this.expectedVersion = priorityQueue.version;
+        this.expectedVersion = this.priorityQueue.version;
 #endif
       }
 
