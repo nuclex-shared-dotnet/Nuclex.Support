@@ -124,7 +124,9 @@ namespace Nuclex.Support.Collections {
         this.currentBlock = null;
         this.currentBlockIndex = -1;
         this.subIndex = this.deque.blockSize - 1;
+#if DEBUG
         this.expectedVersion = this.deque.version;
+#endif
       }
 
       /// <summary>The item at the enumerator's current position</summary>
@@ -155,10 +157,10 @@ namespace Nuclex.Support.Collections {
       private ItemType[] currentBlock;
       /// <summary>Index in the current block</summary>
       private int subIndex;
-
+#if DEBUG
       /// <summary>Version the deque is expected to have</summary>
       private int expectedVersion;
-
+#endif
     }
 
     #endregion // class Enumerator
