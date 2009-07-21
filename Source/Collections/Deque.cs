@@ -294,7 +294,12 @@ namespace Nuclex.Support.Collections {
       }
 
       index += this.firstBlockStartIndex;
+#if XBOX360
+      blockIndex = index / this.blockSize;
+      subIndex = index % this.blockSize;
+#else
       blockIndex = Math.DivRem(index, this.blockSize, out subIndex);
+#endif
     }
 
     /// <summary>
