@@ -455,6 +455,22 @@ namespace Nuclex.Support.Scheduling {
       }
     }
 
+    // TODO: Unit testing caused this exception
+    //
+    // Nuclex.Support.Scheduling.SchedulerTest.TestThrowOnNotifyAtWithUnspecifiedDateTimeKind :
+    //   System.NullReferenceException: Der Objektverweis wurde nicht auf
+    //     eine Objektinstanz festgelegt.
+    //   bei Nuclex.Support.Scheduling.SchedulerTest.TestSubscriber.Callback(Object state)
+    //     in D:\Devel\framework\Nuclex.Support\Source\Scheduling\Scheduler.Test.cs:Zeile 177.
+    //   bei System.Threading._ThreadPoolWaitCallback.WaitCallback_Context(Object state)
+    //   bei System.Threading.ExecutionContext.Run(
+    //     ExecutionContext executionContext, ContextCallback callback, Object state
+    //   )
+    //   bei System.Threading._ThreadPoolWaitCallback.PerformWaitCallbackInternal(
+    //     _ThreadPoolWaitCallback tpWaitCallBack
+    //   )
+    //   bei System.Threading._ThreadPoolWaitCallback.PerformWaitCallback(Object state)
+
     /// <summary>Returns the provided date/time value as a utc time value</summary>
     /// <param name="dateTime">Date/time value that will be returned as UTC</param>
     /// <returns>The provided date/time value as UTC</returns>
