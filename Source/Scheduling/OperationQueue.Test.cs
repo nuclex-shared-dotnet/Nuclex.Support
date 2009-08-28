@@ -18,11 +18,11 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-#if UNITTEST
 
 using NUnit.Framework;
 using NMock2;
@@ -354,6 +354,7 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Mock object factory</summary>
     private Mockery mockery;
+
   }
 
 } // namespace Nuclex.Support.Tracking

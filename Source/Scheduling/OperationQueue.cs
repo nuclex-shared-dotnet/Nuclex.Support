@@ -20,6 +20,7 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using Nuclex.Support.Tracking;
 
@@ -125,24 +126,29 @@ namespace Nuclex.Support.Scheduling {
     ///   and launches the operation by calling its Start() method.
     /// </remarks>
     private void startCurrentOperation() {
-      OperationType operation = this.children[this.currentOperationIndex].Transaction;
+      do {
+        Thread.MemoryBarrier();
+        OperationType operation = this.children[this.currentOperationIndex].Transaction;
 
-      operation.AsyncEnded += this.asyncOperationEndedDelegate;
+        operation.AsyncEnded += this.asyncOperationEndedDelegate;
 
-      IProgressReporter progressReporter = operation as IProgressReporter;
-      if(progressReporter != null)
-        progressReporter.AsyncProgressChanged += this.asyncOperationProgressChangedDelegate;
+        IProgressReporter progressReporter = operation as IProgressReporter;
+        if(progressReporter != null)
+          progressReporter.AsyncProgressChanged += this.asyncOperationProgressChangedDelegate;
 
-      operation.Start();
+        Interlocked.Exchange(ref this.completionStatus, 1);
+        operation.Start();
+      } while(Interlocked.Decrement(ref this.completionStatus) > 0);
     }
 
     /// <summary>Disconnects from the current operation and calls its End() method</summary>
     /// <remarks>
     ///   This unsubscribes the queue from the current operation's events, calls End()
     ///   on the operation and, if the operation didn't have an exception to report,
-    ///   counts up the accumulated progress of the queue.
+    ///   counts up the accumulated progress of th  e queue.
     /// </remarks>
     private void endCurrentOperation() {
+      Thread.MemoryBarrier();
       OperationType operation = this.children[this.currentOperationIndex].Transaction;
 
       // Disconnect from the operation's events
@@ -177,15 +183,16 @@ namespace Nuclex.Support.Scheduling {
 
       // Only jump to the next operation if no exception occured
       if(this.exception == null) {
-
-        ++this.currentOperationIndex;
+        int newIndex = Interlocked.Increment(ref this.currentOperationIndex);
+        Thread.MemoryBarrier();
 
         // Execute the next operation unless we reached the end of the queue
-        if(this.currentOperationIndex < this.children.Count) {
-          startCurrentOperation();
+        if(newIndex < this.children.Count) {
+          if(Interlocked.Increment(ref this.completionStatus) == 1) {
+            startCurrentOperation();
+          }
           return;
         }
-
       }
 
       // Either an exception has occured or we reached the end of the operation
@@ -225,6 +232,8 @@ namespace Nuclex.Support.Scheduling {
     private float completedWeight;
     /// <summary>Index of the operation currently executing</summary>
     private int currentOperationIndex;
+    /// <summary>Used to detect when an operation completes synchronously</summary>
+    private int completionStatus;
     /// <summary>Exception that has occured in the background process</summary>
     private volatile Exception exception;
 
