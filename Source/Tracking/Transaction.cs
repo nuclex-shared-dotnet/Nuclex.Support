@@ -246,7 +246,7 @@ namespace Nuclex.Support.Tracking {
 
     }
 
-    /// <summary>List of event handler which have subscribed to the ended event</summary>
+    /// <summary>Event handlers which have subscribed to the ended event</summary>
     /// <remarks>
     ///   Does not need to be volatile since it's only accessed inside 
     /// </remarks>

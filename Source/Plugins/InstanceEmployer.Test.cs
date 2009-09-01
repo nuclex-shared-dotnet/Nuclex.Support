@@ -50,6 +50,16 @@ namespace Nuclex.Support.Plugins {
 
     #endregion // class Derived
 
+    #region class GenericDerived
+
+    /// <summary>
+    ///   Generic class derived from the abstract base to serve as concrete product
+    ///   for testing the instance employer
+    /// </summary>
+    private class GenericDerived<SomeType> : Base { }
+
+    #endregion // class GenericDerived
+
     #region class Unrelated
 
     /// <summary>Unrelated class used to test the instance employer</summary>
@@ -93,6 +103,19 @@ namespace Nuclex.Support.Plugins {
 
       Assert.Throws<InvalidCastException>(
         delegate() { testEmployer.Employ(typeof(Unrelated)); }
+      );
+    }
+
+    /// <summary>
+    ///   Tests whether the instance employer throws an exception when it is asked to
+    ///   employ a class that requires generic parameters for instantiation
+    /// </summary>
+    [Test]
+    public void TestThrowOnEmployGenericClass() {
+      InstanceEmployer<Base> testEmployer = new InstanceEmployer<Base>();
+
+      Assert.Throws<ArgumentException>(
+        delegate() { testEmployer.Employ(typeof(GenericDerived<>)); }
       );
     }
 

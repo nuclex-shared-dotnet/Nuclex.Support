@@ -62,7 +62,8 @@ namespace Nuclex.Support.Plugins {
     public override bool CanEmploy(Type type) {
       return
         PluginHelper.HasDefaultConstructor(type) &&
-        typeof(T).IsAssignableFrom(type);
+        typeof(T).IsAssignableFrom(type) &&
+        !type.ContainsGenericParameters;
     }
 
     /// <summary>Employs the specified plugin type</summary>

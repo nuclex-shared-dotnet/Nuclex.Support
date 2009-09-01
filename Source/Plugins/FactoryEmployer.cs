@@ -91,7 +91,8 @@ namespace Nuclex.Support.Plugins {
     public override bool CanEmploy(Type type) {
       return
         PluginHelper.HasDefaultConstructor(type) &&
-        typeof(ProductType).IsAssignableFrom(type);
+        typeof(ProductType).IsAssignableFrom(type) &&
+        !type.ContainsGenericParameters;
     }
 
     /// <summary>Employs the specified plugin type</summary>
@@ -105,6 +106,11 @@ namespace Nuclex.Support.Plugins {
       if(!typeof(ProductType).IsAssignableFrom(type)) {
         throw new InvalidCastException(
           "Cannot employ type because it cannot be cast to the factory's product type"
+        );
+      }
+      if(type.ContainsGenericParameters) {
+        throw new ArgumentException(
+          "Cannot employ type because it requires generic parameters", "type"
         );
       }
 
