@@ -22,6 +22,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Nuclex.Support {
 
@@ -94,7 +95,12 @@ namespace Nuclex.Support {
 
       // We can only use these hardware thread indices on the XBox 360
 #if XBOX360
-      XboxHardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
+      hardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
+#else
+      hardwareThreads = new Queue<int>(CpuCores);
+      for(int core = CpuCores; core >= 1; --core) {
+        hardwareThreads.Enqueue(core);
+      }
 #endif
 
       // Create all of the worker threads
@@ -146,7 +152,7 @@ namespace Nuclex.Support {
       workAvailable.Set();
 
     }
-    
+
     /// <summary>Empties the work queue of any queued work items</summary>
     public static void EmptyQueue() {
       lock(userWorkItems) {
@@ -194,15 +200,27 @@ namespace Nuclex.Support {
 
     /// <summary>A thread worker function that processes items from the work queue</summary>
     private static void ProcessQueuedItems() {
+
+      int hardwareThreadIndex;
+      lock(hardwareThreads) {
+        hardwareThreadIndex = hardwareThreads.Dequeue();
+      }
+
 #if XBOX360
       // MSDN states that SetProcessorAffinity() should be called from the thread
       // whose affinity is being changed.
-      int hardwareThreadIndex;
-      lock(XboxHardwareThreads) {
-        hardwareThreadIndex = XboxHardwareThreads.Dequeue();
-      }
       Thread.CurrentThread.SetProcessorAffinity(new int[] { hardwareThreadIndex });
+#else
+      // Prevent this managed thread from impersonating another system thread.
+      // Threads in .NET can take 
+      Thread.BeginThreadAffinity();
+
+      ProcessThread thread = getCurrentProcessThread();
+      if(thread != null) {
+        thread.IdealProcessor = hardwareThreadIndex;
+      }
 #endif
+      
 
       // Keep processing tasks indefinitely
       for(; ; ) {
@@ -226,6 +244,21 @@ namespace Nuclex.Support {
           Interlocked.Decrement(ref inUseThreads);
         }
       }
+    }
+
+    /// <summary>Retrieves the ProcessThread for the calling thread</summary>
+    /// <returns>The ProcessThread for the calling thread</returns>
+    private static ProcessThread getCurrentProcessThread() {
+      int threadId = GetCurrentThreadId();
+
+      ProcessThreadCollection threads = Process.GetCurrentProcess().Threads;
+      for(int index = 0; index < threads.Count; ++index) {
+        if(threads[index].Id == threadId) {
+          return threads[index];
+        }
+      }
+      
+      return null;
     }
 
     /// <summary>Obtains the next work item from the queue</summary>
@@ -270,10 +303,13 @@ namespace Nuclex.Support {
     /// <summary>Delegate used to handle assertion checks in the code</summary>
     public static AssertionDelegate AssertionHandler = DefaultAssertionHandler;
 
-#if XBOX360
-    /// <summary>XNA games on the XBox 360 can use only 4 of 6 hardware threads</summary>
-    private static Queue<int> XboxHardwareThreads;
-#endif
+    /// <summary>Retrieves the calling thread's thread id</summary>
+    /// <returns>The thread is of the calling thread</returns>
+    [DllImport("kernel32.dll")]
+    private static extern int GetCurrentThreadId();
+
+    /// <summary>Available hardware threads the thread pool threads pick from</summary>
+    private static Queue<int> hardwareThreads;
     /// <summary>Queue of all the callbacks waiting to be executed.</summary>
     private static Queue<UserWorkItem> userWorkItems;
     /// <summary>
