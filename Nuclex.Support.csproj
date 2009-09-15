@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\AffineThreadPool.Test.cs">
+      <DependentUpon>AffineThreadPool.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\AssertHelper.cs" />
     <Compile Include="Source\AssertHelper.Test.cs">
       <DependentUpon>AssertHelper.cs</DependentUpon>
@@ -116,6 +119,7 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\AffineThreadPool.cs" />
     <Compile Include="Source\Plugins\PrototypeFactory.cs" />
     <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
       <DependentUpon>PrototypeFactory.cs</DependentUpon>

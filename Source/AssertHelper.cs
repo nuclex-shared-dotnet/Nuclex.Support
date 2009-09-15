@@ -25,7 +25,7 @@ using System;
 using NUnit.Framework;
 
 // Decide:
-// - Move (part of) this to Nuclex.Support?
+// - Move (part of) this to Nuclex.Support? [done]
 // - Create new Assemblies Nuclex.NUnit.dll and Nuclex.NUnit.Xna.dll?
 
 namespace Nuclex.Support {
