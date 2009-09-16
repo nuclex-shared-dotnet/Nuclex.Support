@@ -246,6 +246,7 @@ namespace Nuclex.Support {
       }
     }
 
+#if !XBOX360
     /// <summary>Retrieves the ProcessThread for the calling thread</summary>
     /// <returns>The ProcessThread for the calling thread</returns>
     private static ProcessThread getCurrentProcessThread() {
@@ -260,6 +261,7 @@ namespace Nuclex.Support {
       
       return null;
     }
+#endif
 
     /// <summary>Obtains the next work item from the queue</summary>
     /// <returns>The next work item in the queue</returns>
