@@ -49,15 +49,9 @@ namespace Nuclex.Support {
     public static readonly int CpuCores = Environment.ProcessorCount;
 #endif
 
-    /// <summary>Delegate used by the thread pool to handle assertion checks</summary>
-    /// <param name="condition">Condition that will be asserted</param>
-    /// <param name="message">Message explaining what causes the assertion to fail</param>
-    /// <param name="details">
-    ///   Detailed description of the exact cause of the assertion failure
-    /// </param>
-    public delegate void AssertionDelegate(
-      bool condition, string message, string details
-    );
+    /// <summary>Delegate used by the thread pool to report unhandled exceptions</summary>
+    /// <param name="exception">Exception that has not been handled</param>
+    public delegate void ExceptionDelegate(Exception exception);
 
     #region class UserWorkItem
 
@@ -93,10 +87,11 @@ namespace Nuclex.Support {
       workerThreads = new List<Thread>(CpuCores);
       inUseThreads = 0;
 
-      // We can only use these hardware thread indices on the XBox 360
 #if XBOX360
+      // We can only use these hardware thread indices on the XBox 360
       hardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
 #else
+      // We can use all cores in the PC, starting from index 1
       hardwareThreads = new Queue<int>(CpuCores);
       for(int core = CpuCores; core >= 1; --core) {
         hardwareThreads.Enqueue(core);
@@ -153,34 +148,6 @@ namespace Nuclex.Support {
 
     }
 
-    /// <summary>Empties the work queue of any queued work items</summary>
-    public static void EmptyQueue() {
-      lock(userWorkItems) {
-        try {
-          while(userWorkItems.Count > 0) {
-            UserWorkItem callback = userWorkItems.Dequeue();
-            IDisposable disposableState = callback.State as IDisposable;
-            if(disposableState != null) {
-              disposableState.Dispose();
-            }
-          }
-        }
-        catch(Exception) { // Make sure an error isn't thrown.
-          AssertionHandler(
-            false,
-            "Unhandled exception disposing the state of a user work item",
-            "The AffineThreadPool.EmptyQueue() method tried to dispose of any states" +
-            "associated with waiting user work items. One of the states implementing" +
-            "IDisposable threw an exception during Dispose()."
-          );
-        }
-
-        // Clear all waiting items and reset the number of worker threads currently needed
-        // to be 0 (there is nothing for threads to do)
-        userWorkItems.Clear();
-      }
-    }
-
     /// <summary>Gets the number of threads at the disposal of the thread pool</summary>
     public static int MaxThreads { get { return CpuCores; } }
 
@@ -190,7 +157,7 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Gets the number of callback delegates currently waiting in the thread pool
     /// </summary>
-    public static int WaitingCallbacks {
+    public static int WaitingWorkItems {
       get {
         lock(userWorkItems) {
           return userWorkItems.Count;
@@ -201,27 +168,37 @@ namespace Nuclex.Support {
     /// <summary>A thread worker function that processes items from the work queue</summary>
     private static void ProcessQueuedItems() {
 
+      // Get the system/hardware thread index this thread is going to use. We hope that
+      // the threads more or less start after each other, but there is no guarantee that
+      // tasks will be handled by the CPU cores in the order the queue was filled with.
+      // This could be added, though, by using a WaitHandle so the thread creator could
+      // wait for each thread to take one entry out of the queue.
       int hardwareThreadIndex;
       lock(hardwareThreads) {
         hardwareThreadIndex = hardwareThreads.Dequeue();
       }
 
 #if XBOX360
-      // MSDN states that SetProcessorAffinity() should be called from the thread
-      // whose affinity is being changed.
+      // On the XBox 360, the only way to get a thread to run on another core is to
+      // explicitly move it to that core. MSDN states that SetProcessorAffinity() should
+      // be called from the thread whose affinity is being changed.
       Thread.CurrentThread.SetProcessorAffinity(new int[] { hardwareThreadIndex });
 #else
       // Prevent this managed thread from impersonating another system thread.
-      // Threads in .NET can take 
+      // In .NET, managed threads can supposedly be moved to different system threads
+      // and, more worryingly, even fibers. This should make sure we're sitting on
+      // a normal system thread and stay with that thread during our lifetime.
       Thread.BeginThreadAffinity();
 
-      ProcessThread thread = getCurrentProcessThread();
+      // Assign the ideal processor, but don't force it. It's not a good idea to
+      // circumvent the thread scheduler of a desktop machine, so we try to play nice.
+      int threadId = GetCurrentThreadId();
+      ProcessThread thread = GetProcessThread(threadId);
       if(thread != null) {
         thread.IdealProcessor = hardwareThreadIndex;
       }
 #endif
       
-
       // Keep processing tasks indefinitely
       for(; ; ) {
         UserWorkItem workItem = getNextWorkItem();
@@ -232,13 +209,11 @@ namespace Nuclex.Support {
           Interlocked.Increment(ref inUseThreads);
           workItem.Callback(workItem.State);
         }
-        catch(Exception) { // Make sure we don't throw here.
-          AssertionHandler(
-            false,
-            "Unhandled exception in queued user work item",
-            "An unhandled exception travelled up to the AffineThreadPool from" +
-            "a queued user work item that was being executed"
-          );
+        catch(Exception exception) { // Make sure we don't throw here.
+          ExceptionDelegate exceptionHandler = ExceptionHandler;
+          if(exceptionHandler != null) {
+            exceptionHandler(exception);
+          }
         }
         finally {
           Interlocked.Decrement(ref inUseThreads);
@@ -249,9 +224,7 @@ namespace Nuclex.Support {
 #if !XBOX360
     /// <summary>Retrieves the ProcessThread for the calling thread</summary>
     /// <returns>The ProcessThread for the calling thread</returns>
-    private static ProcessThread getCurrentProcessThread() {
-      int threadId = GetCurrentThreadId();
-
+    internal static ProcessThread GetProcessThread(int threadId) {
       ProcessThreadCollection threads = Process.GetCurrentProcess().Threads;
       for(int index = 0; index < threads.Count; ++index) {
         if(threads[index].Id == threadId) {
@@ -290,25 +263,15 @@ namespace Nuclex.Support {
 
     }
 
-    /// <summary>Default assertion handler for the affine thread pool</summary>
-    /// <param name="condition">Condition which is being asserted</param>
-    /// <param name="message">Message explaining what causes the assertion to fail</param>
-    /// <param name="details">
-    ///   Detailed description of the exact cause of the assertion failure
-    /// </param>
-    public static void DefaultAssertionHandler(
-      bool condition, string message, string details
-    ) {
-      Trace.Assert(condition, message, details);
-    }
-
     /// <summary>Delegate used to handle assertion checks in the code</summary>
-    public static AssertionDelegate AssertionHandler = DefaultAssertionHandler;
+    public static volatile ExceptionDelegate ExceptionHandler;
 
+#if !XBOX360
     /// <summary>Retrieves the calling thread's thread id</summary>
     /// <returns>The thread is of the calling thread</returns>
     [DllImport("kernel32.dll")]
-    private static extern int GetCurrentThreadId();
+    internal static extern int GetCurrentThreadId();
+#endif
 
     /// <summary>Available hardware threads the thread pool threads pick from</summary>
     private static Queue<int> hardwareThreads;

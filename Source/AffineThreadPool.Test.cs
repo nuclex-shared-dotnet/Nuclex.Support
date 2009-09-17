@@ -142,6 +142,7 @@ namespace Nuclex.Support {
 
     #endregion // class WaitTask
 
+#if false
     #region class ThrowingDisposable
 
     /// <summary>Throws an exception when it is disposed</summary>
@@ -169,6 +170,7 @@ namespace Nuclex.Support {
       );
 
     }
+#endif
 
     /// <summary>Tests whether the QueueUserWorkItem() method is working</summary>
     [Test]
@@ -200,21 +202,21 @@ namespace Nuclex.Support {
     /// </summary>
     [Test]
     public void TestExceptionFromUserWorkItem() {
-      using(ManualResetEvent assertEvent = new ManualResetEvent(false)) {
-        AffineThreadPool.AssertionDelegate oldAssertionHandler =
-          AffineThreadPool.AssertionHandler;
+      using(ManualResetEvent exceptionEvent = new ManualResetEvent(false)) {
+        AffineThreadPool.ExceptionDelegate oldExceptionHandler =
+          AffineThreadPool.ExceptionHandler;
 
-        AffineThreadPool.AssertionHandler = delegate(
-          bool condition, string message, string details
-        ) { assertEvent.Set(); };
+        AffineThreadPool.ExceptionHandler = delegate(Exception exception) {
+          exceptionEvent.Set();
+        };
         try {
           AffineThreadPool.QueueUserWorkItem(
             delegate(object state) { throw new KeyNotFoundException(); }
           );
-          Assert.IsTrue(assertEvent.WaitOne(1000));
+          Assert.IsTrue(exceptionEvent.WaitOne(1000));
         }
         finally {
-          AffineThreadPool.AssertionHandler = oldAssertionHandler;
+          AffineThreadPool.ExceptionHandler = oldExceptionHandler;
         }
       }
     }
@@ -229,81 +231,87 @@ namespace Nuclex.Support {
     }
 
     /// <summary>
-    ///   Tests whether the thread pool can handle an exception from a user work item
+    ///   Verifies that the ProcessThread instance for a system thread id can
+    ///   be determined using the GetProcessThread() method
     /// </summary>
     [Test]
-    public void TestExceptionFromDisposableState() {
-      using(ManualResetEvent assertEvent = new ManualResetEvent(false)) {
-        AffineThreadPool.AssertionDelegate oldAssertionHandler =
-          AffineThreadPool.AssertionHandler;
+    public void TestGetProcessThread() {
+      Thread.BeginThreadAffinity();
+      try {
+        int threadId = AffineThreadPool.GetCurrentThreadId();
 
-        AffineThreadPool.AssertionHandler = delegate(
-          bool condition, string message, string details
-        ) { assertEvent.Set(); };
+        Assert.IsNotNull(AffineThreadPool.GetProcessThread(threadId));
+        Assert.IsNull(AffineThreadPool.GetProcessThread(0));
+      }
+      finally {
+        Thread.EndThreadAffinity();
+      }
 
-        try {
-          int eventCount = AffineThreadPool.CpuCores;
-          WaitTask[] tasks = new WaitTask[eventCount];
+    }
 
-          int createdTasks = 0;
-          try {
+    /// <summary>
+    ///   Verifies that the waiting work items count and active thread count are
+    ///   updated by the thread pool.
+    /// </summary>
+    [Test]
+    public void TestWaitingWorkItemsProperty() {
+      int eventCount = AffineThreadPool.CpuCores;
+      WaitTask[] tasks = new WaitTask[eventCount];
 
-            // Create the tasks, counting up the created task counter. If an exception
-            // occurs, we will roll back from there.
-            for(createdTasks = 0; createdTasks < eventCount; ++createdTasks) {
-              tasks[createdTasks] = new WaitTask();
-            }
+      int createdTasks = 0;
+      try {
+        // CHECK: Is there danger that the thread pool still has not finished
+        //        queued items for other unit tests, thereby failing to meet
+        //        our expected task counts?
 
-            // Schedule the blocking tasks in the thread pool so it will not be able
-            // to process the next task we add to the queue
-            for(int index = 0; index < eventCount; ++index) {
-              AffineThreadPool.QueueUserWorkItem(tasks[index].Callback);
-            }
-
-            // Wait for the tasks to start so they aren't aborted by EmptyQueue()
-            for(int index = 0; index < eventCount; ++index) {
-              Assert.IsTrue(tasks[index].StartEvent.WaitOne(1000));
-            }
-            Assert.AreEqual(createdTasks, AffineThreadPool.ActiveThreads);
-            Assert.AreEqual(0, AffineThreadPool.WaitingCallbacks);
-
-            // Add a task to the queue whose state implements a faulty IDisposable
-            AffineThreadPool.QueueUserWorkItem(
-              delegate(object state) { }, new ThrowingDisposable()
-            );
-
-            Assert.AreEqual(1, AffineThreadPool.WaitingCallbacks);
-
-            // Now clear the thread pool. This should cause the faulty IDisposable
-            // to be disposed and then throw its exception.
-            AffineThreadPool.EmptyQueue();
-
-            // Make sure our custom assertion handler has been triggered
-            Assert.IsTrue(assertEvent.WaitOne(1000));
-
-            Assert.AreEqual(createdTasks, AffineThreadPool.ActiveThreads);
-            Assert.AreEqual(0, AffineThreadPool.WaitingCallbacks);
-
-            // Let the thread pool finish its active tasks
-            for(int index = 0; index < eventCount; ++index) {
-              tasks[index].WaitEvent.Set();
-            }
-
-            // Wait for the tasks to end before we dispose them
-            for(int index = 0; index < eventCount; ++index) {
-              Assert.IsTrue(tasks[index].FinishEvent.WaitOne(1000));
-            }
-          }
-          finally {
-            for(--createdTasks; createdTasks >= 0; --createdTasks) {
-              tasks[createdTasks].Dispose();
-            }
-          }
+        // Create the tasks, counting up the created task counter. If an exception
+        // occurs, we will roll back from there.
+        for(createdTasks = 0; createdTasks < eventCount; ++createdTasks) {
+          tasks[createdTasks] = new WaitTask();
         }
-        finally {
-          AffineThreadPool.AssertionHandler = oldAssertionHandler;
+
+        // Schedule the blocking tasks in the thread pool so it will not be able
+        // to process the next task we add to the queue
+        for(int index = 0; index < eventCount; ++index) {
+          AffineThreadPool.QueueUserWorkItem(tasks[index].Callback);
         }
-      } // using
+
+        // Wait for the tasks to start so they aren't preempted by the tasks we're
+        // going to add (which would finish immediately). The affine thread pool
+        // works on a first come first serve basis, but we don't want to rely on this
+        // implementation detail in the unit test.
+        for(int index = 0; index < eventCount; ++index) {
+          Assert.IsTrue(tasks[index].StartEvent.WaitOne(1000));
+        }
+        
+        // All Thread should now be active and no work items should be waiting
+        Assert.AreEqual(createdTasks, AffineThreadPool.ActiveThreads);
+        Assert.AreEqual(0, AffineThreadPool.WaitingWorkItems);
+
+        // Add a task to the queue and make sure the waiting work item count goes up
+        AffineThreadPool.QueueUserWorkItem(delegate(object state) { });
+        Assert.AreEqual(1, AffineThreadPool.WaitingWorkItems);
+
+        // The same again. Now we should have 2 work items sitting in the queue
+        AffineThreadPool.QueueUserWorkItem(delegate(object state) { });
+        Assert.AreEqual(2, AffineThreadPool.WaitingWorkItems);
+
+        // Let the WaitTasks finish so we're not blocking the thread pool any longer
+        for(int index = 0; index < eventCount; ++index) {
+          tasks[index].WaitEvent.Set();
+        }
+
+        // Wait for the tasks to end before we get rid of them
+        for(int index = 0; index < eventCount; ++index) {
+          Assert.IsTrue(tasks[index].FinishEvent.WaitOne(1000));
+        }
+      }
+      finally {
+        for(--createdTasks; createdTasks >= 0; --createdTasks) {
+          tasks[createdTasks].Dispose();
+        }
+      }
+      
     }
 
   }
