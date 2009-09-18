@@ -250,6 +250,19 @@ namespace Nuclex.Support {
     }
 
     /// <summary>
+    ///   Tests whether the afine thread pool's default exception handler works
+    ///   as expected
+    /// </summary>
+    [Test]
+    public void TestDefaultExceptionHandler() {
+      Assert.Throws<ArrayTypeMismatchException>(
+        delegate() {
+          AffineThreadPool.ExceptionHandler(new ArrayTypeMismatchException("Test"));
+        }
+      );
+    }
+
+    /// <summary>
     ///   Verifies that the waiting work items count and active thread count are
     ///   updated by the thread pool.
     /// </summary>

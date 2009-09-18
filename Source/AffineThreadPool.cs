@@ -165,6 +165,14 @@ namespace Nuclex.Support {
       }
     }
 
+    /// <summary>
+    ///   Default handler used to respond to unhandled exceptions in ThreadPool threads
+    /// </summary>
+    /// <param name="exception">Exception that has occurred</param>
+    internal static void DefaultExceptionHandler(Exception exception) {
+      throw exception;
+    }
+
     /// <summary>A thread worker function that processes items from the work queue</summary>
     private static void ProcessQueuedItems() {
 
@@ -198,7 +206,7 @@ namespace Nuclex.Support {
         thread.IdealProcessor = hardwareThreadIndex;
       }
 #endif
-      
+
       // Keep processing tasks indefinitely
       for(; ; ) {
         UserWorkItem workItem = getNextWorkItem();
@@ -231,7 +239,7 @@ namespace Nuclex.Support {
           return threads[index];
         }
       }
-      
+
       return null;
     }
 #endif
@@ -264,7 +272,7 @@ namespace Nuclex.Support {
     }
 
     /// <summary>Delegate used to handle assertion checks in the code</summary>
-    public static volatile ExceptionDelegate ExceptionHandler;
+    public static volatile ExceptionDelegate ExceptionHandler = DefaultExceptionHandler;
 
 #if !XBOX360
     /// <summary>Retrieves the calling thread's thread id</summary>
