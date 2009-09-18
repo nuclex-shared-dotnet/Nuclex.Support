@@ -82,7 +82,7 @@ namespace Nuclex.Support {
       // as we may run into situations where multiple operations need to be atomic.
       // We keep track of the threads we've created just for good measure; not actually
       // needed for any core functionality.
-      workAvailable = new AutoResetEvent(false);
+      workAvailable = new Semaphore();
       userWorkItems = new Queue<UserWorkItem>(CpuCores * 4);
       workerThreads = new List<Thread>(CpuCores);
       inUseThreads = 0;
@@ -144,7 +144,7 @@ namespace Nuclex.Support {
       }
 
       // Wake up one of the worker threads so this task will be processed
-      workAvailable.Set();
+      workAvailable.Release();
 
     }
 
@@ -280,7 +280,7 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Used to let the threads in the thread pool wait for new work to appear.
     /// </summary>
-    private static AutoResetEvent workAvailable;
+    private static Semaphore workAvailable;
     /// <summary>List of all worker threads at the disposal of the thread pool.</summary>
     private static List<Thread> workerThreads;
     /// <summary>Number of threads currently active.</summary>

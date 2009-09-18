@@ -281,20 +281,35 @@ namespace Nuclex.Support {
         // works on a first come first serve basis, but we don't want to rely on this
         // implementation detail in the unit test.
         for(int index = 0; index < eventCount; ++index) {
-          Assert.IsTrue(tasks[index].StartEvent.WaitOne(1000));
+          Assert.IsTrue(
+            tasks[index].StartEvent.WaitOne(10000),
+            "Task " + index.ToString() + " was started"
+          );
         }
         
         // All Thread should now be active and no work items should be waiting
-        Assert.AreEqual(createdTasks, AffineThreadPool.ActiveThreads);
-        Assert.AreEqual(0, AffineThreadPool.WaitingWorkItems);
+        Assert.AreEqual(
+          createdTasks, AffineThreadPool.ActiveThreads,
+          "ActiveThreads property equals number of tasks"
+        );
+        Assert.AreEqual(
+          0, AffineThreadPool.WaitingWorkItems,
+          "No waiting work items are in the queue"
+        );
 
         // Add a task to the queue and make sure the waiting work item count goes up
         AffineThreadPool.QueueUserWorkItem(delegate(object state) { });
-        Assert.AreEqual(1, AffineThreadPool.WaitingWorkItems);
+        Assert.AreEqual(
+          1, AffineThreadPool.WaitingWorkItems,
+          "Added work item is waiting in the queue"
+        );
 
         // The same again. Now we should have 2 work items sitting in the queue
         AffineThreadPool.QueueUserWorkItem(delegate(object state) { });
-        Assert.AreEqual(2, AffineThreadPool.WaitingWorkItems);
+        Assert.AreEqual(
+          2, AffineThreadPool.WaitingWorkItems,
+          "Both added work items are waiting in the queue"
+        );
 
         // Let the WaitTasks finish so we're not blocking the thread pool any longer
         for(int index = 0; index < eventCount; ++index) {
@@ -303,7 +318,10 @@ namespace Nuclex.Support {
 
         // Wait for the tasks to end before we get rid of them
         for(int index = 0; index < eventCount; ++index) {
-          Assert.IsTrue(tasks[index].FinishEvent.WaitOne(1000));
+          Assert.IsTrue(
+            tasks[index].FinishEvent.WaitOne(1000),
+            "Task " + index.ToString() + " has finished"
+          );
         }
       }
       finally {
@@ -311,7 +329,6 @@ namespace Nuclex.Support {
           tasks[createdTasks].Dispose();
         }
       }
-      
     }
 
   }

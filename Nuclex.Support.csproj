@@ -137,6 +137,10 @@
     <Compile Include="Source\Scheduling\WindowsTimeSource.Test.cs">
       <DependentUpon>WindowsTimeSource.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Semaphore.cs" />
+    <Compile Include="Source\Semaphore.Test.cs">
+      <DependentUpon>Semaphore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Services\AppDomainTypeLister.cs" />
     <Compile Include="Source\Services\AppDomainTypeLister.Test.cs">
       <DependentUpon>AppDomainTypeLister.cs</DependentUpon>
