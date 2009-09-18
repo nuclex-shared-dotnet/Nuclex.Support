@@ -255,7 +255,7 @@ namespace Nuclex.Support {
     /// </summary>
     [Test]
     public void TestWaitingWorkItemsProperty() {
-      int eventCount = AffineThreadPool.CpuCores;
+      int eventCount = AffineThreadPool.Processors;
       WaitTask[] tasks = new WaitTask[eventCount];
 
       int createdTasks = 0;

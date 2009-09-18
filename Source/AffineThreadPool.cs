@@ -44,9 +44,9 @@ namespace Nuclex.Support {
 
     /// <summary>Number of CPU cores available on the system</summary>
 #if XBOX360
-    public static readonly int CpuCores = 4;
+    public static readonly int Processors = 4;
 #else
-    public static readonly int CpuCores = Environment.ProcessorCount;
+    public static readonly int Processors = Environment.ProcessorCount;
 #endif
 
     /// <summary>Delegate used by the thread pool to report unhandled exceptions</summary>
@@ -83,8 +83,8 @@ namespace Nuclex.Support {
       // We keep track of the threads we've created just for good measure; not actually
       // needed for any core functionality.
       workAvailable = new Semaphore();
-      userWorkItems = new Queue<UserWorkItem>(CpuCores * 4);
-      workerThreads = new List<Thread>(CpuCores);
+      userWorkItems = new Queue<UserWorkItem>(Processors * 4);
+      workerThreads = new List<Thread>(Processors);
       inUseThreads = 0;
 
 #if XBOX360
@@ -92,14 +92,14 @@ namespace Nuclex.Support {
       hardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
 #else
       // We can use all cores in the PC, starting from index 1
-      hardwareThreads = new Queue<int>(CpuCores);
-      for(int core = CpuCores; core >= 1; --core) {
+      hardwareThreads = new Queue<int>(Processors);
+      for(int core = Processors; core >= 1; --core) {
         hardwareThreads.Enqueue(core);
       }
 #endif
 
       // Create all of the worker threads
-      for(int index = 0; index < CpuCores; index++) {
+      for(int index = 0; index < Processors; index++) {
 
         // Create a new thread and add it to the list of threads.
         Thread newThread = new Thread(new ThreadStart(ProcessQueuedItems));
@@ -149,7 +149,7 @@ namespace Nuclex.Support {
     }
 
     /// <summary>Gets the number of threads at the disposal of the thread pool</summary>
-    public static int MaxThreads { get { return CpuCores; } }
+    public static int MaxThreads { get { return Processors; } }
 
     /// <summary>Gets the number of currently active threads in the thread pool</summary>
     public static int ActiveThreads { get { return inUseThreads; } }
