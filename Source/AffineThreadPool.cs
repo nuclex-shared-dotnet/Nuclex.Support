@@ -32,8 +32,14 @@ namespace Nuclex.Support {
   ///     Unlike the normal thread pool, the affine thread pool provides only as many
   ///     threads as there are CPU cores available on the current platform. This makes
   ///     it more suitable for tasks you want to spread across all available cpu cores
-  ///     explicitely, however, it's not a good match if you just want to run a series
-  ///     of tasks asynchronously.
+  ///     explicitely.
+  ///   </para>
+  ///   <para>
+  ///     However, it's not a good match if you want to run blocking or waiting tasks
+  ///     inside the thread pool because the limited available threads will become
+  ///     congested quickly. It is encouraged to use this class in parallel with
+  ///     .NET's own thread pool, putting tasks that can block into the .NET thread
+  ///     pool and task that perform pure processing into the affine thread pool.
   ///   </para>
   ///   <para>
   ///     Implementation based on original code provided by Stephen Toub
