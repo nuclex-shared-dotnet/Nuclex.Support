@@ -45,6 +45,11 @@ namespace Nuclex.Support.Collections {
       /// <param name="arguments">Not used</param>
       void Clearing(object sender, EventArgs arguments);
 
+      /// <summary>Called when the dictionary has been clear of its contents</summary>
+      /// <param name="sender">Dictionary that was cleared of its contents</param>
+      /// <param name="arguments">Not used</param>
+      void Cleared(object sender, EventArgs arguments);
+
       /// <summary>Called when an item is added to the dictionary</summary>
       /// <param name="sender">Dictionary to which an item is being added</param>
       /// <param name="arguments">Contains the item that is being added</param>
@@ -72,7 +77,10 @@ namespace Nuclex.Support.Collections {
       this.observedDictionary.Add(3, "three");
       this.observedDictionary.Add(42, "forty-two");
 
-      this.observedDictionary.Clearing += new EventHandler(this.mockedSubscriber.Clearing);
+      this.observedDictionary.Clearing +=
+        new EventHandler(this.mockedSubscriber.Clearing);
+      this.observedDictionary.Cleared +=
+        new EventHandler(this.mockedSubscriber.Cleared);
       this.observedDictionary.ItemAdded +=
         new EventHandler<ItemEventArgs<KeyValuePair<int, string>>>(
           this.mockedSubscriber.ItemAdded
@@ -293,6 +301,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void TestClearViaIDictionary() {
       Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
       (this.observedDictionary as IDictionary).Clear();
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -424,6 +433,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void TestClearViaGenericICollection() {
       Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
       (this.observedDictionary as ICollection<KeyValuePair<int, string>>).Clear();
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 

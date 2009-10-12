@@ -42,6 +42,11 @@ namespace Nuclex.Support.Collections {
       /// <param name="arguments">Not used</param>
       void Clearing(object sender, EventArgs arguments);
 
+      /// <summary>Called when the collection has been cleared of its contents</summary>
+      /// <param name="sender">Collection that was cleared of its contents</param>
+      /// <param name="arguments">Not used</param>
+      void Cleared(object sender, EventArgs arguments);
+
       /// <summary>Called when an item is added to the collection</summary>
       /// <param name="sender">Collection to which an item is being added</param>
       /// <param name="arguments">Contains the item that is being added</param>
@@ -64,7 +69,10 @@ namespace Nuclex.Support.Collections {
       this.mockedSubscriber = this.mockery.NewMock<IObservableCollectionSubscriber>();
 
       this.observedCollection = new ObservableCollection<int>();
-      this.observedCollection.Clearing += new EventHandler(this.mockedSubscriber.Clearing);
+      this.observedCollection.Clearing +=
+        new EventHandler(this.mockedSubscriber.Clearing);
+      this.observedCollection.Cleared +=
+        new EventHandler(this.mockedSubscriber.Cleared);
       this.observedCollection.ItemAdded +=
         new EventHandler<ItemEventArgs<int>>(
           this.mockedSubscriber.ItemAdded
@@ -78,9 +86,8 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether the Clearing event is fired</summary>
     [Test]
     public void TestClearingEvent() {
-      Expect.Once.On(this.mockedSubscriber).
-        Method("Clearing");
-
+      Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
       this.observedCollection.Clear();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
@@ -89,9 +96,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether the ItemAdded event is fired</summary>
     [Test]
     public void TestItemAddedEvent() {
-      Expect.Once.On(this.mockedSubscriber).
-        Method("ItemAdded").
-        WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
 
       this.observedCollection.Add(123);
 
@@ -101,15 +106,11 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether the ItemRemoved event is fired</summary>
     [Test]
     public void TestItemRemovedEvent() {
-      Expect.Once.On(this.mockedSubscriber).
-        Method("ItemAdded").
-        WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
 
       this.observedCollection.Add(123);
 
-      Expect.Once.On(this.mockedSubscriber).
-        Method("ItemRemoved").
-        WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
 
       this.observedCollection.Remove(123);
 
@@ -119,28 +120,20 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether items in the collection can be replaced</summary>
     [Test]
     public void TestItemReplacement() {
-      Expect.Exactly(3).On(this.mockedSubscriber).
-        Method("ItemAdded").
-        WithAnyArguments();
+      Expect.Exactly(3).On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
 
       this.observedCollection.Add(1);
       this.observedCollection.Add(2);
       this.observedCollection.Add(3);
 
-      Expect.Once.On(this.mockedSubscriber).
-        Method("ItemRemoved").
-        WithAnyArguments();
-
-      Expect.Once.On(this.mockedSubscriber).
-        Method("ItemAdded").
-        WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
+      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
 
       // Replace the middle item with something else
       this.observedCollection[1] = 4;
 
       Assert.AreEqual(
-        1,
-        this.observedCollection.IndexOf(4)
+        1, this.observedCollection.IndexOf(4)
       );
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
@@ -152,11 +145,8 @@ namespace Nuclex.Support.Collections {
       int[] integers = new int[] { 12, 34, 56, 78 };
 
       ObservableCollection<int> testCollection = new ObservableCollection<int>(integers);
-      
-      CollectionAssert.AreEqual(
-        integers,
-        testCollection
-      );
+
+      CollectionAssert.AreEqual(integers, testCollection);
     }
 
     /// <summary>Mock object factory</summary>

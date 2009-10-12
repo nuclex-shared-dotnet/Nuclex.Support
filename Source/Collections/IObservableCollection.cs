@@ -42,6 +42,9 @@ namespace Nuclex.Support.Collections {
     /// </remarks>
     event EventHandler Clearing;
 
+    /// <summary>Raised when the collection has been cleared of its items</summary>
+    event EventHandler Cleared;
+
   }
 
 } // namespace Nuclex.Support.Collections

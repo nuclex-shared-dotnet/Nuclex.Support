@@ -32,7 +32,7 @@ namespace Nuclex.Support.Collections {
   [Serializable]
   public class ObservableDictionary<KeyType, ValueType> :
 #if !NO_SERIALIZATION
-    ISerializable,
+ ISerializable,
     IDeserializationCallback,
 #endif
  IDictionary<KeyType, ValueType>,
@@ -76,6 +76,8 @@ namespace Nuclex.Support.Collections {
     public event EventHandler<ItemEventArgs<KeyValuePair<KeyType, ValueType>>> ItemRemoved;
     /// <summary>Raised when the dictionary is about to be cleared</summary>
     public event EventHandler Clearing;
+    /// <summary>Raised when the dictionary has been cleared</summary>
+    public event EventHandler Cleared;
 
     /// <summary>Initializes a new observable dictionary</summary>
     public ObservableDictionary() : this(new Dictionary<KeyType, ValueType>()) { }
@@ -220,6 +222,7 @@ namespace Nuclex.Support.Collections {
     public void Clear() {
       OnClearing();
       this.typedDictionary.Clear();
+      OnCleared();
     }
 
     /// <summary>Fires the 'ItemAdded' event</summary>
@@ -240,6 +243,12 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnClearing() {
       if(Clearing != null)
         Clearing(this, EventArgs.Empty);
+    }
+
+    /// <summary>Fires the 'Cleared' event</summary>
+    protected virtual void OnCleared() {
+      if(Cleared != null)
+        Cleared(this, EventArgs.Empty);
     }
 
     #region IEnumerable implementation
@@ -337,6 +346,7 @@ namespace Nuclex.Support.Collections {
     void ICollection<KeyValuePair<KeyType, ValueType>>.Clear() {
       OnClearing();
       this.typedDictionary.Clear();
+      OnCleared();
     }
 
     /// <summary>Removes all items from the Dictionary</summary>

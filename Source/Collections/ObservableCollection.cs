@@ -39,6 +39,8 @@ namespace Nuclex.Support.Collections {
     ///   to process the clearing of the entire collection as a special operation.
     /// </remarks>
     public event EventHandler Clearing;
+    /// <summary>Raised when the collection has been cleared</summary>
+    public event EventHandler Cleared;
 
     /// <summary>
     ///   Initializes a new instance of the ObservableCollection class that is empty.
@@ -58,8 +60,8 @@ namespace Nuclex.Support.Collections {
     /// <summary>Removes all elements from the Collection</summary>
     protected override void ClearItems() {
       OnClearing();
-
       base.ClearItems();
+      OnCleared();
     }
 
     /// <summary>
@@ -71,7 +73,6 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">The zero-based index at which item should be inserted</param>
     protected override void InsertItem(int index, ItemType item) {
       base.InsertItem(index, item);
-
       OnAdded(item);
     }
 
@@ -81,9 +82,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="index">The zero-based index of the element to remove</param>
     protected override void RemoveItem(int index) {
       ItemType item = base[index];
-
       base.RemoveItem(index);
-
       OnRemoved(item);
     }
 
@@ -95,9 +94,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">The zero-based index of the element to replace</param>
     protected override void SetItem(int index, ItemType item) {
       ItemType oldItem = base[index];
-
       base.SetItem(index, item);
-
       OnRemoved(oldItem);
       OnAdded(item);
     }
@@ -120,6 +117,12 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnClearing() {
       if(Clearing != null)
         Clearing(this, EventArgs.Empty);
+    }
+
+    /// <summary>Fires the 'Cleared' event</summary>
+    protected virtual void OnCleared() {
+      if(Cleared != null)
+        Cleared(this, EventArgs.Empty);
     }
 
   }
