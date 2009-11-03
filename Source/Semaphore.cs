@@ -80,8 +80,7 @@ namespace Nuclex.Support {
     /// <param name="maximumCount">
     ///   Maximum numbr of users that can access the resource at the same time
     /// </param>
-    public Semaphore(int initialCount, int maximumCount)
-      : this() {
+    public Semaphore(int initialCount, int maximumCount) {
       if(initialCount > maximumCount) {
         throw new ArgumentOutOfRangeException(
           "initialCount", "Initial count must not be larger than the maximum count"
@@ -158,7 +157,6 @@ namespace Nuclex.Support {
     }
 
 #if XBOX360
-
     /// <summary>
     ///   Waits for the resource to become available and locks it
     /// </summary>
@@ -169,7 +167,6 @@ namespace Nuclex.Support {
     public override bool WaitOne() {
       return WaitOne(-1, false);
     }
-
 #endif
 
 #if !XBOX360
