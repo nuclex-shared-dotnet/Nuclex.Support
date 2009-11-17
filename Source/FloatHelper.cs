@@ -109,7 +109,7 @@ namespace Nuclex.Support {
     ///     being equal.
     ///   </para>
     ///   <para>
-    ///     Implementation partially follows the code outlined here:
+    ///     Implementation partially follows the code outlined here (link now defunct):
     ///     http://www.anttirt.net/2007/08/19/proper-floating-point-comparisons/
     ///   </para>
     /// </remarks>
