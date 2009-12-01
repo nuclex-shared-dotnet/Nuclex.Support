@@ -134,6 +134,10 @@
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\AffineThreadPool.cs" />
+    <Compile Include="Source\EnumHelper.cs" />
+    <Compile Include="Source\EnumHelper.Test.cs">
+      <DependentUpon>EnumHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Plugins\PrototypeFactory.cs" />
     <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
       <DependentUpon>PrototypeFactory.cs</DependentUpon>
