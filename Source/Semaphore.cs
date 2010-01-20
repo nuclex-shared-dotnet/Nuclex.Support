@@ -68,7 +68,7 @@ namespace Nuclex.Support {
     ///   Number of users that can access the resource at the same time
     /// </param>
     public Semaphore(int count) {
-      this.users = -count;
+      this.free = count;
 
       createEvent();
     }
@@ -87,7 +87,7 @@ namespace Nuclex.Support {
         );
       }
 
-      this.users = initialCount - maximumCount; // should be negative!
+      this.free = maximumCount - initialCount;
       createEvent();
     }
 
@@ -129,11 +129,11 @@ namespace Nuclex.Support {
 
         // Lock the resource - even if it is full. We will correct out mistake later
         // if we overcomitted the resource.
-        int newUsers = Interlocked.Increment(ref this.users);
+        int newFree = Interlocked.Decrement(ref this.free);
 
         // If we got the resource, let the thread pass without further processing.
-        if(newUsers <= 0) {
-          if(newUsers < 0) {
+        if(newFree >= 0) {
+          if(newFree > 0) {
             this.manualResetEvent.Set();
           }
 
@@ -144,16 +144,17 @@ namespace Nuclex.Support {
         // moments ago, the resource was busy, so block the event.
         this.manualResetEvent.Reset();
         Thread.MemoryBarrier();
-        newUsers = Interlocked.Decrement(ref this.users);
+        newFree = Interlocked.Increment(ref this.free);
 
         // Unless we have been preempted by a Release(), we now have to wait for the
         // resource to become available.
-        if(newUsers >= 0) {
+        if(newFree >= 0) {
           if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
             return false;
           }
         }
-      }
+
+      } // for(; ; )
     }
 
 #if XBOX360
@@ -198,12 +199,12 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Releases a lock on the resource. Note that for a reverse counting semaphore,
-    ///   it is legal to Release() the resource before before locking it.
+    ///   it is legal to Release() the resource before locking it.
     /// </summary>
     public void Release() {
 
       // Release one lock on the resource
-      int newUsers = Interlocked.Decrement(ref this.users);
+      int newFree = Interlocked.Increment(ref this.free);
 
       // Wake up any threads waiting for the resource to become available
       this.manualResetEvent.Set();
@@ -227,7 +228,7 @@ namespace Nuclex.Support {
     ///   Since this is a reverse counting semaphore, it will be negative if
     ///   the resource is available and 0 if the semaphore is full.
     /// </remarks>
-    private int users;
+    private int free;
 
   }
 

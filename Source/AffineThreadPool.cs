@@ -198,18 +198,20 @@ namespace Nuclex.Support {
       // be called from the thread whose affinity is being changed.
       Thread.CurrentThread.SetProcessorAffinity(new int[] { hardwareThreadIndex });
 #else
-      // Prevent this managed thread from impersonating another system thread.
-      // In .NET, managed threads can supposedly be moved to different system threads
-      // and, more worryingly, even fibers. This should make sure we're sitting on
-      // a normal system thread and stay with that thread during our lifetime.
-      Thread.BeginThreadAffinity();
+      if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
+        // Prevent this managed thread from impersonating another system thread.
+        // In .NET, managed threads can supposedly be moved to different system threads
+        // and, more worryingly, even fibers. This should make sure we're sitting on
+        // a normal system thread and stay with that thread during our lifetime.
+        Thread.BeginThreadAffinity();
 
-      // Assign the ideal processor, but don't force it. It's not a good idea to
-      // circumvent the thread scheduler of a desktop machine, so we try to play nice.
-      int threadId = GetCurrentThreadId();
-      ProcessThread thread = GetProcessThread(threadId);
-      if(thread != null) {
-        thread.IdealProcessor = hardwareThreadIndex;
+        // Assign the ideal processor, but don't force it. It's not a good idea to
+        // circumvent the thread scheduler of a desktop machine, so we try to play nice.
+        int threadId = GetCurrentThreadId();
+        ProcessThread thread = GetProcessThread(threadId);
+        if(thread != null) {
+          thread.IdealProcessor = hardwareThreadIndex;
+        }
       }
 #endif
 
@@ -280,7 +282,7 @@ namespace Nuclex.Support {
     /// <summary>Delegate used to handle assertion checks in the code</summary>
     public static volatile ExceptionDelegate ExceptionHandler = DefaultExceptionHandler;
 
-#if !XBOX360
+#if !XBOX360 // Only called if platform is Win32NT
     /// <summary>Retrieves the calling thread's thread id</summary>
     /// <returns>The thread is of the calling thread</returns>
     [DllImport("kernel32.dll")]

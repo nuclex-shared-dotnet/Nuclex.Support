@@ -70,14 +70,14 @@ namespace Nuclex.Support {
       // Look for the lowest value in the enumeration. We initialize the lowest value
       // to the first enumeration value so we don't have to use some arbitrary starting
       // value which might actually appear in the enumeration.
-      EnumType lowest = values[0];
+      EnumType lowestValue = values[0];
       for(int index = 1; index < values.Length; ++index) {
-        if(values[index].CompareTo(lowest) < 0) {
-          lowest = values[index];
+        if(values[index].CompareTo(lowestValue) < 0) {
+          lowestValue = values[index];
         }
       }
 
-      return lowest;
+      return lowestValue;
     }
 
     /// <summary>Retrieves a list of all values contained in an enumeration</summary>
@@ -85,6 +85,10 @@ namespace Nuclex.Support {
     ///   Type of the enumeration whose values will be returned
     /// </typeparam>
     /// <returns>All values contained in the specified enumeration</returns>
+    /// <remarks>
+    ///   This method produces collectable garbage so it's best to only call it once
+    ///   and cache the result.
+    /// </remarks>
     public static EnumType[] GetValues<EnumType>() {
 #if XBOX360
       return GetValuesXbox360<EnumType>();
