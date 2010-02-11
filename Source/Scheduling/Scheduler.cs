@@ -28,7 +28,7 @@ using Nuclex.Support.Collections;
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>Schedules actions for execution at a future point in time</summary>
-  public class Scheduler : IDisposable {
+  public class Scheduler : ISchedulerService, IDisposable {
 
     /// <summary>One tick is 100 ns, meaning 10000 ticks equal 1 ms</summary>
     private const long TicksPerMillisecond = 10000;

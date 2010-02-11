@@ -145,6 +145,7 @@
     <Compile Include="Source\Scheduling\GenericTimeSource.Test.cs">
       <DependentUpon>GenericTimeSource.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Scheduling\ISchedulerService.cs" />
     <Compile Include="Source\Scheduling\ITimeSource.cs" />
     <Compile Include="Source\Scheduling\Scheduler.cs" />
     <Compile Include="Source\Scheduling\GenericTimeSource.cs" />
@@ -304,6 +305,10 @@
     <Compile Include="Source\IO\ChainStream.cs" />
     <Compile Include="Source\IO\ChainStream.Test.cs">
       <DependentUpon>ChainStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\StringBuilderHelper.cs" />
+    <Compile Include="Source\StringBuilderHelper.Test.cs">
+      <DependentUpon>StringBuilderHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\StringHelper.cs" />
     <Compile Include="Source\StringHelper.Test.cs">

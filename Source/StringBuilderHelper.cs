@@ -1,0 +1,202 @@
+﻿#region CPL License
+/*
+Nuclex Framework
+Copyright (C) 2002-2009 Nuclex Development Labs
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the IBM Common Public License as
+published by the IBM Corporation; either version 1.0 of the
+License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+IBM Common Public License for more details.
+
+You should have received a copy of the IBM Common Public
+License along with this library
+*/
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+namespace Nuclex.Support {
+
+  /// <summary>Contains helper methods for the string builder class</summary>
+  public class StringBuilderHelper {
+
+    /// <summary>Predefined unicode characters for the numbers 0 to 9</summary>
+    private static readonly char[] numbers = new char[] {
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
+
+    /// <summary>Clears the contents of a string builder</summary>
+    /// <param name="builder">String builder that will be cleared</param>
+    public static void Clear(StringBuilder builder) {
+      builder.Remove(0, builder.Length);
+    }
+
+    /// <summary>
+    ///   Appends an integer to a string builder without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder to which an integer will be appended</param>
+    /// <param name="value">Byte that will be appended to the string builder</param>
+    /// <remarks>
+    ///   The normal StringBuilder.Append() method generates garbage when converting
+    ///   integer arguments whereas this method will avoid any garbage, albeit probably
+    ///   with a small performance impact compared to the built-in method.
+    /// </remarks>
+    public static void Append(StringBuilder builder, byte value) {
+      recursiveAppend(builder, value);
+    }
+
+    /// <summary>
+    ///   Appends an integer to a string builder without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder to which an integer will be appended</param>
+    /// <param name="value">Integer that will be appended to the string builder</param>
+    /// <remarks>
+    ///   The normal StringBuilder.Append() method generates garbage when converting
+    ///   integer arguments whereas this method will avoid any garbage, albeit probably
+    ///   with a small performance impact compared to the built-in method.
+    /// </remarks>
+    public static void Append(StringBuilder builder, int value) {
+      if(value < 0) {
+        builder.Append('-');
+        recursiveAppend(builder, -value);
+      } else {
+        recursiveAppend(builder, value);
+      }
+    }
+
+    /// <summary>
+    ///   Appends an long integer to a string builder without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder to which an integer will be appended</param>
+    /// <param name="value">Long integer that will be appended to the string builder</param>
+    /// <remarks>
+    ///   The normal StringBuilder.Append() method generates garbage when converting
+    ///   integer arguments whereas this method will avoid any garbage, albeit probably
+    ///   with a small performance impact compared to the built-in method.
+    /// </remarks>
+    public static void Append(StringBuilder builder, long value) {
+      if(value < 0) {
+        builder.Append('-');
+        recursiveAppend(builder, -value);
+      } else {
+        recursiveAppend(builder, value);
+      }
+    }
+
+    /// <summary>
+    ///   Appends a floating point value to a string builder without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder the value will be appended to</param>
+    /// <param name="value">Value that will be appended to the string builder</param>
+    public static void Append(StringBuilder builder, float value) {
+      const int ExponentBits = 0xFF; // Bit mask for the exponent bits
+      const int FractionalBitCount = 23; // Number of bits for fractional part
+      const int ExponentBias = 127; // Bias subtraced from exponent
+      const int NumericBitCount = 31; // Bits without sign
+      
+      // You do not modify these as they're calculated based on the 
+      const int FractionalBits = (2 << FractionalBitCount) - 1;
+      const int HighestFractionalBit = (1 << FractionalBitCount);
+      const int FractionalBitCountPlusOne = FractionalBitCount + 1;
+
+      int intValue = FloatHelper.ReinterpretAsInt(value);
+
+      int exponent = ((intValue >> FractionalBitCount) & ExponentBits) - ExponentBias;
+      int mantissa = (intValue & FractionalBits) | HighestFractionalBit;
+
+      int integral;
+      int fractional;
+      if(exponent >= 0) {
+        if(exponent >= FractionalBitCount) {
+          Debug.Assert(exponent < NumericBitCount);
+          integral = mantissa << (exponent - FractionalBitCount);
+          fractional = 0;
+        } else {
+          integral = mantissa >> (FractionalBitCount - exponent);
+          fractional = (mantissa << (exponent + 1)) & FractionalBits;
+        }
+      } else {
+        Debug.Assert(exponent >= -FractionalBitCount);
+        integral = 0;
+        fractional = (mantissa & FractionalBits) >> -(exponent + 1);
+      }
+/*      
+      if(exponent >= NumericBitCount) {
+        throw new ArgumentException("Value too large", "value");
+      } else if(exponent < -FractionalBitCount) {
+        throw new ArgumentException("Value too small", "value");
+      } else if(exponent >= FractionalBitCount) {
+        integral = mantissa << (exponent - FractionalBitCount);
+        fractional = 0;
+      } else if(exponent >= 0) {
+        integral = mantissa >> (FractionalBitCount - exponent);
+        fractional = (mantissa << (exponent + 1)) & FractionalBits;
+      } else { // exp2 < 0
+        integral = 0;
+        fractional = (mantissa & FractionalBits) >> -(exponent + 1);
+      }
+*/
+      // Build the integral part      
+      if(intValue < 0) {
+        builder.Append('-');
+      }
+      if(integral == 0) {
+        builder.Append('0');
+      } else {
+        recursiveAppend(builder, integral);
+      }
+
+      builder.Append('.');
+
+      // Build the fractional part
+      if(fractional == 0) {
+        builder.Append('0');
+      } else {
+        while(fractional != 0) {
+          fractional *= 10;
+          int digit = (fractional >> FractionalBitCountPlusOne);
+          builder.Append(numbers[digit]);
+          fractional &= FractionalBits;
+        }
+      }
+    }
+
+    /// <summary>Recursively appends a number's characters to a string builder</summary>
+    /// <param name="builder">String builder the number will be appended to</param>
+    /// <param name="remaining">Remaining digits that will be recursively processed</param>
+    private static void recursiveAppend(StringBuilder builder, int remaining) {
+      int digit;
+      int tenth = Math.DivRem(remaining, 10, out digit);
+
+      if(tenth > 0) {
+        recursiveAppend(builder, tenth);
+      }
+
+      builder.Append(numbers[digit]);
+    }
+
+    /// <summary>Recursively appends a number's characters to a string builder</summary>
+    /// <param name="builder">String builder the number will be appended to</param>
+    /// <param name="remaining">Remaining digits that will be recursively processed</param>
+    private static void recursiveAppend(StringBuilder builder, long remaining) {
+      long digit;
+      long tenth = Math.DivRem(remaining, 10, out digit);
+
+      if(tenth > 0) {
+        recursiveAppend(builder, tenth);
+      }
+
+      builder.Append(numbers[digit]);
+    }
+
+  }
+
+} // namespace Nuclex.Support

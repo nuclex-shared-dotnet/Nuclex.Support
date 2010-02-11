@@ -165,3 +165,4 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
+
