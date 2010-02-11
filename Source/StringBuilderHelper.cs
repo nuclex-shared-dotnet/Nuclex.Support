@@ -96,19 +96,24 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder the value will be appended to</param>
     /// <param name="value">Value that will be appended to the string builder</param>
-    public static void Append(StringBuilder builder, float value) {
+    /// <returns>Whether the value was inside the algorithm's supported range</returns>
+    /// <remarks>
+    ///   Uses an algorithm that covers the sane range of possible values but will
+    ///   fail to render extreme values, NaNs and infinity. In these cases, false
+    ///   is returned and the traditional double.ToString() method can be used.
+    /// </remarks>
+    public static bool Append(StringBuilder builder, float value) {
       const int ExponentBits = 0xFF; // Bit mask for the exponent bits
       const int FractionalBitCount = 23; // Number of bits for fractional part
       const int ExponentBias = 127; // Bias subtraced from exponent
       const int NumericBitCount = 31; // Bits without sign
-      
-      // You do not modify these as they're calculated based on the 
+
+      // You don't need modify these as they're calculated based on the 
       const int FractionalBits = (2 << FractionalBitCount) - 1;
       const int HighestFractionalBit = (1 << FractionalBitCount);
       const int FractionalBitCountPlusOne = FractionalBitCount + 1;
 
       int intValue = FloatHelper.ReinterpretAsInt(value);
-
       int exponent = ((intValue >> FractionalBitCount) & ExponentBits) - ExponentBias;
       int mantissa = (intValue & FractionalBits) | HighestFractionalBit;
 
@@ -116,7 +121,9 @@ namespace Nuclex.Support {
       int fractional;
       if(exponent >= 0) {
         if(exponent >= FractionalBitCount) {
-          Debug.Assert(exponent < NumericBitCount);
+          if(exponent >= NumericBitCount) {
+            return false;
+          }
           integral = mantissa << (exponent - FractionalBitCount);
           fractional = 0;
         } else {
@@ -124,26 +131,13 @@ namespace Nuclex.Support {
           fractional = (mantissa << (exponent + 1)) & FractionalBits;
         }
       } else {
-        Debug.Assert(exponent >= -FractionalBitCount);
+        if(exponent < -FractionalBitCount) {
+          return false;
+        }
         integral = 0;
         fractional = (mantissa & FractionalBits) >> -(exponent + 1);
       }
-/*      
-      if(exponent >= NumericBitCount) {
-        throw new ArgumentException("Value too large", "value");
-      } else if(exponent < -FractionalBitCount) {
-        throw new ArgumentException("Value too small", "value");
-      } else if(exponent >= FractionalBitCount) {
-        integral = mantissa << (exponent - FractionalBitCount);
-        fractional = 0;
-      } else if(exponent >= 0) {
-        integral = mantissa >> (FractionalBitCount - exponent);
-        fractional = (mantissa << (exponent + 1)) & FractionalBits;
-      } else { // exp2 < 0
-        integral = 0;
-        fractional = (mantissa & FractionalBits) >> -(exponent + 1);
-      }
-*/
+
       // Build the integral part      
       if(intValue < 0) {
         builder.Append('-');
@@ -167,6 +161,83 @@ namespace Nuclex.Support {
           fractional &= FractionalBits;
         }
       }
+
+      return true;
+    }
+
+    /// <summary>
+    ///   Appends a double precision floating point value to a string builder
+    ///   without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder the value will be appended to</param>
+    /// <param name="value">Value that will be appended to the string builder</param>
+    /// <returns>Whether the value was inside the algorithm's supported range</returns>
+    /// <remarks>
+    ///   Uses an algorithm that covers the sane range of possible values but will
+    ///   fail to render extreme values, NaNs and infinity. In these cases, false
+    ///   is returned and the traditional double.ToString() method can be used.
+    /// </remarks>
+    public static bool Append(StringBuilder builder, double value) {
+      const long ExponentBits = 0x7FF; // Bit mask for the exponent bits
+      const int FractionalBitCount = 52; // Number of bits for fractional part
+      const int ExponentBias = 1023; // Bias subtraced from exponent
+      const int NumericBitCount = 63; // Bits without sign
+
+      // You don't need modify these as they're calculated based on the 
+      const long FractionalBits = (2L << FractionalBitCount) - 1;
+      const long HighestFractionalBit = (1L << FractionalBitCount);
+      const int FractionalBitCountPlusOne = FractionalBitCount + 1;
+
+      long intValue = FloatHelper.ReinterpretAsLong(value);
+      long exponent = ((intValue >> FractionalBitCount) & ExponentBits) - ExponentBias;
+      long mantissa = (intValue & FractionalBits) | HighestFractionalBit;
+
+      long integral;
+      long fractional;
+      if(exponent >= 0) {
+        if(exponent >= FractionalBitCount) {
+          if(exponent >= NumericBitCount) {
+            return false;
+          }
+          integral = mantissa << (int)(exponent - FractionalBitCount);
+          fractional = 0;
+        } else {
+          integral = mantissa >> (int)(FractionalBitCount - exponent);
+          fractional = (mantissa << (int)(exponent + 1)) & FractionalBits;
+        }
+      } else {
+        if(exponent < -FractionalBitCount) {
+          return false;
+        }
+        integral = 0;
+        fractional = (mantissa & FractionalBits) >> -(int)(exponent + 1);
+      }
+
+      // Build the integral part      
+      if(intValue < 0) {
+        builder.Append('-');
+      }
+      if(integral == 0) {
+        builder.Append('0');
+      } else {
+        recursiveAppend(builder, integral);
+      }
+
+      builder.Append('.');
+
+      // Build the fractional part
+      if(fractional == 0) {
+        builder.Append('0');
+      } else {
+        while(fractional != 0) {
+          fractional *= 10;
+          long digit = (fractional >> FractionalBitCountPlusOne);
+          builder.Append(numbers[digit]);
+          fractional &= FractionalBits;
+        }
+      }
+
+      return true;
     }
 
     /// <summary>Recursively appends a number's characters to a string builder</summary>

@@ -90,6 +90,39 @@ namespace Nuclex.Support {
     }
 
     /// <summary>
+    ///   Verifies that a positive long integer is correctly appended to a string builder
+    /// </summary>
+    [Test]
+    public void TestAppendPositiveLong() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 12345L);
+
+      Assert.AreEqual("12345", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that a long integer with value 0 is correctly appended to a string builder
+    /// </summary>
+    [Test]
+    public void TestAppendNullLong() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0L);
+
+      Assert.AreEqual("0", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that a negative long integer is correctly appended to a string builder
+    /// </summary>
+    [Test]
+    public void TestAppendNegativeLong() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, -12345L);
+
+      Assert.AreEqual("-12345", builder.ToString());
+    }
+
+    /// <summary>
     ///   Verifies that negative floating point values are correctly converted
     /// </summary>
     [Test]
@@ -131,6 +164,81 @@ namespace Nuclex.Support {
       StringBuilderHelper.Append(builder, 1000000000.0f);
 
       Assert.AreEqual("1000000000.0", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies the behavior of the helper with unsupported floating point values
+    /// </summary>
+    [Test]
+    public void TestAppendOutOfRangeFloat() {
+      StringBuilder builder = new StringBuilder();
+      Assert.IsFalse(StringBuilderHelper.Append(builder, float.PositiveInfinity));
+      Assert.IsFalse(StringBuilderHelper.Append(builder, float.NegativeInfinity));
+      Assert.IsFalse(StringBuilderHelper.Append(builder, float.NaN));
+      Assert.IsFalse(StringBuilderHelper.Append(builder, 0.000000059604644775390625f));
+    }
+
+    /// <summary>
+    ///   Verifies that negative double precision floating point values are
+    ///   correctly converted
+    /// </summary>
+    [Test]
+    public void TestAppendNegativeDouble() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, -32.015625);
+
+      Assert.AreEqual("-32.015625", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that positive double precision floating point values are
+    ///   correctly converted
+    /// </summary>
+    [Test]
+    public void TestAppendPositiveDouble() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 10.0625);
+
+      Assert.AreEqual("10.0625", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that very small double precision floating point values are
+    ///   correctly converted
+    /// </summary>
+    [Test]
+    public void TestAppendSmallDouble() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0.00390625);
+
+      Assert.AreEqual("0.00390625", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that very large double precision floating point values are
+    ///   correctly converted
+    /// </summary>
+    [Test]
+    public void TestAppendHugeDouble() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 1000000000000000000.0);
+
+      Assert.AreEqual("1000000000000000000.0", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies the behavior of the helper with unsupported double precision
+    ///   floating point values
+    /// </summary>
+    [Test]
+    public void TestAppendOutOfRangeDouble() {
+      StringBuilder builder = new StringBuilder();
+      Assert.IsFalse(StringBuilderHelper.Append(builder, double.PositiveInfinity));
+      Assert.IsFalse(StringBuilderHelper.Append(builder, double.NegativeInfinity));
+      Assert.IsFalse(StringBuilderHelper.Append(builder, double.NaN));
+      Assert.IsFalse(
+        StringBuilderHelper.Append(builder, 1.1102230246251565404236316680908e-16)
+      );
     }
 
     /// <summary>
