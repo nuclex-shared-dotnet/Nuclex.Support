@@ -166,6 +166,26 @@ namespace Nuclex.Support {
       Assert.AreEqual("1000000000.0", builder.ToString());
     }
 
+    /// <summary>Tests whether the number of decimal places can be restricted</summary>
+    [Test]
+    public void TestAppendFloatLimitDecimalPlaces() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0.00390625f, 3);
+
+      Assert.AreEqual("0.003", builder.ToString());
+    }
+
+    /// <summary>
+    ///   Verifies that a float with no decimal places is correctly appended
+    /// </summary>
+    [Test]
+    public void TestAppendFloatWithoutDecimalPlaces() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0.00390625f, 0);
+
+      Assert.AreEqual("0", builder.ToString()); // Note: no rounding!
+    }
+
     /// <summary>
     ///   Verifies the behavior of the helper with unsupported floating point values
     /// </summary>
@@ -224,6 +244,26 @@ namespace Nuclex.Support {
       StringBuilderHelper.Append(builder, 1000000000000000000.0);
 
       Assert.AreEqual("1000000000000000000.0", builder.ToString());
+    }
+
+    /// <summary>Tests whether the number of decimal places can be restricted</summary>
+    [Test]
+    public void TestAppendDoubleLimitDecimalPlaces() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0.00390625, 3);
+
+      Assert.AreEqual("0.003", builder.ToString()); // Note: no rounding!
+    }
+
+    /// <summary>
+    ///   Verifies that a double with no decimal places is correctly appended
+    /// </summary>
+    [Test]
+    public void TestAppendDoubleWithoutDecimalPlaces() {
+      StringBuilder builder = new StringBuilder();
+      StringBuilderHelper.Append(builder, 0.00390625, 0);
+
+      Assert.AreEqual("0", builder.ToString());
     }
 
     /// <summary>

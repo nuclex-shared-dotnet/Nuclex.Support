@@ -103,6 +103,22 @@ namespace Nuclex.Support {
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
     public static bool Append(StringBuilder builder, float value) {
+      return Append(builder, value, int.MaxValue);
+    }
+
+    /// <summary>
+    ///   Appends a floating point value to a string builder without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder the value will be appended to</param>
+    /// <param name="value">Value that will be appended to the string builder</param>
+    /// <param name="decimalPlaces">Maximum number of decimal places to display</param>
+    /// <returns>Whether the value was inside the algorithm's supported range</returns>
+    /// <remarks>
+    ///   Uses an algorithm that covers the sane range of possible values but will
+    ///   fail to render extreme values, NaNs and infinity. In these cases, false
+    ///   is returned and the traditional double.ToString() method can be used.
+    /// </remarks>
+    public static bool Append(StringBuilder builder, float value, int decimalPlaces) {
       const int ExponentBits = 0xFF; // Bit mask for the exponent bits
       const int FractionalBitCount = 23; // Number of bits for fractional part
       const int ExponentBias = 127; // Bias subtraced from exponent
@@ -148,17 +164,24 @@ namespace Nuclex.Support {
         recursiveAppend(builder, integral);
       }
 
-      builder.Append('.');
+      if(decimalPlaces > 0) {
+        builder.Append('.');
 
-      // Build the fractional part
-      if(fractional == 0) {
-        builder.Append('0');
-      } else {
-        while(fractional != 0) {
-          fractional *= 10;
-          int digit = (fractional >> FractionalBitCountPlusOne);
-          builder.Append(numbers[digit]);
-          fractional &= FractionalBits;
+        // Build the fractional part
+        if(fractional == 0) {
+          builder.Append('0');
+        } else {
+          while(fractional != 0) {
+            fractional *= 10;
+            int digit = (fractional >> FractionalBitCountPlusOne);
+            builder.Append(numbers[digit]);
+            fractional &= FractionalBits;
+            
+            --decimalPlaces;
+            if(decimalPlaces == 0) {
+              break;
+            }
+          }
         }
       }
 
@@ -178,6 +201,23 @@ namespace Nuclex.Support {
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
     public static bool Append(StringBuilder builder, double value) {
+      return Append(builder, value, int.MaxValue);
+    }
+
+    /// <summary>
+    ///   Appends a double precision floating point value to a string builder
+    ///   without generating garbage
+    /// </summary>
+    /// <param name="builder">String builder the value will be appended to</param>
+    /// <param name="value">Value that will be appended to the string builder</param>
+    /// <param name="decimalPlaces">Maximum number of decimal places to display</param>
+    /// <returns>Whether the value was inside the algorithm's supported range</returns>
+    /// <remarks>
+    ///   Uses an algorithm that covers the sane range of possible values but will
+    ///   fail to render extreme values, NaNs and infinity. In these cases, false
+    ///   is returned and the traditional double.ToString() method can be used.
+    /// </remarks>
+    public static bool Append(StringBuilder builder, double value, int decimalPlaces) {
       const long ExponentBits = 0x7FF; // Bit mask for the exponent bits
       const int FractionalBitCount = 52; // Number of bits for fractional part
       const int ExponentBias = 1023; // Bias subtraced from exponent
@@ -223,17 +263,24 @@ namespace Nuclex.Support {
         recursiveAppend(builder, integral);
       }
 
-      builder.Append('.');
+      if(decimalPlaces > 0) {
+        builder.Append('.');
 
-      // Build the fractional part
-      if(fractional == 0) {
-        builder.Append('0');
-      } else {
-        while(fractional != 0) {
-          fractional *= 10;
-          long digit = (fractional >> FractionalBitCountPlusOne);
-          builder.Append(numbers[digit]);
-          fractional &= FractionalBits;
+        // Build the fractional part
+        if(fractional == 0) {
+          builder.Append('0');
+        } else {
+          while(fractional != 0) {
+            fractional *= 10;
+            long digit = (fractional >> FractionalBitCountPlusOne);
+            builder.Append(numbers[digit]);
+            fractional &= FractionalBits;
+
+            --decimalPlaces;
+            if(decimalPlaces == 0) {
+              break;
+            }
+          }
         }
       }
 
