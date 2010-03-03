@@ -115,7 +115,7 @@ namespace Nuclex.Support {
         BindingFlags.Public | BindingFlags.Static
       );
 
-      // Create an array to hold the enumeration value and copy them over from
+      // Create an array to hold the enumeration values and copy them over from
       // the fields we just retrieved
       EnumType[] values = new EnumType[fieldInfos.Length];
       for(int index = 0; index < fieldInfos.Length; ++index) {

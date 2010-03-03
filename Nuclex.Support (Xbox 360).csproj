@@ -152,6 +152,9 @@
     <Compile Include="Source\Scheduling\Scheduler.Test.cs">
       <DependentUpon>Scheduler.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Scheduling\Scheduler.TimeSource.cs">
+      <DependentUpon>Scheduler.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Scheduling\WindowsTimeSource.cs" />
     <Compile Include="Source\Scheduling\WindowsTimeSource.Test.cs">
       <DependentUpon>WindowsTimeSource.cs</DependentUpon>

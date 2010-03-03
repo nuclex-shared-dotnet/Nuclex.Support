@@ -28,30 +28,10 @@ using Nuclex.Support.Collections;
 namespace Nuclex.Support.Scheduling {
 
   /// <summary>Schedules actions for execution at a future point in time</summary>
-  public class Scheduler : ISchedulerService, IDisposable {
+  public partial class Scheduler : ISchedulerService, IDisposable {
 
     /// <summary>One tick is 100 ns, meaning 10000 ticks equal 1 ms</summary>
     private const long TicksPerMillisecond = 10000;
-
-    #region class TimeSourceSingleton
-
-    /// <summary>
-    ///   Manages the singleton instance of the scheduler's default time source
-    /// </summary>
-    private class TimeSourceSingleton {
-
-      /// <summary>
-      ///   Explicit static constructor to guarantee the singleton is initialized only
-      ///   when a static member of this class is accessed.
-      /// </summary>
-      static TimeSourceSingleton() { } // Do not remove!
-
-      /// <summary>The singleton instance of the default time source</summary>
-      internal static readonly ITimeSource Instance = Scheduler.CreateDefaultTimeSource();
-
-    }
-
-    #endregion // class TimeSourceSingleton
 
     #region class Notification
 
@@ -187,6 +167,11 @@ namespace Nuclex.Support.Scheduling {
       }
     }
 
+    /// <summary>Time source being used by the scheduler</summary>
+    public ITimeSource TimeSource {
+      get { return this.timeSource; }
+    }
+
     /// <summary>Schedules a notification at the specified absolute time</summary>
     /// <param name="notificationTime">
     ///   Absolute time at which the notification will occur
@@ -318,30 +303,6 @@ namespace Nuclex.Support.Scheduling {
       if(notification != null) {
         notification.Cancelled = true;
       }
-    }
-
-    /// <summary>Returns the default time source for the scheduler</summary>
-    public static ITimeSource DefaultTimeSource {
-      get { return TimeSourceSingleton.Instance; }
-    }
-
-    /// <summary>Creates a new default time source for the scheduler</summary>
-    /// <param name="useWindowsTimeSource">
-    ///   Whether the specialized windows time source should be used
-    /// </param>
-    /// <returns>The newly created time source</returns>
-    internal static ITimeSource CreateTimeSource(bool useWindowsTimeSource) {
-      if(useWindowsTimeSource) {
-        return new WindowsTimeSource();
-      } else {
-        return new GenericTimeSource();
-      }
-    }
-
-    /// <summary>Creates a new default time source for the scheduler</summary>
-    /// <returns>The newly created time source</returns>
-    internal static ITimeSource CreateDefaultTimeSource() {
-      return CreateTimeSource(WindowsTimeSource.Available);
     }
 
     /// <summary>Called when the system date/time have been adjusted</summary>

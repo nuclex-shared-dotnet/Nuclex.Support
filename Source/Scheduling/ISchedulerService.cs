@@ -24,8 +24,16 @@ using System.Threading;
 
 namespace Nuclex.Support.Scheduling {
 
+#if SCHEDULER_USE_CUSTOM_CALLBACK
+  /// <summary>Signature for a timed callback from the scheduler service</summary>
+  public delegate void SchedulerCallback();
+#endif // SCHEDULER_USE_CUSTOM_CALLBACK
+
   /// <summary>Service that allows the scheduled invocation of tasks</summary>
   public interface ISchedulerService {
+
+    /// <summary>Time source being used by the scheduler</summary>
+    ITimeSource TimeSource { get; }
 
     /// <summary>Schedules a notification at the specified absolute time</summary>
     /// <param name="notificationTime">
@@ -57,7 +65,9 @@ namespace Nuclex.Support.Scheduling {
     ///   Callback that will be invoked when the notification is due
     /// </param>
     /// <returns>A handle that can be used to cancel the notification</returns>
-    object NotifyEach(int delayMilliseconds, int intervalMilliseconds, WaitCallback callback);
+    object NotifyEach(
+      int delayMilliseconds, int intervalMilliseconds, WaitCallback callback
+    );
 
     /// <summary>
     ///   Schedules a recurring notification after the specified time span
