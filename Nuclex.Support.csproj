@@ -71,6 +71,7 @@
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\IObservableCollection.cs" />
+    <Compile Include="Source\Collections\IRecyclable.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
       <DependentUpon>ItemEventArgs.cs</DependentUpon>
@@ -94,6 +95,10 @@
     <Compile Include="Source\Collections\ParentingCollection.cs" />
     <Compile Include="Source\Collections\ParentingCollection.Test.cs">
       <DependentUpon>ParentingCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Pool.cs" />
+    <Compile Include="Source\Collections\Pool.Test.cs">
+      <DependentUpon>Pool.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\PriorityItemPair.cs" />
     <Compile Include="Source\Collections\PriorityItemPair.Test.cs">
