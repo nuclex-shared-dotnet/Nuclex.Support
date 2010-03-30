@@ -107,8 +107,22 @@ namespace Nuclex.Support.Collections {
     ///   Internal list of weak references that are unpacking when accessed through
     ///   the WeakCollection's interface.
     /// </param>
-    public WeakCollection(IList<WeakReference<ItemType>> items) {
+    public WeakCollection(IList<WeakReference<ItemType>> items) :
+      this(items, EqualityComparer<ItemType>.Default) { }
+
+    /// <summary>Initializes a new weak reference collection</summary>
+    /// <param name="items">
+    ///   Internal list of weak references that are unpacking when accessed through
+    ///   the WeakCollection's interface.
+    /// </param>
+    /// <param name="comparer">
+    ///   Comparer used to identify and compare items to each other
+    /// </param>
+    public WeakCollection(
+        IList<WeakReference<ItemType>> items, IEqualityComparer<ItemType> comparer
+    ) {
       this.items = items;
+      this.comparer = comparer;
     }
 
     /// <summary>
@@ -198,8 +212,6 @@ namespace Nuclex.Support.Collections {
     ///   this method, if possible.
     /// </remarks>
     public int IndexOf(ItemType item) {
-      EqualityComparer<ItemType> comparer = EqualityComparer<ItemType>.Default;
-
       for(int index = 0; index < this.items.Count; ++index) {
         ItemType itemAtIndex = this.items[index].Target;
         if((itemAtIndex == null) || (item == null)) {
@@ -207,7 +219,7 @@ namespace Nuclex.Support.Collections {
             return index;
           }
         } else {
-          if(comparer.Equals(itemAtIndex, item)) {
+          if(this.comparer.Equals(itemAtIndex, item)) {
             return index;
           }
         }
@@ -243,24 +255,20 @@ namespace Nuclex.Support.Collections {
     ///   True if item was successfully removed from the WeakCollection; otherwise, false.
     /// </returns>
     public bool Remove(ItemType item) {
-      EqualityComparer<ItemType> comparer = EqualityComparer<ItemType>.Default;
-
-      lock(this) {
-        for(int index = 0; index < this.items.Count; ++index) {
-          ItemType itemAtIndex = this.items[index].Target;
-          if((itemAtIndex == null) || (item == null)) {
-            if(ReferenceEquals(item, itemAtIndex)) {
-              this.items.RemoveAt(index);
-              return true;
-            }
-          } else {
-            if(comparer.Equals(item, itemAtIndex)) {
-              this.items.RemoveAt(index);
-              return true;
-            }
+      for(int index = 0; index < this.items.Count; ++index) {
+        ItemType itemAtIndex = this.items[index].Target;
+        if((itemAtIndex == null) || (item == null)) {
+          if(ReferenceEquals(item, itemAtIndex)) {
+            this.items.RemoveAt(index);
+            return true;
+          }
+        } else {
+          if(this.comparer.Equals(item, itemAtIndex)) {
+            this.items.RemoveAt(index);
+            return true;
           }
         }
-      } // lock(this)
+      }
 
       return false;
     }
@@ -303,30 +311,32 @@ namespace Nuclex.Support.Collections {
     ///   Removes the items that have been garbage collected from the collection
     /// </summary>
     public void RemoveDeadItems() {
-      lock(this) {
-        int eliminatedItemCount = 0;
+      int eliminatedItemCount = 0;
 
-        // Eliminate all items that have been garbage collected by shifting
-        for(int index = 0; index + eliminatedItemCount < this.items.Count; ++index) {
-          if(!this.items[index].IsAlive) {
-            ++eliminatedItemCount;
-            this.items[index] = this.items[index + eliminatedItemCount];
-          }
+      // Eliminate all items that have been garbage collected by shifting
+      for(int index = 0; index + eliminatedItemCount < this.items.Count; ++index) {
+        if(!this.items[index].IsAlive) {
+          ++eliminatedItemCount;
+        } else {
+          this.items[index] = this.items[index + eliminatedItemCount];
+          ++index;
         }
+      }
 
-        // If any garbage collected items were found, resize the collection so
-        // the space that became empty in the previous shifting process will be freed
-        if(eliminatedItemCount > 0) {
-          int endIndex = this.items.Count - eliminatedItemCount;
-          for(int index = this.items.Count - 1; index >= endIndex; --index) {
-            this.items.RemoveAt(index);
-          }
+      // If any garbage collected items were found, resize the collection so
+      // the space that became empty in the previous shifting process will be freed
+      if(eliminatedItemCount > 0) {
+        int endIndex = this.items.Count - eliminatedItemCount;
+        for(int index = this.items.Count - 1; index >= endIndex; --index) {
+          this.items.RemoveAt(index);
         }
       }
     }
 
     /// <summary>Weak references to the items contained in the collection</summary>
     private IList<WeakReference<ItemType>> items;
+    /// <summary>Used to identify and compare items in the collection</summary>
+    private IEqualityComparer<ItemType> comparer;
     /// <summary>Synchronization root for threaded accesses to this collection</summary>
     private object syncRoot;
 
