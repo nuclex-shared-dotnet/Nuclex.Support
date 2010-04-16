@@ -311,25 +311,20 @@ namespace Nuclex.Support.Collections {
     ///   Removes the items that have been garbage collected from the collection
     /// </summary>
     public void RemoveDeadItems() {
-      int eliminatedItemCount = 0;
+      int newCount = 0;
 
       // Eliminate all items that have been garbage collected by shifting
-      for(int index = 0; index + eliminatedItemCount < this.items.Count; ++index) {
-        if(!this.items[index].IsAlive) {
-          ++eliminatedItemCount;
-        } else {
-          this.items[index] = this.items[index + eliminatedItemCount];
-          ++index;
+      for(int index = 0; index < this.items.Count; ++index) {
+        if(this.items[index].IsAlive) {
+          this.items[newCount] = this.items[index];
+          ++newCount;
         }
       }
 
       // If any garbage collected items were found, resize the collection so
       // the space that became empty in the previous shifting process will be freed
-      if(eliminatedItemCount > 0) {
-        int endIndex = this.items.Count - eliminatedItemCount;
-        for(int index = this.items.Count - 1; index >= endIndex; --index) {
-          this.items.RemoveAt(index);
-        }
+      while(this.items.Count > newCount) {
+        this.items.RemoveAt(this.items.Count - 1);
       }
     }
 
