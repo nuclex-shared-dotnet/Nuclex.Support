@@ -33,11 +33,11 @@
     <DocumentationFile>bin\net-2.0\Release\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NMock2, Version=2.0.0.44, Culture=neutral, PublicKeyToken=37d3be0adc87c2b7, processorArchitecture=MSIL">
+    <Reference Include="NMock2, Version=2.1.3641.27570, Culture=neutral, PublicKeyToken=96bb577564343f16, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\nmock\net-2.0\NMock2.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.5.0.8332, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+    <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\nunit\net-2.0\framework\nunit.framework.dll</HintPath>
     </Reference>
