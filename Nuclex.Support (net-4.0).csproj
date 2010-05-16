@@ -53,10 +53,6 @@
     <Compile Include="Source\AffineThreadPool.Test.cs">
       <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\AssertHelper.cs" />
-    <Compile Include="Source\AssertHelper.Test.cs">
-      <DependentUpon>AssertHelper.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Collections\Deque.cs" />
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>
