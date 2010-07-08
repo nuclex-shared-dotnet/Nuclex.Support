@@ -124,7 +124,8 @@ namespace Nuclex.Support {
       const int ExponentBias = 127; // Bias subtraced from exponent
       const int NumericBitCount = 31; // Bits without sign
 
-      // You don't need modify these as they're calculated based on the 
+      // You don't need modify these as they're calculated based on
+      // the constants assigned above.
       const int FractionalBits = (2 << FractionalBitCount) - 1;
       const int HighestFractionalBit = (1 << FractionalBitCount);
       const int FractionalBitCountPlusOne = FractionalBitCount + 1;
@@ -223,14 +224,15 @@ namespace Nuclex.Support {
       const int ExponentBias = 1023; // Bias subtraced from exponent
       const int NumericBitCount = 63; // Bits without sign
 
-      // You don't need modify these as they're calculated based on the 
+      // You don't need modify these as they're calculated based on
+      // the constants assigned above.
       const long FractionalBits = (2L << FractionalBitCount) - 1;
       const long HighestFractionalBit = (1L << FractionalBitCount);
       const int FractionalBitCountPlusOne = FractionalBitCount + 1;
 
-      long intValue = FloatHelper.ReinterpretAsLong(value);
-      long exponent = ((intValue >> FractionalBitCount) & ExponentBits) - ExponentBias;
-      long mantissa = (intValue & FractionalBits) | HighestFractionalBit;
+      long longValue = FloatHelper.ReinterpretAsLong(value);
+      long exponent = ((longValue >> FractionalBitCount) & ExponentBits) - ExponentBias;
+      long mantissa = (longValue & FractionalBits) | HighestFractionalBit;
 
       long integral;
       long fractional;
@@ -254,7 +256,7 @@ namespace Nuclex.Support {
       }
 
       // Build the integral part      
-      if(intValue < 0) {
+      if(longValue < 0) {
         builder.Append('-');
       }
       if(integral == 0) {
