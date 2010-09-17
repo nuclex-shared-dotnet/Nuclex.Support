@@ -70,11 +70,11 @@ namespace Nuclex.Support.Plugins {
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
         catch(DllNotFoundException) {
-          Trace.WriteLine(
+          reportError(
             "Assembly '" + path + "' or one of its dependencies is missing"
           );
         }
-#endif // !XBOX360
+#endif
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
         catch(UnauthorizedAccessException) {
@@ -178,7 +178,7 @@ namespace Nuclex.Support.Plugins {
     /// <summary>Reports an error to the debugging console</summary>
     /// <param name="error">Error message that will be reported</param>
     private static void reportError(string error) {
-#if !XBOX360
+#if !XBOX360 && !WINDOWS_PHONE
       Trace.WriteLine(error);
 #endif
     }

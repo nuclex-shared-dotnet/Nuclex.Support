@@ -130,7 +130,7 @@ namespace Nuclex.Support.Scheduling {
       this.timerThread.Name = "Nuclex.Support.Scheduling.Scheduler";
 #if XNA_3
       this.timerThread.Priority = ThreadPriority.Highest;
-#elif !XBOX360
+#elif !XBOX360 && !WINDOWS_PHONE
       this.timerThread.Priority = ThreadPriority.Highest;
 #endif
       this.timerThread.IsBackground = true;
@@ -147,7 +147,7 @@ namespace Nuclex.Support.Scheduling {
         // a lot of time given that it doesn't do any real work), forcefully abort
         // the thread. This may risk some leaks, but it's the only thing we can do.
         bool success = this.timerThread.Join(2500);
-#if !XBOX360
+#if !XBOX360 && !WINDOWS_PHONE
         Trace.Assert(success, "Scheduler timer thread did not exit in time");
 #endif
         // Unsubscribe from the time source to avoid surprise events during or

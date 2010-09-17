@@ -1,48 +1,62 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{DFFEAB70-51B8-4714-BCA6-79B733BBC520}</ProjectGuid>
+    <ProjectGuid>{7AC614A7-E1FC-4EB9-9229-13B26280FF9B}</ProjectGuid>
     <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">Xbox 360</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">Windows Phone</Platform>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Nuclex.Support</RootNamespace>
     <AssemblyName>Nuclex.Support</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <XnaFrameworkVersion>v3.1</XnaFrameworkVersion>
-    <XnaPlatform>Xbox 360</XnaPlatform>
-    <XnaCrossPlatformGroupID>334850d5-951c-4098-aeed-40d9a06c9df1</XnaCrossPlatformGroupID>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
+    <XnaPlatform>Windows Phone</XnaPlatform>
+    <XnaProfile>Reach</XnaProfile>
+    <XnaCrossPlatformGroupID>ab7fffb0-8ac5-44fe-b113-2d14c58c5804</XnaCrossPlatformGroupID>
+    <XnaOutputType>Library</XnaOutputType>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Xbox 360' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Windows Phone' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\xna-3.1-xbox360\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XBOX;XBOX360;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3</DefineConstants>
+    <OutputPath>bin\xna-4.0-phone7\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE;NO_CLONING;NO_SERIALIZATION;NO_XMLDOCUMENT;NO_SYSTEMEVENTS;NO_EXITCONTEXT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <XnaCompressContent>true</XnaCompressContent>
-    <DocumentationFile>bin\xna-3.1-xbox360\Debug\Nuclex.Support.xml</DocumentationFile>
+    <XnaCompressContent>false</XnaCompressContent>
+    <DocumentationFile>bin\xna-4.0-phone7\Debug\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Xbox 360' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Windows Phone' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\xna-3.1-xbox360\Release\</OutputPath>
-    <DefineConstants>TRACE;XBOX;XBOX360;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3</DefineConstants>
+    <OutputPath>bin\xna-4.0-phone7\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS_PHONE;NO_CLONING;NO_SERIALIZATION;NO_XMLDOCUMENT;NO_SYSTEMEVENTS;NO_EXITCONTEXT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <XnaCompressContent>true</XnaCompressContent>
-    <DocumentationFile>bin\xna-3.1-xbox360\Release\Nuclex.Support.xml</DocumentationFile>
+    <XnaCompressContent>false</XnaCompressContent>
+    <DocumentationFile>bin\xna-4.0-phone7\Release\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Phone, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework">
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework.Game">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Graphics">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.GamerServices">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Input.Touch">
       <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib">
@@ -55,7 +69,14 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Net">
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -373,18 +394,14 @@
       <DependentUpon>XmlHelper.cs</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Documents\CommandLine.txt" />
-    <Content Include="Documents\Nuclex.Support.txt" />
-    <Content Include="Documents\Request Framework.txt" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <!--
+      To modify your build process, add your task inside one of the targets below and uncomment it. 
+      Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+    -->
 </Project>

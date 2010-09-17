@@ -22,7 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-#if !XBOX360
+#if !NO_SYSTEMEVENTS
 using Microsoft.Win32;
 #endif
 
@@ -38,9 +38,9 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Initializes a new Windows time source</summary>
     public WindowsTimeSource() {
-#if XBOX360
+#if NO_SYSTEMEVENTS
       throw new InvalidOperationException(
-        "Windows time source is not available on the XBox 360"
+        "Windows time source is not available without the SystemEvents class"
       );
 #else
       this.onDateTimeAdjustedDelegate = new EventHandler(OnDateTimeAdjusted);
@@ -50,8 +50,8 @@ namespace Nuclex.Support.Scheduling {
 
     /// <summary>Immediately releases all resources owned by the instance</summary>
     public void Dispose() {
-#if !XBOX360
-      if(this.onDateTimeAdjustedDelegate != null) {
+#if !NO_SYSTEMEVENTS
+      if (this.onDateTimeAdjustedDelegate != null) {
         SystemEvents.TimeChanged -= this.onDateTimeAdjustedDelegate;
         this.onDateTimeAdjustedDelegate = null;
       }
@@ -67,7 +67,7 @@ namespace Nuclex.Support.Scheduling {
     public override bool WaitOne(AutoResetEvent waitHandle, long ticks) {
 #if XNA_3
       return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
-#elif XBOX360
+#elif XBOX360 || WINDOWS_PHONE
       return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond));
 #else
       return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
@@ -81,7 +81,7 @@ namespace Nuclex.Support.Scheduling {
       get { return Environment.OSVersion.Platform == PlatformID.Win32NT; }
     }
 
-#if !XBOX360
+#if !NO_SYSTEMEVENTS
 
     /// <summary>Delegate for the timeChanged() callback method</summary>
     private EventHandler onDateTimeAdjustedDelegate;

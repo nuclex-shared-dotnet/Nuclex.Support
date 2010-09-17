@@ -24,7 +24,7 @@ using System.Reflection;
 
 namespace Nuclex.Support.Plugins {
 
-#if XBOX360
+#if XBOX360 || WINDOWS_PHONE
 
   /// <summary>Signature for the AssemblyLoad event</summary>
   /// <param name="sender">Object that is reporting that an assembly was loaded</param>

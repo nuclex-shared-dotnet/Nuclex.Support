@@ -124,14 +124,12 @@ namespace Nuclex.Support {
     ///   True if the resource was available and is now locked, false if
     ///   the timeout has been reached.
     /// </returns>
-#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
-    public override bool WaitOne(int millisecondsTimeout, bool exitContext) {
-#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+#if NO_EXITCONTEXT
     public override bool WaitOne(int millisecondsTimeout) {
 #else
     public override bool WaitOne(int millisecondsTimeout, bool exitContext) {
 #endif
-      for(; ; ) {
+      for (; ; ) {
 
         // Lock the resource - even if it is full. We will correct out mistake later
         // if we overcomitted the resource.
@@ -155,9 +153,7 @@ namespace Nuclex.Support {
         // Unless we have been preempted by a Release(), we now have to wait for the
         // resource to become available.
         if(newFree >= 0) {
-#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
-          if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
-#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+#if NO_EXITCONTEXT
           if (!this.manualResetEvent.WaitOne(millisecondsTimeout)) {
 #else
           if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
@@ -177,9 +173,7 @@ namespace Nuclex.Support {
     ///   the timeout has been reached.
     /// </returns>
     public override bool WaitOne() {
-#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
-      return WaitOne(-1, false);
-#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+#if NO_EXITCONTEXT
       return WaitOne(-1);
 #else
       return WaitOne(-1, false);
@@ -187,6 +181,7 @@ namespace Nuclex.Support {
     }
 
 #if !(XNA_3 && XBOX360)
+
     /// <summary>
     ///   Waits for the resource to become available and locks it
     /// </summary>
@@ -201,7 +196,7 @@ namespace Nuclex.Support {
     ///   True if the resource was available and is now locked, false if
     ///   the timeout has been reached.
     /// </returns>
-#if XBOX360
+#if NO_EXITCONTEXT
     public override bool WaitOne(TimeSpan timeout) {
 #else
     public override bool WaitOne(TimeSpan timeout, bool exitContext) {
@@ -213,12 +208,13 @@ namespace Nuclex.Support {
         );
       }
 
-#if XBOX360
+#if NO_EXITCONTEXT
       return WaitOne((int)totalMilliseconds);
 #else
       return WaitOne((int)totalMilliseconds, exitContext);
 #endif
     }
+
 #endif // !(XNA_3 && XBOX360)
 
     /// <summary>

@@ -294,7 +294,7 @@ namespace Nuclex.Support.Collections {
       }
 
       index += this.firstBlockStartIndex;
-#if XBOX360
+#if XBOX360 || WINDOWS_PHONE
       blockIndex = index / this.blockSize;
       subIndex = index % this.blockSize;
 #else

@@ -94,7 +94,7 @@ namespace Nuclex.Support.Scheduling {
       int milliseconds = (int)(ticks / TicksPerMillisecond);
 #if XNA_3
       bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds), false);
-#elif XBOX360
+#elif XBOX360 || WINDOWS_PHONE
       bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds));
 #else
       bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds), false);

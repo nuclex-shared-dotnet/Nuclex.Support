@@ -293,7 +293,7 @@ namespace Nuclex.Support {
     /// <param name="builder">String builder the number will be appended to</param>
     /// <param name="remaining">Remaining digits that will be recursively processed</param>
     private static void recursiveAppend(StringBuilder builder, int remaining) {
-#if XBOX
+#if XBOX360 || WINDOWS_PHONE
       int digit = remaining % 10;
       int tenth = remaining / 10;
 #else
@@ -312,7 +312,7 @@ namespace Nuclex.Support {
     /// <param name="builder">String builder the number will be appended to</param>
     /// <param name="remaining">Remaining digits that will be recursively processed</param>
     private static void recursiveAppend(StringBuilder builder, long remaining) {
-#if XBOX
+#if XBOX360 || WINDOWS_PHONE
       long digit = remaining % 10;
       long tenth = remaining / 10;
 #else

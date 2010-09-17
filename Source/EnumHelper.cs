@@ -90,7 +90,7 @@ namespace Nuclex.Support {
     ///   and cache the result.
     /// </remarks>
     public static EnumType[] GetValues<EnumType>() {
-#if XBOX360
+#if XBOX360 || WINDOWS_PHONE
       return GetValuesXbox360<EnumType>();
 #else
       return (EnumType[])Enum.GetValues(typeof(EnumType));

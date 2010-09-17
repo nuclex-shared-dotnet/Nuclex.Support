@@ -197,7 +197,7 @@ namespace Nuclex.Support {
       // explicitly move it to that core. MSDN states that SetProcessorAffinity() should
       // be called from the thread whose affinity is being changed.
       Thread.CurrentThread.SetProcessorAffinity(new int[] { hardwareThreadIndex });
-#else
+#elif !WINDOWS_PHONE
       if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
         // Prevent this managed thread from impersonating another system thread.
         // In .NET, managed threads can supposedly be moved to different system threads
@@ -237,7 +237,7 @@ namespace Nuclex.Support {
       }
     }
 
-#if !XBOX360
+#if !XBOX360 && !WINDOWS_PHONE
     /// <summary>Retrieves the ProcessThread for the calling thread</summary>
     /// <returns>The ProcessThread for the calling thread</returns>
     internal static ProcessThread GetProcessThread(int threadId) {
