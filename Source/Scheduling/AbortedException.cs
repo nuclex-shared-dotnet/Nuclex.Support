@@ -28,7 +28,9 @@ namespace Nuclex.Support.Scheduling {
   ///   This exception is the typical result of using AsyncAbort() on a running
   ///   background process. 
   /// </remarks>
+#if !NO_SERIALIZATION
   [Serializable]
+#endif
   public class AbortedException : Exception {
 
     /// <summary>Initializes the exception</summary>

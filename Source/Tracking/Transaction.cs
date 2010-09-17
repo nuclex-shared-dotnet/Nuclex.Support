@@ -164,7 +164,13 @@ namespace Nuclex.Support.Tracking {
         return true;
       }
 
+#if XNA_3
       return WaitHandle.WaitOne(timeoutMilliseconds, false);
+#elif XBOX360
+      return WaitHandle.WaitOne(timeoutMilliseconds);
+#else
+      return WaitHandle.WaitOne(timeoutMilliseconds, false);
+#endif
     }
 
     /// <summary>Whether the transaction has ended already</summary>

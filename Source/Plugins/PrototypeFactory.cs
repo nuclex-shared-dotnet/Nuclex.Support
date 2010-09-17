@@ -4,6 +4,8 @@ using System.Text;
 
 namespace Nuclex.Support.Plugins {
 
+#if !NO_CLONING
+
   /// <summary>Factory that creates instances by cloning a prototype</summary>
   /// <typeparam name="ProductType">Type of product created by the factory</typeparam>
   /// <typeparam name="ConcreteType">Type of the prototype that will be cloned</typeparam>
@@ -50,5 +52,7 @@ namespace Nuclex.Support.Plugins {
     private ConcreteType prototype;
 
   }
+
+#endif // !NO_CLONING
 
 } // namespace Nuclex.Support.Plugins

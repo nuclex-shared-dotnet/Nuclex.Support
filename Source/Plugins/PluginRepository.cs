@@ -78,7 +78,7 @@ namespace Nuclex.Support.Plugins {
         // Unauthorized acccess - Either the assembly is not trusted because it contains
         // code that imposes a security risk on the system or a user rights problem
         catch(UnauthorizedAccessException) {
-          Trace.WriteLine(
+          reportError(
             "Not authorized to load assembly '" + path + "', " +
             "possible rights problem"
           );
@@ -86,14 +86,14 @@ namespace Nuclex.Support.Plugins {
         // Bad image format - This exception is often thrown when the assembly we
         // attempted to load requires a different version of the .NET framework
         catch(BadImageFormatException) {
-          Trace.WriteLine(
+          reportError(
             "'" + path + "' is not a .NET assembly, requires a different version " +
             "of the .NET Runtime or does not support the current instruction set (x86/x64)"
           );
         }
         // Unknown error - Our last resort is to show a default error message
         catch(Exception exception) {
-          Trace.WriteLine(
+          reportError(
             "Failed to load plugin assembly '" + path + "': " + exception.Message
           );
         }
@@ -173,6 +173,14 @@ namespace Nuclex.Support.Plugins {
     /// <summary>List of all loaded plugin assemblies in the repository</summary>
     public List<Assembly> LoadedAssemblies {
       get { return this.assemblies; }
+    }
+
+    /// <summary>Reports an error to the debugging console</summary>
+    /// <param name="error">Error message that will be reported</param>
+    private static void reportError(string error) {
+#if !XBOX360
+      Trace.WriteLine(error);
+#endif
     }
 
     /// <summary>Loaded plugin assemblies</summary>

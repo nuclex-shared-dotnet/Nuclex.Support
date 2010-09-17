@@ -98,7 +98,7 @@ namespace Nuclex.Support.Plugins {
           }
         }
         catch(Exception exception) {
-          Trace.WriteLine("Could not employ " + type.ToString() + ": " + exception.Message);
+          reportError("Could not employ " + type.ToString() + ": " + exception.Message);
         }
       }
 
@@ -116,6 +116,14 @@ namespace Nuclex.Support.Plugins {
         }
       }
       return false;
+    }
+
+    /// <summary>Reports an error to the debugging console</summary>
+    /// <param name="error">Error message that will be reported</param>
+    private static void reportError(string error) {
+#if !XBOX360
+      Trace.WriteLine(error);
+#endif
     }
 
     /// <summary>Employs and manages types in the loaded plugin assemblies</summary>

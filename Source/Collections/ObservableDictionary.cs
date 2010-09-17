@@ -29,7 +29,9 @@ namespace Nuclex.Support.Collections {
   /// <summary>A dictionary that sneds out change notifications</summary>
   /// <typeparam name="KeyType">Type of the keys used in the dictionary</typeparam>
   /// <typeparam name="ValueType">Type of the values used in the dictionary</typeparam>
+#if !NO_SERIALIZATION
   [Serializable]
+#endif
   public class ObservableDictionary<KeyType, ValueType> :
 #if !NO_SERIALIZATION
  ISerializable,

@@ -128,7 +128,11 @@ namespace Nuclex.Support.Scheduling {
 
       this.timerThread = new Thread(new ThreadStart(runTimerThread));
       this.timerThread.Name = "Nuclex.Support.Scheduling.Scheduler";
+#if XNA_3
       this.timerThread.Priority = ThreadPriority.Highest;
+#elif !XBOX360
+      this.timerThread.Priority = ThreadPriority.Highest;
+#endif
       this.timerThread.IsBackground = true;
       this.timerThread.Start();
     }
@@ -142,10 +146,10 @@ namespace Nuclex.Support.Scheduling {
         // Wait for the timer thread to exit. If it doesn't exit in 10 seconds (which is
         // a lot of time given that it doesn't do any real work), forcefully abort
         // the thread. This may risk some leaks, but it's the only thing we can do.
-        Trace.Assert(
-          this.timerThread.Join(2500), "Scheduler timer thread did not exit in time"
-        );
-
+        bool success = this.timerThread.Join(2500);
+#if !XBOX360
+        Trace.Assert(success, "Scheduler timer thread did not exit in time");
+#endif
         // Unsubscribe from the time source to avoid surprise events during or
         // after shutdown
         if(this.timeSource != null) {

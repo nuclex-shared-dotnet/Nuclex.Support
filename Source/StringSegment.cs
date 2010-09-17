@@ -39,7 +39,9 @@ namespace Nuclex.Support {
   ///     in parsers, it can also prevent needless string copying and garbage generation.
   ///   </para>
   /// </remarks>
+#if !NO_SERIALIZATION
   [Serializable, StructLayout(LayoutKind.Sequential)]
+#endif
   public struct StringSegment {
 
     /// <summary>

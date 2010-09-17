@@ -196,21 +196,26 @@ namespace Nuclex.Support.Tracking {
       lock(this.trackedTransactions) {
 
         // Locate the object to be untracked in our collection
-        int removeIndex = this.trackedTransactions.FindIndex(
-          new Predicate<ObservedWeightedTransaction<Transaction>>(
-            new TransactionMatcher(transaction).Matches
-          )
-        );
-        if(removeIndex == -1) {
+        int index;
+        for(index = 0; index < this.trackedTransactions.Count; ++index) {
+          bool same = ReferenceEquals(
+            transaction,
+            this.trackedTransactions[index].WeightedTransaction.Transaction
+          );
+          if(same) {
+            break;
+          }
+        }
+        if(index == this.trackedTransactions.Count) {
           throw new ArgumentException("Specified transaction is not being tracked");
         }
 
         // Remove and dispose the transaction the user wants to untrack
         {
           ObservedWeightedTransaction<Transaction> wrappedTransaction =
-            this.trackedTransactions[removeIndex];
+            this.trackedTransactions[index];
 
-          this.trackedTransactions.RemoveAt(removeIndex);
+          this.trackedTransactions.RemoveAt(index);
           wrappedTransaction.Dispose();
         }
 
@@ -228,7 +233,7 @@ namespace Nuclex.Support.Tracking {
           // weight would work, too, but we might accumulate rounding errors making the sum
           // drift slowly away from the actual value.
           float newTotalWeight = 0.0f;
-          for(int index = 0; index < this.trackedTransactions.Count; ++index)
+          for(index = 0; index < this.trackedTransactions.Count; ++index)
             newTotalWeight += this.trackedTransactions[index].WeightedTransaction.Weight;
 
           this.totalWeight = newTotalWeight;

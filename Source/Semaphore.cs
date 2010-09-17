@@ -97,7 +97,7 @@ namespace Nuclex.Support {
     /// </param>
     protected override void Dispose(bool explicitDisposing) {
       if(this.manualResetEvent != null) {
-#if XBOX360
+#if XBOX360 && XNA_3
         base.Handle = IntPtr.Zero;
 #else
         base.SafeWaitHandle = null;
@@ -124,7 +124,13 @@ namespace Nuclex.Support {
     ///   True if the resource was available and is now locked, false if
     ///   the timeout has been reached.
     /// </returns>
+#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
     public override bool WaitOne(int millisecondsTimeout, bool exitContext) {
+#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+    public override bool WaitOne(int millisecondsTimeout) {
+#else
+    public override bool WaitOne(int millisecondsTimeout, bool exitContext) {
+#endif
       for(; ; ) {
 
         // Lock the resource - even if it is full. We will correct out mistake later
@@ -149,7 +155,13 @@ namespace Nuclex.Support {
         // Unless we have been preempted by a Release(), we now have to wait for the
         // resource to become available.
         if(newFree >= 0) {
+#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
           if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
+#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+          if (!this.manualResetEvent.WaitOne(millisecondsTimeout)) {
+#else
+          if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
+#endif
             return false;
           }
         }
@@ -157,7 +169,6 @@ namespace Nuclex.Support {
       } // for(; ; )
     }
 
-#if XBOX360
     /// <summary>
     ///   Waits for the resource to become available and locks it
     /// </summary>
@@ -166,11 +177,16 @@ namespace Nuclex.Support {
     ///   the timeout has been reached.
     /// </returns>
     public override bool WaitOne() {
+#if XNA_3 // XNA 3.0 for XBox 360 had an exitContext parameter
       return WaitOne(-1, false);
-    }
+#elif XBOX360 // XNA 4.0 for XBox 360 has no exitContext parameter
+      return WaitOne(-1);
+#else
+      return WaitOne(-1, false);
 #endif
+    }
 
-#if !XBOX360
+#if !(XNA_3 && XBOX360)
     /// <summary>
     ///   Waits for the resource to become available and locks it
     /// </summary>
@@ -185,7 +201,11 @@ namespace Nuclex.Support {
     ///   True if the resource was available and is now locked, false if
     ///   the timeout has been reached.
     /// </returns>
+#if XBOX360
+    public override bool WaitOne(TimeSpan timeout) {
+#else
     public override bool WaitOne(TimeSpan timeout, bool exitContext) {
+#endif
       long totalMilliseconds = (long)timeout.TotalMilliseconds;
       if((totalMilliseconds < -1) || (totalMilliseconds > int.MaxValue)) {
         throw new ArgumentOutOfRangeException(
@@ -193,9 +213,13 @@ namespace Nuclex.Support {
         );
       }
 
+#if XBOX360
+      return WaitOne((int)totalMilliseconds);
+#else
       return WaitOne((int)totalMilliseconds, exitContext);
-    }
 #endif
+    }
+#endif // !(XNA_3 && XBOX360)
 
     /// <summary>
     ///   Releases a lock on the resource. Note that for a reverse counting semaphore,
@@ -214,7 +238,7 @@ namespace Nuclex.Support {
     /// <summary>Creates the event used to make threads wait for the resource</summary>
     private void createEvent() {
       this.manualResetEvent = new ManualResetEvent(false);
-#if XBOX360
+#if XBOX360 && XNA_3
       base.Handle = this.manualResetEvent.Handle;
 #else
       base.SafeWaitHandle = this.manualResetEvent.SafeWaitHandle;

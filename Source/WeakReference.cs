@@ -28,7 +28,9 @@ namespace Nuclex.Support {
   ///   Type-safe weak reference, referencing an object while still allowing
   ///   that object to be garbage collected.
   /// </summary>
+#if !NO_SERIALIZATION
   [Serializable]
+#endif
   public class WeakReference<ReferencedType> : WeakReference
     where ReferencedType : class {
 

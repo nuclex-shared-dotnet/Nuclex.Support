@@ -30,6 +30,8 @@ namespace Nuclex.Support {
   /// <summary>Helper routines for handling XML code</summary>
   public static class XmlHelper {
 
+#if !NO_XMLDOCUMENT
+
     #region class ValidationEventProcessor
 
     /// <summary>Handles any events occurring when an XML schema is loaded</summary>
@@ -206,6 +208,8 @@ namespace Nuclex.Support {
       fileStream = null;
       return false;
     }
+
+#endif // !NO_XMLDOCUMENT
 
   }
 
