@@ -24,6 +24,9 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+#if !USE_XMLDOCUMENT
+using System.Xml.Linq;
+#endif
 using System.Xml.Schema;
 
 using NUnit.Framework;
@@ -295,7 +298,11 @@ namespace Nuclex.Support {
         using(
           TempFileKeeper tempFile = new TempFileKeeper(conformantXml)
         ) {
+#if USE_XMLDOCUMENT
           XmlDocument document = XmlHelper.LoadDocument(schema, tempFile);
+#else
+          XDocument document = XmlHelper.LoadDocument(schema, tempFile);
+#endif
         }
       }
     }

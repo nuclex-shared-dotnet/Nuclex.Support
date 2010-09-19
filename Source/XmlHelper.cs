@@ -23,6 +23,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml;
+#if !USE_XMLDOCUMENT
+using System.Xml.Linq;
+#endif
 using System.Xml.Schema;
 
 namespace Nuclex.Support {
@@ -30,7 +33,7 @@ namespace Nuclex.Support {
   /// <summary>Helper routines for handling XML code</summary>
   public static class XmlHelper {
 
-#if !NO_XMLDOCUMENT
+#if !NO_XMLSCHEMA
 
     #region class ValidationEventProcessor
 
@@ -142,6 +145,8 @@ namespace Nuclex.Support {
       return false;
     }
 
+#if USE_XMLDOCUMENT
+
     /// <summary>Loads an XML document from a file</summary>
     /// <param name="schema">Schema to use for validating the XML document</param>
     /// <param name="documentPath">
@@ -179,6 +184,52 @@ namespace Nuclex.Support {
       }
     }
 
+#else // !USE_XMLDOCUMENT
+
+    /// <summary>Loads an XML document from a file</summary>
+    /// <param name="schema">Schema to use for validating the XML document</param>
+    /// <param name="documentPath">
+    ///   Path to the file containing the XML document that will be loaded
+    /// </param>
+    /// <returns>The loaded XML document</returns>
+    public static XDocument LoadDocument(XmlSchema schema, string documentPath) {
+      using(FileStream documentStream = openFileForSharedReading(documentPath)) {
+        return LoadDocument(schema, documentStream);
+      }
+    }
+
+    /// <summary>Loads an XML document from a stream</summary>
+    /// <param name="schema">Schema to use for validating the XML document</param>
+    /// <param name="documentStream">
+    ///   Stream from which the XML document will be read
+    /// </param>
+    /// <returns>The loaded XML document</returns>
+    public static XDocument LoadDocument(XmlSchema schema, Stream documentStream) {
+      XmlReaderSettings settings = new XmlReaderSettings();
+      settings.Schemas.Add(schema);
+
+      using (XmlReader reader = XmlReader.Create(documentStream, settings)) {
+        var document = XDocument.Load(reader, LoadOptions.None);
+
+        // Create a schema set because the Validate() method only accepts
+        // schemas in a schemaset
+        var schemas = new XmlSchemaSet();
+        schemas.Add(schema);
+
+        // Perform the validation and report the first validation error
+        // encountered to the caller
+        var validationEventProcessor = new ValidationEventProcessor();
+        document.Validate(schemas, validationEventProcessor.OnValidationEvent);
+        if (validationEventProcessor.OccurredException != null) {
+          throw validationEventProcessor.OccurredException;
+        }
+
+        return document;
+      }
+    }
+
+#endif // USE_XMLDOCUMENT
+
     /// <summary>Opens a file for shared reading</summary>
     /// <param name="path">Path to the file that will be opened</param>
     /// <returns>The opened file's stream</returns>
@@ -209,7 +260,7 @@ namespace Nuclex.Support {
       return false;
     }
 
-#endif // !NO_XMLDOCUMENT
+#endif // !NO_XMLSCHEMA
 
   }
 
