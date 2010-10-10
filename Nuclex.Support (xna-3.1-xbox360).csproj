@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\xna-3.1-xbox360\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XBOX;XBOX360;USE_XMLDOCUMENT;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XBOX;XBOX360;USE_XMLDOCUMENT;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3;NO_EXTENSION_METHODS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\xna-3.1-xbox360\Release\</OutputPath>
-    <DefineConstants>TRACE;XBOX;XBOX360;USE_XMLDOCUMENT;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3</DefineConstants>
+    <DefineConstants>TRACE;XBOX;XBOX360;USE_XMLDOCUMENT;NO_SERIALIZATION;NO_SYSTEMEVENTS;XNA_3;NO_EXTENSION_METHODS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>

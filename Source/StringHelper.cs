@@ -37,7 +37,11 @@ namespace Nuclex.Support {
     ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
+#if NO_EXTENSION_METHODS
     public static int IndexNotOfAny(string haystack, char[] anyNotOf) {
+#else
+    public static int IndexNotOfAny(this string haystack, char[] anyNotOf) {
+#endif
       return IndexNotOfAny(haystack, anyNotOf, 0, haystack.Length);
     }
 
@@ -55,7 +59,11 @@ namespace Nuclex.Support {
     ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
+#if NO_EXTENSION_METHODS
     public static int IndexNotOfAny(string haystack, char[] anyNotOf, int startIndex) {
+#else
+    public static int IndexNotOfAny(this string haystack, char[] anyNotOf, int startIndex) {
+#endif
       return IndexNotOfAny(haystack, anyNotOf, startIndex, haystack.Length - startIndex);
     }
 
@@ -75,7 +83,11 @@ namespace Nuclex.Support {
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int IndexNotOfAny(
+#if NO_EXTENSION_METHODS
       string haystack, char[] anyNotOf, int startIndex, int count
+#else
+      this string haystack, char[] anyNotOf, int startIndex, int count
+#endif
     ) {
       int anyLength = anyNotOf.Length;
 
@@ -105,7 +117,11 @@ namespace Nuclex.Support {
     ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
+#if NO_EXTENSION_METHODS
     public static int LastIndexNotOfAny(string haystack, char[] anyNotOf) {
+#else
+    public static int LastIndexNotOfAny(this string haystack, char[] anyNotOf) {
+#endif
       return LastIndexNotOfAny(haystack, anyNotOf, haystack.Length - 1, haystack.Length);
     }
 
@@ -123,7 +139,11 @@ namespace Nuclex.Support {
     ///   <paramref name="anyNotOf" /> array or -1 if all characters in the string were
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
+#if NO_EXTENSION_METHODS
     public static int LastIndexNotOfAny(string haystack, char[] anyNotOf, int startIndex) {
+#else
+    public static int LastIndexNotOfAny(this string haystack, char[] anyNotOf, int startIndex) {
+#endif
       return LastIndexNotOfAny(haystack, anyNotOf, startIndex, startIndex + 1);
     }
 
@@ -143,7 +163,11 @@ namespace Nuclex.Support {
     ///   present in the <paramref name="anyNotOf" /> array.
     /// </returns>
     public static int LastIndexNotOfAny(
+#if NO_EXTENSION_METHODS
       string haystack, char[] anyNotOf, int startIndex, int count
+#else
+      this string haystack, char[] anyNotOf, int startIndex, int count
+#endif
     ) {
       int anyLength = anyNotOf.Length;
 

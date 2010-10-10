@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net-2.0\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITTEST;USE_XMLDOCUMENT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITTEST;USE_XMLDOCUMENT;NO_EXTENSION_METHODS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\net-2.0\Debug\Nuclex.Support.xml</DocumentationFile>
@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net-2.0\Release\</OutputPath>
-    <DefineConstants>TRACE;UNITTEST;USE_XMLDOCUMENT</DefineConstants>
+    <DefineConstants>TRACE;UNITTEST;USE_XMLDOCUMENT;NO_EXTENSION_METHODS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\net-2.0\Release\Nuclex.Support.xml</DocumentationFile>
