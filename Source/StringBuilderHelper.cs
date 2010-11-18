@@ -26,7 +26,7 @@ using System.Text;
 namespace Nuclex.Support {
 
   /// <summary>Contains helper methods for the string builder class</summary>
-  public class StringBuilderHelper {
+  public static class StringBuilderHelper {
 
     /// <summary>Predefined unicode characters for the numbers 0 to 9</summary>
     private static readonly char[] numbers = new char[] {
