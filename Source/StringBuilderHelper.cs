@@ -25,6 +25,12 @@ using System.Text;
 
 namespace Nuclex.Support {
 
+/*
+  public enum Garbage {
+    Avoid,
+    Accept
+  }
+*/
   /// <summary>Contains helper methods for the string builder class</summary>
   public static class StringBuilderHelper {
 
@@ -35,7 +41,7 @@ namespace Nuclex.Support {
 
     /// <summary>Clears the contents of a string builder</summary>
     /// <param name="builder">String builder that will be cleared</param>
-    public static void Clear(StringBuilder builder) {
+    public static void Clear(this StringBuilder builder) {
       builder.Remove(0, builder.Length);
     }
 

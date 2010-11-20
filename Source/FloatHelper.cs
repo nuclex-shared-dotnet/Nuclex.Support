@@ -185,7 +185,7 @@ namespace Nuclex.Support {
     /// <returns>
     ///   The memory contents of the floating point value interpreted as an integer
     /// </returns>
-    public static int ReinterpretAsInt(float value) {
+    public static int ReinterpretAsInt(this float value) {
       FloatIntUnion union = new FloatIntUnion();
       union.Float = value;
       return union.Int;
@@ -202,7 +202,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the double precision floating point value
     ///   interpreted as an integer
     /// </returns>
-    public static long ReinterpretAsLong(double value) {
+    public static long ReinterpretAsLong(this double value) {
       DoubleLongUnion union = new DoubleLongUnion();
       union.Double = value;
       return union.Long;
@@ -215,7 +215,7 @@ namespace Nuclex.Support {
     /// <returns>
     ///   The memory contents of the integer value interpreted as a floating point value
     /// </returns>
-    public static float ReinterpretAsFloat(int value) {
+    public static float ReinterpretAsFloat(this int value) {
       FloatIntUnion union = new FloatIntUnion();
       union.Int = value;
       return union.Float;
@@ -230,7 +230,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the integer interpreted as a double precision
     ///   floating point value
     /// </returns>
-    public static double ReinterpretAsDouble(long value) {
+    public static double ReinterpretAsDouble(this long value) {
       DoubleLongUnion union = new DoubleLongUnion();
       union.Long = value;
       return union.Double;

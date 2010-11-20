@@ -145,47 +145,6 @@ namespace Nuclex.Support {
       return false;
     }
 
-#if USE_XMLDOCUMENT
-
-    /// <summary>Loads an XML document from a file</summary>
-    /// <param name="schema">Schema to use for validating the XML document</param>
-    /// <param name="documentPath">
-    ///   Path to the file containing the XML document that will be loaded
-    /// </param>
-    /// <returns>The loaded XML document</returns>
-    public static XmlDocument LoadDocument(XmlSchema schema, string documentPath) {
-      using(FileStream documentStream = openFileForSharedReading(documentPath)) {
-        return LoadDocument(schema, documentStream);
-      }
-    }
-
-    /// <summary>Loads an XML document from a stream</summary>
-    /// <param name="schema">Schema to use for validating the XML document</param>
-    /// <param name="documentStream">
-    ///   Stream from which the XML document will be read
-    /// </param>
-    /// <returns>The loaded XML document</returns>
-    public static XmlDocument LoadDocument(XmlSchema schema, Stream documentStream) {
-      XmlReaderSettings settings = new XmlReaderSettings();
-      settings.Schemas.Add(schema);
-
-      using(XmlReader reader = XmlReader.Create(documentStream, settings)) {
-        XmlDocument document = new XmlDocument();
-        document.Schemas.Add(schema);
-        document.Load(reader);
-
-        ValidationEventProcessor eventProcessor = new ValidationEventProcessor();
-        document.Validate(eventProcessor.OnValidationEvent);
-        if(eventProcessor.OccurredException != null) {
-          throw eventProcessor.OccurredException;
-        }
-
-        return document;
-      }
-    }
-
-#else // !USE_XMLDOCUMENT
-
     /// <summary>Loads an XML document from a file</summary>
     /// <param name="schema">Schema to use for validating the XML document</param>
     /// <param name="documentPath">
@@ -227,8 +186,6 @@ namespace Nuclex.Support {
         return document;
       }
     }
-
-#endif // USE_XMLDOCUMENT
 
     /// <summary>Opens a file for shared reading</summary>
     /// <param name="path">Path to the file that will be opened</param>
