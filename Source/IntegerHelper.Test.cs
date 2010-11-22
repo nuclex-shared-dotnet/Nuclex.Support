@@ -97,6 +97,31 @@ namespace Nuclex.Support {
       Assert.AreEqual(1073741824, IntegerHelper.NextPowerOf2(1073741824));
     }
 
+    /// <summary>Verifies that the bit counting method for integers works</summary>
+    [Test]
+    public void TestCountBitsInInteger() {
+      Assert.AreEqual(0, IntegerHelper.CountBits(0));
+      Assert.AreEqual(32, IntegerHelper.CountBits(-1));
+      Assert.AreEqual(16, IntegerHelper.CountBits(0x55555555));
+      Assert.AreEqual(16, IntegerHelper.CountBits(0xAAAAAAAA));
+
+      for (int bitIndex = 0; bitIndex < 32; ++bitIndex) {
+        Assert.AreEqual(1, IntegerHelper.CountBits(1 << bitIndex));
+      }
+    }
+
+    /// <summary>Verifies that the bit counting method for long integers works</summary>
+    [Test]
+    public void TestCountBitsInLongInteger() {
+      Assert.AreEqual(0, IntegerHelper.CountBits(0L));
+      Assert.AreEqual(64, IntegerHelper.CountBits(-1L));
+      Assert.AreEqual(32, IntegerHelper.CountBits(0x5555555555555555));
+      Assert.AreEqual(32, IntegerHelper.CountBits(0xAAAAAAAAAAAAAAAA));
+
+      for (int bitIndex = 0; bitIndex < 64; ++bitIndex) {
+        Assert.AreEqual(1, IntegerHelper.CountBits(1 << bitIndex));
+      }
+    }
 
   }
 
