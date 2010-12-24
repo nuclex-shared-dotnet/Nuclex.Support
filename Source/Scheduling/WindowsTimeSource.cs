@@ -65,7 +65,11 @@ namespace Nuclex.Support.Scheduling {
     ///   True if the WaitHandle was signalled, false if the timeout was reached
     /// </returns>
     public override bool WaitOne(AutoResetEvent waitHandle, long ticks) {
+#if WINDOWS
       return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
+#else
+      return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond));
+#endif
     }
 
     /// <summary>

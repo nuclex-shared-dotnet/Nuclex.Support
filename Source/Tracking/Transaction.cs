@@ -164,7 +164,11 @@ namespace Nuclex.Support.Tracking {
         return true;
       }
 
+#if WINDOWS
       return WaitHandle.WaitOne(timeoutMilliseconds, false);
+#else
+      return WaitHandle.WaitOne(timeoutMilliseconds);
+#endif
     }
 
     /// <summary>Whether the transaction has ended already</summary>

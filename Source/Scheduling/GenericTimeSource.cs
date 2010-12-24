@@ -92,8 +92,11 @@ namespace Nuclex.Support.Scheduling {
       // Force a timeout at least each second so the caller can check the system time
       // since we're not able to provide the DateTimeAdjusted notification
       int milliseconds = (int)(ticks / TicksPerMillisecond);
+#if WINDOWS
       bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds), false);
-
+#else
+      bool signalled = waitHandle.WaitOne(Math.Min(1000, milliseconds));
+#endif
       // See whether the system date/time have been adjusted while we were asleep.
       checkForTimeAdjustment();
 
