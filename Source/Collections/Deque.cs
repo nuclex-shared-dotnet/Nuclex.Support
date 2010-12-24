@@ -68,7 +68,7 @@ namespace Nuclex.Support.Collections {
 #if DEBUG
           checkVersion();
 #endif
-          if(this.currentBlock == null) {
+          if (this.currentBlock == null) {
             throw new InvalidOperationException("Enumerator is not on a valid position");
           }
 
@@ -85,15 +85,15 @@ namespace Nuclex.Support.Collections {
 #endif
 
         // If we haven't reached the last block yet      
-        if(this.currentBlockIndex < this.lastBlock) {
+        if (this.currentBlockIndex < this.lastBlock) {
 
           // Advance to the next item. If the end of the current block is reached,
           // go to the next block's first item
           ++this.subIndex;
-          if(this.subIndex >= this.blockSize) {
+          if (this.subIndex >= this.blockSize) {
             ++this.currentBlockIndex;
             this.currentBlock = this.deque.blocks[this.currentBlockIndex];
-            if(this.currentBlockIndex == 0) {
+            if (this.currentBlockIndex == 0) {
               this.subIndex = this.deque.firstBlockStartIndex;
             } else {
               this.subIndex = 0;
@@ -107,7 +107,7 @@ namespace Nuclex.Support.Collections {
         } else { // We in or beyond the last block
 
           // Are there any items left to advance to?
-          if(this.subIndex < this.lastBlockEndIndex) {
+          if (this.subIndex < this.lastBlockEndIndex) {
             ++this.subIndex;
             return true;
           } else { // Nope, we've reached the end of the deque
@@ -203,7 +203,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>The first item in the double-ended queue</summary>
     public ItemType First {
       get {
-        if(this.count == 0) {
+        if (this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
         }
         return this.blocks[0][this.firstBlockStartIndex];
@@ -213,7 +213,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>The last item in the double-ended queue</summary>
     public ItemType Last {
       get {
-        if(this.count == 0) {
+        if (this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
         }
         return this.blocks[this.blocks.Count - 1][this.lastBlockEndIndex - 1];
@@ -231,13 +231,13 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array the contents of the deque will be copied into</param>
     /// <param name="arrayIndex">Array index the deque contents will begin at</param>
     public void CopyTo(ItemType[] array, int arrayIndex) {
-      if(this.count > (array.Length - arrayIndex)) {
+      if (this.count > (array.Length - arrayIndex)) {
         throw new ArgumentException(
           "Array too small to hold the collection items starting at the specified index"
         );
       }
 
-      if(this.blocks.Count == 1) { // Does only one block exist?
+      if (this.blocks.Count == 1) { // Does only one block exist?
 
         // Copy the one and only block there is
         Array.Copy(
@@ -259,7 +259,7 @@ namespace Nuclex.Support.Collections {
 
         // Copy all intermediate blocks (if there are any). These are completely filled
         int lastBlock = this.blocks.Count - 1;
-        for(int index = 1; index < lastBlock; ++index) {
+        for (int index = 1; index < lastBlock; ++index) {
           Array.Copy(
             this.blocks[index], 0,
             array, arrayIndex,
@@ -289,16 +289,16 @@ namespace Nuclex.Support.Collections {
     /// <param name="blockIndex">Index of the block the entry is contained in</param>
     /// <param name="subIndex">Local sub index of the entry within the block</param>
     private void findIndex(int index, out int blockIndex, out int subIndex) {
-      if((index < 0) || (index >= this.count)) {
+      if ((index < 0) || (index >= this.count)) {
         throw new ArgumentOutOfRangeException("Index out of range", "index");
       }
 
       index += this.firstBlockStartIndex;
-#if XBOX360 || WINDOWS_PHONE
+#if WINDOWS
+      blockIndex = Math.DivRem(index, this.blockSize, out subIndex);
+#else
       blockIndex = index / this.blockSize;
       subIndex = index % this.blockSize;
-#else
-      blockIndex = Math.DivRem(index, this.blockSize, out subIndex);
 #endif
     }
 
@@ -314,7 +314,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Verifies that the provided object matches the deque's type</summary>
     /// <param name="value">Value that will be checked for compatibility</param>
     private static void verifyCompatibleObject(object value) {
-      if(!isCompatibleObject(value)) {
+      if (!isCompatibleObject(value)) {
         throw new ArgumentException("Value does not match the deque's type", "value");
       }
     }

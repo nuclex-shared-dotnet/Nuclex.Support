@@ -121,7 +121,7 @@ namespace Nuclex.Support.Plugins {
     /// <summary>Reports an error to the debugging console</summary>
     /// <param name="error">Error message that will be reported</param>
     private static void reportError(string error) {
-#if !XBOX360 && !WINDOWS_PHONE
+#if WINDOWS
       Trace.WriteLine(error);
 #endif
     }

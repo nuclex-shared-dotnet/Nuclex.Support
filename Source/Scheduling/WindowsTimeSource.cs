@@ -65,13 +65,7 @@ namespace Nuclex.Support.Scheduling {
     ///   True if the WaitHandle was signalled, false if the timeout was reached
     /// </returns>
     public override bool WaitOne(AutoResetEvent waitHandle, long ticks) {
-#if XNA_3
       return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
-#elif XBOX360 || WINDOWS_PHONE
-      return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond));
-#else
-      return waitHandle.WaitOne((int)(ticks / TicksPerMillisecond), false);
-#endif
     }
 
     /// <summary>
@@ -86,7 +80,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Delegate for the timeChanged() callback method</summary>
     private EventHandler onDateTimeAdjustedDelegate;
 
-#endif // !XBOX360
+#endif // !NO_SYSTEMEVENTS
 
   }
 

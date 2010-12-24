@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net-4.0\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITTEST</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITTEST;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\net-4.0\Debug\Nuclex.Support.xml</DocumentationFile>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net-4.0\Release\</OutputPath>
-    <DefineConstants>TRACE;UNITTEST</DefineConstants>
+    <DefineConstants>TRACE;UNITTEST;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\net-4.0\Release\Nuclex.Support.xml</DocumentationFile>

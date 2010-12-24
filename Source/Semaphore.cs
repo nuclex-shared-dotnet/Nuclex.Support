@@ -97,11 +97,7 @@ namespace Nuclex.Support {
     /// </param>
     protected override void Dispose(bool explicitDisposing) {
       if(this.manualResetEvent != null) {
-#if XBOX360 && XNA_3
-        base.Handle = IntPtr.Zero;
-#else
         base.SafeWaitHandle = null;
-#endif
 
         this.manualResetEvent.Close();
         this.manualResetEvent = null;
@@ -180,8 +176,6 @@ namespace Nuclex.Support {
 #endif
     }
 
-#if !(XNA_3 && XBOX360)
-
     /// <summary>
     ///   Waits for the resource to become available and locks it
     /// </summary>
@@ -215,8 +209,6 @@ namespace Nuclex.Support {
 #endif
     }
 
-#endif // !(XNA_3 && XBOX360)
-
     /// <summary>
     ///   Releases a lock on the resource. Note that for a reverse counting semaphore,
     ///   it is legal to Release() the resource before locking it.
@@ -234,11 +226,7 @@ namespace Nuclex.Support {
     /// <summary>Creates the event used to make threads wait for the resource</summary>
     private void createEvent() {
       this.manualResetEvent = new ManualResetEvent(false);
-#if XBOX360 && XNA_3
-      base.Handle = this.manualResetEvent.Handle;
-#else
       base.SafeWaitHandle = this.manualResetEvent.SafeWaitHandle;
-#endif
     }
 
     /// <summary>Event used to make threads wait if the semaphore is full</summary>

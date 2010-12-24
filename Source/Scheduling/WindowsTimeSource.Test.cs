@@ -20,7 +20,7 @@ License along with this library
 
 #if UNITTEST
 
-#if !XBOX360
+#if WINDOWS
 
 using System;
 using System.Collections.Generic;
@@ -159,6 +159,6 @@ namespace Nuclex.Support.Scheduling {
 
 } // namespace Nuclex.Support.Scheduling
 
-#endif // !XBOX360
+#endif // WINDOWS
 
 #endif // UNITTEST

@@ -66,7 +66,7 @@ namespace Nuclex.Support.Plugins {
           loadedAssembly = LoadAssemblyFromFile(path);
           return true;
         }
-#if !XBOX360
+#if WINDOWS
         // File not found - Most likely a missing dependency of the assembly we
         // attempted to load since the assembly itself has been found by the GetFiles() method
         catch(DllNotFoundException) {
@@ -178,7 +178,7 @@ namespace Nuclex.Support.Plugins {
     /// <summary>Reports an error to the debugging console</summary>
     /// <param name="error">Error message that will be reported</param>
     private static void reportError(string error) {
-#if !XBOX360 && !WINDOWS_PHONE
+#if WINDOWS
       Trace.WriteLine(error);
 #endif
     }

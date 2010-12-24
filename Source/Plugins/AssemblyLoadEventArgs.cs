@@ -52,6 +52,6 @@ namespace Nuclex.Support.Plugins {
 
   }
 
-#endif // XBOX360
+#endif // XBOX360 || WINDOWS_PHONE
 
 } // namespace Nuclex.Support.Plugins

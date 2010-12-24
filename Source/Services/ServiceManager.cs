@@ -144,7 +144,7 @@ namespace Nuclex.Support.Services {
 
     #endregion // class Contract
 
-#if !XBOX360
+#if WINDOWS
 
     /// <summary>Initializes a new service manager</summary>
     /// <remarks>
@@ -154,7 +154,7 @@ namespace Nuclex.Support.Services {
     /// </remarks>
     public ServiceManager() : this(new AppDomainTypeLister()) { }
 
-#endif // !XBOX360
+#endif // WINDOWS
 
     /// <summary>Initializes a new service manager</summary>
     /// <param name="typeLister">

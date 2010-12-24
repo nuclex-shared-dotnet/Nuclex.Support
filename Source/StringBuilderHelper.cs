@@ -25,12 +25,12 @@ using System.Text;
 
 namespace Nuclex.Support {
 
-/*
-  public enum Garbage {
-    Avoid,
-    Accept
-  }
-*/
+  /*
+    public enum Garbage {
+      Avoid,
+      Accept
+    }
+  */
   /// <summary>Contains helper methods for the string builder class</summary>
   public static class StringBuilderHelper {
 
@@ -70,7 +70,7 @@ namespace Nuclex.Support {
     ///   with a small performance impact compared to the built-in method.
     /// </remarks>
     public static void Append(StringBuilder builder, int value) {
-      if(value < 0) {
+      if (value < 0) {
         builder.Append('-');
         recursiveAppend(builder, -value);
       } else {
@@ -89,7 +89,7 @@ namespace Nuclex.Support {
     ///   with a small performance impact compared to the built-in method.
     /// </remarks>
     public static void Append(StringBuilder builder, long value) {
-      if(value < 0) {
+      if (value < 0) {
         builder.Append('-');
         recursiveAppend(builder, -value);
       } else {
@@ -142,9 +142,9 @@ namespace Nuclex.Support {
 
       int integral;
       int fractional;
-      if(exponent >= 0) {
-        if(exponent >= FractionalBitCount) {
-          if(exponent >= NumericBitCount) {
+      if (exponent >= 0) {
+        if (exponent >= FractionalBitCount) {
+          if (exponent >= NumericBitCount) {
             return false;
           }
           integral = mantissa << (exponent - FractionalBitCount);
@@ -154,7 +154,7 @@ namespace Nuclex.Support {
           fractional = (mantissa << (exponent + 1)) & FractionalBits;
         }
       } else {
-        if(exponent < -FractionalBitCount) {
+        if (exponent < -FractionalBitCount) {
           return false;
         }
         integral = 0;
@@ -162,30 +162,30 @@ namespace Nuclex.Support {
       }
 
       // Build the integral part      
-      if(intValue < 0) {
+      if (intValue < 0) {
         builder.Append('-');
       }
-      if(integral == 0) {
+      if (integral == 0) {
         builder.Append('0');
       } else {
         recursiveAppend(builder, integral);
       }
 
-      if(decimalPlaces > 0) {
+      if (decimalPlaces > 0) {
         builder.Append('.');
 
         // Build the fractional part
-        if(fractional == 0) {
+        if (fractional == 0) {
           builder.Append('0');
         } else {
-          while(fractional != 0) {
+          while (fractional != 0) {
             fractional *= 10;
             int digit = (fractional >> FractionalBitCountPlusOne);
             builder.Append(numbers[digit]);
             fractional &= FractionalBits;
-            
+
             --decimalPlaces;
-            if(decimalPlaces == 0) {
+            if (decimalPlaces == 0) {
               break;
             }
           }
@@ -242,9 +242,9 @@ namespace Nuclex.Support {
 
       long integral;
       long fractional;
-      if(exponent >= 0) {
-        if(exponent >= FractionalBitCount) {
-          if(exponent >= NumericBitCount) {
+      if (exponent >= 0) {
+        if (exponent >= FractionalBitCount) {
+          if (exponent >= NumericBitCount) {
             return false;
           }
           integral = mantissa << (int)(exponent - FractionalBitCount);
@@ -254,7 +254,7 @@ namespace Nuclex.Support {
           fractional = (mantissa << (int)(exponent + 1)) & FractionalBits;
         }
       } else {
-        if(exponent < -FractionalBitCount) {
+        if (exponent < -FractionalBitCount) {
           return false;
         }
         integral = 0;
@@ -262,30 +262,30 @@ namespace Nuclex.Support {
       }
 
       // Build the integral part      
-      if(longValue < 0) {
+      if (longValue < 0) {
         builder.Append('-');
       }
-      if(integral == 0) {
+      if (integral == 0) {
         builder.Append('0');
       } else {
         recursiveAppend(builder, integral);
       }
 
-      if(decimalPlaces > 0) {
+      if (decimalPlaces > 0) {
         builder.Append('.');
 
         // Build the fractional part
-        if(fractional == 0) {
+        if (fractional == 0) {
           builder.Append('0');
         } else {
-          while(fractional != 0) {
+          while (fractional != 0) {
             fractional *= 10;
             long digit = (fractional >> FractionalBitCountPlusOne);
             builder.Append(numbers[digit]);
             fractional &= FractionalBits;
 
             --decimalPlaces;
-            if(decimalPlaces == 0) {
+            if (decimalPlaces == 0) {
               break;
             }
           }
@@ -299,15 +299,15 @@ namespace Nuclex.Support {
     /// <param name="builder">String builder the number will be appended to</param>
     /// <param name="remaining">Remaining digits that will be recursively processed</param>
     private static void recursiveAppend(StringBuilder builder, int remaining) {
-#if XBOX360 || WINDOWS_PHONE
-      int digit = remaining % 10;
-      int tenth = remaining / 10;
-#else
+#if WINDOWS
       int digit;
       int tenth = Math.DivRem(remaining, 10, out digit);
+#else
+      int digit = remaining % 10;
+      int tenth = remaining / 10;
 #endif
 
-      if(tenth > 0) {
+      if (tenth > 0) {
         recursiveAppend(builder, tenth);
       }
 
@@ -318,15 +318,15 @@ namespace Nuclex.Support {
     /// <param name="builder">String builder the number will be appended to</param>
     /// <param name="remaining">Remaining digits that will be recursively processed</param>
     private static void recursiveAppend(StringBuilder builder, long remaining) {
-#if XBOX360 || WINDOWS_PHONE
-      long digit = remaining % 10;
-      long tenth = remaining / 10;
-#else
+#if WINDOWS
       long digit;
       long tenth = Math.DivRem(remaining, 10, out digit);
+#else
+      long digit = remaining % 10;
+      long tenth = remaining / 10;
 #endif
 
-      if(tenth > 0) {
+      if (tenth > 0) {
         recursiveAppend(builder, tenth);
       }
 

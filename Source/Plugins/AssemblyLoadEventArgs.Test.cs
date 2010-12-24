@@ -28,8 +28,6 @@ using NUnit.Framework;
 
 namespace Nuclex.Support.Plugins {
 
-#if XBOX360
-
   /// <summary>Unit Test for the assembly load event argument container</summary>
   [TestFixture]
   public class AssemblyLoadEventArgsTest {
@@ -47,8 +45,6 @@ namespace Nuclex.Support.Plugins {
     }
 
   }
-
-#endif // XBOX360
 
 } // namespace Nuclex.Support.Plugins
 

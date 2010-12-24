@@ -26,7 +26,7 @@ using System.Reflection;
 
 namespace Nuclex.Support.Services {
 
-#if !XBOX360
+#if WINDOWS
 
   /// <summary>Lists the types of all assemblies in an application domain</summary>
   public class AppDomainTypeLister : MultiAssemblyTypeLister {
@@ -56,7 +56,7 @@ namespace Nuclex.Support.Services {
 
   }
 
-#endif // !XBOX360
+#endif // WINDOWS
 
 } // namespace Nuclex.Support.Services
 

@@ -133,7 +133,7 @@ namespace Nuclex.Support.Tracking {
       }
     }
 
-#if !XBOX360 && !WINDOWS_PHONE
+#if WINDOWS
 
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeout">
@@ -150,7 +150,7 @@ namespace Nuclex.Support.Tracking {
       return WaitHandle.WaitOne(timeout, false);
     }
 
-#endif // !XBOX360
+#endif // WINDOWS
 
     /// <summary>Waits until the background process finishes or a timeout occurs</summary>
     /// <param name="timeoutMilliseconds">
@@ -164,13 +164,7 @@ namespace Nuclex.Support.Tracking {
         return true;
       }
 
-#if XNA_3
       return WaitHandle.WaitOne(timeoutMilliseconds, false);
-#elif XBOX360 || WINDOWS_PHONE
-      return WaitHandle.WaitOne(timeoutMilliseconds);
-#else
-      return WaitHandle.WaitOne(timeoutMilliseconds, false);
-#endif
     }
 
     /// <summary>Whether the transaction has ended already</summary>
