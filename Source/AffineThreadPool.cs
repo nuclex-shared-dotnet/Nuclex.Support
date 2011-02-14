@@ -32,7 +32,7 @@ namespace Nuclex.Support {
   ///     Unlike the normal thread pool, the affine thread pool provides only as many
   ///     threads as there are CPU cores available on the current platform. This makes
   ///     it more suitable for tasks you want to spread across all available cpu cores
-  ///     explicitely.
+  ///     explicitly.
   ///   </para>
   ///   <para>
   ///     However, it's not a good match if you want to run blocking or waiting tasks
@@ -97,7 +97,7 @@ namespace Nuclex.Support {
       // We can only use these hardware thread indices on the XBox 360
       hardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
 #else
-      // We can use all cores in the PC, starting from index 1
+      // We can use all cores on a PC, starting from index 1
       hardwareThreads = new Queue<int>(Processors);
       for(int core = Processors; core >= 1; --core) {
         hardwareThreads.Enqueue(core);
@@ -179,6 +179,21 @@ namespace Nuclex.Support {
       throw exception;
     }
 
+#if WINDOWS
+    /// <summary>Retrieves the ProcessThread for the calling thread</summary>
+    /// <returns>The ProcessThread for the calling thread</returns>
+    internal static ProcessThread GetProcessThread(int threadId) {
+      ProcessThreadCollection threads = Process.GetCurrentProcess().Threads;
+      for(int index = 0; index < threads.Count; ++index) {
+        if(threads[index].Id == threadId) {
+          return threads[index];
+        }
+      }
+
+      return null;
+    }
+#endif
+
     /// <summary>A thread worker function that processes items from the work queue</summary>
     private static void ProcessQueuedItems() {
 
@@ -221,8 +236,8 @@ namespace Nuclex.Support {
 
         // Execute the work item we just picked up. Make sure to accurately
         // record how many callbacks are currently executing.
+        Interlocked.Increment(ref inUseThreads);
         try {
-          Interlocked.Increment(ref inUseThreads);
           workItem.Callback(workItem.State);
         }
         catch(Exception exception) { // Make sure we don't throw here.
@@ -236,21 +251,6 @@ namespace Nuclex.Support {
         }
       }
     }
-
-#if WINDOWS
-    /// <summary>Retrieves the ProcessThread for the calling thread</summary>
-    /// <returns>The ProcessThread for the calling thread</returns>
-    internal static ProcessThread GetProcessThread(int threadId) {
-      ProcessThreadCollection threads = Process.GetCurrentProcess().Threads;
-      for(int index = 0; index < threads.Count; ++index) {
-        if(threads[index].Id == threadId) {
-          return threads[index];
-        }
-      }
-
-      return null;
-    }
-#endif
 
     /// <summary>Obtains the next work item from the queue</summary>
     /// <returns>The next work item in the queue</returns>
@@ -272,7 +272,10 @@ namespace Nuclex.Support {
           }
         }
 
-        // If we can't get one, go to sleep.
+        // If we can't get one, go to sleep. The semaphore blocks until work
+        // becomes available (then acting like an AutoResetEvent that counts
+        // how often it has been triggered and letting that number of threads
+        // pass through.)
         workAvailable.WaitOne();
 
       }

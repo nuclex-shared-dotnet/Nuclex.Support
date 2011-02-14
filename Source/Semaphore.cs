@@ -150,7 +150,7 @@ namespace Nuclex.Support {
         // resource to become available.
         if(newFree >= 0) {
 #if NO_EXITCONTEXT
-          if (!this.manualResetEvent.WaitOne(millisecondsTimeout)) {
+          if(!this.manualResetEvent.WaitOne(millisecondsTimeout)) {
 #else
           if(!this.manualResetEvent.WaitOne(millisecondsTimeout, exitContext)) {
 #endif

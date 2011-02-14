@@ -42,6 +42,12 @@
     <XnaCompressContent>true</XnaCompressContent>
     <DocumentationFile>bin\xna-4.0-xbox360\Release\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Foundation.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework">
       <Private>False</Private>
@@ -412,6 +418,11 @@
     <Content Include="Documents\CommandLine.txt" />
     <Content Include="Documents\Nuclex.Support.txt" />
     <Content Include="Documents\Request Framework.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Foundation.snk">
+      <Link>Foundation.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
