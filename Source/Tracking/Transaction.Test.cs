@@ -26,7 +26,7 @@ using System.IO;
 using System.Threading;
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Tracking {
 
@@ -105,7 +105,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
     }
 
     /// <summary>
@@ -128,10 +128,8 @@ namespace Nuclex.Support.Tracking {
     public void TestEndedEventAfterSubscription() {
       TestTransaction test = new TestTransaction();
 
-      ITransactionSubscriber mockedSubscriber = mockSubscriber(test);
-      Expect.Once.On(mockedSubscriber).
-        Method("Ended").
-        WithAnyArguments();
+      Mock<ITransactionSubscriber> mockedSubscriber = mockSubscriber(test);
+      mockedSubscriber.Expects.One.Method(m => m.Ended(null, null)).WithAnyArguments();
 
       test.End();
 
@@ -147,14 +145,12 @@ namespace Nuclex.Support.Tracking {
       TestTransaction test = new TestTransaction();
       test.End();
 
-      ITransactionSubscriber mockedSubscriber =
-        this.mockery.NewMock<ITransactionSubscriber>();
+      Mock<ITransactionSubscriber> mockedSubscriber =
+        this.mockery.CreateMock<ITransactionSubscriber>();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("Ended").
-        WithAnyArguments();
+      mockedSubscriber.Expects.One.Method(m => m.Ended(null, null)).WithAnyArguments();
 
-      test.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      test.AsyncEnded += new EventHandler(mockedSubscriber.MockObject.Ended);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -221,10 +217,10 @@ namespace Nuclex.Support.Tracking {
       TestTransaction monitored = new TestTransaction();
       UnsubscribingTransaction test = new UnsubscribingTransaction(monitored);
 
-      ITransactionSubscriber mockedSubscriber = mockSubscriber(monitored);
+      Mock<ITransactionSubscriber> mockedSubscriber = mockSubscriber(monitored);
 
       try {
-        Expect.Once.On(mockedSubscriber).Method("Ended").WithAnyArguments();
+        mockedSubscriber.Expects.One.Method(m => m.Ended(null, null)).WithAnyArguments();
         monitored.End();
         this.mockery.VerifyAllExpectationsHaveBeenMet();
       }
@@ -236,17 +232,17 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a transaction</summary>
     /// <param name="transaction">Transaction to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private ITransactionSubscriber mockSubscriber(Transaction transaction) {
-      ITransactionSubscriber mockedSubscriber =
-        this.mockery.NewMock<ITransactionSubscriber>();
+    private Mock<ITransactionSubscriber> mockSubscriber(Transaction transaction) {
+      Mock<ITransactionSubscriber> mockedSubscriber =
+        this.mockery.CreateMock<ITransactionSubscriber>();
 
-      transaction.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      transaction.AsyncEnded += new EventHandler(mockedSubscriber.MockObject.Ended);
 
       return mockedSubscriber;
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
 
   }
 

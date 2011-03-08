@@ -24,7 +24,7 @@ using System.Collections.Generic;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Collections {
 
@@ -64,30 +64,30 @@ namespace Nuclex.Support.Collections {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
 
-      this.mockedSubscriber = this.mockery.NewMock<IObservableCollectionSubscriber>();
+      this.mockedSubscriber = this.mockery.CreateMock<IObservableCollectionSubscriber>();
 
       this.observedCollection = new ObservableCollection<int>();
-      this.observedCollection.Clearing +=
-        new EventHandler(this.mockedSubscriber.Clearing);
-      this.observedCollection.Cleared +=
-        new EventHandler(this.mockedSubscriber.Cleared);
-      this.observedCollection.ItemAdded +=
-        new EventHandler<ItemEventArgs<int>>(
-          this.mockedSubscriber.ItemAdded
-        );
-      this.observedCollection.ItemRemoved +=
-        new EventHandler<ItemEventArgs<int>>(
-          this.mockedSubscriber.ItemRemoved
-        );
+      this.observedCollection.Clearing += new EventHandler(
+        this.mockedSubscriber.MockObject.Clearing
+      );
+      this.observedCollection.Cleared += new EventHandler(
+        this.mockedSubscriber.MockObject.Cleared
+      );
+      this.observedCollection.ItemAdded += new EventHandler<ItemEventArgs<int>>(
+        this.mockedSubscriber.MockObject.ItemAdded
+      );
+      this.observedCollection.ItemRemoved += new EventHandler<ItemEventArgs<int>>(
+        this.mockedSubscriber.MockObject.ItemRemoved
+      );
     }
 
     /// <summary>Tests whether the Clearing event is fired</summary>
     [Test]
     public void TestClearingEvent() {
-      Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.Clearing(null, null)).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.Cleared(null, null)).WithAnyArguments();
       this.observedCollection.Clear();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
@@ -96,7 +96,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether the ItemAdded event is fired</summary>
     [Test]
     public void TestItemAddedEvent() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
       this.observedCollection.Add(123);
 
@@ -106,11 +106,11 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether the ItemRemoved event is fired</summary>
     [Test]
     public void TestItemRemovedEvent() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
       this.observedCollection.Add(123);
 
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
 
       this.observedCollection.Remove(123);
 
@@ -120,14 +120,16 @@ namespace Nuclex.Support.Collections {
     /// <summary>Tests whether items in the collection can be replaced</summary>
     [Test]
     public void TestItemReplacement() {
-      Expect.Exactly(3).On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.Exactly(3).Method(
+        m => m.ItemAdded(null, null)
+      ).WithAnyArguments();
 
       this.observedCollection.Add(1);
       this.observedCollection.Add(2);
       this.observedCollection.Add(3);
 
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
       // Replace the middle item with something else
       this.observedCollection[1] = 4;
@@ -150,9 +152,9 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
     /// <summary>The mocked observable collection subscriber</summary>
-    private IObservableCollectionSubscriber mockedSubscriber;
+    private Mock<IObservableCollectionSubscriber> mockedSubscriber;
     /// <summary>An observable collection to which a mock will be subscribed</summary>
     private ObservableCollection<int> observedCollection;
 

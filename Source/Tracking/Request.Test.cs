@@ -27,7 +27,6 @@ using System.IO;
 using Nuclex.Support.Scheduling;
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Tracking {
 

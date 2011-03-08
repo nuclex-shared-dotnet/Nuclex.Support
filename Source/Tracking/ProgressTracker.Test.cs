@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Tracking {
 
@@ -161,28 +161,28 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
     }
 
     /// <summary>Validates that the tracker properly sums the progress</summary>
     [Test]
     public void TestSummedProgress() {
       using(ProgressTracker tracker = new ProgressTracker()) {
-        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        Mock<IProgressTrackerSubscriber> mockedSubscriber = mockSubscriber(tracker);
 
         TestTransaction test1 = new TestTransaction();
         TestTransaction test2 = new TestTransaction();
 
         // Step 1
         {
-          Expect.Once.On(mockedSubscriber).Method("IdleStateChanged").WithAnyArguments();
+          mockedSubscriber.Expects.One.Method(
+            m => m.IdleStateChanged(null, null)
+          ).WithAnyArguments();
 
           // Since the progress is already at 0, these redundant reports are optional
-          Expect.Between(0, 2).On(mockedSubscriber).Method("ProgressChanged").With(
-            new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-            }
+          mockedSubscriber.Expects.Between(0, 2).Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
           );
 
           tracker.Track(test1);
@@ -191,11 +191,9 @@ namespace Nuclex.Support.Tracking {
 
         // Step 2
         {
-          Expect.Once.On(mockedSubscriber).Method("ProgressChanged").With(
-            new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-            }
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
           );
 
           test1.ChangeProgress(0.5f);
@@ -216,27 +214,23 @@ namespace Nuclex.Support.Tracking {
     [Test]
     public void TestDelayedRemoval() {
       using(ProgressTracker tracker = new ProgressTracker()) {
-        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        Mock<IProgressTrackerSubscriber> mockedSubscriber = mockSubscriber(tracker);
 
         TestTransaction test1 = new TestTransaction();
         TestTransaction test2 = new TestTransaction();
 
         // Step 1
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("IdleStateChanged").
-            WithAnyArguments();
+          mockedSubscriber.Expects.One.Method(
+            m => m.IdleStateChanged(null, null)
+          ).WithAnyArguments();
 
           // This is optional. The tracker's progress is currently 0, so there's no need
           // to send out superfluous progress reports.
-          Expect.Between(0, 2).On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-            }
-            );
+          mockedSubscriber.Expects.Between(0, 2).Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+          );
 
           tracker.Track(test1);
           tracker.Track(test2);
@@ -244,14 +238,10 @@ namespace Nuclex.Support.Tracking {
 
         // Step 2
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-            }
-            );
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+          );
 
           // Total progress should be 0.25 after this call (two transactions, one with
           // 0% progress and one with 50% progress)
@@ -260,14 +250,10 @@ namespace Nuclex.Support.Tracking {
 
         // Step 3
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.75f))
-            }
-            );
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.75f))
+          );
 
           // Total progress should be 0.75 after this call (one transaction at 100%,
           // the other one at 50%). If the second transaction would be removed by the tracker,
@@ -277,18 +263,14 @@ namespace Nuclex.Support.Tracking {
 
         // Step 4
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-              new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
-            }
-            );
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+          );
 
-          Expect.Once.On(mockedSubscriber).
-            Method("IdleStateChanged").
-            WithAnyArguments();
+          mockedSubscriber.Expects.One.Method(
+            m => m.IdleStateChanged(null, null)
+          ).WithAnyArguments();
 
           test1.End();
         }
@@ -304,10 +286,14 @@ namespace Nuclex.Support.Tracking {
     [Test]
     public void TestSoleEndedTransaction() {
       using(ProgressTracker tracker = new ProgressTracker()) {
-        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        Mock<IProgressTrackerSubscriber> mockedSubscriber = mockSubscriber(tracker);
 
-        Expect.Never.On(mockedSubscriber).Method("IdleStateChanged").WithAnyArguments();
-        Expect.Never.On(mockedSubscriber).Method("ProgressChanged").WithAnyArguments();
+        mockedSubscriber.Expects.No.Method(
+          m => m.IdleStateChanged(null, null)
+        ).WithAnyArguments();
+        mockedSubscriber.Expects.No.Method(
+          m => m.ProgressChanged(null, null)
+        ).WithAnyArguments();
 
         tracker.Track(Transaction.EndedDummy);
       }
@@ -322,56 +308,44 @@ namespace Nuclex.Support.Tracking {
     [Test]
     public void TestEndedTransaction() {
       using(ProgressTracker tracker = new ProgressTracker()) {
-        IProgressTrackerSubscriber mockedSubscriber = mockSubscriber(tracker);
+        Mock<IProgressTrackerSubscriber> mockedSubscriber = mockSubscriber(tracker);
 
         TestTransaction test1 = new TestTransaction();
 
         // Step 1
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("IdleStateChanged").
-            WithAnyArguments();
+          mockedSubscriber.Expects.One.Method(
+            m => m.IdleStateChanged(null, null)
+          ).WithAnyArguments();
 
-          Expect.Between(0, 1).On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
-              }
-            );
+          mockedSubscriber.Expects.AtMost(1).Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.0f))
+          );
 
           tracker.Track(test1);
         }
 
         // Step 2
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.5f))
-              }
-            );
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(0.5f))
+          );
 
           tracker.Track(Transaction.EndedDummy);
         }
 
         // Step 3
         {
-          Expect.Once.On(mockedSubscriber).
-            Method("ProgressChanged").
-            With(
-              new Matcher[] {
-                new NMock2.Matchers.TypeMatcher(typeof(ProgressTracker)),
-                new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
-              }
-            );
+          mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+            new NMock.Matchers.TypeMatcher(typeof(ProgressTracker)),
+            new ProgressReportEventArgsMatcher(new ProgressReportEventArgs(1.0f))
+          );
 
-          Expect.Once.On(mockedSubscriber).
-            Method("IdleStateChanged").
-            WithAnyArguments();
+          mockedSubscriber.Expects.One.Method(
+            m => m.IdleStateChanged(null, null)
+          ).WithAnyArguments();
 
           test1.End();
         }
@@ -512,21 +486,21 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a tracker</summary>
     /// <param name="tracker">Tracker to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private IProgressTrackerSubscriber mockSubscriber(ProgressTracker tracker) {
-      IProgressTrackerSubscriber mockedSubscriber =
-        this.mockery.NewMock<IProgressTrackerSubscriber>();
+    private Mock<IProgressTrackerSubscriber> mockSubscriber(ProgressTracker tracker) {
+      Mock<IProgressTrackerSubscriber> mockedSubscriber =
+        this.mockery.CreateMock<IProgressTrackerSubscriber>();
 
       tracker.AsyncIdleStateChanged +=
-        new EventHandler<IdleStateEventArgs>(mockedSubscriber.IdleStateChanged);
+        new EventHandler<IdleStateEventArgs>(mockedSubscriber.MockObject.IdleStateChanged);
 
       tracker.AsyncProgressChanged +=
-        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.MockObject.ProgressChanged);
 
       return mockedSubscriber;
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
 
   }
 

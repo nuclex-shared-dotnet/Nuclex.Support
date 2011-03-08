@@ -25,7 +25,6 @@ using System.Threading;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Tracking {
 

@@ -24,7 +24,6 @@ using System.Collections.Generic;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Collections {
 

@@ -25,7 +25,7 @@ using System.Collections.Generic;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Collections {
 
@@ -477,13 +477,13 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestSynchronizationOfIListWithoutICollection() {
-      Mockery mockery = new Mockery();
-      IList<int> mockedIList = mockery.NewMock<IList<int>>();
-      StringTransformer testCollection = new StringTransformer(mockedIList);
+      MockFactory mockery = new MockFactory();
+      Mock<IList<int>> mockedIList = mockery.CreateMock<IList<int>>();
+      StringTransformer testCollection = new StringTransformer(mockedIList.MockObject);
 
       if(!(testCollection as ICollection).IsSynchronized) {
         lock((testCollection as ICollection).SyncRoot) {
-          Expect.Once.On(mockedIList).GetProperty("Count").Will(Return.Value(12345));
+          mockedIList.Expects.One.GetProperty(p => p.Count).WillReturn(12345);
           int count = testCollection.Count;
           Assert.AreEqual(12345, count); // ;-)
         }

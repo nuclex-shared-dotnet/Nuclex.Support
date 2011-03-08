@@ -25,7 +25,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Collections {
 

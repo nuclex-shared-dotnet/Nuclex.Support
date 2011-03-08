@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 using Nuclex.Support.Tracking;
 
@@ -166,7 +166,7 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
     }
 
     /// <summary>Validates that the queue executes operations sequentially</summary>
@@ -180,29 +180,25 @@ namespace Nuclex.Support.Scheduling {
           new TestOperation[] { operation1, operation2 }
         );
 
-      IOperationQueueSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
+      Mock<IOperationQueueSubscriber> mockedSubscriber = mockSubscriber(testQueueOperation);
 
       testQueueOperation.Start();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-          }
-        );
+      mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+        new Matcher[] {
+          new NMock.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+          new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+        }
+      );
 
       operation1.ChangeProgress(0.5f);
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
-          }
-        );
+      mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+        new Matcher[] {
+          new NMock.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+          new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
+        }
+      );
 
       operation1.SetEnded();
 
@@ -226,29 +222,21 @@ namespace Nuclex.Support.Scheduling {
           }
         );
 
-      IOperationQueueSubscriber mockedSubscriber = mockSubscriber(testQueueOperation);
+      Mock<IOperationQueueSubscriber> mockedSubscriber = mockSubscriber(testQueueOperation);
 
       testQueueOperation.Start();
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.1f))
-          }
-        );
+      mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+        new NMock.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+        new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.1f))
+      );
 
       operation1.ChangeProgress(0.5f);
 
-      Expect.Once.On(mockedSubscriber).
-        Method("ProgressChanged").
-        With(
-          new Matcher[] {
-            new NMock2.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
-            new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.2f))
-          }
-        );
+      mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+        new NMock.Matchers.TypeMatcher(typeof(OperationQueue<TestOperation>)),
+        new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.2f))
+      );
 
       operation1.SetEnded();
 
@@ -341,19 +329,19 @@ namespace Nuclex.Support.Scheduling {
     /// <summary>Mocks a subscriber for the events of an operation</summary>
     /// <param name="operation">Operation to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private IOperationQueueSubscriber mockSubscriber(Operation operation) {
-      IOperationQueueSubscriber mockedSubscriber =
-        this.mockery.NewMock<IOperationQueueSubscriber>();
+    private Mock<IOperationQueueSubscriber> mockSubscriber(Operation operation) {
+      Mock<IOperationQueueSubscriber> mockedSubscriber =
+        this.mockery.CreateMock<IOperationQueueSubscriber>();
 
-      operation.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      operation.AsyncEnded += new EventHandler(mockedSubscriber.MockObject.Ended);
       (operation as IProgressReporter).AsyncProgressChanged +=
-        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.MockObject.ProgressChanged);
 
       return mockedSubscriber;
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
 
   }
 

@@ -25,7 +25,6 @@ using System.Collections.Generic;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Collections {
 
@@ -75,6 +74,35 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion // class Dummy
+
+    #region class ListWithoutICollection
+
+    private class ListWithoutICollection : IList<WeakReference<Dummy>> {
+      public int IndexOf(WeakReference<Dummy> item) { throw new NotImplementedException(); }
+      public void Insert(int index, WeakReference<Dummy> item) {
+        throw new NotImplementedException();
+      }
+      public void RemoveAt(int index) { throw new NotImplementedException(); }
+      public WeakReference<Dummy> this[int index] {
+        get { throw new NotImplementedException(); }
+        set { throw new NotImplementedException(); }
+      }
+      public void Add(WeakReference<Dummy> item) { throw new NotImplementedException(); }
+      public void Clear() { throw new NotImplementedException(); }
+      public bool Contains(WeakReference<Dummy> item) { throw new NotImplementedException(); }
+      public void CopyTo(WeakReference<Dummy>[] array, int arrayIndex) {
+        throw new NotImplementedException();
+      }
+      public int Count { get { return 12345; } }
+      public bool IsReadOnly { get { throw new NotImplementedException(); } }
+      public bool Remove(WeakReference<Dummy> item) { throw new NotImplementedException(); }
+      public IEnumerator<WeakReference<Dummy>> GetEnumerator() {
+        throw new NotImplementedException();
+      }
+      IEnumerator IEnumerable.GetEnumerator() { throw new NotImplementedException(); }
+    }
+
+    #endregion // class ListWithoutICollection
 
     /// <summary>Verifies that the constructor of the weak collection is working</summary>
     [Test]
@@ -590,31 +618,6 @@ namespace Nuclex.Support.Collections {
           Assert.AreEqual(0, dummies.Count);
         }
       }
-    }
-
-    private class ListWithoutICollection : IList<WeakReference<Dummy>> {
-      public int IndexOf(WeakReference<Dummy> item) { throw new NotImplementedException(); }
-      public void Insert(int index, WeakReference<Dummy> item) {
-        throw new NotImplementedException();
-      }
-      public void RemoveAt(int index) { throw new NotImplementedException(); }
-      public WeakReference<Dummy> this[int index] {
-        get { throw new NotImplementedException(); }
-        set { throw new NotImplementedException(); }
-      }
-      public void Add(WeakReference<Dummy> item) { throw new NotImplementedException(); }
-      public void Clear() { throw new NotImplementedException(); }
-      public bool Contains(WeakReference<Dummy> item) { throw new NotImplementedException(); }
-      public void CopyTo(WeakReference<Dummy>[] array, int arrayIndex) {
-        throw new NotImplementedException();
-      }
-      public int Count { get { return 12345; } }
-      public bool IsReadOnly { get { throw new NotImplementedException(); } }
-      public bool Remove(WeakReference<Dummy> item) { throw new NotImplementedException(); }
-      public IEnumerator<WeakReference<Dummy>> GetEnumerator() {
-        throw new NotImplementedException();
-      }
-      IEnumerator IEnumerable.GetEnumerator() { throw new NotImplementedException(); }
     }
 
     /// <summary>

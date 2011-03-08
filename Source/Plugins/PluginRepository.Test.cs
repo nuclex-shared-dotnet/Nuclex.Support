@@ -26,7 +26,7 @@ using System.Reflection;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Plugins {
 
@@ -141,12 +141,12 @@ namespace Nuclex.Support.Plugins {
     /// </summary>
     [Test]
     public void TestAssemblyLoadedEvent() {
-      Mockery mockery = new Mockery();
+      MockFactory mockery = new MockFactory();
 
       PluginRepository testRepository = new PluginRepository();
-      IAssemblyLoadedSubscriber subscriber = mockSubscriber(mockery, testRepository);
+      Mock<IAssemblyLoadedSubscriber> subscriber = mockSubscriber(mockery, testRepository);
 
-      Expect.Once.On(subscriber).Method("AssemblyLoaded").WithAnyArguments();
+      subscriber.Expects.One.Method(m => m.AssemblyLoaded(null, null)).WithAnyArguments();
 
       Assembly self = Assembly.GetAssembly(GetType());
       testRepository.AddAssembly(self);
@@ -202,14 +202,14 @@ namespace Nuclex.Support.Plugins {
     /// <param name="mockery">Mockery to create an event subscriber in</param>
     /// <param name="repository">Repository to subscribe the mocked subscriber to</param>
     /// <returns>The mocked event subscriber</returns>
-    private static IAssemblyLoadedSubscriber mockSubscriber(
-      Mockery mockery, PluginRepository repository
+    private static Mock<IAssemblyLoadedSubscriber> mockSubscriber(
+      MockFactory mockery, PluginRepository repository
     ) {
-      IAssemblyLoadedSubscriber mockedSubscriber =
-        mockery.NewMock<IAssemblyLoadedSubscriber>();
+      Mock<IAssemblyLoadedSubscriber> mockedSubscriber =
+        mockery.CreateMock<IAssemblyLoadedSubscriber>();
 
       repository.AssemblyLoaded += new AssemblyLoadEventHandler(
-        mockedSubscriber.AssemblyLoaded
+        mockedSubscriber.MockObject.AssemblyLoaded
       );
 
       return mockedSubscriber;

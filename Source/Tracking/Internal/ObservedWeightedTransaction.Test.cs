@@ -25,7 +25,7 @@ using System.Threading;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Tracking {
 
@@ -85,7 +85,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
     }
 
     /// <summary>Verifies that the constructor of the observation wrapper works</summary>
@@ -95,23 +95,23 @@ namespace Nuclex.Support.Tracking {
         Transaction.EndedDummy
       );
 
-      IObservationSubscriber subscriber = this.mockery.NewMock<IObservationSubscriber>();
+      Mock<IObservationSubscriber> subscriber = this.mockery.CreateMock<IObservationSubscriber>();
 
-      Expect.AtLeast(0).On(subscriber).Method("ProgressUpdated");
+      subscriber.Expects.AtLeast(0).Method(m => m.ProgressUpdated());
       // This should no be called because otherwise, the 'Ended' event would be raised
       // to the transaction group before all transactions have been added into
       // the internal list, leading to an early ending or even multiple endings.
-      Expect.Never.On(subscriber).Method("Ended");
+      subscriber.Expects.No.Method(m => m.Ended());
 
       using(
         ObservedWeightedTransaction<Transaction> test =
           new ObservedWeightedTransaction<Transaction>(
             testTransaction,
             new ObservedWeightedTransaction<Transaction>.ReportDelegate(
-              subscriber.ProgressUpdated
+              subscriber.MockObject.ProgressUpdated
             ),
             new ObservedWeightedTransaction<Transaction>.ReportDelegate(
-              subscriber.Ended
+              subscriber.MockObject.Ended
             )
           )
       ) {
@@ -129,20 +129,20 @@ namespace Nuclex.Support.Tracking {
         new FunkyTransaction()
       );
 
-      IObservationSubscriber subscriber = this.mockery.NewMock<IObservationSubscriber>();
+      Mock<IObservationSubscriber> subscriber = this.mockery.CreateMock<IObservationSubscriber>();
 
-      Expect.AtLeast(0).On(subscriber).Method("ProgressUpdated");
-      Expect.Once.On(subscriber).Method("Ended");
+      subscriber.Expects.AtLeast(0).Method(m => m.ProgressUpdated());
+      subscriber.Expects.One.Method(m => m.Ended());
 
       using(
         ObservedWeightedTransaction<Transaction> test =
           new ObservedWeightedTransaction<Transaction>(
             testTransaction,
             new ObservedWeightedTransaction<Transaction>.ReportDelegate(
-              subscriber.ProgressUpdated
+              subscriber.MockObject.ProgressUpdated
             ),
             new ObservedWeightedTransaction<Transaction>.ReportDelegate(
-              subscriber.Ended
+              subscriber.MockObject.Ended
             )
         )
       ) {
@@ -151,7 +151,7 @@ namespace Nuclex.Support.Tracking {
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
 
   }
 

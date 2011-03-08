@@ -27,7 +27,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Collections {
 
@@ -67,9 +67,9 @@ namespace Nuclex.Support.Collections {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
 
-      this.mockedSubscriber = this.mockery.NewMock<IObservableDictionarySubscriber>();
+      this.mockedSubscriber = this.mockery.CreateMock<IObservableDictionarySubscriber>();
 
       this.observedDictionary = new ObservableDictionary<int, string>();
       this.observedDictionary.Add(1, "one");
@@ -78,16 +78,16 @@ namespace Nuclex.Support.Collections {
       this.observedDictionary.Add(42, "forty-two");
 
       this.observedDictionary.Clearing +=
-        new EventHandler(this.mockedSubscriber.Clearing);
+        new EventHandler(this.mockedSubscriber.MockObject.Clearing);
       this.observedDictionary.Cleared +=
-        new EventHandler(this.mockedSubscriber.Cleared);
+        new EventHandler(this.mockedSubscriber.MockObject.Cleared);
       this.observedDictionary.ItemAdded +=
         new EventHandler<ItemEventArgs<KeyValuePair<int, string>>>(
-          this.mockedSubscriber.ItemAdded
+          this.mockedSubscriber.MockObject.ItemAdded
         );
       this.observedDictionary.ItemRemoved +=
         new EventHandler<ItemEventArgs<KeyValuePair<int, string>>>(
-          this.mockedSubscriber.ItemRemoved
+          this.mockedSubscriber.MockObject.ItemRemoved
         );
     }
 
@@ -249,7 +249,7 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestAddViaGenericIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
       (this.observedDictionary as IDictionary<int, string>).Add(10, "ten");
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -264,7 +264,7 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestRemoveViaGenericIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
       (this.observedDictionary as IDictionary<int, string>).Remove(3);
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -287,8 +287,12 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestReplaceByIndexerViaGenericIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemRemoved(null, null)
+      ).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemAdded(null, null)
+      ).WithAnyArguments();
       (this.observedDictionary as IDictionary<int, string>)[42] = "two and fourty";
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -300,8 +304,12 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestClearViaIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.Clearing(null, null)
+      ).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.Cleared(null, null)
+      ).WithAnyArguments();
       (this.observedDictionary as IDictionary).Clear();
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -313,7 +321,9 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestAddViaIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemAdded(null, null)
+      ).WithAnyArguments();
       (this.observedDictionary as IDictionary).Add(24, "twenty-four");
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -380,7 +390,7 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestRemoveViaIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
       (this.observedDictionary as IDictionary).Remove(3);
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -401,8 +411,13 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestReplaceByIndexerViaIDictionary() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemRemoved(null, null)
+      ).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemAdded(null, null)
+      ).WithAnyArguments();
+
       (this.observedDictionary as IDictionary)[42] = "two and fourty";
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -415,7 +430,10 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestAddViaGenericICollection() {
-      Expect.Once.On(this.mockedSubscriber).Method("ItemAdded").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemAdded(null, null)
+      ).WithAnyArguments();
+
       (this.observedDictionary as ICollection<KeyValuePair<int, string>>).Add(
         new KeyValuePair<int, string>(24, "twenty-four")
       );
@@ -432,8 +450,13 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void TestClearViaGenericICollection() {
-      Expect.Once.On(this.mockedSubscriber).Method("Clearing").WithAnyArguments();
-      Expect.Once.On(this.mockedSubscriber).Method("Cleared").WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.Clearing(null, null)
+      ).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.Cleared(null, null)
+      ).WithAnyArguments();
+
       (this.observedDictionary as ICollection<KeyValuePair<int, string>>).Clear();
       this.mockery.VerifyAllExpectationsHaveBeenMet();
 
@@ -449,7 +472,11 @@ namespace Nuclex.Support.Collections {
       IEnumerator<KeyValuePair<int, string>> enumerator =
         (this.observedDictionary as ICollection<KeyValuePair<int, string>>).GetEnumerator();
       enumerator.MoveNext();
-      Expect.Once.On(this.mockedSubscriber).Method("ItemRemoved").WithAnyArguments();
+
+      this.mockedSubscriber.Expects.One.Method(
+        m => m.ItemRemoved(null, null)
+      ).WithAnyArguments();
+
       (this.observedDictionary as ICollection<KeyValuePair<int, string>>).Remove(
         enumerator.Current
       );
@@ -537,9 +564,9 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
     /// <summary>The mocked observable collection subscriber</summary>
-    private IObservableDictionarySubscriber mockedSubscriber;
+    private Mock<IObservableDictionarySubscriber> mockedSubscriber;
     /// <summary>An observable dictionary to which a mock will be subscribed</summary>
     private ObservableDictionary<int, string> observedDictionary;
 

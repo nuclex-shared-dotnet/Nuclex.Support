@@ -26,7 +26,7 @@ using System.Threading;
 #if UNITTEST
 
 using NUnit.Framework;
-using NMock2;
+using NMock;
 
 namespace Nuclex.Support.Tracking {
 
@@ -190,7 +190,7 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new Mockery();
+      this.mockery = new MockFactory();
     }
 
     /// <summary>Validates that the transaction group correctly sums the progress</summary>
@@ -202,16 +202,12 @@ namespace Nuclex.Support.Tracking {
             new TestTransaction[] { new TestTransaction(), new TestTransaction() }
           )
       ) {
-        ITransactionGroupSubscriber mockedSubscriber = mockSubscriber(testTransactionGroup);
+        Mock<ITransactionGroupSubscriber> mockedSubscriber = mockSubscriber(testTransactionGroup);
 
-        Expect.Once.On(mockedSubscriber).
-          Method("ProgressChanged").
-          With(
-            new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
-              new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
-            }
-          );
+        mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+          new NMock.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
+          new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.25f))
+        );
 
         testTransactionGroup.Children[0].Transaction.ChangeProgress(0.5f);
 
@@ -231,27 +227,19 @@ namespace Nuclex.Support.Tracking {
             }
           )
       ) {
-        ITransactionGroupSubscriber mockedSubscriber = mockSubscriber(testTransactionGroup);
+        Mock<ITransactionGroupSubscriber> mockedSubscriber = mockSubscriber(testTransactionGroup);
 
-        Expect.Once.On(mockedSubscriber).
-          Method("ProgressChanged").
-          With(
-            new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
-              new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f / 3.0f))
-            }
-          );
+        mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+          new NMock.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
+          new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f / 3.0f))
+        );
 
         testTransactionGroup.Children[0].Transaction.ChangeProgress(0.5f);
 
-        Expect.Once.On(mockedSubscriber).
-          Method("ProgressChanged").
-          With(
-            new Matcher[] {
-              new NMock2.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
-              new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
-            }
-          );
+        mockedSubscriber.Expects.One.Method(m => m.ProgressChanged(null, null)).With(
+          new NMock.Matchers.TypeMatcher(typeof(TransactionGroup<TestTransaction>)),
+          new ProgressUpdateEventArgsMatcher(new ProgressReportEventArgs(0.5f))
+        );
 
         testTransactionGroup.Children[1].Transaction.ChangeProgress(0.5f);
 
@@ -271,15 +259,15 @@ namespace Nuclex.Support.Tracking {
             new TestTransaction[] { new TestTransaction(), new TestTransaction() }
           )
       ) {
-        ITransactionGroupSubscriber mockedSubscriber = mockSubscriber(testTransactionGroup);
+        Mock<ITransactionGroupSubscriber> mockedSubscriber = mockSubscriber(testTransactionGroup);
 
-        Expect.Exactly(2).On(mockedSubscriber).
-          Method("ProgressChanged").
-          WithAnyArguments();
+        mockedSubscriber.Expects.Exactly(2).Method(
+          m => m.ProgressChanged(null, null)
+        ).WithAnyArguments();
 
-        Expect.Once.On(mockedSubscriber).
-          Method("Ended").
-          WithAnyArguments();
+        mockedSubscriber.Expects.One.Method(
+          m => m.Ended(null, null)
+        ).WithAnyArguments();
 
         testTransactionGroup.Children[0].Transaction.End();
         testTransactionGroup.Children[1].Transaction.End();
@@ -300,15 +288,16 @@ namespace Nuclex.Support.Tracking {
             new TestTransaction[] { new TestTransaction() }
           )
       ) {
-        ITransactionGroupSubscriber mockedSubscriber = mockSubscriber(testTransactionGroup);
+        Mock<ITransactionGroupSubscriber> mockedSubscriber = mockSubscriber(testTransactionGroup);
 
-        Expect.Once.On(mockedSubscriber).
-          Method("ProgressChanged").
-          WithAnyArguments();
+        mockedSubscriber.Expects.One.Method(
+          m => m.ProgressChanged(null, null)
+        ).WithAnyArguments();
 
-        Expect.Once.On(mockedSubscriber).
-          Method("Ended").
-          WithAnyArguments();
+        mockedSubscriber.Expects.One.Method(
+          m => m.Ended(null, null)
+        ).WithAnyArguments();
+
 
         testTransactionGroup.Children[0].Transaction.End();
 
@@ -376,19 +365,19 @@ namespace Nuclex.Support.Tracking {
     /// <summary>Mocks a subscriber for the events of a transaction</summary>
     /// <param name="transaction">Transaction to mock an event subscriber for</param>
     /// <returns>The mocked event subscriber</returns>
-    private ITransactionGroupSubscriber mockSubscriber(Transaction transaction) {
-      ITransactionGroupSubscriber mockedSubscriber =
-        this.mockery.NewMock<ITransactionGroupSubscriber>();
+    private Mock<ITransactionGroupSubscriber> mockSubscriber(Transaction transaction) {
+      Mock<ITransactionGroupSubscriber> mockedSubscriber =
+        this.mockery.CreateMock<ITransactionGroupSubscriber>();
 
-      transaction.AsyncEnded += new EventHandler(mockedSubscriber.Ended);
+      transaction.AsyncEnded += new EventHandler(mockedSubscriber.MockObject.Ended);
       (transaction as IProgressReporter).AsyncProgressChanged +=
-        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.ProgressChanged);
+        new EventHandler<ProgressReportEventArgs>(mockedSubscriber.MockObject.ProgressChanged);
 
       return mockedSubscriber;
     }
 
     /// <summary>Mock object factory</summary>
-    private Mockery mockery;
+    private MockFactory mockery;
 
   }
 

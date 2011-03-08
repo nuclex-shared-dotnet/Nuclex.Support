@@ -26,7 +26,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using NUnit.Framework;
-using NMock2;
 
 namespace Nuclex.Support.Scheduling {
 
@@ -57,7 +56,6 @@ namespace Nuclex.Support.Scheduling {
 
       Assert.AreSame(inner, testException.InnerException);
     }
-
 
     /// <summary>
     ///   Test whether the exception can be serialized
