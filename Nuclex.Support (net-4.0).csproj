@@ -76,11 +76,22 @@
     <Compile Include="Source\Collections\Deque.Test.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\IMultiDictionary.cs" />
     <Compile Include="Source\Collections\IObservableCollection.cs" />
     <Compile Include="Source\Collections\IRecyclable.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
       <DependentUpon>ItemEventArgs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.cs" />
+    <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Interfaces.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Test.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\ObservableCollection.cs" />
     <Compile Include="Source\Collections\ObservableCollection.Test.cs">
@@ -376,6 +387,9 @@
     <None Include="..\Foundation.snk">
       <Link>Foundation.snk</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Source\Cloning\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

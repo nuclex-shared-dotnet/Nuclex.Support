@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\xna-4.0-phone7\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT;NO_SPECIALIZED_COLLECTIONS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
@@ -107,11 +107,22 @@
     <Compile Include="Source\Collections\Deque.Test.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\IMultiDictionary.cs" />
     <Compile Include="Source\Collections\IObservableCollection.cs" />
     <Compile Include="Source\Collections\IRecyclable.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.cs" />
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
       <DependentUpon>ItemEventArgs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.cs" />
+    <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Interfaces.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Test.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\ObservableCollection.cs" />
     <Compile Include="Source\Collections\ObservableCollection.Test.cs">

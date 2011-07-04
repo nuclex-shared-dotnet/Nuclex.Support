@@ -19,27 +19,32 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Collections;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
+#if !NO_SPECIALIZED_COLLECTIONS
+using System.Collections.Specialized;
+#endif
 using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Collections {
 
   /// <summary>A dictionary that sneds out change notifications</summary>
-  /// <typeparam name="KeyType">Type of the keys used in the dictionary</typeparam>
-  /// <typeparam name="ValueType">Type of the values used in the dictionary</typeparam>
+  /// <typeparam name="TKey">Type of the keys used in the dictionary</typeparam>
+  /// <typeparam name="TValue">Type of the values used in the dictionary</typeparam>
 #if !NO_SERIALIZATION
   [Serializable]
 #endif
-  public class ObservableDictionary<KeyType, ValueType> :
+  public class ObservableDictionary<TKey, TValue> :
 #if !NO_SERIALIZATION
- ISerializable,
+    ISerializable,
     IDeserializationCallback,
 #endif
- IDictionary<KeyType, ValueType>,
+    IDictionary<TKey, TValue>,
     IDictionary,
-    IObservableCollection<KeyValuePair<KeyType, ValueType>> {
+#if !NO_SPECIALIZED_COLLECTIONS
+    INotifyCollectionChanged,
+#endif
+    IObservableCollection<KeyValuePair<TKey, TValue>> {
 
 #if !NO_SERIALIZATION
     #region class SerializedDictionary
@@ -47,7 +52,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>
     ///   Dictionary wrapped used to reconstruct a serialized read only dictionary
     /// </summary>
-    private class SerializedDictionary : Dictionary<KeyType, ValueType> {
+    private class SerializedDictionary : Dictionary<TKey, TValue> {
 
       /// <summary>
       ///   Initializes a new instance of the System.WeakReference class, using deserialized
@@ -70,23 +75,28 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion // class SerializedDictionary
-#endif // !COMPACTFRAMEWORK
+#endif // !NO_SERIALIZATION
 
     /// <summary>Raised when an item has been added to the dictionary</summary>
-    public event EventHandler<ItemEventArgs<KeyValuePair<KeyType, ValueType>>> ItemAdded;
+    public event EventHandler<ItemEventArgs<KeyValuePair<TKey, TValue>>> ItemAdded;
     /// <summary>Raised when an item is removed from the dictionary</summary>
-    public event EventHandler<ItemEventArgs<KeyValuePair<KeyType, ValueType>>> ItemRemoved;
+    public event EventHandler<ItemEventArgs<KeyValuePair<TKey, TValue>>> ItemRemoved;
     /// <summary>Raised when the dictionary is about to be cleared</summary>
     public event EventHandler Clearing;
     /// <summary>Raised when the dictionary has been cleared</summary>
     public event EventHandler Cleared;
 
+#if !NO_SPECIALIZED_COLLECTIONS
+    /// <summary>Called when the collection has changed</summary>
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+#endif
+
     /// <summary>Initializes a new observable dictionary</summary>
-    public ObservableDictionary() : this(new Dictionary<KeyType, ValueType>()) { }
+    public ObservableDictionary() : this(new Dictionary<TKey, TValue>()) { }
 
     /// <summary>Initializes a new observable Dictionary wrapper</summary>
     /// <param name="dictionary">Dictionary that will be wrapped</param>
-    public ObservableDictionary(IDictionary<KeyType, ValueType> dictionary) {
+    public ObservableDictionary(IDictionary<TKey, TValue> dictionary) {
       this.typedDictionary = dictionary;
       this.objectDictionary = (this.typedDictionary as IDictionary);
     }
@@ -123,7 +133,7 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     /// <param name="item">KeyValuePair that will be checked for</param>
     /// <returns>True if the provided KeyValuePair was contained in the Dictionary</returns>
-    public bool Contains(KeyValuePair<KeyType, ValueType> item) {
+    public bool Contains(KeyValuePair<TKey, TValue> item) {
       return this.typedDictionary.Contains(item);
     }
 
@@ -132,7 +142,7 @@ namespace Nuclex.Support.Collections {
     /// <returns>
     ///   True if an entry with the specified key was contained in the Dictionary
     /// </returns>
-    public bool ContainsKey(KeyType key) {
+    public bool ContainsKey(TKey key) {
       return this.typedDictionary.ContainsKey(key);
     }
 
@@ -141,7 +151,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="arrayIndex">
     ///   Starting index at which to begin filling the destination array
     /// </param>
-    public void CopyTo(KeyValuePair<KeyType, ValueType>[] array, int arrayIndex) {
+    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
       this.typedDictionary.CopyTo(array, arrayIndex);
     }
 
@@ -152,17 +162,17 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Creates a new enumerator for the Dictionary</summary>
     /// <returns>The new Dictionary enumerator</returns>
-    public IEnumerator<KeyValuePair<KeyType, ValueType>> GetEnumerator() {
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
       return this.typedDictionary.GetEnumerator();
     }
 
     /// <summary>Collection of all keys contained in the Dictionary</summary>
-    public ICollection<KeyType> Keys {
+    public ICollection<TKey> Keys {
       get { return this.typedDictionary.Keys; }
     }
 
     /// <summary>Collection of all values contained in the Dictionary</summary>
-    public ICollection<ValueType> Values {
+    public ICollection<TValue> Values {
       get { return this.typedDictionary.Values; }
     }
 
@@ -176,46 +186,46 @@ namespace Nuclex.Support.Collections {
     /// <returns>
     ///   True if the item was found and has been placed in the output parameter
     /// </returns>
-    public bool TryGetValue(KeyType key, out ValueType value) {
+    public bool TryGetValue(TKey key, out TValue value) {
       return this.typedDictionary.TryGetValue(key, out value);
     }
 
     /// <summary>Accesses an item in the Dictionary by its key</summary>
     /// <param name="key">Key of the item that will be accessed</param>
-    public ValueType this[KeyType key] {
+    public TValue this[TKey key] {
       get { return this.typedDictionary[key]; }
       set {
         bool removed;
-        ValueType oldValue;
+        TValue oldValue;
         removed = this.typedDictionary.TryGetValue(key, out oldValue);
 
         this.typedDictionary[key] = value;
 
         if(removed) {
-          OnRemoved(new KeyValuePair<KeyType, ValueType>(key, oldValue));
+          OnRemoved(new KeyValuePair<TKey, TValue>(key, oldValue));
         }
-        OnAdded(new KeyValuePair<KeyType, ValueType>(key, value));
+        OnAdded(new KeyValuePair<TKey, TValue>(key, value));
       }
     }
 
     /// <summary>Inserts an item into the Dictionary</summary>
     /// <param name="key">Key under which to add the new item</param>
     /// <param name="value">Item that will be added to the Dictionary</param>
-    public void Add(KeyType key, ValueType value) {
+    public void Add(TKey key, TValue value) {
       this.typedDictionary.Add(key, value);
-      OnAdded(new KeyValuePair<KeyType, ValueType>(key, value));
+      OnAdded(new KeyValuePair<TKey, TValue>(key, value));
     }
 
     /// <summary>Removes the item with the specified key from the Dictionary</summary>
     /// <param name="key">Key of the elementes that will be removed</param>
     /// <returns>True if an item with the specified key was found and removed</returns>
-    public bool Remove(KeyType key) {
-      ValueType oldValue;
+    public bool Remove(TKey key) {
+      TValue oldValue;
       this.typedDictionary.TryGetValue(key, out oldValue);
 
       bool removed = this.typedDictionary.Remove(key);
       if(removed) {
-        OnRemoved(new KeyValuePair<KeyType, ValueType>(key, oldValue));
+        OnRemoved(new KeyValuePair<TKey, TValue>(key, oldValue));
       }
       return removed;
     }
@@ -229,16 +239,32 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Fires the 'ItemAdded' event</summary>
     /// <param name="item">Item that has been added to the collection</param>
-    protected virtual void OnAdded(KeyValuePair<KeyType, ValueType> item) {
+    protected virtual void OnAdded(KeyValuePair<TKey, TValue> item) {
       if(ItemAdded != null)
-        ItemAdded(this, new ItemEventArgs<KeyValuePair<KeyType, ValueType>>(item));
+        ItemAdded(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null)
+        CollectionChanged(
+          this, new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Add, item
+          )
+        );
+#endif
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
-    protected virtual void OnRemoved(KeyValuePair<KeyType, ValueType> item) {
+    protected virtual void OnRemoved(KeyValuePair<TKey, TValue> item) {
       if(ItemRemoved != null)
-        ItemRemoved(this, new ItemEventArgs<KeyValuePair<KeyType, ValueType>>(item));
+        ItemRemoved(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null)
+        CollectionChanged(
+          this, new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Remove, item
+          )
+        );
+#endif
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
@@ -251,6 +277,10 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnCleared() {
       if(Cleared != null)
         Cleared(this, EventArgs.Empty);
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null)
+        CollectionChanged(this, CollectionResetEventArgs);
+#endif
     }
 
     #region IEnumerable implementation
@@ -270,7 +300,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Item that will be added</param>
     void IDictionary.Add(object key, object value) {
       this.objectDictionary.Add(key, value);
-      OnAdded(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
+      OnAdded(new KeyValuePair<TKey, TValue>((TKey)key, (TValue)value));
     }
 
     /// <summary>Determines whether the specified key exists in the Dictionary</summary>
@@ -304,11 +334,11 @@ namespace Nuclex.Support.Collections {
     /// <summary>Removes an item from the Dictionary</summary>
     /// <param name="key">Key of the item that will be removed</param>
     void IDictionary.Remove(object key) {
-      ValueType value;
-      bool removed = this.typedDictionary.TryGetValue((KeyType)key, out value);
+      TValue value;
+      bool removed = this.typedDictionary.TryGetValue((TKey)key, out value);
       this.objectDictionary.Remove(key);
       if(removed) {
-        OnRemoved(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
+        OnRemoved(new KeyValuePair<TKey, TValue>((TKey)key, (TValue)value));
       }
     }
 
@@ -319,15 +349,15 @@ namespace Nuclex.Support.Collections {
       get { return this.objectDictionary[key]; }
       set {
         bool removed;
-        ValueType oldValue;
-        removed = this.typedDictionary.TryGetValue((KeyType)key, out oldValue);
+        TValue oldValue;
+        removed = this.typedDictionary.TryGetValue((TKey)key, out oldValue);
 
         this.objectDictionary[key] = value;
 
         if(removed) {
-          OnRemoved(new KeyValuePair<KeyType, ValueType>((KeyType)key, oldValue));
+          OnRemoved(new KeyValuePair<TKey, TValue>((TKey)key, oldValue));
         }
-        OnAdded(new KeyValuePair<KeyType, ValueType>((KeyType)key, (ValueType)value));
+        OnAdded(new KeyValuePair<TKey, TValue>((TKey)key, (TValue)value));
       }
     }
 
@@ -337,15 +367,15 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Inserts an already prepared element into the Dictionary</summary>
     /// <param name="item">Prepared element that will be added to the Dictionary</param>
-    void ICollection<KeyValuePair<KeyType, ValueType>>.Add(
-      KeyValuePair<KeyType, ValueType> item
+    void ICollection<KeyValuePair<TKey, TValue>>.Add(
+      KeyValuePair<TKey, TValue> item
     ) {
       this.typedDictionary.Add(item);
       OnAdded(item);
     }
 
     /// <summary>Removes all items from the Dictionary</summary>
-    void ICollection<KeyValuePair<KeyType, ValueType>>.Clear() {
+    void ICollection<KeyValuePair<TKey, TValue>>.Clear() {
       OnClearing();
       this.typedDictionary.Clear();
       OnCleared();
@@ -353,8 +383,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Removes all items from the Dictionary</summary>
     /// <param name="itemToRemove">Item that will be removed from the Dictionary</param>
-    bool ICollection<KeyValuePair<KeyType, ValueType>>.Remove(
-      KeyValuePair<KeyType, ValueType> itemToRemove
+    bool ICollection<KeyValuePair<TKey, TValue>>.Remove(
+      KeyValuePair<TKey, TValue> itemToRemove
     ) {
       bool removed = this.typedDictionary.Remove(itemToRemove);
       if(removed) {
@@ -412,9 +442,16 @@ namespace Nuclex.Support.Collections {
 #endif //!NO_SERIALIZATION
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
-    private IDictionary<KeyType, ValueType> typedDictionary;
+    private IDictionary<TKey, TValue> typedDictionary;
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
+
+#if !NO_SPECIALIZED_COLLECTIONS
+    /// <summary>Fixed event args used to notify that the collection has reset</summary>
+    private static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs =
+      new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+#endif
+
   }
 
 } // namespace Nuclex.Support.Collections
