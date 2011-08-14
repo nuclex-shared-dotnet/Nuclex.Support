@@ -119,7 +119,7 @@ namespace Nuclex.Support.Collections {
     ///   Comparer used to identify and compare items to each other
     /// </param>
     public WeakCollection(
-        IList<WeakReference<ItemType>> items, IEqualityComparer<ItemType> comparer
+      IList<WeakReference<ItemType>> items, IEqualityComparer<ItemType> comparer
     ) {
       this.items = items;
       this.comparer = comparer;

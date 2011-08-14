@@ -18,10 +18,10 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
-
-#if UNITTEST
 
 using NUnit.Framework;
 using NMock;

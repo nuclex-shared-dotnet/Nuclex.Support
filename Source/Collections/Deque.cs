@@ -35,7 +35,7 @@ namespace Nuclex.Support.Collections {
   ///   <para>
   ///     Therefore, it's not only good at coping with lists that are modified at their
   ///     beginning, but also at handling huge data sets since enlarging the deque doesn't
-  ///     require items to be copied around and still can be accessed by index.
+  ///     require items to be copied around and it still can be accessed by index.
   ///   </para>
   /// </remarks>
   public partial class Deque<ItemType> : IList<ItemType>, IList {

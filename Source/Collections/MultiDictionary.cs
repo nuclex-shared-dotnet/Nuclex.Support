@@ -327,6 +327,10 @@ namespace Nuclex.Support.Collections {
     public ICollection<TValue> this[TKey key] {
       get { return this.typedDictionary[key]; }
       set {
+        if(value == null) {
+          this.typedDictionary.Remove(key);
+        }
+
         ICollection<TValue> currentValues;
         if(this.typedDictionary.TryGetValue(key, out currentValues)) {
           currentValues.Clear();
