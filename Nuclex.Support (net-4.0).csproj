@@ -150,54 +150,9 @@
     <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
       <DependentUpon>PrototypeFactory.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Scheduling\GenericTimeSource.Test.cs">
-      <DependentUpon>GenericTimeSource.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\ISchedulerService.cs" />
-    <Compile Include="Source\Scheduling\ITimeSource.cs" />
-    <Compile Include="Source\Scheduling\Scheduler.cs" />
-    <Compile Include="Source\Scheduling\GenericTimeSource.cs" />
-    <Compile Include="Source\Scheduling\Scheduler.Test.cs">
-      <DependentUpon>Scheduler.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\Scheduler.TimeSource.cs">
-      <DependentUpon>Scheduler.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\WindowsTimeSource.cs" />
-    <Compile Include="Source\Scheduling\WindowsTimeSource.Test.cs">
-      <DependentUpon>WindowsTimeSource.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Semaphore.cs" />
     <Compile Include="Source\Semaphore.Test.cs">
       <DependentUpon>Semaphore.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\AppDomainTypeLister.cs" />
-    <Compile Include="Source\Services\AppDomainTypeLister.Test.cs">
-      <DependentUpon>AppDomainTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\MultiAssemblyTypeLister.cs" />
-    <Compile Include="Source\Services\ExplicitTypeLister.Test.cs">
-      <DependentUpon>ExplicitTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\Instancing.cs" />
-    <Compile Include="Source\Services\ITypeLister.cs" />
-    <Compile Include="Source\Services\MultiAssemblyTypeLister.Test.cs">
-      <DependentUpon>MultiAssemblyTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ProgressTracking\IProgressPublishingService.cs" />
-    <Compile Include="Source\Services\ProgressTracking\IProgressCollectingService.cs" />
-    <Compile Include="Source\Services\ProgressTracking\ITrackedProcess.cs" />
-    <Compile Include="Source\Services\ProgressTracking\ProgressTrackingComponent.cs" />
-    <Compile Include="Source\Services\RepositoryTypeLister.cs" />
-    <Compile Include="Source\Services\RepositoryTypeLister.Test.cs">
-      <DependentUpon>RepositoryTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ServiceManager.Analyzer.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ServiceManager.cs" />
-    <Compile Include="Source\Services\ServiceManager.For.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">
@@ -284,31 +239,6 @@
     <Compile Include="Source\Plugins\PluginRepository.Test.cs">
       <DependentUpon>PluginRepository.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Scheduling\AbortedException.cs" />
-    <Compile Include="Source\Scheduling\AbortedException.Test.cs">
-      <DependentUpon>AbortedException.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\IAbortable.cs" />
-    <Compile Include="Source\Scheduling\Operation.cs" />
-    <Compile Include="Source\Scheduling\Operation.Test.cs">
-      <DependentUpon>Operation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\OperationQueue.cs" />
-    <Compile Include="Source\Scheduling\OperationQueue.Test.cs">
-      <DependentUpon>OperationQueue.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\ThreadCallbackOperation.cs" />
-    <Compile Include="Source\Scheduling\ThreadCallbackOperation.Test.cs">
-      <DependentUpon>ThreadCallbackOperation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Scheduling\ThreadOperation.cs" />
-    <Compile Include="Source\Scheduling\ThreadOperation.Test.cs">
-      <DependentUpon>ThreadOperation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ServiceManager.Test.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ExplicitTypeLister.cs" />
     <Compile Include="Source\Shared.cs" />
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>
@@ -328,48 +258,6 @@
     <Compile Include="Source\StringSegment.cs" />
     <Compile Include="Source\StringSegment.Test.cs">
       <DependentUpon>StringSegment.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\IdleStateEventArgs.cs" />
-    <Compile Include="Source\Tracking\IdleStateEventArgs.Test.cs">
-      <DependentUpon>IdleStateEventArgs.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\Internal\ObservedWeightedTransaction.cs" />
-    <Compile Include="Source\Tracking\Internal\ObservedWeightedTransaction.Test.cs">
-      <DependentUpon>ObservedWeightedTransaction.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\Internal\WeightedTransactionWrapperCollection.cs" />
-    <Compile Include="Source\Tracking\Internal\WeightedTransactionWrapperCollection.Test.cs">
-      <DependentUpon>WeightedTransactionWrapperCollection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\IProgressReporter.cs" />
-    <Compile Include="Source\Tracking\IStatusReporter.cs" />
-    <Compile Include="Source\Tracking\ProgressReportEventArgs.cs" />
-    <Compile Include="Source\Tracking\ProgressReportEventArgs.Test.cs">
-      <DependentUpon>ProgressReportEventArgs.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\ProgressTracker.cs" />
-    <Compile Include="Source\Tracking\ProgressTracker.Test.cs">
-      <DependentUpon>ProgressTracker.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\Request.cs" />
-    <Compile Include="Source\Tracking\Request.Test.cs">
-      <DependentUpon>Request.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\StatusReportEventArgs.Test.cs">
-      <DependentUpon>StatusReportEventArgs.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\Transaction.Test.cs">
-      <DependentUpon>Transaction.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\TransactionGroup.cs" />
-    <Compile Include="Source\Tracking\TransactionGroup.Test.cs">
-      <DependentUpon>TransactionGroup.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Tracking\StatusReportEventArgs.cs" />
-    <Compile Include="Source\Tracking\Transaction.cs" />
-    <Compile Include="Source\Tracking\WeightedTransaction.cs" />
-    <Compile Include="Source\Tracking\WeightedTransaction.Test.cs">
-      <DependentUpon>WeightedTransaction.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\WeakReference.cs" />
     <Compile Include="Source\WeakReference.Phone7.cs">

@@ -18,12 +18,12 @@ License along with this library
 */
 #endregion
 
+#if ENABLE_SERVICEMANAGER
+
 using System;
 using System.Collections.Generic;
 
 using Nuclex.Support.Tracking;
-
-#if ENABLE_SERVICEMANAGER
 
 namespace Nuclex.Support.Services.ProgressTracking {
 
