@@ -242,6 +242,7 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnAdded(KeyValuePair<TKey, TValue> item) {
       if(ItemAdded != null)
         ItemAdded(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
+
 #if !NO_SPECIALIZED_COLLECTIONS
       if(CollectionChanged != null)
         CollectionChanged(
@@ -257,6 +258,7 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnRemoved(KeyValuePair<TKey, TValue> item) {
       if(ItemRemoved != null)
         ItemRemoved(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
+
 #if !NO_SPECIALIZED_COLLECTIONS
       if(CollectionChanged != null)
         CollectionChanged(
@@ -277,6 +279,7 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnCleared() {
       if(Cleared != null)
         Cleared(this, EventArgs.Empty);
+
 #if !NO_SPECIALIZED_COLLECTIONS
       if(CollectionChanged != null)
         CollectionChanged(this, CollectionResetEventArgs);

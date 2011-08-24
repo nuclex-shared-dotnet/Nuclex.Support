@@ -86,7 +86,7 @@ namespace Nuclex.Support.Collections {
     protected virtual void OnCollectionChanged(
       NotifyCollectionChangedAction action, TItem item, int index
     ) {
-      if (CollectionChanged != null) {
+      if(CollectionChanged != null) {
         CollectionChanged(
           this, new NotifyCollectionChangedEventArgs(action, item, index)
          );
@@ -141,29 +141,28 @@ namespace Nuclex.Support.Collections {
     /// <summary>Fires the 'ItemAdded' event</summary>
     /// <param name="item">Item that has been added to the collection</param>
     protected virtual void OnAdded(TItem item) {
-      if (ItemAdded != null)
+      if(ItemAdded != null)
         ItemAdded(this, new ItemEventArgs<TItem>(item));
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
     protected virtual void OnRemoved(TItem item) {
-      if (ItemRemoved != null)
+      if(ItemRemoved != null)
         ItemRemoved(this, new ItemEventArgs<TItem>(item));
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
     protected virtual void OnClearing() {
-      if (Clearing != null)
+      if(Clearing != null)
         Clearing(this, EventArgs.Empty);
     }
 
     /// <summary>Fires the 'Cleared' event</summary>
     protected virtual void OnCleared() {
-      if (Cleared != null)
+      if(Cleared != null)
         Cleared(this, EventArgs.Empty);
     }
-
 
   }
 

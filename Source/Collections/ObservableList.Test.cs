@@ -1,4 +1,4 @@
-#region CPL License
+﻿#region CPL License
 /*
 Nuclex Framework
 Copyright (C) 2002-2010 Nuclex Development Labs
@@ -28,9 +28,9 @@ using NMock;
 
 namespace Nuclex.Support.Collections {
 
-  /// <summary>Unit Test for the observable collection class</summary>
+  /// <summary>Unit Test for the observable list class</summary>
   [TestFixture]
-  public class ObservableCollectionTest {
+  public class ObservableListTest {
 
     #region interface IObservableCollectionSubscriber
 
@@ -68,17 +68,17 @@ namespace Nuclex.Support.Collections {
 
       this.mockedSubscriber = this.mockery.CreateMock<IObservableCollectionSubscriber>();
 
-      this.observedCollection = new ObservableCollection<int>();
-      this.observedCollection.Clearing += new EventHandler(
+      this.observedList = new ObservableList<int>();
+      this.observedList.Clearing += new EventHandler(
         this.mockedSubscriber.MockObject.Clearing
       );
-      this.observedCollection.Cleared += new EventHandler(
+      this.observedList.Cleared += new EventHandler(
         this.mockedSubscriber.MockObject.Cleared
       );
-      this.observedCollection.ItemAdded += new EventHandler<ItemEventArgs<int>>(
+      this.observedList.ItemAdded += new EventHandler<ItemEventArgs<int>>(
         this.mockedSubscriber.MockObject.ItemAdded
       );
-      this.observedCollection.ItemRemoved += new EventHandler<ItemEventArgs<int>>(
+      this.observedList.ItemRemoved += new EventHandler<ItemEventArgs<int>>(
         this.mockedSubscriber.MockObject.ItemRemoved
       );
     }
@@ -88,7 +88,7 @@ namespace Nuclex.Support.Collections {
     public void TestClearingEvent() {
       this.mockedSubscriber.Expects.One.Method(m => m.Clearing(null, null)).WithAnyArguments();
       this.mockedSubscriber.Expects.One.Method(m => m.Cleared(null, null)).WithAnyArguments();
-      this.observedCollection.Clear();
+      this.observedList.Clear();
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -98,7 +98,7 @@ namespace Nuclex.Support.Collections {
     public void TestItemAddedEvent() {
       this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
-      this.observedCollection.Add(123);
+      this.observedList.Add(123);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -108,11 +108,11 @@ namespace Nuclex.Support.Collections {
     public void TestItemRemovedEvent() {
       this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
-      this.observedCollection.Add(123);
+      this.observedList.Add(123);
 
       this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
 
-      this.observedCollection.Remove(123);
+      this.observedList.Remove(123);
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
@@ -124,18 +124,18 @@ namespace Nuclex.Support.Collections {
         m => m.ItemAdded(null, null)
       ).WithAnyArguments();
 
-      this.observedCollection.Add(1);
-      this.observedCollection.Add(2);
-      this.observedCollection.Add(3);
+      this.observedList.Add(1);
+      this.observedList.Add(2);
+      this.observedList.Add(3);
 
       this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
       this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
 
       // Replace the middle item with something else
-      this.observedCollection[1] = 4;
+      this.observedList[1] = 4;
 
       Assert.AreEqual(
-        1, this.observedCollection.IndexOf(4)
+        1, this.observedList.IndexOf(4)
       );
 
       this.mockery.VerifyAllExpectationsHaveBeenMet();
@@ -146,9 +146,9 @@ namespace Nuclex.Support.Collections {
     public void TestListConstructor() {
       int[] integers = new int[] { 12, 34, 56, 78 };
 
-      var testCollection = new ObservableCollection<int>(integers);
+      var testList = new ObservableList<int>(integers);
 
-      CollectionAssert.AreEqual(integers, testCollection);
+      CollectionAssert.AreEqual(integers, testList);
     }
 
     /// <summary>Mock object factory</summary>
@@ -156,7 +156,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>The mocked observable collection subscriber</summary>
     private Mock<IObservableCollectionSubscriber> mockedSubscriber;
     /// <summary>An observable collection to which a mock will be subscribed</summary>
-    private ObservableCollection<int> observedCollection;
+    private ObservableList<int> observedList;
 
   }
 
