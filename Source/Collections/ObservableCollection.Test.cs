@@ -117,30 +117,6 @@ namespace Nuclex.Support.Collections {
       this.mockery.VerifyAllExpectationsHaveBeenMet();
     }
 
-    /// <summary>Tests whether items in the collection can be replaced</summary>
-    [Test]
-    public void TestItemReplacement() {
-      this.mockedSubscriber.Expects.Exactly(3).Method(
-        m => m.ItemAdded(null, null)
-      ).WithAnyArguments();
-
-      this.observedCollection.Add(1);
-      this.observedCollection.Add(2);
-      this.observedCollection.Add(3);
-
-      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
-      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
-
-      // Replace the middle item with something else
-      this.observedCollection[1] = 4;
-
-      Assert.AreEqual(
-        1, this.observedCollection.IndexOf(4)
-      );
-
-      this.mockery.VerifyAllExpectationsHaveBeenMet();
-    }
-
     /// <summary>Tests whether a the list constructor is working</summary>
     [Test]
     public void TestListConstructor() {

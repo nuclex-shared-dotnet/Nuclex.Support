@@ -364,9 +364,9 @@ namespace Nuclex.Support.Collections {
       new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
 #endif
 
-    /// <summary>The wrapped List under its type-safe interface</summary>
+    /// <summary>The wrapped list under its type-safe interface</summary>
     private IList<TItem> typedList;
-    /// <summary>The wrapped List under its object interface</summary>
+    /// <summary>The wrapped list under its object interface</summary>
     private IList objectList;
 
   }

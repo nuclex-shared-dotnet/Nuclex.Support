@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 #if !NO_SPECIALIZED_COLLECTIONS
@@ -30,7 +31,8 @@ namespace Nuclex.Support.Collections {
   /// <summary>Collection which fires events when items are added or removed</summary>
   /// <typeparam name="TItem">Type of items the collection manages</typeparam>
   public class ObservableCollection<TItem> :
-    Collection<TItem>,
+    ICollection<TItem>,
+    ICollection,
 #if !NO_SPECIALIZED_COLLECTIONS
     INotifyCollectionChanged,
 #endif
@@ -55,87 +57,98 @@ namespace Nuclex.Support.Collections {
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 #endif
 
-    /// <summary>
-    ///   Initializes a new instance of the ObservableCollection class that is empty.
-    /// </summary>
-    public ObservableCollection() : base() { }
+    /// <summary>Initializes a new ObservableCollection with no items</summary>
+    public ObservableCollection() : this(new Collection<TItem>()) {}
 
     /// <summary>
-    ///   Initializes a new instance of the ObservableCollection class as a wrapper
-    ///   for the specified list.
+    ///   Initializes a new ObservableCollection as a wrapper for an existing collection
     /// </summary>
-    /// <param name="list">The list that is wrapped by the new collection.</param>
+    /// <param name="collection">Collection that will be wrapped</param>
     /// <exception cref="System.ArgumentNullException">List is null</exception>
-    public ObservableCollection(IList<TItem> list) : base(list) { }
+    public ObservableCollection(ICollection<TItem> collection) {
+      this.typedCollection = collection;
+      this.objectCollection = (collection as ICollection);
+    }
 
     /// <summary>Removes all elements from the Collection</summary>
-    protected override void ClearItems() {
+    public void Clear() {
       OnClearing();
-      base.ClearItems();
+      this.typedCollection.Clear();
       OnCleared();
 #if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Reset, default(TItem), -1);
+      if(CollectionChanged != null) {
+        CollectionChanged(this, CollectionResetEventArgs);
+      }
 #endif
     }
 
+    /// <summary>Adds an item to the collection</summary>
+    /// <param name="item">Collection an item will be added to</param>
+    public void Add(TItem item) {
+      this.typedCollection.Add(item);
+      OnAdded(item);
 #if !NO_SPECIALIZED_COLLECTIONS
-    /// <summary>Fires the CollectionChanged event</summary>
-    /// <param name="action">Type of change that has occured</param>
-    /// <param name="item">The item that has been added, removed or replaced</param>
-    /// <param name="index">Index of the changed item</param>
-    protected virtual void OnCollectionChanged(
-      NotifyCollectionChangedAction action, TItem item, int index
-    ) {
       if(CollectionChanged != null) {
         CollectionChanged(
-          this, new NotifyCollectionChangedEventArgs(action, item, index)
-         );
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item)
+        );
       }
-    }
 #endif
+    }
 
-    /// <summary>
-    ///   Inserts an element into the ObservableCollection at the specified index
-    /// </summary>
-    /// <param name="index">
-    ///   The object to insert. The value can be null for reference types.
+    /// <summary>Determines whether the collection contains the specified item</summary>
+    /// <param name="item">Item the collection will be searched for</param>
+    /// <returns>
+    ///   True if the collection contains the specified item, false otherwise
+    /// </returns>
+    public bool Contains(TItem item) {
+      return this.typedCollection.Contains(item);
+    }
+
+    /// <summary>Copies the contents of the collection into an array</summary>
+    /// <param name="array">Array the collection's contents will be copied into</param>
+    /// <param name="arrayIndex">
+    ///   Index in the array where the collection's first item will be placed
     /// </param>
-    /// <param name="item">The zero-based index at which item should be inserted</param>
-    protected override void InsertItem(int index, TItem item) {
-      base.InsertItem(index, item);
-      OnAdded(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
-#endif
+    public void CopyTo(TItem[] array, int arrayIndex) {
+      this.typedCollection.CopyTo(array, arrayIndex);
     }
 
-    /// <summary>
-    ///   Removes the element at the specified index of the ObservableCollection
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to remove</param>
-    protected override void RemoveItem(int index) {
-      TItem item = base[index];
-      base.RemoveItem(index);
-      OnRemoved(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
-#endif
+    /// <summary>The total number of items currently in the collection</summary>
+    public int Count {
+      get { return this.typedCollection.Count; }
     }
 
-    /// <summary>Replaces the element at the specified index</summary>
-    /// <param name="index">
-    ///   The new value for the element at the specified index. The value can be null
-    ///   for reference types
-    /// </param>
-    /// <param name="item">The zero-based index of the element to replace</param>
-    protected override void SetItem(int index, TItem item) {
-      TItem oldItem = base[index];
-      base.SetItem(index, item);
-      OnRemoved(oldItem);
-      OnAdded(item);
+    /// <summary>Whether the collection is read-only</summary>
+    public bool IsReadOnly {
+      get { return this.typedCollection.IsReadOnly; }
+    }
+
+    /// <summary>Removes an item from the collection</summary>
+    /// <param name="item">Item that will be removed from the collection</param>
+    /// <returns>True if the item was found and removed, false otherwise</returns>
+    public bool Remove(TItem item) {
+      bool wasRemoved = this.typedCollection.Remove(item);
+      if(wasRemoved) {
+        OnRemoved(item);
 #if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Replace, item, index);
+        if(CollectionChanged != null) {
+          CollectionChanged(
+            this,
+            new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item)
+          );
+        }
 #endif
+      }
+
+      return wasRemoved;
+    }
+
+    /// <summary>Returns an enumerator for the items in the collection</summary>
+    /// <returns>An enumeration for the items in the collection</returns>
+    public IEnumerator<TItem> GetEnumerator() {
+      return this.typedCollection.GetEnumerator();
     }
 
     /// <summary>Fires the 'ItemAdded' event</summary>
@@ -163,6 +176,52 @@ namespace Nuclex.Support.Collections {
       if(Cleared != null)
         Cleared(this, EventArgs.Empty);
     }
+
+    #region IEnumerable implementation
+
+    /// <summary>Returns an enumerator for the items in the collection</summary>
+    /// <returns>An enumeration for the items in the collection</returns>
+    IEnumerator IEnumerable.GetEnumerator() {
+      return this.objectCollection.GetEnumerator();
+    }
+
+    #endregion // IEnumerable implementation
+
+    #region ICollection implementation
+
+    /// <summary>Copies the contents of the collection into an array</summary>
+    /// <param name="array">Array the collection's contents will be copied into</param>
+    /// <param name="arrayIndex">
+    ///   Index in the array where the collection's first item will be placed
+    /// </param>
+    void ICollection.CopyTo(Array array, int arrayIndex) {
+      this.objectCollection.CopyTo(array, arrayIndex);
+    }
+
+    /// <summary>Whether the collection synchronizes accesses from multiple threads</summary>
+    bool ICollection.IsSynchronized {
+      get { return this.objectCollection.IsSynchronized; }
+    }
+
+    /// <summary>
+    ///   Synchronization root used to synchronize threads accessing the collection
+    /// </summary>
+    object ICollection.SyncRoot {
+      get { return this.objectCollection.SyncRoot; }
+    }
+
+    #endregion // IEnumerable implementation
+
+#if !NO_SPECIALIZED_COLLECTIONS
+    /// <summary>Fixed event args used to notify that the collection has reset</summary>
+    private static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs =
+      new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+#endif
+
+    /// <summary>The wrapped collection under its type-safe interface</summary>
+    private ICollection<TItem> typedCollection;
+    /// <summary>The wrapped collection under its object interface</summary>
+    private ICollection objectCollection;
 
   }
 
