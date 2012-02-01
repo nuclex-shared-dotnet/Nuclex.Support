@@ -56,6 +56,9 @@ namespace Nuclex.Support {
   ///     become eligible for execution.
   ///   </para>
   /// </remarks>
+#if !XBOX360
+  [Obsolete("Prefer the normal semaphore on Windows builds.")]
+#endif
   public class Semaphore : WaitHandle {
 
     /// <summary>Initializes a new semaphore</summary>

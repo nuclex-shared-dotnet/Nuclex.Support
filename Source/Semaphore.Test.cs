@@ -29,7 +29,10 @@ using NUnit.Framework;
 namespace Nuclex.Support {
 
   /// <summary>Unit Test for the Semaphore class</summary>
-  [TestFixture]
+  [
+    TestFixture,
+    Obsolete("Not obsolete, but prevents warning when using custom Semaphore on Windows")
+  ]
   public class SemaphoreTest {
 
     /// <summary>

@@ -19,10 +19,10 @@ License along with this library
 #endregion
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Nuclex.Support {
 
@@ -88,7 +88,11 @@ namespace Nuclex.Support {
       // as we may run into situations where multiple operations need to be atomic.
       // We keep track of the threads we've created just for good measure; not actually
       // needed for any core functionality.
+#if XBOX360
       workAvailable = new Semaphore();
+#else
+      workAvailable = new System.Threading.Semaphore(0, Processors);
+#endif
       userWorkItems = new Queue<UserWorkItem>(Processors * 4);
       workerThreads = new List<Thread>(Processors);
       inUseThreads = 0;
@@ -299,7 +303,11 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Used to let the threads in the thread pool wait for new work to appear.
     /// </summary>
+#if XBOX360
     private static Semaphore workAvailable;
+#else
+    private static System.Threading.Semaphore workAvailable;
+#endif
     /// <summary>List of all worker threads at the disposal of the thread pool.</summary>
     private static List<Thread> workerThreads;
     /// <summary>Number of threads currently active.</summary>

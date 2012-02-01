@@ -99,13 +99,13 @@ namespace Nuclex.Support.Parsing {
 
     /// <summary>Initializes a new command line</summary>
     /// <param name="argumentList">List containing the parsed arguments</param>
-    private CommandLine(List<Argument> argumentList) :
+    private CommandLine(IList<Argument> argumentList) :
       this(argumentList, WindowsModeDefault) { }
 
     /// <summary>Initializes a new command line</summary>
     /// <param name="argumentList">List containing the parsed arguments</param>
     /// <param name="windowsMode">Whether the / character initiates an argument</param>
-    private CommandLine(List<Argument> argumentList, bool windowsMode) {
+    private CommandLine(IList<Argument> argumentList, bool windowsMode) {
       this.arguments = argumentList;
       this.windowsMode = windowsMode;
     }
@@ -298,7 +298,7 @@ namespace Nuclex.Support.Parsing {
     }
 
     /// <summary>Options that were specified on the command line</summary>
-    private List<Argument> arguments;
+    private IList<Argument> arguments;
     /// <summary>Whether the / character initiates an argument</summary>
     private bool windowsMode;
 
