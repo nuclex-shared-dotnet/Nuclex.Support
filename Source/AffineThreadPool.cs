@@ -88,7 +88,7 @@ namespace Nuclex.Support {
       // as we may run into situations where multiple operations need to be atomic.
       // We keep track of the threads we've created just for good measure; not actually
       // needed for any core functionality.
-#if XBOX360
+#if XBOX360 || WINDOWS_PHONE
       workAvailable = new Semaphore();
 #else
       workAvailable = new System.Threading.Semaphore(0, Processors);
@@ -303,7 +303,7 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Used to let the threads in the thread pool wait for new work to appear.
     /// </summary>
-#if XBOX360
+#if XBOX360 || WINDOWS_PHONE
     private static Semaphore workAvailable;
 #else
     private static System.Threading.Semaphore workAvailable;

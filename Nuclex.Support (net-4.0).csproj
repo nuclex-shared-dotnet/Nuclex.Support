@@ -60,6 +60,14 @@
     <Compile Include="Source\AffineThreadPool.Test.cs">
       <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Cloning\CloningParameters.cs" />
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
+    <Compile Include="Source\Cloning\IStateCopier.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.Test.cs">
+      <DependentUpon>ReflectionCloner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Cloning\ICloneFactory.cs" />
     <Compile Include="Source\Collections\Deque.cs" />
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>
@@ -280,7 +288,11 @@
       <Link>Foundation.snk</Link>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Documents\CommandLine.txt" />
+    <Content Include="Documents\Nuclex.Support.txt" />
+    <Content Include="Documents\Request Framework.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

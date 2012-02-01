@@ -102,6 +102,14 @@
     <Compile Include="Source\AffineThreadPool.Test.cs">
       <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Cloning\CloningParameters.cs" />
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
+    <Compile Include="Source\Cloning\ICloneFactory.cs" />
+    <Compile Include="Source\Cloning\IStateCopier.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.Test.cs">
+      <DependentUpon>ReflectionCloner.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\Deque.cs" />
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>

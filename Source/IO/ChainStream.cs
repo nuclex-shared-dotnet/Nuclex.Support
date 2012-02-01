@@ -47,7 +47,7 @@ namespace Nuclex.Support.IO {
 
     /// <summary>Initializes a new stream chainer</summary>
     /// <param name="streams">Array of streams that will be chained together</param>
-    public ChainStream(Stream[] streams) {
+    public ChainStream(params Stream[] streams) {
       this.streams = (Stream[])streams.Clone();
 
       determineCapabilities();
