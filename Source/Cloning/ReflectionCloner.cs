@@ -37,7 +37,7 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A shallow clone of the provided object</returns>
     public TCloned ShallowClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
       Type originalType = objectToClone.GetType();
-      if(originalType.IsPrimitive) {
+      if(originalType.IsPrimitive || (originalType == typeof(string))) {
         return objectToClone; // Being value types, primitives are copied by default
       } else if(originalType.IsArray) {
         return (TCloned)shallowCloneArray(objectToClone);
@@ -113,7 +113,8 @@ namespace Nuclex.Support.Cloning {
         Type propertyType = propertyInfo.PropertyType;
         object originalValue = propertyInfo.GetValue(original, null);
         if(originalValue != null) {
-          if(propertyType.IsPrimitive) { // Primitive types can be assigned directly
+          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+            // Primitive types can be assigned directly
             propertyInfo.SetValue(clone, originalValue, null);
           } else if(propertyType.IsValueType) {
             // Value types are seen as part of the original type and are thus recursed into
@@ -141,7 +142,7 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original object</returns>
     private static object deepCloneSingleFieldBased(object original) {
       Type originalType = original.GetType();
-      if(originalType.IsPrimitive) {
+      if(originalType.IsPrimitive || (originalType == typeof(string))) {
         return original; // Creates another box, does not reference boxed primitive
       } else if(originalType.IsArray) {
         return deepCloneArrayFieldBased((Array)original, originalType.GetElementType());
@@ -166,7 +167,8 @@ namespace Nuclex.Support.Cloning {
         Type fieldType = fieldInfo.FieldType;
         object originalValue = fieldInfo.GetValue(original);
         if(originalValue != null) {
-          if(fieldType.IsPrimitive) { // Primitive types can be assigned directly
+          // Primitive types can be assigned directly
+          if(fieldType.IsPrimitive || (fieldType == typeof(string))) {
             fieldInfo.SetValue(clone, originalValue);
           } else if(fieldType.IsArray) { // Arrays need to be cloned element-by-element
             fieldInfo.SetValue(
@@ -187,7 +189,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="elementType">Type of elements the original array contains</param>
     /// <returns>A clone of the original array</returns>
     private static object deepCloneArrayFieldBased(Array original, Type elementType) {
-      if(elementType.IsPrimitive) {
+      if(elementType.IsPrimitive || (elementType == typeof(string))) {
         return original.Clone();
       }
 
@@ -252,7 +254,7 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original object</returns>
     private static object deepCloneSinglePropertyBased(object original) {
       Type originalType = original.GetType();
-      if(originalType.IsPrimitive) {
+      if(originalType.IsPrimitive || (originalType == typeof(string))) {
         return original; // Creates another box, does not reference boxed primitive
       } else if(originalType.IsArray) {
         return deepCloneArrayPropertyBased((Array)original, originalType.GetElementType());
@@ -277,7 +279,8 @@ namespace Nuclex.Support.Cloning {
         Type propertyType = propertyInfo.PropertyType;
         object originalValue = propertyInfo.GetValue(original, null);
         if(originalValue != null) {
-          if(propertyType.IsPrimitive) { // Primitive types can be assigned directly
+          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+            // Primitive types can be assigned directly
             propertyInfo.SetValue(clone, originalValue, null);
           } else if(propertyType.IsArray) { // Arrays need to be cloned element-by-element
             propertyInfo.SetValue(
@@ -299,7 +302,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="elementType">Type of elements the original array contains</param>
     /// <returns>A clone of the original array</returns>
     private static object deepCloneArrayPropertyBased(Array original, Type elementType) {
-      if(elementType.IsPrimitive) {
+      if(elementType.IsPrimitive || (elementType == typeof(string))) {
         return original.Clone();
       }
 

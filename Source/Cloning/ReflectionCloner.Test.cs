@@ -18,10 +18,10 @@ License along with this library
 */
 #endregion
 
-using System;
-using System.IO;
-
 #if UNITTEST
+
+using System;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -111,6 +111,57 @@ namespace Nuclex.Support.Cloning {
 
     #endregion // struct HierarchicalReferenceType
 
+    /// <summary>Verifies that clones of primitive types can be created</summary>
+    [Test]
+    public void PrimitiveTypesCanBeCloned() {
+      int original = 12345;
+      int clone = (new ReflectionCloner()).ShallowClone(original, false);
+      Assert.AreEqual(original, clone);
+    }
+
+    /// <summary>Verifies that shallow clones of arrays can be made</summary>
+    [Test]
+    public void ShallowClonesOfArraysCanBeMade() {
+      var original = new TestReferenceType[] {
+        new TestReferenceType() { TestField = 123, TestProperty = 456 }
+      };
+      TestReferenceType[] clone = (new ReflectionCloner()).ShallowClone(original, false);
+
+      Assert.AreSame(original[0], clone[0]);
+    }
+
+    /// <summary>Verifies that deep clones of arrays can be made</summary>
+    [Test]
+    public void DeepClonesOfArraysCanBeMade() {
+      var original = new TestReferenceType[] {
+        new TestReferenceType() { TestField = 123, TestProperty = 456 }
+      };
+      TestReferenceType[] clone = (new ReflectionCloner()).DeepClone(original, false);
+
+      Assert.AreNotSame(original[0], clone[0]);
+      Assert.AreEqual(original[0].TestField, clone[0].TestField);
+      Assert.AreEqual(original[0].TestProperty, clone[0].TestProperty);
+    }
+
+    /// <summary>Verifies that deep clones of a generic list can be made</summary>
+    [Test]
+    public void GenericListsCanBeCloned() {
+      var original = new List<int>(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+      List<int> clone = (new ReflectionCloner()).DeepClone(original, false);
+
+      CollectionAssert.AreEqual(original, clone);
+    }
+
+    /// <summary>Verifies that deep clones of a generic dictionary can be made</summary>
+    [Test]
+    public void GenericDictionariesCanBeCloned() {
+      var original = new Dictionary<int, string>();
+      original.Add(1, "one");
+      Dictionary<int, string> clone = (new ReflectionCloner()).DeepClone(original, false);
+
+      Assert.AreEqual("one", clone[1]);
+    }
+
     /// <summary>
     ///   Verifies that a field-based shallow clone of a value type can be performed
     /// </summary>
@@ -118,7 +169,7 @@ namespace Nuclex.Support.Cloning {
     public void ShallowFieldBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = createValueType();
       HierarchicalValueType clone = (new ReflectionCloner()).ShallowClone(original, false);
-      verifyShallowFieldBasedValueTypeCopy(ref original, ref clone);
+      verifyClone(ref original, ref clone, isDeepClone: false, isPropertyBasedClone: false);
     }
 
     /// <summary>
@@ -128,7 +179,7 @@ namespace Nuclex.Support.Cloning {
     public void ShallowFieldBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = createReferenceType();
       HierarchicalReferenceType clone = (new ReflectionCloner()).ShallowClone(original, false);
-      verifyShallowFieldBasedReferenceTypeCopy(original, clone);
+      verifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: false);
     }
 
     /// <summary>
@@ -138,7 +189,7 @@ namespace Nuclex.Support.Cloning {
     public void DeepFieldBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = createValueType();
       HierarchicalValueType clone = (new ReflectionCloner()).DeepClone(original, false);
-      verifyDeepFieldBasedValueTypeCopy(ref original, ref clone);
+      verifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
     /// <summary>
@@ -148,7 +199,7 @@ namespace Nuclex.Support.Cloning {
     public void DeepFieldBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = createReferenceType();
       HierarchicalReferenceType clone = (new ReflectionCloner()).DeepClone(original, false);
-      verifyDeepFieldBasedReferenceTypeCopy(ref original, ref clone);
+      verifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
     /// <summary>
@@ -158,7 +209,7 @@ namespace Nuclex.Support.Cloning {
     public void ShallowPropertyBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = createValueType();
       HierarchicalValueType clone = (new ReflectionCloner()).ShallowClone(original, true);
-      verifyShallowPropertyBasedValueTypeCopy(ref original, ref clone);
+      verifyClone(ref original, ref clone, isDeepClone: false, isPropertyBasedClone: true);
     }
 
     /// <summary>
@@ -168,7 +219,7 @@ namespace Nuclex.Support.Cloning {
     public void ShallowPropertyBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = createReferenceType();
       HierarchicalReferenceType clone = (new ReflectionCloner()).ShallowClone(original, true);
-      verifyShallowPropertyBasedReferenceTypeCopy(ref original, ref clone);
+      verifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: true);
     }
 
     /// <summary>
@@ -178,7 +229,7 @@ namespace Nuclex.Support.Cloning {
     public void DeepPropertyBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = createValueType();
       HierarchicalValueType clone = (new ReflectionCloner()).DeepClone(original, true);
-      verifyDeepPropertyBasedValueTypeCopy(ref original, ref clone);
+      verifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: true);
     }
 
     /// <summary>
@@ -188,217 +239,235 @@ namespace Nuclex.Support.Cloning {
     public void DeepPropertyBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = createReferenceType();
       HierarchicalReferenceType clone = (new ReflectionCloner()).DeepClone(original, true);
-      verifyDeepPropertyBasedReferenceTypeCopy(ref original, ref clone);
+      verifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: true);
     }
 
     /// <summary>
-    ///   Verifies that a field-based shallow clone of a value type matches
-    ///   the expected outcome for this type of clone
+    ///   Verifies that a cloned object exhibits the expected state for the type of
+    ///   clone that has been performed
     /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyShallowFieldBasedValueTypeCopy(
-      ref HierarchicalValueType original, ref HierarchicalValueType clone
+    /// <param name="original">Original instance the clone was created from</param>
+    /// <param name="clone">Cloned instance that will be checked for correctness</param>
+    /// <param name="isDeepClone">Whether the cloned instance is a deep clone</param>
+    /// <param name="isPropertyBasedClone">
+    ///   Whether a property-based clone was performed
+    /// </param>
+    private static void verifyClone(
+      HierarchicalReferenceType original, HierarchicalReferenceType clone,
+      bool isDeepClone, bool isPropertyBasedClone
     ) {
-      Assert.AreEqual(original.TestField, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
-      Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
-      );
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
-      Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
+      if(isPropertyBasedClone) {
+        Assert.AreEqual(0, clone.TestField);
+        Assert.AreEqual(0, clone.ValueTypeField.TestField);
+        Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
+        Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
+        Assert.IsNull(clone.ReferenceTypeField);
 
-    /// <summary>
-    ///   Verifies that a field-based shallow clone of a reference type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyShallowFieldBasedReferenceTypeCopy(
-      HierarchicalReferenceType original, HierarchicalReferenceType clone
-    ) {
-      Assert.AreEqual(original.TestField, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
-      Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
-      );
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
-      Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
+        if(isDeepClone) {
+          Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+          Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][0],
+            clone.ReferenceTypeArrayProperty[1, 3][0]
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][2],
+            clone.ReferenceTypeArrayProperty[1, 3][2]
+          );
+          Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][0].TestField);
+          Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][2].TestField);
+        } else {
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+        }
+      } else {
+        Assert.AreEqual(original.TestField, clone.TestField);
+        Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
+        Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
+        Assert.AreEqual(
+          original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeField.TestField, clone.ReferenceTypeField.TestField
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeField.TestProperty, clone.ReferenceTypeField.TestProperty
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeProperty.TestField, clone.ReferenceTypeProperty.TestField
+        );
 
-    /// <summary>
-    ///   Verifies that a field-based deep clone of a value type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyDeepFieldBasedValueTypeCopy(
-      ref HierarchicalValueType original, ref HierarchicalValueType clone
-    ) {
-      Assert.AreEqual(original.TestField, clone.TestField);
+        if(isDeepClone) {
+          Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
+          Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][0],
+            clone.ReferenceTypeArrayProperty[1, 3][0]
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][2],
+            clone.ReferenceTypeArrayProperty[1, 3][2]
+          );
+          Assert.AreEqual(
+            original.ReferenceTypeArrayProperty[1, 3][0].TestField,
+            clone.ReferenceTypeArrayProperty[1, 3][0].TestField
+          );
+          Assert.AreEqual(
+            original.ReferenceTypeArrayProperty[1, 3][2].TestField,
+            clone.ReferenceTypeArrayProperty[1, 3][2].TestField
+          );
+        } else {
+          Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreSame(
+            original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
+          );
+          Assert.AreSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+        }
+      }
+
       Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
-      Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
-      );
       Assert.AreEqual(
         original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeField.TestField, clone.ReferenceTypeField.TestField
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeField.TestProperty, clone.ReferenceTypeField.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeProperty.TestField, clone.ReferenceTypeProperty.TestField
       );
       Assert.AreEqual(
         original.ReferenceTypeProperty.TestProperty, clone.ReferenceTypeProperty.TestProperty
       );
-      Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
-      Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+      Assert.AreEqual(
+        original.ReferenceTypeArrayProperty[1, 3][0].TestProperty,
+        clone.ReferenceTypeArrayProperty[1, 3][0].TestProperty
+      );
+      Assert.AreEqual(
+        original.ReferenceTypeArrayProperty[1, 3][2].TestProperty,
+        clone.ReferenceTypeArrayProperty[1, 3][2].TestProperty
+      );
     }
 
     /// <summary>
-    ///   Verifies that a field-based deep clone of a reference type matches
-    ///   the expected outcome for this type of clone
+    ///   Verifies that a cloned object exhibits the expected state for the type of
+    ///   clone that has been performed
     /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyDeepFieldBasedReferenceTypeCopy(
-      ref HierarchicalReferenceType original, ref HierarchicalReferenceType clone
+    /// <param name="original">Original instance the clone was created from</param>
+    /// <param name="clone">Cloned instance that will be checked for correctness</param>
+    /// <param name="isDeepClone">Whether the cloned instance is a deep clone</param>
+    /// <param name="isPropertyBasedClone">
+    ///   Whether a property-based clone was performed
+    /// </param>
+    private static void verifyClone(
+      ref HierarchicalValueType original, ref HierarchicalValueType clone,
+      bool isDeepClone, bool isPropertyBasedClone
     ) {
-      Assert.AreEqual(original.TestField, clone.TestField);
+      if(isPropertyBasedClone) {
+        Assert.AreEqual(0, clone.TestField);
+        Assert.AreEqual(0, clone.ValueTypeField.TestField);
+        Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
+        Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
+        Assert.IsNull(clone.ReferenceTypeField);
+
+        if(isDeepClone) {
+          Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+          Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][0],
+            clone.ReferenceTypeArrayProperty[1, 3][0]
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][2],
+            clone.ReferenceTypeArrayProperty[1, 3][2]
+          );
+          Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][0].TestField);
+          Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][2].TestField);
+        } else {
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+        }
+      } else {
+        Assert.AreEqual(original.TestField, clone.TestField);
+        Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
+        Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
+        Assert.AreEqual(
+          original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeField.TestField, clone.ReferenceTypeField.TestField
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeField.TestProperty, clone.ReferenceTypeField.TestProperty
+        );
+        Assert.AreEqual(
+          original.ReferenceTypeProperty.TestField, clone.ReferenceTypeProperty.TestField
+        );
+
+        if(isDeepClone) {
+          Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
+          Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][0],
+            clone.ReferenceTypeArrayProperty[1, 3][0]
+          );
+          Assert.AreNotSame(
+            original.ReferenceTypeArrayProperty[1, 3][2],
+            clone.ReferenceTypeArrayProperty[1, 3][2]
+          );
+          Assert.AreEqual(
+            original.ReferenceTypeArrayProperty[1, 3][0].TestField,
+            clone.ReferenceTypeArrayProperty[1, 3][0].TestField
+          );
+          Assert.AreEqual(
+            original.ReferenceTypeArrayProperty[1, 3][2].TestField,
+            clone.ReferenceTypeArrayProperty[1, 3][2].TestField
+          );
+        } else {
+          Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreSame(
+            original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
+          );
+          Assert.AreSame(
+            original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
+          );
+        }
+      }
+
       Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(original.ValueTypeField.TestField, clone.ValueTypeField.TestField);
-      Assert.AreEqual(original.ValueTypeField.TestProperty, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestField, clone.ValueTypeProperty.TestField
-      );
       Assert.AreEqual(
         original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeField.TestField, clone.ReferenceTypeField.TestField
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeField.TestProperty, clone.ReferenceTypeField.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeProperty.TestField, clone.ReferenceTypeProperty.TestField
       );
       Assert.AreEqual(
         original.ReferenceTypeProperty.TestProperty, clone.ReferenceTypeProperty.TestProperty
       );
-      Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
-      Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based shallow clone of a value type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyShallowPropertyBasedValueTypeCopy(
-      ref HierarchicalValueType original, ref HierarchicalValueType clone
-    ) {
-      Assert.AreEqual(0, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeField.TestField);
-      Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
       Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
+        original.ReferenceTypeArrayProperty[1, 3][0].TestProperty,
+        clone.ReferenceTypeArrayProperty[1, 3][0].TestProperty
       );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based shallow clone of a reference type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyShallowPropertyBasedReferenceTypeCopy(
-      ref HierarchicalReferenceType original, ref HierarchicalReferenceType clone
-    ) {
-      Assert.AreEqual(0, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeField.TestField);
-      Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
       Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
+        original.ReferenceTypeArrayProperty[1, 3][2].TestProperty,
+        clone.ReferenceTypeArrayProperty[1, 3][2].TestProperty
       );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based deep clone of a value type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyDeepPropertyBasedValueTypeCopy(
-      ref HierarchicalValueType original, ref HierarchicalValueType clone
-    ) {
-      Assert.AreEqual(0, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeField.TestField);
-      Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
-      Assert.AreEqual(
-        original.ReferenceTypeProperty.TestProperty, clone.ReferenceTypeProperty.TestProperty
-      );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based deep clone of a reference type matches
-    ///   the expected outcome for this type of clone
-    /// </summary>
-    /// <param name="original">Original instance that has been cloned</param>
-    /// <param name="clone">Cloned instance that will be verified</param>
-    private static void verifyDeepPropertyBasedReferenceTypeCopy(
-      ref HierarchicalReferenceType original, ref HierarchicalReferenceType clone
-    ) {
-      Assert.AreEqual(0, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeField.TestField);
-      Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
-      Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
-      Assert.AreEqual(
-        original.ReferenceTypeProperty.TestProperty, clone.ReferenceTypeProperty.TestProperty
-      );
-      Assert.IsNull(clone.ReferenceTypeField);
-      Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
     }
 
     /// <summary>Creates a value type with random data for testing</summary>
