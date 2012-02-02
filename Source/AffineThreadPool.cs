@@ -91,7 +91,7 @@ namespace Nuclex.Support {
 #if XBOX360 || WINDOWS_PHONE
       workAvailable = new Semaphore();
 #else
-      workAvailable = new System.Threading.Semaphore(0, Processors);
+      workAvailable = new System.Threading.Semaphore(0, int.MaxValue);
 #endif
       userWorkItems = new Queue<UserWorkItem>(Processors * 4);
       workerThreads = new List<Thread>(Processors);
