@@ -23,10 +23,8 @@ using System.Reflection;
 
 namespace Nuclex.Support.Cloning {
 
-  // TODO: Doesn't clone arrays yet
-
   /// <summary>Clones objects using reflection</summary>
-  public class ReflectionCloner : ICloneFactory, IStateCopier {
+  public class ReflectionCloner : ICloneFactory {
 
     /// <summary>
     ///   Creates a shallow clone of the specified object, reusing any referenced objects
@@ -38,22 +36,23 @@ namespace Nuclex.Support.Cloning {
     /// </param>
     /// <returns>A shallow clone of the provided object</returns>
     public TCloned ShallowClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
-      if(typeof(TCloned).IsValueType) {
-        TCloned clone = Activator.CreateInstance<TCloned>();
+      Type originalType = objectToClone.GetType();
+      if(originalType.IsPrimitive) {
+        return objectToClone; // Being value types, primitives are copied by default
+      } else if(originalType.IsArray) {
+        return (TCloned)shallowCloneArray(objectToClone);
+      } else if(originalType.IsValueType) {
         if(usePropertyBasedClone) {
-          shallowCopyValueTypePropertyBased<TCloned>(ref objectToClone, ref clone);
+          return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
         } else {
-          shallowCopyValueTypeFieldBased<TCloned>(ref objectToClone, ref clone);
+          return objectToClone; // Value types can be copied directly
         }
-        return clone;
       } else {
-        TCloned clone = (TCloned)Activator.CreateInstance(objectToClone.GetType());
         if(usePropertyBasedClone) {
-          shallowCopyReferenceTypePropertyBased(objectToClone.GetType(), objectToClone, clone);
+          return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
         } else {
-          shallowCopyReferenceTypeFieldBased(objectToClone.GetType(), objectToClone, clone);
+          return (TCloned)shallowCloneComplexFieldBased(objectToClone);
         }
-        return clone;
       }
     }
 
@@ -68,360 +67,296 @@ namespace Nuclex.Support.Cloning {
     /// </param>
     /// <returns>A deep clone of the provided object</returns>
     public TCloned DeepClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
-      if(typeof(TCloned).IsValueType) {
-        TCloned clone = Activator.CreateInstance<TCloned>();
-        if(usePropertyBasedClone) {
-          deepCopyValueTypePropertyBased<TCloned>(ref objectToClone, ref clone);
-        } else {
-          deepCopyValueTypeFieldBased<TCloned>(ref objectToClone, ref clone);
-        }
-        return clone;
+      if(usePropertyBasedClone) {
+        return (TCloned)deepCloneSinglePropertyBased(objectToClone);
       } else {
-        TCloned clone = (TCloned)Activator.CreateInstance(objectToClone.GetType());
-        if(usePropertyBasedClone) {
-          deepCopyReferenceTypePropertyBased(objectToClone.GetType(), objectToClone, clone);
-        } else {
-          deepCopyReferenceTypeFieldBased(objectToClone.GetType(), objectToClone, clone);
-        }
-        return clone;
+        return (TCloned)deepCloneSingleFieldBased(objectToClone);
       }
     }
 
-    /// <summary>Transfers the state of one object into another</summary>
-    /// <typeparam name="TState">Type of the object whose sate will be transferred</typeparam>
-    /// <param name="original">Original instance the state will be taken from</param>
-    /// <param name="target">Target instance the state will be written to</param>
-    /// <param name="propertyBased">Whether to perform a property-based state copy</param>
-    public void ShallowCopyState<TState>(TState original, TState target, bool propertyBased)
-      where TState : class {
-      if(propertyBased) {
-        shallowCopyReferenceTypePropertyBased(typeof(TState), original, target);
-      } else {
-        shallowCopyReferenceTypeFieldBased(typeof(TState), original, target);
-      }
-    }
+    /// <summary>Clones a complex type using field-based value transfer</summary>
+    /// <param name="original">Original instance that will be cloned</param>
+    /// <returns>A clone of the original instance</returns>
+    private object shallowCloneComplexFieldBased(object original) {
+      Type originalType = original.GetType();
+      object clone = Activator.CreateInstance(originalType);
 
-    /// <summary>Transfers the state of one object into another</summary>
-    /// <typeparam name="TState">Type of the object whose sate will be transferred</typeparam>
-    /// <param name="original">Original instance the state will be taken from</param>
-    /// <param name="target">Target instance the state will be written to</param>
-    /// <param name="propertyBased">Whether to perform a property-based state copy</param>
-    public void ShallowCopyState<TState>(
-      ref TState original, ref TState target, bool propertyBased
-    ) where TState : struct {
-      if(propertyBased) {
-        shallowCopyValueTypePropertyBased<TState>(ref original, ref target);
-      } else {
-        shallowCopyValueTypeFieldBased<TState>(ref original, ref target);
-      }
-    }
-
-    /// <summary>
-    ///   Transfers the state of one object into another, creating clones of referenced objects
-    /// </summary>
-    /// <typeparam name="TState">Type of the object whose sate will be transferred</typeparam>
-    /// <param name="original">Original instance the state will be taken from</param>
-    /// <param name="target">Target instance the state will be written to</param>
-    /// <param name="propertyBased">Whether to perform a property-based state copy</param>
-    public void DeepCopyState<TState>(TState original, TState target, bool propertyBased)
-      where TState : class {
-      if(propertyBased) {
-        deepCopyReferenceTypePropertyBased(typeof(TState), original, target);
-      } else {
-        deepCopyReferenceTypeFieldBased(typeof(TState), original, target);
-      }
-    }
-
-    /// <summary>
-    ///   Transfers the state of one object into another, creating clones of referenced objects
-    /// </summary>
-    /// <typeparam name="TState">Type of the object whose sate will be transferred</typeparam>
-    /// <param name="original">Original instance the state will be taken from</param>
-    /// <param name="target">Target instance the state will be written to</param>
-    /// <param name="propertyBased">Whether to perform a property-based state copy</param>
-    public void DeepCopyState<TState>(ref TState original, ref TState target, bool propertyBased)
-      where TState : struct {
-      if(propertyBased) {
-        deepCopyValueTypePropertyBased<TState>(ref original, ref target);
-      } else {
-        deepCopyValueTypeFieldBased<TState>(ref original, ref target);
-      }
-    }
-
-    /// <summary>Creates a field-based shallow copy of a reference type</summary>
-    /// <param name="copiedType">Type the copy will be based upon</param>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void shallowCopyReferenceTypeFieldBased(
-      Type copiedType, object original, object target
-    ) {
-      FieldInfo[] fieldInfos = copiedType.GetFields(
+      FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];
-        fieldInfo.SetValue(target, fieldInfo.GetValue(original));
+        object originalValue = fieldInfo.GetValue(original);
+        if(originalValue != null) {
+          // Everything's just directly assigned in a shallow clone
+          fieldInfo.SetValue(clone, originalValue);
+        }
       }
+
+      return clone;
     }
 
-    /// <summary>Creates a property-based shallow copy of a reference type</summary>
-    /// <param name="copiedType">Type the copy will be based upon</param>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void shallowCopyReferenceTypePropertyBased(
-      Type copiedType, object original, object target
-    ) {
-      PropertyInfo[] propertyInfos = copiedType.GetProperties(
+    /// <summary>Clones a complex type using property-based value transfer</summary>
+    /// <param name="original">Original instance that will be cloned</param>
+    /// <returns>A clone of the original instance</returns>
+    private object shallowCloneComplexPropertyBased(object original) {
+      Type originalType = original.GetType();
+      object clone = Activator.CreateInstance(originalType);
+
+      PropertyInfo[] propertyInfos = originalType.GetProperties(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
-          if(propertyInfo.PropertyType.IsPrimitive) {
-            propertyInfo.SetValue(
-              target,
-              propertyInfo.GetValue(original, null),
-              null
-            );
-          } else if(propertyInfo.PropertyType.IsValueType) {
-            // Recurse into the value type - value types are seen as part of
-            // the outer type and a shallow copy does follow their hierarchy.
-            // This is equivalent to what would happen if you directly assign
-            // one value type to another.
-            object boxedOriginalValue = propertyInfo.GetValue(original, null);
-            Type originalType = boxedOriginalValue.GetType();
-            object boxedClonedValue = Activator.CreateInstance(originalType);
-            shallowCopyReferenceTypePropertyBased(
-              originalType, boxedOriginalValue, boxedClonedValue
-            );
-            propertyInfo.SetValue(target, boxedClonedValue, null);
-          } else {
-            propertyInfo.SetValue(
-              target,
-              propertyInfo.GetValue(original, null),
-              null
-            );
-          }
-        }
-      }
-    }
-
-    /// <summary>Creates a property-based shallow copy of a value type</summary>
-    /// <typeparam name="TState">Value type that will be copied</typeparam>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void shallowCopyValueTypePropertyBased<TState>(
-      ref TState original, ref TState target
-    ) {
-      object boxedOriginal = original;
-      object boxedTarget = target;
-
-      PropertyInfo[] propertyInfos = typeof(TState).GetProperties(
-        BindingFlags.Public | BindingFlags.NonPublic |
-        BindingFlags.Instance | BindingFlags.FlattenHierarchy
-      );
-      for(int index = 0; index < propertyInfos.Length; ++index) {
-        PropertyInfo propertyInfo = propertyInfos[index];
-
-        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
-          if(propertyInfo.PropertyType.IsPrimitive) {
-            propertyInfo.SetValue(
-              boxedTarget,
-              propertyInfo.GetValue(boxedOriginal, null),
-              null
-            );
-          } else if(propertyInfo.PropertyType.IsValueType) {
-            object boxedOriginalValue = propertyInfo.GetValue(original, null);
-            Type originalType = boxedOriginalValue.GetType();
-            object boxedClonedValue = Activator.CreateInstance(originalType);
-            deepCopyReferenceTypePropertyBased(
-              originalType, boxedOriginalValue, boxedClonedValue
-            );
-            propertyInfo.SetValue(boxedTarget, boxedClonedValue, null);
-          } else {
-            propertyInfo.SetValue(
-              boxedTarget,
-              propertyInfo.GetValue(boxedOriginal, null),
-              null
-            );
+        Type propertyType = propertyInfo.PropertyType;
+        object originalValue = propertyInfo.GetValue(original, null);
+        if(originalValue != null) {
+          if(propertyType.IsPrimitive) { // Primitive types can be assigned directly
+            propertyInfo.SetValue(clone, originalValue, null);
+          } else if(propertyType.IsValueType) {
+            // Value types are seen as part of the original type and are thus recursed into
+            propertyInfo.SetValue(clone, shallowCloneComplexPropertyBased(originalValue), null);
+          } else if(propertyType.IsArray) { // Arrays are assigned directly in a shallow clone
+            propertyInfo.SetValue(clone, originalValue, null);
+          } else { // Complex types are directly assigned without creating a copy
+            propertyInfo.SetValue(clone, originalValue, null);
           }
         }
       }
 
-      target = (TState)boxedTarget;
+      return clone;
     }
 
-    /// <summary>Creates a field-based shallow copy of a value type</summary>
-    /// <typeparam name="TState">Value type that will be copied</typeparam>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void shallowCopyValueTypeFieldBased<TState>(
-      ref TState original, ref TState target
-    ) {
-      target = original; // hehe
+    /// <summary>Clones an array using field-based value transfer</summary>
+    /// <param name="original">Original array that will be cloned</param>
+    /// <returns>A clone of the original array</returns>
+    private object shallowCloneArray(object original) {
+      return ((Array)original).Clone();
     }
 
-    /// <summary>Creates a field-based deep copy of a reference type</summary>
-    /// <param name="copiedType">Type the copy will be based upon</param>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void deepCopyReferenceTypeFieldBased(
-      Type copiedType, object original, object target
-    ) {
-      FieldInfo[] fieldInfos = copiedType.GetFields(
+    /// <summary>Copies a single object using field-based value transfer</summary>
+    /// <param name="original">Original object that will be cloned</param>
+    /// <returns>A clone of the original object</returns>
+    private static object deepCloneSingleFieldBased(object original) {
+      Type originalType = original.GetType();
+      if(originalType.IsPrimitive) {
+        return original; // Creates another box, does not reference boxed primitive
+      } else if(originalType.IsArray) {
+        return deepCloneArrayFieldBased((Array)original, originalType.GetElementType());
+      } else {
+        return deepCloneComplexFieldBased(original);
+      }
+    }
+
+    /// <summary>Clones a complex type using field-based value transfer</summary>
+    /// <param name="original">Original instance that will be cloned</param>
+    /// <returns>A clone of the original instance</returns>
+    private static object deepCloneComplexFieldBased(object original) {
+      Type originalType = original.GetType();
+      object clone = Activator.CreateInstance(originalType);
+
+      FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];
-        if(fieldInfo.FieldType.IsPrimitive) {
-          fieldInfo.SetValue(target, fieldInfo.GetValue(original));
-        } else if(fieldInfo.FieldType.IsValueType) {
-          object boxedOriginalValue = fieldInfo.GetValue(original);
-          Type originalType = boxedOriginalValue.GetType();
-          object boxedClonedValue = Activator.CreateInstance(originalType);
-          deepCopyReferenceTypeFieldBased(originalType, boxedOriginalValue, boxedClonedValue);
-          fieldInfo.SetValue(target, boxedClonedValue);
-        } else {
-          object originalValue = fieldInfo.GetValue(original);
-          if(originalValue != null) {
-            Type originalType = originalValue.GetType();
-            object clonedValue = Activator.CreateInstance(originalType);
-            deepCopyReferenceTypeFieldBased(originalType, originalValue, clonedValue);
-            fieldInfo.SetValue(target, clonedValue);
+        Type fieldType = fieldInfo.FieldType;
+        object originalValue = fieldInfo.GetValue(original);
+        if(originalValue != null) {
+          if(fieldType.IsPrimitive) { // Primitive types can be assigned directly
+            fieldInfo.SetValue(clone, originalValue);
+          } else if(fieldType.IsArray) { // Arrays need to be cloned element-by-element
+            fieldInfo.SetValue(
+              clone,
+              deepCloneArrayFieldBased((Array)originalValue, fieldType.GetElementType())
+            );
+          } else { // Complex types need to be cloned member-by-member
+            fieldInfo.SetValue(clone, deepCloneSingleFieldBased(originalValue));
           }
         }
       }
+
+      return clone;
     }
 
-    /// <summary>Creates a property-based deep copy of a reference type</summary>
-    /// <param name="copiedType">Type the copy will be based upon</param>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void deepCopyReferenceTypePropertyBased(
-      Type copiedType, object original, object target
-    ) {
-      PropertyInfo[] propertyInfos = copiedType.GetProperties(
+    /// <summary>Clones an array using field-based value transfer</summary>
+    /// <param name="original">Original array that will be cloned</param>
+    /// <param name="elementType">Type of elements the original array contains</param>
+    /// <returns>A clone of the original array</returns>
+    private static object deepCloneArrayFieldBased(Array original, Type elementType) {
+      if(elementType.IsPrimitive) {
+        return original.Clone();
+      }
+
+      int dimensionCount = original.Rank;
+
+      // Find out the length of each of the array's dimensions, also calculate how
+      // many elements there are in the array in total.
+      var lengths = new int[dimensionCount];
+      int totalElementCount = 0;
+      for(int index = 0; index < dimensionCount; ++index) {
+        lengths[index] = original.GetLength(index);
+        if(index == 0) {
+          totalElementCount = lengths[index];
+        } else {
+          totalElementCount *= lengths[index];
+        }
+      }
+
+      // Knowing the number of dimensions and the length of each dimension, we can
+      // create another array of the exact same sizes.
+      Array clone = Array.CreateInstance(elementType, lengths);
+
+      // If this is a one-dimensional array (most common type), do an optimized copy
+      // directly specifying the indices
+      if(dimensionCount == 1) {
+
+        // Clone each element of the array directly
+        for(int index = 0; index < totalElementCount; ++index) {
+          object originalElement = original.GetValue(index);
+          if(originalElement != null) {
+            clone.SetValue(deepCloneSingleFieldBased(originalElement), index);
+          }
+        }
+
+      } else { // Otherwise use the generic code for multi-dimensional arrays
+
+        var indices = new int[dimensionCount];
+        for(int index = 0; index < totalElementCount; ++index) {
+
+          // Determine the index for each of the array's dimensions
+          int elementIndex = index;
+          for(int dimensionIndex = dimensionCount - 1; dimensionIndex >= 0; --dimensionIndex) {
+            indices[dimensionIndex] = elementIndex % lengths[dimensionIndex];
+            elementIndex /= lengths[dimensionIndex];
+          }
+
+          // Clone the current array element
+          object originalElement = original.GetValue(indices);
+          if(originalElement != null) {
+            clone.SetValue(deepCloneSingleFieldBased(originalElement), indices);
+          }
+
+        }
+
+      }
+
+      return clone;
+    }
+
+    /// <summary>Copies a single object using property-based value transfer</summary>
+    /// <param name="original">Original object that will be cloned</param>
+    /// <returns>A clone of the original object</returns>
+    private static object deepCloneSinglePropertyBased(object original) {
+      Type originalType = original.GetType();
+      if(originalType.IsPrimitive) {
+        return original; // Creates another box, does not reference boxed primitive
+      } else if(originalType.IsArray) {
+        return deepCloneArrayPropertyBased((Array)original, originalType.GetElementType());
+      } else {
+        return deepCloneComplexPropertyBased(original);
+      }
+    }
+
+    /// <summary>Clones a complex type using property-based value transfer</summary>
+    /// <param name="original">Original instance that will be cloned</param>
+    /// <returns>A clone of the original instance</returns>
+    private static object deepCloneComplexPropertyBased(object original) {
+      Type originalType = original.GetType();
+      object clone = Activator.CreateInstance(originalType);
+
+      PropertyInfo[] propertyInfos = originalType.GetProperties(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
-          if(propertyInfo.PropertyType.IsPrimitive) {
+        Type propertyType = propertyInfo.PropertyType;
+        object originalValue = propertyInfo.GetValue(original, null);
+        if(originalValue != null) {
+          if(propertyType.IsPrimitive) { // Primitive types can be assigned directly
+            propertyInfo.SetValue(clone, originalValue, null);
+          } else if(propertyType.IsArray) { // Arrays need to be cloned element-by-element
             propertyInfo.SetValue(
-              target,
-              propertyInfo.GetValue(original, null),
+              clone,
+              deepCloneArrayPropertyBased((Array)originalValue, propertyType.GetElementType()),
               null
             );
-          } else if(propertyInfo.PropertyType.IsValueType) {
-            object boxedOriginalValue = propertyInfo.GetValue(original, null);
-            Type originalType = boxedOriginalValue.GetType();
-            object boxedClonedValue = Activator.CreateInstance(originalType);
-            deepCopyReferenceTypePropertyBased(
-              originalType, boxedOriginalValue, boxedClonedValue
-            );
-            propertyInfo.SetValue(target, boxedClonedValue, null);
-          } else {
-            object originalValue = propertyInfo.GetValue(original, null);
-            if(originalValue != null) {
-              Type originalType = originalValue.GetType();
-              object clonedValue = Activator.CreateInstance(originalType);
-              deepCopyReferenceTypePropertyBased(
-                originalType, originalValue, clonedValue
-              );
-              propertyInfo.SetValue(target, clonedValue, null);
-            }
+          } else { // Complex types need to be cloned member-by-member
+            propertyInfo.SetValue(clone, deepCloneSinglePropertyBased(originalValue), null);
           }
         }
       }
+
+      return clone;
     }
 
-    /// <summary>Creates a field-based deep copy of a value type</summary>
-    /// <typeparam name="TState">Value type that will be copied</typeparam>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void deepCopyValueTypeFieldBased<TState>(
-      ref TState original, ref TState target
-    ) {
-      object boxedOriginal = original;
-      object boxedTarget = Activator.CreateInstance(original.GetType());
+    /// <summary>Clones an array using property-based value transfer</summary>
+    /// <param name="original">Original array that will be cloned</param>
+    /// <param name="elementType">Type of elements the original array contains</param>
+    /// <returns>A clone of the original array</returns>
+    private static object deepCloneArrayPropertyBased(Array original, Type elementType) {
+      if(elementType.IsPrimitive) {
+        return original.Clone();
+      }
 
-      FieldInfo[] fieldInfos = typeof(TState).GetFields(
-        BindingFlags.Public | BindingFlags.NonPublic |
-        BindingFlags.Instance | BindingFlags.FlattenHierarchy
-      );
-      for(int index = 0; index < fieldInfos.Length; ++index) {
-        FieldInfo fieldInfo = fieldInfos[index];
-        if(fieldInfo.FieldType.IsPrimitive) {
-          object boxedValue = fieldInfo.GetValue(boxedOriginal);
-          fieldInfo.SetValue(boxedTarget, boxedValue);
-        } else if(fieldInfo.FieldType.IsValueType) {
-          object boxedOriginalValue = fieldInfo.GetValue(boxedOriginal);
-          Type originalType = boxedOriginalValue.GetType();
-          object boxedClonedValue = Activator.CreateInstance(originalType);
-          deepCopyReferenceTypeFieldBased(originalType, boxedOriginalValue, boxedClonedValue);
-          fieldInfo.SetValue(boxedTarget, boxedClonedValue);
+      int dimensionCount = original.Rank;
+
+      // Find out the length of each of the array's dimensions, also calculate how
+      // many elements there are in the array in total.
+      var lengths = new int[dimensionCount];
+      int totalElementCount = 0;
+      for(int index = 0; index < dimensionCount; ++index) {
+        lengths[index] = original.GetLength(index);
+        if(index == 0) {
+          totalElementCount = lengths[index];
         } else {
-          object originalValue = fieldInfo.GetValue(boxedOriginal);
-          if(originalValue != null) {
-            Type originalType = originalValue.GetType();
-            object clonedValue = Activator.CreateInstance(originalType);
-            deepCopyReferenceTypeFieldBased(originalType, originalValue, clonedValue);
-            fieldInfo.SetValue(boxedTarget, clonedValue);
-          }
+          totalElementCount *= lengths[index];
         }
       }
 
-      target = (TState)boxedTarget;
-    }
+      // Knowing the number of dimensions and the length of each dimension, we can
+      // create another array of the exact same sizes.
+      Array clone = Array.CreateInstance(elementType, lengths);
 
-    /// <summary>Creates a property-based shallow copy of a value type</summary>
-    /// <typeparam name="TState">Value type that will be copied</typeparam>
-    /// <param name="original">Original object that will be copied</param>
-    /// <param name="target">Target object into which copied values will be written</param>
-    private static void deepCopyValueTypePropertyBased<TState>(
-      ref TState original, ref TState target
-    ) {
-      object boxedOriginal = original;
-      object boxedTarget = Activator.CreateInstance(original.GetType());
+      // If this is a one-dimensional array (most common type), do an optimized copy
+      // directly specifying the indices
+      if(dimensionCount == 1) {
 
-      PropertyInfo[] propertyInfos = typeof(TState).GetProperties(
-        BindingFlags.Public | BindingFlags.NonPublic |
-        BindingFlags.Instance | BindingFlags.FlattenHierarchy
-      );
-      for(int index = 0; index < propertyInfos.Length; ++index) {
-        PropertyInfo propertyInfo = propertyInfos[index];
-        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
-          if(propertyInfo.PropertyType.IsPrimitive) {
-            propertyInfo.SetValue(
-              boxedTarget,
-              propertyInfo.GetValue(boxedOriginal, null),
-              null
-            );
-          } else if(propertyInfo.PropertyType.IsValueType) {
-            object boxedOriginalValue = propertyInfo.GetValue(boxedOriginal, null);
-            Type originalType = boxedOriginalValue.GetType();
-            object boxedClonedValue = Activator.CreateInstance(originalType);
-            deepCopyReferenceTypePropertyBased(
-              originalType, boxedOriginalValue, boxedClonedValue
-            );
-            propertyInfo.SetValue(boxedTarget, boxedClonedValue, null);
-          } else {
-            object originalValue = propertyInfo.GetValue(boxedOriginal, null);
-            if(originalValue != null) {
-              Type originalType = originalValue.GetType();
-              object clonedValue = Activator.CreateInstance(originalType);
-              deepCopyReferenceTypePropertyBased(originalType, originalValue, clonedValue);
-              propertyInfo.SetValue(boxedTarget, clonedValue, null);
-            }
+        // Clone each element of the array directly
+        for(int index = 0; index < totalElementCount; ++index) {
+          object originalElement = original.GetValue(index);
+          if(originalElement != null) {
+            clone.SetValue(deepCloneSinglePropertyBased(originalElement), index);
           }
         }
+
+      } else { // Otherwise use the generic code for multi-dimensional arrays
+
+        var indices = new int[dimensionCount];
+        for(int index = 0; index < totalElementCount; ++index) {
+
+          // Determine the index for each of the array's dimensions
+          int elementIndex = index;
+          for(int dimensionIndex = dimensionCount - 1; dimensionIndex >= 0; --dimensionIndex) {
+            indices[dimensionIndex] = elementIndex % lengths[dimensionIndex];
+            elementIndex /= lengths[dimensionIndex];
+          }
+
+          // Clone the current array element
+          object originalElement = original.GetValue(indices);
+          if(originalElement != null) {
+            clone.SetValue(deepCloneSinglePropertyBased(originalElement), indices);
+          }
+
+        }
+
       }
 
-      target = (TState)boxedTarget;
+      return clone;
     }
 
   }

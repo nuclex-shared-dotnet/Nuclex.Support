@@ -76,6 +76,10 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType ReferenceTypeField;
       /// <summary>Reference type property for testing</summary>
       public TestReferenceType ReferenceTypeProperty { get; set; }
+      /// <summary>An array field of reference types</summary>
+      public TestReferenceType[,][] ReferenceTypeArrayField;
+      /// <summary>An array property of reference types</summary>
+      public TestReferenceType[,][] ReferenceTypeArrayProperty { get; set; }
 
     }
 
@@ -98,6 +102,10 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType ReferenceTypeField;
       /// <summary>Reference type property for testing</summary>
       public TestReferenceType ReferenceTypeProperty { get; set; }
+      /// <summary>An array field of reference types</summary>
+      public TestReferenceType[,][] ReferenceTypeArrayField;
+      /// <summary>An array property of reference types</summary>
+      public TestReferenceType[,][] ReferenceTypeArrayProperty { get; set; }
 
     }
 
@@ -399,6 +407,32 @@ namespace Nuclex.Support.Cloning {
       return new HierarchicalValueType() {
         TestField = 123,
         TestProperty = 321,
+        ReferenceTypeArrayField = new TestReferenceType[2, 4][] {
+          {
+            null, null, null, null
+          },
+          {
+            null, null, null,
+            new TestReferenceType[3] {
+              new TestReferenceType() { TestField = 101, TestProperty = 202 },
+              null,
+              new TestReferenceType() { TestField = 909, TestProperty = 808 }
+            }
+          },
+        },
+        ReferenceTypeArrayProperty = new TestReferenceType[2, 4][] {
+          {
+            null, null, null, null
+          },
+          {
+            null, null, null,
+            new TestReferenceType[3] {
+              new TestReferenceType() { TestField = 303, TestProperty = 404 },
+              null,
+              new TestReferenceType() { TestField = 707, TestProperty = 606 }
+            }
+          },
+        },
         ValueTypeField = new TestValueType() {
           TestField = 456,
           TestProperty = 654
@@ -424,6 +458,32 @@ namespace Nuclex.Support.Cloning {
       return new HierarchicalReferenceType() {
         TestField = 123,
         TestProperty = 321,
+        ReferenceTypeArrayField = new TestReferenceType[2, 4][] {
+          {
+            null, null, null, null
+          },
+          {
+            null, null, null,
+            new TestReferenceType[3] {
+              new TestReferenceType() { TestField = 101, TestProperty = 202 },
+              null,
+              new TestReferenceType() { TestField = 909, TestProperty = 808 }
+            }
+          },
+        },
+        ReferenceTypeArrayProperty = new TestReferenceType[2, 4][] {
+          {
+            null, null, null, null
+          },
+          {
+            null, null, null,
+            new TestReferenceType[3] {
+              new TestReferenceType() { TestField = 303, TestProperty = 404 },
+              null,
+              new TestReferenceType() { TestField = 707, TestProperty = 606 }
+            }
+          },
+        },
         ValueTypeField = new TestValueType() {
           TestField = 456,
           TestProperty = 654
