@@ -28,162 +28,162 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Cloning {
 
-	/// <summary>An action that takes its arguments as references to a structure</summary>
-	/// <typeparam name="TFirst">Type of the first argument to the method</typeparam>
-	/// <typeparam name="TSecond">Type of the second argument to the method</typeparam>
-	/// <param name="first">First argument to the method</param>
-	/// <param name="second">Second argument to the method</param>
-	public delegate void ReferenceAction<TFirst, TSecond>(ref TFirst first, ref TSecond second)
-		where TFirst : struct
-		where TSecond : struct;
+  /// <summary>An action that takes its arguments as references to a structure</summary>
+  /// <typeparam name="TFirst">Type of the first argument to the method</typeparam>
+  /// <typeparam name="TSecond">Type of the second argument to the method</typeparam>
+  /// <param name="first">First argument to the method</param>
+  /// <param name="second">Second argument to the method</param>
+  public delegate void ReferenceAction<TFirst, TSecond>(ref TFirst first, ref TSecond second)
+    where TFirst : struct
+    where TSecond : struct;
 
-	/// <summary>
-	///   Cloning factory which uses expression trees to improve performance when cloning
-	///   is a high-frequency action.
-	/// </summary>
-	public class ExpressionTreeCloner : ICloneFactory {
+  /// <summary>
+  ///   Cloning factory which uses expression trees to improve performance when cloning
+  ///   is a high-frequency action.
+  /// </summary>
+  public class ExpressionTreeCloner : ICloneFactory {
 
-		/// <summary>Initializes the static members of the expression tree cloner</summary>
-		static ExpressionTreeCloner() {
-			shallowCloners = new ConcurrentDictionary<Type, Func<object, object>>();
-			deepCloners = new ConcurrentDictionary<Type, Func<object, object>>();
-		}
+    /// <summary>Initializes the static members of the expression tree cloner</summary>
+    static ExpressionTreeCloner() {
+      shallowCloners = new ConcurrentDictionary<Type, Delegate>();
+      deepCloners = new ConcurrentDictionary<Type, Delegate>();
+    }
 
-		/// <summary>
-		///   Creates a deep clone of the specified object, also creating clones of all
-		///   child objects being referenced
-		/// </summary>
-		/// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
-		/// <param name="objectToClone">Object that will be cloned</param>
-		/// <param name="usePropertyBasedClone">
-		///   Whether to clone the object based on its properties only
-		/// </param>
-		/// <returns>A deep clone of the provided object</returns>
-		public static TCloned DeepClone<TCloned>(
-			TCloned objectToClone, bool usePropertyBasedClone
-		) {
-			if(usePropertyBasedClone) {
-				throw new NotImplementedException("Not implemented yet");
-			} else {
-				Func<object, object> cloner = getOrCreateDeepFieldBasedCloner(typeof(TCloned));
-				return (TCloned)cloner(objectToClone);
-			}
-		}
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A deep clone of the provided object</returns>
+    public static TCloned DeepClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      if(usePropertyBasedClone) {
+        throw new NotImplementedException("Not implemented yet");
+      } else {
+        Func<TCloned, TCloned> cloner = getOrCreateDeepFieldBasedCloner<TCloned>();
+        return cloner(objectToClone);
+      }
+    }
 
-		/// <summary>
-		///   Creates a shallow clone of the specified object, reusing any referenced objects
-		/// </summary>
-		/// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
-		/// <param name="objectToClone">Object that will be cloned</param>
-		/// <param name="usePropertyBasedClone">
-		///   Whether to clone the object based on its properties only
-		/// </param>
-		/// <returns>A shallow clone of the provided object</returns>
-		public static TCloned ShallowClone<TCloned>(
-			TCloned objectToClone, bool usePropertyBasedClone
-		) {
-			throw new NotImplementedException("Not implemented yet");
-		}
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A shallow clone of the provided object</returns>
+    public static TCloned ShallowClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      throw new NotImplementedException("Not implemented yet");
+    }
 
-		/// <summary>
-		///   Creates a deep clone of the specified object, also creating clones of all
-		///   child objects being referenced
-		/// </summary>
-		/// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
-		/// <param name="objectToClone">Object that will be cloned</param>
-		/// <param name="usePropertyBasedClone">
-		///   Whether to clone the object based on its properties only
-		/// </param>
-		/// <returns>A deep clone of the provided object</returns>
-		TCloned ICloneFactory.DeepClone<TCloned>(
-			TCloned objectToClone, bool usePropertyBasedClone
-		) {
-			return ExpressionTreeCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
-		}
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      return ExpressionTreeCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
+    }
 
-		/// <summary>
-		///   Creates a shallow clone of the specified object, reusing any referenced objects
-		/// </summary>
-		/// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
-		/// <param name="objectToClone">Object that will be cloned</param>
-		/// <param name="usePropertyBasedClone">
-		///   Whether to clone the object based on its properties only
-		/// </param>
-		/// <returns>A shallow clone of the provided object</returns>
-		TCloned ICloneFactory.ShallowClone<TCloned>(
-			TCloned objectToClone, bool usePropertyBasedClone
-		) {
-			return ExpressionTreeCloner.ShallowClone<TCloned>(objectToClone, usePropertyBasedClone);
-		}
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A shallow clone of the provided object</returns>
+    TCloned ICloneFactory.ShallowClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      return ExpressionTreeCloner.ShallowClone<TCloned>(objectToClone, usePropertyBasedClone);
+    }
 
-		/// <summary>
-		///   Retrieves the existing clone method for the specified type or compiles one if
-		///   none exists for the type yet
-		/// </summary>
-		/// <param name="type">Type for which a clone method will be retrieved</param>
-		/// <returns>The clone method for the specified type</returns>
-		private static Func<object, object> getOrCreateDeepFieldBasedCloner(Type type) {
-			Func<object, object> cloner;
-			if(!deepCloners.TryGetValue(type, out cloner)) {
-				cloner = createDeepFieldBasedCloner(type);
-				deepCloners.TryAdd(type, cloner);
-			}
+    /// <summary>
+    ///   Retrieves the existing clone method for the specified type or compiles one if
+    ///   none exists for the type yet
+    /// </summary>
+    /// <typeparam name="TCloned">Type for which a clone method will be retrieved</typeparam>
+    /// <returns>The clone method for the specified type</returns>
+    private static Func<TCloned, TCloned> getOrCreateDeepFieldBasedCloner<TCloned>() {
+      Type clonedType = typeof(TCloned);
+      Delegate clonerAsDelegate;
+      if(deepCloners.TryGetValue(clonedType, out clonerAsDelegate)) {
+        return (Func<TCloned, TCloned>)clonerAsDelegate;
+      } else {
+        Func<TCloned, TCloned> cloner = createDeepFieldBasedCloner<TCloned>();
+        deepCloners.TryAdd(clonedType, cloner);
+        return cloner;
+      }
+    }
 
-			return cloner;
-		}
+    /// <summary>Compiles a method that creates a clone of an object</summary>
+    /// <param name="type">Type for which a clone method will be created</param>
+    /// <returns>A method that clones an object of the provided type</returns>
+    private static Func<TCloned, TCloned> createDeepFieldBasedCloner<TCloned>() {
+      Type clonedType = typeof(TCloned);
+      FieldInfo[] fieldInfos = clonedType.GetFields(
+        BindingFlags.Public | BindingFlags.NonPublic |
+        BindingFlags.Instance | BindingFlags.FlattenHierarchy
+      );
 
-		/// <summary>Compiles a method that creates a clone of an object</summary>
-		/// <param name="type">Type for which a clone method will be created</param>
-		/// <returns>A method that clones an object of the provided type</returns>
-		private static Func<object, object> createDeepFieldBasedCloner(Type type) {
-			FieldInfo[] fieldInfos = type.GetFields(
-				BindingFlags.Public | BindingFlags.NonPublic |
-				BindingFlags.Instance | BindingFlags.FlattenHierarchy
-			);
+      ParameterExpression original = Expression.Parameter(typeof(TCloned), "original");
+      ParameterExpression clone = Expression.Variable(typeof(TCloned), "clone");
 
-			ParameterExpression original = Expression.Parameter(typeof(object), "original");
-			ParameterExpression clone = Expression.Variable(typeof(object), "clone");
-			//ParameterExpression typedOriginal = Expression.Variable(type, "typedOriginal");
+      var transferExpressions = new List<Expression>();
 
-			var transferExpressions = new List<Expression>();
+      if(clonedType.IsPrimitive || (clonedType == typeof(string))) {
+        transferExpressions.Add(Expression.Assign(clone, original));
+      } else if(clonedType.IsArray) {
+        throw new NotImplementedException("Not implemented yet");
+      } else {
+        transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
 
-			if(type.IsPrimitive || (type == typeof(string))) {
-				transferExpressions.Add(Expression.Assign(clone, original));
-			} else if(type.IsArray) {
-				//throw new NotImplementedException("Not implemented yet");
-			} else {
-				transferExpressions.Add(Expression.Assign(clone, Expression.New(type)));
-				/*
-				transferExpressions.Add(
-					Expression.Assign(typedOriginal, Expression.Convert(original, type))
-				);
-				for(int index = 0; index < fieldInfos.Length; ++index) {
-					FieldInfo fieldInfo = fieldInfos[index];
-					Type fieldType = fieldInfo.FieldType;
+        for(int index = 0; index < fieldInfos.Length; ++index) {
+          FieldInfo fieldInfo = fieldInfos[index];
+          Type fieldType = fieldInfo.FieldType;
 
-					if(fieldType.IsPrimitive) {
-						transferExpressions.Add(
-							Expression.Assign(
-								Expression.Field(clone, fieldInfo),
-								Expression.Field(typedOriginal, fieldInfo)
-							)
-						);
-					}
-				}
-				*/
-			}
+          if(fieldType.IsPrimitive) {
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Field(clone, fieldInfo),
+                Expression.Field(original, fieldInfo)
+              )
+            );
+          }
+        }
 
-			Expression<Func<object, object>> expression =
-				Expression.Lambda<Func<object, object>>(
-					Expression.Block(
-						new[] { clone },
-						transferExpressions
-					),
-					original
-				);
+        transferExpressions.Add(clone);
+      }
 
-			return expression.Compile();
-		}
+      Expression<Func<TCloned, TCloned>> expression =
+        Expression.Lambda<Func<TCloned, TCloned>>(
+          Expression.Block(
+            new[] { clone },
+            transferExpressions
+          ),
+          original
+        );
+
+      return expression.Compile();
+    }
 
 #if false
     /// <summary>
@@ -262,12 +262,12 @@ namespace Nuclex.Support.Cloning {
     }
 #endif
 
-		/// <summary>Compiled cloners that perform shallow clone operations</summary>
-		private static ConcurrentDictionary<Type, Func<object, object>> shallowCloners;
-		/// <summary>Compiled cloners that perform deep clone operations</summary>
-		private static ConcurrentDictionary<Type, Func<object, object>> deepCloners;
+    /// <summary>Compiled cloners that perform shallow clone operations</summary>
+    private static ConcurrentDictionary<Type, Delegate> shallowCloners;
+    /// <summary>Compiled cloners that perform deep clone operations</summary>
+    private static ConcurrentDictionary<Type, Delegate> deepCloners;
 
-	}
+  }
 
 } // namespace Nuclex.Support.Cloning
 
