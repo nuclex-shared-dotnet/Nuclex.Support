@@ -135,14 +135,10 @@ namespace Nuclex.Support.Cloning {
     }
 
     /// <summary>Compiles a method that creates a clone of an object</summary>
-    /// <param name="type">Type for which a clone method will be created</param>
+    /// <typeparam name="TCloned">Type for which a clone method will be created</typeparam>
     /// <returns>A method that clones an object of the provided type</returns>
     private static Func<TCloned, TCloned> createDeepFieldBasedCloner<TCloned>() {
       Type clonedType = typeof(TCloned);
-      FieldInfo[] fieldInfos = clonedType.GetFields(
-        BindingFlags.Public | BindingFlags.NonPublic |
-        BindingFlags.Instance | BindingFlags.FlattenHierarchy
-      );
 
       ParameterExpression original = Expression.Parameter(typeof(TCloned), "original");
       ParameterExpression clone = Expression.Variable(typeof(TCloned), "clone");
@@ -150,11 +146,27 @@ namespace Nuclex.Support.Cloning {
       var transferExpressions = new List<Expression>();
 
       if(clonedType.IsPrimitive || (clonedType == typeof(string))) {
-        transferExpressions.Add(Expression.Assign(clone, original));
+        transferExpressions.Add(original); // primitives are copied on assignment
       } else if(clonedType.IsArray) {
-        throw new NotImplementedException("Not implemented yet");
+        Type elementType = clonedType.GetElementType();
+        if(elementType.IsPrimitive || (elementType == typeof(string))) {
+          MethodInfo arrayCloneMethodInfo = typeof(Array).GetMethod("Clone");
+          transferExpressions.Add(
+            Expression.Convert(
+              Expression.Call(original, arrayCloneMethodInfo),
+              clonedType
+            )
+          );
+        } else {
+        }
+
       } else {
         transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
+
+        FieldInfo[] fieldInfos = clonedType.GetFields(
+          BindingFlags.Public | BindingFlags.NonPublic |
+          BindingFlags.Instance | BindingFlags.FlattenHierarchy
+        );
 
         for(int index = 0; index < fieldInfos.Length; ++index) {
           FieldInfo fieldInfo = fieldInfos[index];

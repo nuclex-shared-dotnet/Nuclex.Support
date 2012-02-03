@@ -66,7 +66,7 @@ namespace Nuclex.Support.Cloning {
 
       Assert.AreSame(original[0], clone[0]);
     }
-
+//#endif
     /// <summary>Verifies that deep clones of arrays can be made</summary>
     [Test]
     public void DeepClonesOfArraysCanBeMade() {
@@ -79,7 +79,7 @@ namespace Nuclex.Support.Cloning {
       Assert.AreEqual(original[0].TestField, clone[0].TestField);
       Assert.AreEqual(original[0].TestProperty, clone[0].TestProperty);
     }
-
+//#if false
     /// <summary>Verifies that deep clones of a generic list can be made</summary>
     [Test]
     public void GenericListsCanBeCloned() {
