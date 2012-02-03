@@ -29,30 +29,19 @@ namespace Nuclex.Support.Cloning {
 
   /// <summary>Unit Test for the reflection-based cloner</summary>
   [TestFixture]
-  public class ReflectionClonerTest : CloneFactoryTest {
+  public class SerializationClonerTest : CloneFactoryTest {
 
     /// <summary>Initializes a new unit test suite for the reflection cloner</summary>
-    public ReflectionClonerTest() {
-      this.cloneFactory = new ReflectionCloner();
+    public SerializationClonerTest() {
+      this.cloneFactory = new SerializationCloner();
     }
 
     /// <summary>Verifies that clones of primitive types can be created</summary>
     [Test]
     public void PrimitiveTypesCanBeCloned() {
       int original = 12345;
-      int clone = this.cloneFactory.ShallowClone(original, false);
+      int clone = this.cloneFactory.DeepClone(original, false);
       Assert.AreEqual(original, clone);
-    }
-
-    /// <summary>Verifies that shallow clones of arrays can be made</summary>
-    [Test]
-    public void ShallowClonesOfArraysCanBeMade() {
-      var original = new TestReferenceType[] {
-        new TestReferenceType() { TestField = 123, TestProperty = 456 }
-      };
-      TestReferenceType[] clone = this.cloneFactory.ShallowClone(original, false);
-
-      Assert.AreSame(original[0], clone[0]);
     }
 
     /// <summary>Verifies that deep clones of arrays can be made</summary>
@@ -88,26 +77,6 @@ namespace Nuclex.Support.Cloning {
     }
 
     /// <summary>
-    ///   Verifies that a field-based shallow clone of a value type can be performed
-    /// </summary>
-    [Test]
-    public void ShallowFieldBasedClonesOfValueTypesCanBeMade() {
-      HierarchicalValueType original = CreateValueType();
-      HierarchicalValueType clone = this.cloneFactory.ShallowClone(original, false);
-      VerifyClone(ref original, ref clone, isDeepClone: false, isPropertyBasedClone: false);
-    }
-
-    /// <summary>
-    ///   Verifies that a field-based shallow clone of a reference type can be performed
-    /// </summary>
-    [Test]
-    public void ShallowFieldBasedClonesOfReferenceTypesCanBeMade() {
-      HierarchicalReferenceType original = CreateReferenceType();
-      HierarchicalReferenceType clone = this.cloneFactory.ShallowClone(original, false);
-      VerifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: false);
-    }
-
-    /// <summary>
     ///   Verifies that a field-based deep clone of a value type can be performed
     /// </summary>
     [Test]
@@ -125,26 +94,6 @@ namespace Nuclex.Support.Cloning {
       HierarchicalReferenceType original = CreateReferenceType();
       HierarchicalReferenceType clone = this.cloneFactory.DeepClone(original, false);
       VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based shallow clone of a value type can be performed
-    /// </summary>
-    [Test]
-    public void ShallowPropertyBasedClonesOfValueTypesCanBeMade() {
-      HierarchicalValueType original = CreateValueType();
-      HierarchicalValueType clone = this.cloneFactory.ShallowClone(original, true);
-      VerifyClone(ref original, ref clone, isDeepClone: false, isPropertyBasedClone: true);
-    }
-
-    /// <summary>
-    ///   Verifies that a property-based shallow clone of a reference type can be performed
-    /// </summary>
-    [Test]
-    public void ShallowPropertyBasedClonesOfReferenceTypesCanBeMade() {
-      HierarchicalReferenceType original = CreateReferenceType();
-      HierarchicalReferenceType clone = this.cloneFactory.ShallowClone(original, true);
-      VerifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: true);
     }
 
     /// <summary>

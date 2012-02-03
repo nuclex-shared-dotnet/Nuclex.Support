@@ -60,6 +60,7 @@
     <Compile Include="Source\AffineThreadPool.Test.cs">
       <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
     <Compile Include="Source\Cloning\CloningParameters.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
     <Compile Include="Source\Cloning\IStateCopier.cs" />
@@ -68,6 +69,10 @@
       <DependentUpon>ReflectionCloner.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Cloning\ICloneFactory.cs" />
+    <Compile Include="Source\Cloning\SerializationCloner.cs" />
+    <Compile Include="Source\Cloning\SerializationCloner.Test.cs">
+      <DependentUpon>SerializationCloner.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\Deque.cs" />
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>

@@ -24,6 +24,13 @@ using System.Reflection;
 namespace Nuclex.Support.Cloning {
 
   /// <summary>Clones objects using reflection</summary>
+  /// <remarks>
+  ///   <para>
+  ///     This type of cloning is a lot faster than cloning by serialization and
+  ///     incurs no set-up cost, but requires cloned types to provide a default
+  ///     constructor in order to work.
+  ///   </para>
+  /// </remarks>
   public class ReflectionCloner : ICloneFactory {
 
     /// <summary>
