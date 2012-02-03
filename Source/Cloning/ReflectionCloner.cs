@@ -42,7 +42,9 @@ namespace Nuclex.Support.Cloning {
     ///   Whether to clone the object based on its properties only
     /// </param>
     /// <returns>A shallow clone of the provided object</returns>
-    public TCloned ShallowClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
+    public static TCloned ShallowClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
       Type originalType = objectToClone.GetType();
       if(originalType.IsPrimitive || (originalType == typeof(string))) {
         return objectToClone; // Being value types, primitives are copied by default
@@ -73,7 +75,9 @@ namespace Nuclex.Support.Cloning {
     ///   Whether to clone the object based on its properties only
     /// </param>
     /// <returns>A deep clone of the provided object</returns>
-    public TCloned DeepClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
+    public static TCloned DeepClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
       if(usePropertyBasedClone) {
         return (TCloned)deepCloneSinglePropertyBased(objectToClone);
       } else {
@@ -81,10 +85,39 @@ namespace Nuclex.Support.Cloning {
       }
     }
 
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A shallow clone of the provided object</returns>
+    TCloned ICloneFactory.ShallowClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      return ReflectionCloner.ShallowClone<TCloned>(objectToClone, usePropertyBasedClone);
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
+      return ReflectionCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
+    }
+
     /// <summary>Clones a complex type using field-based value transfer</summary>
     /// <param name="original">Original instance that will be cloned</param>
     /// <returns>A clone of the original instance</returns>
-    private object shallowCloneComplexFieldBased(object original) {
+    private static object shallowCloneComplexFieldBased(object original) {
       Type originalType = original.GetType();
       object clone = Activator.CreateInstance(originalType);
 
@@ -107,7 +140,7 @@ namespace Nuclex.Support.Cloning {
     /// <summary>Clones a complex type using property-based value transfer</summary>
     /// <param name="original">Original instance that will be cloned</param>
     /// <returns>A clone of the original instance</returns>
-    private object shallowCloneComplexPropertyBased(object original) {
+    private static object shallowCloneComplexPropertyBased(object original) {
       Type originalType = original.GetType();
       object clone = Activator.CreateInstance(originalType);
 
@@ -140,7 +173,7 @@ namespace Nuclex.Support.Cloning {
     /// <summary>Clones an array using field-based value transfer</summary>
     /// <param name="original">Original array that will be cloned</param>
     /// <returns>A clone of the original array</returns>
-    private object shallowCloneArray(object original) {
+    private static object shallowCloneArray(object original) {
       return ((Array)original).Clone();
     }
 

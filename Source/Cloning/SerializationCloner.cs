@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if !(XBOX360 || WINDOWS_PHONE)
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -222,22 +224,15 @@ namespace Nuclex.Support.Cloning {
 
     #endregion // class PropertySerializationSurrogate
 
-    /// <summary>Initializes a new serialization-based cloner</summary>
-    public SerializationCloner() {
-      var fieldSurrogateSelector = new SurrogateSelector();
-      fieldSurrogateSelector.ChainSelector(
-        new StaticSurrogateSelector(new FieldSerializationSurrogate())
+    /// <summary>Initializes the static members of the serialization-based cloner</summary>
+    static SerializationCloner() {
+      fieldBasedFormatter = new BinaryFormatter(
+        new StaticSurrogateSelector(new FieldSerializationSurrogate()),
+        new StreamingContext(StreamingContextStates.All)
       );
-      this.fieldBasedFormatter = new BinaryFormatter(
-        fieldSurrogateSelector, new StreamingContext(StreamingContextStates.All)
-      );
-
-      var propertySurrogateSelector = new SurrogateSelector();
-      propertySurrogateSelector.ChainSelector(
-        new StaticSurrogateSelector(new PropertySerializationSurrogate())
-      );
-      this.propertyBasedFormatter = new BinaryFormatter(
-        propertySurrogateSelector, new StreamingContext(StreamingContextStates.All)
+      propertyBasedFormatter = new BinaryFormatter(
+        new StaticSurrogateSelector(new PropertySerializationSurrogate()),
+        new StreamingContext(StreamingContextStates.All)
       );
     }
 
@@ -251,18 +246,36 @@ namespace Nuclex.Support.Cloning {
     ///   Whether to clone the object based on its properties only
     /// </param>
     /// <returns>A deep clone of the provided object</returns>
-    public TCloned DeepClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
+    public static TCloned DeepClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
       using(var memoryStream = new MemoryStream()) {
         if(usePropertyBasedClone) {
-          this.propertyBasedFormatter.Serialize(memoryStream, objectToClone);
+          propertyBasedFormatter.Serialize(memoryStream, objectToClone);
           memoryStream.Position = 0;
-          return (TCloned)this.propertyBasedFormatter.Deserialize(memoryStream);
+          return (TCloned)propertyBasedFormatter.Deserialize(memoryStream);
         } else {
-          this.fieldBasedFormatter.Serialize(memoryStream, objectToClone);
+          fieldBasedFormatter.Serialize(memoryStream, objectToClone);
           memoryStream.Position = 0;
-          return (TCloned)this.fieldBasedFormatter.Deserialize(memoryStream);
+          return (TCloned)fieldBasedFormatter.Deserialize(memoryStream);
         }
       }
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <param name="usePropertyBasedClone">
+    ///   Whether to clone the object based on its properties only
+    /// </param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
+      return SerializationCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
     }
 
     /// <summary>
@@ -274,15 +287,19 @@ namespace Nuclex.Support.Cloning {
     ///   Whether to clone the object based on its properties only
     /// </param>
     /// <returns>A shallow clone of the provided object</returns>
-    public TCloned ShallowClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
+    TCloned ICloneFactory.ShallowClone<TCloned>(
+      TCloned objectToClone, bool usePropertyBasedClone
+    ) {
       throw new NotSupportedException("The serialization cloner cannot create shallow clones");
     }
 
     /// <summary>Serializes objects by storing their fields</summary>
-    private BinaryFormatter fieldBasedFormatter;
+    private static BinaryFormatter fieldBasedFormatter;
     /// <summary>Serializes objects by storing their properties</summary>
-    private BinaryFormatter propertyBasedFormatter;
+    private static BinaryFormatter propertyBasedFormatter;
 
   }
 
 } // namespace Nuclex.Support.Cloning
+
+#endif // !(XBOX360 || WINDOWS_PHONE)
