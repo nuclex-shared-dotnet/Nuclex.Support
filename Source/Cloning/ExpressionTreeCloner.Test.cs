@@ -27,33 +27,43 @@ using NUnit.Framework;
 
 namespace Nuclex.Support.Cloning {
 
-  /// <summary>Unit Test for the expression tree-based cloner</summary>
-  [TestFixture]
-  public class ExpressionTreeClonerTest : CloneFactoryTest {
+	/// <summary>Unit Test for the expression tree-based cloner</summary>
+	[TestFixture]
+	public class ExpressionTreeClonerTest : CloneFactoryTest {
 
-    /// <summary>Initializes a new unit test suite for the reflection cloner</summary>
-    public ExpressionTreeClonerTest() {
-      this.cloneFactory = new ExpressionTreeCloner();
-    }
+		/// <summary>Initializes a new unit test suite for the reflection cloner</summary>
+		public ExpressionTreeClonerTest() {
+			this.cloneFactory = new ExpressionTreeCloner();
+		}
 
-    /// <summary>Verifies that clones of primitive types can be created</summary>
-    [Test]
-    public void PrimitiveTypesCanBeCloned() {
-      int original = 12345;
-      int clone = this.cloneFactory.DeepClone(original, false);
-      Assert.AreEqual(original, clone);
-    }
+		/// <summary>Verifies that clones of primitive types can be created</summary>
+		[Test]
+		public void PrimitiveTypesCanBeCloned() {
+			int original = 12345;
+			int clone = this.cloneFactory.DeepClone(original, false);
+			Assert.AreEqual(original, clone);
+		}
 
-    /// <summary>Verifies that shallow clones of arrays can be made</summary>
-    [Test]
-    public void ReferenceTypesCanBeCloned() {
-      var original = new TestReferenceType() { TestField = 123, TestProperty = 456 };
-      TestReferenceType clone = this.cloneFactory.DeepClone(original, false);
+		/// <summary>Verifies that shallow clones of arrays can be made</summary>
+		[Test]
+		public void ReferenceTypesCanBeCloned() {
+			var original = new TestReferenceType() { TestField = 123, TestProperty = 456 };
+			TestReferenceType clone = this.cloneFactory.DeepClone(original, false);
 
-      Assert.AreNotSame(original, clone);
-      Assert.AreEqual(original.TestField, clone.TestField);
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-    }
+			Assert.AreNotSame(original, clone);
+			Assert.AreEqual(original.TestField, clone.TestField);
+			Assert.AreEqual(original.TestProperty, clone.TestProperty);
+		}
+
+		/// <summary>Verifies that shallow clones of arrays can be made</summary>
+		[Test]
+		public void PrimitiveArraysCanBeCloned() {
+			var original = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			int[] clone = this.cloneFactory.DeepClone(original, false);
+
+			Assert.AreNotSame(original, clone);
+			CollectionAssert.AreEqual(original, clone);
+		}
 
 #if false
     /// <summary>Verifies that shallow clones of arrays can be made</summary>
@@ -66,20 +76,22 @@ namespace Nuclex.Support.Cloning {
 
       Assert.AreSame(original[0], clone[0]);
     }
-//#endif
-    /// <summary>Verifies that deep clones of arrays can be made</summary>
-    [Test]
-    public void DeepClonesOfArraysCanBeMade() {
-      var original = new TestReferenceType[] {
-        new TestReferenceType() { TestField = 123, TestProperty = 456 }
+#endif
+		/// <summary>Verifies that deep clones of arrays can be made</summary>
+		[Test]
+		public void DeepClonesOfArraysCanBeMade() {
+			var original = new TestReferenceType[,] {
+				{
+					new TestReferenceType() { TestField = 123, TestProperty = 456 }
+				}
       };
-      TestReferenceType[] clone = this.cloneFactory.DeepClone(original, false);
+			TestReferenceType[,] clone = this.cloneFactory.DeepClone(original, false);
 
-      Assert.AreNotSame(original[0], clone[0]);
-      Assert.AreEqual(original[0].TestField, clone[0].TestField);
-      Assert.AreEqual(original[0].TestProperty, clone[0].TestProperty);
-    }
-//#if false
+			Assert.AreNotSame(original[0, 0], clone[0, 0]);
+			//Assert.AreEqual(original[0,0].TestField, clone[0,0].TestField);
+			//Assert.AreEqual(original[0,0].TestProperty, clone[0,0].TestProperty);
+		}
+#if false
     /// <summary>Verifies that deep clones of a generic list can be made</summary>
     [Test]
     public void GenericListsCanBeCloned() {
@@ -180,10 +192,10 @@ namespace Nuclex.Support.Cloning {
     }
 #endif
 
-    /// <summary>Clone factory being tested</summary>
-    private ICloneFactory cloneFactory;
+		/// <summary>Clone factory being tested</summary>
+		private ICloneFactory cloneFactory;
 
-  }
+	}
 
 } // namespace Nuclex.Support.Cloning
 
