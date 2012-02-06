@@ -137,7 +137,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void DeepFieldBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = CreateValueType();
-      //HierarchicalValueType clone = this.cloneFactory.DeepClone(original, false);
+      HierarchicalValueType clone = this.cloneFactory.DeepClone(original, false);
       //VerifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 

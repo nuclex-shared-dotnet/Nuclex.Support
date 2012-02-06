@@ -146,36 +146,19 @@ namespace Nuclex.Support.Cloning {
     /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="transferExpressions">Receives the generated transfer expressions</param>
     /// <returns>The variable holding the cloned array</returns>
-    private static ParameterExpression generatePrimitiveArrayTransferExpressions(
+    private static Expression generatePrimitiveArrayTransferExpressions(
       Type clonedType,
       Expression original,
       ICollection<ParameterExpression> variables,
       ICollection<Expression> transferExpressions
     ) {
-      // We need a temporary variable because the IfThen expression is not suitable
-      // for returning values
-      ParameterExpression clone = Expression.Variable(typeof(object));
-      variables.Add(clone);
-
-      // If the array referenced by 'original' is not null, call Array.Clone() on it
-      // and assign the result to our temporary variable
       MethodInfo arrayCloneMethodInfo = typeof(Array).GetMethod("Clone");
-      transferExpressions.Add(
-        Expression.IfThen(
-          Expression.NotEqual(original, Expression.Constant(null)),
-          Expression.Assign(
-            clone,
-            Expression.Convert(
-              Expression.Call(
-                Expression.Convert(original, typeof(Array)), arrayCloneMethodInfo
-              ),
-              clonedType
-            )
-          )
-        )
+      return Expression.Convert(
+        Expression.Call(
+          Expression.Convert(original, typeof(Array)), arrayCloneMethodInfo
+        ),
+        clonedType
       );
-
-      return clone;
     }
 
     /// <summary>
@@ -192,8 +175,7 @@ namespace Nuclex.Support.Cloning {
       IList<ParameterExpression> variables,
       ICollection<Expression> transferExpressions
     ) {
-      // We need a temporary variable because the IfThen expression is not suitable
-      // for returning values
+      // We need a temporary variable in order to transfer the elements of the array
       ParameterExpression clone = Expression.Variable(clonedType);
       variables.Add(clone);
       ParameterExpression typedOriginal = Expression.Variable(clonedType);
@@ -290,8 +272,6 @@ namespace Nuclex.Support.Cloning {
         }
       }
 
-
-
       // Only execute the array transfer expressions if the array is not null
       transferExpressions.Add(
         Expression.IfThen(
@@ -306,21 +286,16 @@ namespace Nuclex.Support.Cloning {
     /// <summary>Generates state transfer expressions to copy a complex type</summary>
     /// <param name="clonedType">Complex type that will be cloned</param>
     /// <param name="original">Variable expression for the original instance</param>
+    /// <param name="clone">Variable expression for the cloned instance</param>
     /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="transferExpressions">Receives the generated transfer expressions</param>
-    /// <returns>The variable holding the cloned array</returns>
-    private static ParameterExpression generateComplexTypeTransferExpressions(
-      Type clonedType,
-      Expression original,
+    private static void generateComplexTypeTransferExpressions(
+      Type clonedType, // Actual, concrete type (not declared type)
+      Expression original, // Expected to be an object
+      Expression clone,	// As actual, concrete type
       IList<ParameterExpression> variables,
       ICollection<Expression> transferExpressions
     ) {
-      // Create a variable to hold the clone and begin by assigning a new instance of
-      // the cloned type to it.
-      ParameterExpression clone = Expression.Variable(clonedType);
-      variables.Add(clone);
-      transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
-
       // To access the fields of the original type, we need it to be of the actual
       // type instead of an object, so perform a downcast
       ParameterExpression typedOriginal = Expression.Variable(clonedType);
@@ -348,14 +323,19 @@ namespace Nuclex.Support.Cloning {
             )
           );
         } else if(fieldType.IsValueType) {
-          // TODO: Copy field without null check
+          generateComplexTypeTransferExpressions(
+            fieldType,
+            Expression.Field(typedOriginal, fieldInfo),
+            Expression.Field(clone, fieldInfo),
+            variables,
+            transferExpressions
+          );
         } else {
           var fieldTransferExpressions = new List<Expression>();
           var fieldVariables = new List<ParameterExpression>();
 
           Expression fieldClone;
           if(fieldType.IsArray) {
-            /*
             Type elementType = fieldType.GetElementType();
             if(elementType.IsPrimitive || (elementType == typeof(string))) {
               fieldClone = generatePrimitiveArrayTransferExpressions(
@@ -372,9 +352,10 @@ namespace Nuclex.Support.Cloning {
                 fieldTransferExpressions
               );
             }
-            */
-            fieldClone = Expression.Field(typedOriginal, fieldInfo);
-            fieldTransferExpressions.Add(fieldClone);
+
+            fieldTransferExpressions.Add(
+              Expression.Assign(Expression.Field(clone, fieldInfo), fieldClone)
+            );
           } else {
             MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
               "getOrCreateDeepFieldBasedCloner",
@@ -414,8 +395,6 @@ namespace Nuclex.Support.Cloning {
 
         }
       }
-
-      return clone;
     }
 
     /// <summary>Compiles a method that creates a clone of an object</summary>
@@ -431,43 +410,58 @@ namespace Nuclex.Support.Cloning {
         // Primitives and strings are copied on direct assignment
         transferExpressions.Add(original);
       } else if(clonedType.IsArray) {
-        ParameterExpression clone;
-
+        // Arrays need to be cloned element-by-element
         Type elementType = clonedType.GetElementType();
+
         if(elementType.IsPrimitive || (elementType == typeof(string))) {
-          clone = generatePrimitiveArrayTransferExpressions(
-            clonedType, original, variables, transferExpressions
+          // For primitive arrays, the Array.Clone() method is sufficient
+          transferExpressions.Add(
+            generatePrimitiveArrayTransferExpressions(
+              clonedType, original, variables, transferExpressions
+            )
           );
         } else {
-          clone = generateComplexArrayTransferExpressions(
-            clonedType, original, variables, transferExpressions
+          // Arrays of complex types require manual cloning
+          transferExpressions.Add(
+            generateComplexArrayTransferExpressions(
+              clonedType, original, variables, transferExpressions
+            )
           );
         }
+      } else {
+        // We need a variable to hold the clone because due to the assignments it
+        // won't be last in the block when we're finished
+        ParameterExpression clone = Expression.Variable(clonedType);
+        variables.Add(clone);
+
+        // Give it a new instance of the type being cloned
+        transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
+
+        // Generate the expressions required to transfer the type field by field
+        generateComplexTypeTransferExpressions(
+          clonedType, original, clone, variables, transferExpressions
+        );
+
+        // Make sure the clone is the last thing in the block to set the return value
         transferExpressions.Add(clone);
-
-        //clone = original;
-      } else {
-        transferExpressions.Add(
-          generateComplexTypeTransferExpressions(
-            clonedType, original, variables, transferExpressions
-          )
-        );
       }
 
-      Expression<Func<object, object>> expression;
-      if(variables.Count > 0) {
-        expression = Expression.Lambda<Func<object, object>>(
-          Expression.Block(variables, transferExpressions), original
-        );
-      } else if(transferExpressions.Count == 1) {
-        expression = Expression.Lambda<Func<object, object>>(
-          transferExpressions[0], original
-        );
+      // Turn all transfer expressions into a single block if necessary
+      Expression resultExpression;
+      if((transferExpressions.Count == 1) && (variables.Count == 0)) {
+        resultExpression = transferExpressions[0];
       } else {
-        expression = Expression.Lambda<Func<object, object>>(
-          Expression.Block(transferExpressions), original
-        );
+        resultExpression = Expression.Block(variables, transferExpressions);
       }
+
+      // Value types require manual boxing
+      if(clonedType.IsValueType) {
+        resultExpression = Expression.Convert(resultExpression, typeof(object));
+      }
+
+      Expression<Func<object, object>> expression = Expression.Lambda<Func<object, object>>(
+        resultExpression, original
+      );
 
       return expression.Compile();
     }
