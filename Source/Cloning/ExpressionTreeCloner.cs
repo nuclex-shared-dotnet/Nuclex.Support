@@ -178,12 +178,6 @@ namespace Nuclex.Support.Cloning {
       // We need a temporary variable in order to transfer the elements of the array
       ParameterExpression clone = Expression.Variable(clonedType);
       variables.Add(clone);
-      ParameterExpression typedOriginal = Expression.Variable(clonedType);
-      variables.Add(typedOriginal);
-
-      transferExpressions.Add(
-        Expression.Assign(typedOriginal, Expression.Convert(original, clonedType))
-      );
 
       int dimensionCount = clonedType.GetArrayRank();
       int baseVariableIndex = variables.Count;
@@ -199,13 +193,13 @@ namespace Nuclex.Support.Cloning {
           Expression.Assign(
             length,
             Expression.Call(
-              typedOriginal, arrayGetLengthMethodInfo, Expression.Constant(index)
+              original, arrayGetLengthMethodInfo, Expression.Constant(index)
             )
           )
         );
       }
 
-      // Create a new array of identical size
+      // Create a new array of identical size and dimensions
       switch(dimensionCount) {
         case 1: {
           MethodInfo arrayCreateInstanceMethodInfo = typeof(Array).GetMethod(
@@ -296,16 +290,7 @@ namespace Nuclex.Support.Cloning {
       IList<ParameterExpression> variables,
       ICollection<Expression> transferExpressions
     ) {
-      // To access the fields of the original type, we need it to be of the actual
-      // type instead of an object, so perform a downcast
-      ParameterExpression typedOriginal = Expression.Variable(clonedType);
-      variables.Add(typedOriginal);
-      transferExpressions.Add(
-        Expression.Assign(typedOriginal, Expression.Convert(original, clonedType))
-      );
-
-      // Now enumerate all of the type's fields and generate transfer expressions for
-      // each of them
+      // Enumerate all of the type's fields and generate transfer expressions for each
       FieldInfo[] fieldInfos = clonedType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
@@ -319,44 +304,58 @@ namespace Nuclex.Support.Cloning {
           transferExpressions.Add(
             Expression.Assign(
               Expression.Field(clone, fieldInfo),
-              Expression.Field(typedOriginal, fieldInfo)
+              Expression.Field(original, fieldInfo)
             )
           );
         } else if(fieldType.IsValueType) {
+          // A nested value type is part of the parent and will have its fields directly
+          // assigned without boxing, new instance creation or anything like that.
           generateComplexTypeTransferExpressions(
             fieldType,
-            Expression.Field(typedOriginal, fieldInfo),
+            Expression.Field(original, fieldInfo),
             Expression.Field(clone, fieldInfo),
             variables,
             transferExpressions
           );
         } else {
+          // Reference types and arrays require special care because they can be null,
+          // so gather the transfer expressions in a separate block for the null check
+          Expression fieldClone;
           var fieldTransferExpressions = new List<Expression>();
           var fieldVariables = new List<ParameterExpression>();
 
-          Expression fieldClone;
           if(fieldType.IsArray) {
+            // Arrays need to be cloned element-by-element
             Type elementType = fieldType.GetElementType();
+
             if(elementType.IsPrimitive || (elementType == typeof(string))) {
+              // For primitive arrays, the Array.Clone() method is sufficient
               fieldClone = generatePrimitiveArrayTransferExpressions(
                 fieldType,
-                Expression.Field(typedOriginal, fieldInfo),
+                Expression.Field(original, fieldInfo),
                 fieldVariables,
                 fieldTransferExpressions
               );
             } else {
+              // Arrays of complex types require manual cloning
               fieldClone = generateComplexArrayTransferExpressions(
                 fieldType,
-                Expression.Field(typedOriginal, fieldInfo),
+                Expression.Field(original, fieldInfo),
                 fieldVariables,
                 fieldTransferExpressions
               );
             }
 
+            // Add the assignment to the transfer expressions. The array transfer expression
+            // generator will either have set up a temporary variable to hold the array or
+            // returned the conversion expression straight away
             fieldTransferExpressions.Add(
               Expression.Assign(Expression.Field(clone, fieldInfo), fieldClone)
             );
           } else {
+            // Complex types are cloned by checking their actual, concrete type (fields
+            // may be typed to an interface or base class) and requesting a cloner for that
+            // type during runtime
             MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
               "getOrCreateDeepFieldBasedCloner",
               BindingFlags.NonPublic | BindingFlags.Static
@@ -364,6 +363,10 @@ namespace Nuclex.Support.Cloning {
             MethodInfo getTypeMethodInfo = typeof(object).GetMethod("GetType");
             MethodInfo invokeMethodInfo = typeof(Func<object, object>).GetMethod("Invoke");
 
+            // Generate expressions to do this:
+            //   clone.SomeField = getOrCreateDeepFieldBasedCloner(
+            //     original.SomeField.GetType()
+            //   ).Invoke(original.SomeField);
             fieldTransferExpressions.Add(
               Expression.Assign(
                 Expression.Field(clone, fieldInfo),
@@ -372,11 +375,11 @@ namespace Nuclex.Support.Cloning {
                     Expression.Call(
                       getOrCreateClonerMethodInfo,
                       Expression.Call(
-                        Expression.Field(typedOriginal, fieldInfo), getTypeMethodInfo
+                        Expression.Field(original, fieldInfo), getTypeMethodInfo
                       )
                     ),
                     invokeMethodInfo,
-                    Expression.Field(typedOriginal, fieldInfo)
+                    Expression.Field(original, fieldInfo)
                   ),
                   fieldType
                 )
@@ -384,15 +387,16 @@ namespace Nuclex.Support.Cloning {
             );
           }
 
+          // Wrap up the generated array or complex reference type transfer expressions
+          // in a null check so the field is skipped if it is not holding an instance.
           transferExpressions.Add(
             Expression.IfThen(
               Expression.NotEqual(
-                Expression.Field(typedOriginal, fieldInfo), Expression.Constant(null)
+                Expression.Field(original, fieldInfo), Expression.Constant(null)
               ),
               Expression.Block(fieldVariables, fieldTransferExpressions)
             )
           );
-
         }
       }
     }
@@ -421,10 +425,18 @@ namespace Nuclex.Support.Cloning {
             )
           );
         } else {
+          // To access the fields of the original type, we need it to be of the actual
+          // type instead of an object, so perform a downcast
+          ParameterExpression typedOriginal = Expression.Variable(clonedType);
+          variables.Add(typedOriginal);
+          transferExpressions.Add(
+            Expression.Assign(typedOriginal, Expression.Convert(original, clonedType))
+          );
+
           // Arrays of complex types require manual cloning
           transferExpressions.Add(
             generateComplexArrayTransferExpressions(
-              clonedType, original, variables, transferExpressions
+              clonedType, typedOriginal, variables, transferExpressions
             )
           );
         }
@@ -437,9 +449,17 @@ namespace Nuclex.Support.Cloning {
         // Give it a new instance of the type being cloned
         transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
 
+        // To access the fields of the original type, we need it to be of the actual
+        // type instead of an object, so perform a downcast
+        ParameterExpression typedOriginal = Expression.Variable(clonedType);
+        variables.Add(typedOriginal);
+        transferExpressions.Add(
+          Expression.Assign(typedOriginal, Expression.Convert(original, clonedType))
+        );
+
         // Generate the expressions required to transfer the type field by field
         generateComplexTypeTransferExpressions(
-          clonedType, original, clone, variables, transferExpressions
+          clonedType, typedOriginal, clone, variables, transferExpressions
         );
 
         // Make sure the clone is the last thing in the block to set the return value
