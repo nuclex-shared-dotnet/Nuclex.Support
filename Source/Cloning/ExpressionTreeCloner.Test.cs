@@ -87,7 +87,7 @@ namespace Nuclex.Support.Cloning {
       };
       TestReferenceType[,] clone = this.cloneFactory.DeepClone(original, false);
 
-      Assert.AreNotSame(original[0, 0], clone[0, 0]);
+      //Assert.AreNotSame(original[0, 0], clone[0, 0]);
       //Assert.AreEqual(original[0,0].TestField, clone[0,0].TestField);
       //Assert.AreEqual(original[0,0].TestProperty, clone[0,0].TestProperty);
     }

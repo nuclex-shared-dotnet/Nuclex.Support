@@ -183,16 +183,24 @@ namespace Nuclex.Support.Cloning {
       int baseVariableIndex = variables.Count;
       Type elementType = clonedType.GetElementType();
 
+      var lengths = new List<ParameterExpression>();
+      var indexes = new List<ParameterExpression>();
+      var labels = new List<LabelTarget>();
+
       // Retrieve the length of each of the array's dimensions
       MethodInfo arrayGetLengthMethodInfo = typeof(Array).GetMethod("GetLength");
-      var lengths = new List<Expression>();
       for(int index = 0; index < dimensionCount; ++index) {
-        ParameterExpression length = Expression.Variable(typeof(int));
-        variables.Add(length);
-        lengths.Add(length);
+        lengths.Add(Expression.Variable(typeof(int)));
+        variables.Add(lengths[index]);
+
+        indexes.Add(Expression.Variable(typeof(int)));
+        variables.Add(indexes[index]);
+
+        labels.Add(Expression.Label());
+
         transferExpressions.Add(
           Expression.Assign(
-            length,
+            lengths[index],
             Expression.Call(
               original, arrayGetLengthMethodInfo, Expression.Constant(index)
             )
@@ -205,6 +213,46 @@ namespace Nuclex.Support.Cloning {
           clone, Expression.NewArrayBounds(elementType, lengths)
         )
       );
+
+      Expression innerLoop = null;
+
+      transferExpressions.Add(
+        Expression.Assign(indexes[0], Expression.Constant(0))
+      );
+
+      for(int index = dimensionCount - 1; index >= 0; --index) {
+        var loopExpressions = new List<Expression>();
+
+        loopExpressions.Add(
+          Expression.IfThen(
+            Expression.GreaterThanOrEqual(indexes[index], lengths[index]),
+            Expression.Break(labels[index])
+          )
+        );
+
+        if(innerLoop == null) {
+          loopExpressions.Add(
+            Expression.Assign(
+              Expression.ArrayAccess(clone, indexes),
+              Expression.ArrayAccess(original, indexes)
+            )
+          );
+        } else {
+          loopExpressions.Add(
+            Expression.Assign(indexes[index + 1], Expression.Constant(0))
+          );
+          loopExpressions.Add(innerLoop);
+        }
+
+        loopExpressions.Add(Expression.PreIncrementAssign(indexes[index]));
+
+        innerLoop = Expression.Loop(
+          Expression.Block(loopExpressions),
+          labels[index]
+        );
+      }
+
+      transferExpressions.Add(innerLoop);
 
       return clone;
     }
@@ -423,11 +471,7 @@ namespace Nuclex.Support.Cloning {
         resultExpression = Expression.Convert(resultExpression, typeof(object));
       }
 
-      Expression<Func<object, object>> expression = Expression.Lambda<Func<object, object>>(
-        resultExpression, original
-      );
-
-      return expression.Compile();
+      return Expression.Lambda<Func<object, object>>(resultExpression, original).Compile();
     }
 
 #if false
