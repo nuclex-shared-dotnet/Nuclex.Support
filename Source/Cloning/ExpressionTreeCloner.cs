@@ -181,15 +181,16 @@ namespace Nuclex.Support.Cloning {
 
       int dimensionCount = clonedType.GetArrayRank();
       int baseVariableIndex = variables.Count;
-      var arrayTransferExpressions = new List<Expression>();
       Type elementType = clonedType.GetElementType();
 
       // Retrieve the length of each of the array's dimensions
       MethodInfo arrayGetLengthMethodInfo = typeof(Array).GetMethod("GetLength");
+      var lengths = new List<Expression>();
       for(int index = 0; index < dimensionCount; ++index) {
         ParameterExpression length = Expression.Variable(typeof(int));
         variables.Add(length);
-        arrayTransferExpressions.Add(
+        lengths.Add(length);
+        transferExpressions.Add(
           Expression.Assign(
             length,
             Expression.Call(
@@ -199,78 +200,9 @@ namespace Nuclex.Support.Cloning {
         );
       }
 
-      // Create a new array of identical size and dimensions
-      switch(dimensionCount) {
-        case 1: {
-          MethodInfo arrayCreateInstanceMethodInfo = typeof(Array).GetMethod(
-            "CreateInstance", new Type[] { typeof(Type), typeof(int) }
-          );
-          arrayTransferExpressions.Add(
-            Expression.Assign(
-              clone,
-              Expression.Convert(
-                Expression.Call(
-                  arrayCreateInstanceMethodInfo,
-                  Expression.Constant(elementType),
-                  variables[baseVariableIndex]
-                ),
-                clonedType
-              )
-            )
-          );
-          break;
-        }
-        case 2: {
-          MethodInfo arrayCreateInstanceMethodInfo = typeof(Array).GetMethod(
-            "CreateInstance", new Type[] { typeof(Type), typeof(int), typeof(int) }
-          );
-          arrayTransferExpressions.Add(
-            Expression.Assign(
-              clone,
-              Expression.Convert(
-                Expression.Call(
-                  arrayCreateInstanceMethodInfo,
-                  Expression.Constant(elementType),
-                  variables[baseVariableIndex],
-                  variables[baseVariableIndex + 1]
-                ),
-                clonedType
-              )
-            )
-          );
-          break;
-        }
-        case 3: {
-          MethodInfo arrayCreateInstanceMethodInfo = typeof(Array).GetMethod(
-            "CreateInstance", new Type[] { typeof(Type), typeof(int), typeof(int), typeof(int) }
-          );
-          arrayTransferExpressions.Add(
-            Expression.Assign(
-              clone,
-              Expression.Convert(
-                Expression.Call(
-                  arrayCreateInstanceMethodInfo,
-                  Expression.Constant(elementType),
-                  variables[baseVariableIndex],
-                  variables[baseVariableIndex + 1],
-                  variables[baseVariableIndex + 2]
-                ),
-                clonedType
-              )
-            )
-          );
-          break;
-        }
-        default: {
-          throw new InvalidOperationException("Unsupported array dimension count");
-        }
-      }
-
-      // Only execute the array transfer expressions if the array is not null
       transferExpressions.Add(
-        Expression.IfThen(
-          Expression.NotEqual(original, Expression.Constant(null)),
-          Expression.Block(arrayTransferExpressions)
+        Expression.Assign(
+          clone, Expression.NewArrayBounds(elementType, lengths)
         )
       );
 
@@ -404,6 +336,18 @@ namespace Nuclex.Support.Cloning {
     /// <summary>Compiles a method that creates a clone of an object</summary>
     /// <param name="clonedType">Type for which a clone method will be created</param>
     /// <returns>A method that clones an object of the provided type</returns>
+    /// <remarks>
+    ///   <para>
+    ///     The 'null' check is supposed to take place before running the cloner. This
+    ///     avoids having redundant 'null' checks on nested types - first before calling
+    ///     GetType() on the field to be cloned and second when runner the matching
+    ///     cloner for the field.
+    ///   </para>
+    ///   <para>
+    ///     This design also enables the cloning of nested value types (which can never
+    ///     be null) without any null check whatsoever.
+    ///   </para>
+    /// </remarks>
     private static Func<object, object> createDeepFieldBasedCloner(Type clonedType) {
       ParameterExpression original = Expression.Parameter(typeof(object), "original");
 
