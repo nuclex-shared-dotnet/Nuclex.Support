@@ -208,21 +208,30 @@ namespace Nuclex.Support.Cloning {
         );
       }
 
+      // Create a new (empty) array with the same dimensions and lengths as the original
       transferExpressions.Add(
         Expression.Assign(
           clone, Expression.NewArrayBounds(elementType, lengths)
         )
       );
 
-      Expression innerLoop = null;
-
+      // Initialize the indexer of the outer loop (indexers are initialized one up
+      // in the loops (ie. before the loop using it begins), so we have to set this
+      // one outside of the loop building code.
       transferExpressions.Add(
         Expression.Assign(indexes[0], Expression.Constant(0))
       );
 
+      // We use a temporary variable to store the element
+      ParameterExpression element = Expression.Variable(elementType);
+      variables.Add(element);
+
+      // Build the nested loops (one for each dimension) from the inside out
+      Expression innerLoop = null;
       for(int index = dimensionCount - 1; index >= 0; --index) {
         var loopExpressions = new List<Expression>();
 
+        // If we reached the end of the current array dimension, break the loop
         loopExpressions.Add(
           Expression.IfThen(
             Expression.GreaterThanOrEqual(indexes[index], lengths[index]),
@@ -231,6 +240,9 @@ namespace Nuclex.Support.Cloning {
         );
 
         if(innerLoop == null) {
+          // The innermost loop clones an actual array element
+
+
           loopExpressions.Add(
             Expression.Assign(
               Expression.ArrayAccess(clone, indexes),
@@ -238,20 +250,26 @@ namespace Nuclex.Support.Cloning {
             )
           );
         } else {
+          // Outer loops of any level just reset the inner loop's indexer and execute
+          // the inner loop
           loopExpressions.Add(
             Expression.Assign(indexes[index + 1], Expression.Constant(0))
           );
           loopExpressions.Add(innerLoop);
         }
 
+        // Each time we executed the loop instructions, increment the indexer
         loopExpressions.Add(Expression.PreIncrementAssign(indexes[index]));
 
+        // Build the loop using the expressions recorded above
         innerLoop = Expression.Loop(
           Expression.Block(loopExpressions),
           labels[index]
         );
       }
 
+      // After the loop builder has finished, the innerLoop variable contains
+      // the entire hierarchy of nested loops, so add this to the clone expressions.
       transferExpressions.Add(innerLoop);
 
       return clone;
@@ -298,87 +316,109 @@ namespace Nuclex.Support.Cloning {
             transferExpressions
           );
         } else {
-          // Reference types and arrays require special care because they can be null,
-          // so gather the transfer expressions in a separate block for the null check
-          Expression fieldClone;
-          var fieldTransferExpressions = new List<Expression>();
-          var fieldVariables = new List<ParameterExpression>();
-
-          if(fieldType.IsArray) {
-            // Arrays need to be cloned element-by-element
-            Type elementType = fieldType.GetElementType();
-
-            if(elementType.IsPrimitive || (elementType == typeof(string))) {
-              // For primitive arrays, the Array.Clone() method is sufficient
-              fieldClone = generatePrimitiveArrayTransferExpressions(
-                fieldType,
-                Expression.Field(original, fieldInfo),
-                fieldVariables,
-                fieldTransferExpressions
-              );
-            } else {
-              // Arrays of complex types require manual cloning
-              fieldClone = generateComplexArrayTransferExpressions(
-                fieldType,
-                Expression.Field(original, fieldInfo),
-                fieldVariables,
-                fieldTransferExpressions
-              );
-            }
-
-            // Add the assignment to the transfer expressions. The array transfer expression
-            // generator will either have set up a temporary variable to hold the array or
-            // returned the conversion expression straight away
-            fieldTransferExpressions.Add(
-              Expression.Assign(Expression.Field(clone, fieldInfo), fieldClone)
-            );
-          } else {
-            // Complex types are cloned by checking their actual, concrete type (fields
-            // may be typed to an interface or base class) and requesting a cloner for that
-            // type during runtime
-            MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
-              "getOrCreateDeepFieldBasedCloner",
-              BindingFlags.NonPublic | BindingFlags.Static
-            );
-            MethodInfo getTypeMethodInfo = typeof(object).GetMethod("GetType");
-            MethodInfo invokeMethodInfo = typeof(Func<object, object>).GetMethod("Invoke");
-
-            // Generate expressions to do this:
-            //   clone.SomeField = getOrCreateDeepFieldBasedCloner(
-            //     original.SomeField.GetType()
-            //   ).Invoke(original.SomeField);
-            fieldTransferExpressions.Add(
-              Expression.Assign(
-                Expression.Field(clone, fieldInfo),
-                Expression.Convert(
-                  Expression.Call(
-                    Expression.Call(
-                      getOrCreateClonerMethodInfo,
-                      Expression.Call(
-                        Expression.Field(original, fieldInfo), getTypeMethodInfo
-                      )
-                    ),
-                    invokeMethodInfo,
-                    Expression.Field(original, fieldInfo)
-                  ),
-                  fieldType
-                )
-              )
-            );
-          }
-
-          // Wrap up the generated array or complex reference type transfer expressions
-          // in a null check so the field is skipped if it is not holding an instance.
-          transferExpressions.Add(
-            Expression.IfThen(
-              Expression.NotEqual(
-                Expression.Field(original, fieldInfo), Expression.Constant(null)
-              ),
-              Expression.Block(fieldVariables, fieldTransferExpressions)
-            )
+          generateReferenceTypeTransferExpressions(
+            original, clone, transferExpressions, fieldInfo, fieldType
           );
         }
       }
+    }
+
+    /// <summary>
+    ///   Generates the expressions to transfer a reference type (array or class)
+    /// </summary>
+    /// <param name="original">Original value that will be cloned</param>
+    /// <param name="clone">Variable that will receive the cloned value</param>
+    /// <param name="transferExpressions">
+    ///   Receives the expression generated to transfer the values
+    /// </param>
+    /// <param name="fieldInfo">Reflection informations about the field being cloned</param>
+    /// <param name="fieldType">Type of the field being cloned</param>
+    private static void generateReferenceTypeTransferExpressions(
+      Expression original,
+      Expression clone,
+      ICollection<Expression> transferExpressions,
+      FieldInfo fieldInfo,
+      Type fieldType
+    ) {
+      // Reference types and arrays require special care because they can be null,
+      // so gather the transfer expressions in a separate block for the null check
+      var fieldTransferExpressions = new List<Expression>();
+      var fieldVariables = new List<ParameterExpression>();
+
+      if(fieldType.IsArray) {
+        // Arrays need to be cloned element-by-element
+        Expression fieldClone;
+
+        Type elementType = fieldType.GetElementType();
+        if(elementType.IsPrimitive || (elementType == typeof(string))) {
+          // For primitive arrays, the Array.Clone() method is sufficient
+          fieldClone = generatePrimitiveArrayTransferExpressions(
+            fieldType,
+            Expression.Field(original, fieldInfo),
+            fieldVariables,
+            fieldTransferExpressions
+          );
+        } else {
+          // Arrays of complex types require manual cloning
+          fieldClone = generateComplexArrayTransferExpressions(
+            fieldType,
+            Expression.Field(original, fieldInfo),
+            fieldVariables,
+            fieldTransferExpressions
+          );
+        }
+
+        // Add the assignment to the transfer expressions. The array transfer expression
+        // generator will either have set up a temporary variable to hold the array or
+        // returned the conversion expression straight away
+        fieldTransferExpressions.Add(
+          Expression.Assign(Expression.Field(clone, fieldInfo), fieldClone)
+        );
+      } else {
+        // Complex types are cloned by checking their actual, concrete type (fields
+        // may be typed to an interface or base class) and requesting a cloner for that
+        // type during runtime
+        MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
+          "getOrCreateDeepFieldBasedCloner",
+          BindingFlags.NonPublic | BindingFlags.Static
+        );
+        MethodInfo getTypeMethodInfo = typeof(object).GetMethod("GetType");
+        MethodInfo invokeMethodInfo = typeof(Func<object, object>).GetMethod("Invoke");
+
+        // Generate expressions to do this:
+        //   clone.SomeField = getOrCreateDeepFieldBasedCloner(
+        //     original.SomeField.GetType()
+        //   ).Invoke(original.SomeField);
+        fieldTransferExpressions.Add(
+          Expression.Assign(
+            Expression.Field(clone, fieldInfo),
+            Expression.Convert(
+              Expression.Call(
+                Expression.Call(
+                  getOrCreateClonerMethodInfo,
+                  Expression.Call(
+                    Expression.Field(original, fieldInfo), getTypeMethodInfo
+                  )
+                ),
+                invokeMethodInfo,
+                Expression.Field(original, fieldInfo)
+              ),
+              fieldType
+            )
+          )
+        );
+      }
+
+      // Wrap up the generated array or complex reference type transfer expressions
+      // in a null check so the field is skipped if it is not holding an instance.
+      transferExpressions.Add(
+        Expression.IfThen(
+          Expression.NotEqual(
+            Expression.Field(original, fieldInfo), Expression.Constant(null)
+          ),
+          Expression.Block(fieldVariables, fieldTransferExpressions)
+        )
+      );
     }
 
     /// <summary>Compiles a method that creates a clone of an object</summary>
