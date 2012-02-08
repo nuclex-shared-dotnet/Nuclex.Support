@@ -229,6 +229,7 @@ namespace Nuclex.Support.Cloning {
       // Build the nested loops (one for each dimension) from the inside out
       Expression innerLoop = null;
       for(int index = dimensionCount - 1; index >= 0; --index) {
+        var loopVariables = new List<ParameterExpression>();
         var loopExpressions = new List<Expression>();
 
         // If we reached the end of the current array dimension, break the loop
@@ -241,14 +242,80 @@ namespace Nuclex.Support.Cloning {
 
         if(innerLoop == null) {
           // The innermost loop clones an actual array element
-
-
-          loopExpressions.Add(
-            Expression.Assign(
+          if(elementType.IsPrimitive || (elementType == typeof(string))) {
+            loopExpressions.Add(
+              Expression.Assign(
+                Expression.ArrayAccess(clone, indexes),
+                Expression.ArrayAccess(original, indexes)
+              )
+            );
+          } else if(elementType.IsValueType) {
+            generateComplexTypeTransferExpressions(
+              elementType,
+              Expression.ArrayAccess(original, indexes),
               Expression.ArrayAccess(clone, indexes),
-              Expression.ArrayAccess(original, indexes)
-            )
-          );
+              variables,
+              loopExpressions
+            );
+          } else {
+            ParameterExpression originalElement = Expression.Variable(elementType);
+            loopVariables.Add(originalElement);
+
+            loopExpressions.Add(
+              Expression.Assign(originalElement, Expression.ArrayAccess(original, indexes))
+            );
+
+            var nestedVariables = new List<ParameterExpression>();
+            var nestedTransferExpressions = new List<Expression>();
+
+            if(elementType.IsArray) {
+              Expression clonedElement;
+
+              Type nestedElementType = elementType.GetElementType();
+              if(nestedElementType.IsPrimitive || (nestedElementType == typeof(string))) {
+                clonedElement = generatePrimitiveArrayTransferExpressions(
+                  elementType, originalElement, nestedVariables, nestedTransferExpressions
+                );
+              } else {
+                clonedElement = generateComplexArrayTransferExpressions(
+                  elementType, originalElement, nestedVariables, nestedTransferExpressions
+                );
+              }
+              nestedTransferExpressions.Add(
+                Expression.Assign(Expression.ArrayAccess(clone, indexes), clonedElement)
+              );
+            } else {
+              ParameterExpression clonedElement = Expression.Variable(elementType);
+              loopVariables.Add(clonedElement);
+
+              nestedTransferExpressions.Add(
+                Expression.Assign(clonedElement, originalElement)
+              );
+
+              //generateComplexTypeTransferExpressions(
+              //	elementType,
+              //	originalElement,
+              //	clonedElement,
+              //	loopVariables,
+              //	loopExpressions
+              //);
+
+              nestedTransferExpressions.Add(
+                Expression.Assign(Expression.ArrayAccess(clone, indexes), clonedElement)
+              );
+            }
+
+            loopExpressions.Add(
+              Expression.IfThen(
+                Expression.NotEqual(originalElement, Expression.Constant(null)),
+                Expression.Block(
+                  nestedVariables,
+                  nestedTransferExpressions
+                )
+              )
+            );
+          }
+
         } else {
           // Outer loops of any level just reset the inner loop's indexer and execute
           // the inner loop
@@ -263,7 +330,7 @@ namespace Nuclex.Support.Cloning {
 
         // Build the loop using the expressions recorded above
         innerLoop = Expression.Loop(
-          Expression.Block(loopExpressions),
+          Expression.Block(loopVariables, loopExpressions),
           labels[index]
         );
       }
