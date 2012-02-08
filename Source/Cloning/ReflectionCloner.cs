@@ -58,9 +58,6 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A shallow clone of the provided object</returns>
     public static TCloned ShallowPropertyClone<TCloned>(TCloned objectToClone) {
       Type originalType = objectToClone.GetType();
@@ -83,7 +80,12 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A deep clone of the provided object</returns>
     public static TCloned DeepFieldClone<TCloned>(TCloned objectToClone) {
-      return (TCloned)deepCloneSingleFieldBased(objectToClone);
+      object objectToCloneAsObject = objectToClone;
+      if(objectToClone == null) {
+        return default(TCloned);
+      } else {
+        return (TCloned)deepCloneSingleFieldBased(objectToCloneAsObject);
+      }
     }
 
     /// <summary>
@@ -94,7 +96,12 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A deep clone of the provided object</returns>
     public static TCloned DeepPropertyClone<TCloned>(TCloned objectToClone) {
-      return (TCloned)deepCloneSinglePropertyBased(objectToClone);
+      object objectToCloneAsObject = objectToClone;
+      if(objectToClone == null) {
+        return default(TCloned);
+      } else {
+        return (TCloned)deepCloneSinglePropertyBased(objectToCloneAsObject);
+      }
     }
 
     /// <summary>
@@ -104,6 +111,11 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A shallow clone of the provided object</returns>
     TCloned ICloneFactory.ShallowFieldClone<TCloned>(TCloned objectToClone) {
+      if(typeof(TCloned).IsClass || typeof(TCloned).IsArray) {
+        if(ReferenceEquals(objectToClone, null)) {
+          return default(TCloned);
+        }
+      }
       return ReflectionCloner.ShallowFieldClone<TCloned>(objectToClone);
     }
 
@@ -114,6 +126,11 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A shallow clone of the provided object</returns>
     TCloned ICloneFactory.ShallowPropertyClone<TCloned>(TCloned objectToClone) {
+      if(typeof(TCloned).IsClass || typeof(TCloned).IsArray) {
+        if(ReferenceEquals(objectToClone, null)) {
+          return default(TCloned);
+        }
+      }
       return ReflectionCloner.ShallowPropertyClone<TCloned>(objectToClone);
     }
 

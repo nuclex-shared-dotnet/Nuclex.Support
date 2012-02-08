@@ -36,6 +36,13 @@ namespace Nuclex.Support.Cloning {
       this.cloneFactory = new SerializationCloner();
     }
 
+    /// <summary>Verifies that cloning a null object simply returns null</summary>
+    [Test]
+    public void CloningNullYieldsNull() {
+      Assert.IsNull(this.cloneFactory.DeepFieldClone<object>(null));
+      Assert.IsNull(this.cloneFactory.DeepPropertyClone<object>(null));
+    }
+
     /// <summary>Verifies that clones of primitive types can be created</summary>
     [Test]
     public void PrimitiveTypesCanBeCloned() {

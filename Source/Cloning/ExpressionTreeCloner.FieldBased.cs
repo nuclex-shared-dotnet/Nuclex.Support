@@ -169,7 +169,20 @@ namespace Nuclex.Support.Cloning {
         );
 
         // Give it a new instance of the type being cloned
-        transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
+        MethodInfo getUninitializedObjectMethodInfo = typeof(FormatterServices).GetMethod(
+          "GetUninitializedObject", BindingFlags.Static | BindingFlags.Public
+        );
+        transferExpressions.Add(
+          Expression.Assign(
+            clone,
+            Expression.Convert(
+              Expression.Call(
+                getUninitializedObjectMethodInfo, Expression.Constant(clonedType)
+              ),
+              clonedType
+            )
+          )
+        );
 
         // Enumerate all of the type's fields and generate transfer expressions for each
         FieldInfo[] fieldInfos = clonedType.GetFields(

@@ -65,7 +65,7 @@ namespace Nuclex.Support.Cloning {
             )
           );
         } else {
-          // To access the propertys of the original type, we need it to be of the actual
+          // To access the properties of the original type, we need it to be of the actual
           // type instead of an object, so perform a downcast
           ParameterExpression typedOriginal = Expression.Variable(clonedType);
           variables.Add(typedOriginal);
@@ -89,7 +89,7 @@ namespace Nuclex.Support.Cloning {
         // Give it a new instance of the type being cloned
         transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
 
-        // To access the propertys of the original type, we need it to be of the actual
+        // To access the properties of the original type, we need it to be of the actual
         // type instead of an object, so perform a downcast
         ParameterExpression typedOriginal = Expression.Variable(clonedType);
         variables.Add(typedOriginal);
@@ -121,6 +121,89 @@ namespace Nuclex.Support.Cloning {
 
       return Expression.Lambda<Func<object, object>>(resultExpression, original).Compile();
     }
+
+		/// <summary>Compiles a method that creates a deep clone of an object</summary>
+		/// <param name="clonedType">Type for which a clone method will be created</param>
+		/// <returns>A method that clones an object of the provided type</returns>
+		/// <remarks>
+		///   <para>
+		///     The 'null' check is supposed to take place before running the cloner. This
+		///     avoids having redundant 'null' checks on nested types - first before calling
+		///     GetType() on the property to be cloned and second when runner the matching
+		///     cloner for the property.
+		///   </para>
+		///   <para>
+		///     This design also enables the cloning of nested value types (which can never
+		///     be null) without any null check whatsoever.
+		///   </para>
+		/// </remarks>
+		private static Func<object, object> createShallowPropertyBasedCloner(Type clonedType) {
+			ParameterExpression original = Expression.Parameter(typeof(object), "original");
+
+			var transferExpressions = new List<Expression>();
+			var variables = new List<ParameterExpression>();
+
+			if(clonedType.IsPrimitive || (clonedType == typeof(string))) {
+				// Primitives and strings are copied on direct assignment
+				transferExpressions.Add(original);
+			} else if(clonedType.IsArray) {
+				transferExpressions.Add(
+					generatePropertyBasedPrimitiveArrayTransferExpressions(
+						clonedType, original, variables, transferExpressions
+					)
+				);
+			} else {
+				// We need a variable to hold the clone because due to the assignments it
+				// won't be last in the block when we're finished
+				ParameterExpression clone = Expression.Variable(clonedType);
+				variables.Add(clone);
+
+				// Give it a new instance of the type being cloned
+				transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
+
+				// To access the properties of the original type, we need it to be of the actual
+				// type instead of an object, so perform a downcast
+				ParameterExpression typedOriginal = Expression.Variable(clonedType);
+				variables.Add(typedOriginal);
+				transferExpressions.Add(
+					Expression.Assign(typedOriginal, Expression.Convert(original, clonedType))
+				);
+
+				// Enumerate all of the type's properties and generate transfer expressions for each
+				PropertyInfo[] propertyInfos = clonedType.GetProperties(
+					BindingFlags.Public | BindingFlags.NonPublic |
+					BindingFlags.Instance | BindingFlags.FlattenHierarchy
+				);
+				for(int index = 0; index < propertyInfos.Length; ++index) {
+					PropertyInfo propertyInfo = propertyInfos[index];
+
+					transferExpressions.Add(
+						Expression.Assign(
+							Expression.Property(clone, propertyInfo),
+							Expression.Property(typedOriginal, propertyInfo)
+						)
+					);
+				}
+
+				// Make sure the clone is the last thing in the block to set the return value
+				transferExpressions.Add(clone);
+			}
+
+			// Turn all transfer expressions into a single block if necessary
+			Expression resultExpression;
+			if((transferExpressions.Count == 1) && (variables.Count == 0)) {
+				resultExpression = transferExpressions[0];
+			} else {
+				resultExpression = Expression.Block(variables, transferExpressions);
+			}
+
+			// Value types require manual boxing
+			if(clonedType.IsValueType) {
+				resultExpression = Expression.Convert(resultExpression, typeof(object));
+			}
+
+			return Expression.Lambda<Func<object, object>>(resultExpression, original).Compile();
+		}
 
     /// <summary>
     ///   Generates state transfer expressions to copy an array of primitive types
@@ -236,7 +319,7 @@ namespace Nuclex.Support.Cloning {
               )
             );
           } else if(elementType.IsValueType) {
-            // Arrays of complex value types can be transferred by assigning all propertys
+            // Arrays of complex value types can be transferred by assigning all properties
             // of the source array element to the destination array element (cloning
             // any nested reference types appropriately)
             generatePropertyBasedComplexTypeTransferExpressions(
@@ -249,7 +332,7 @@ namespace Nuclex.Support.Cloning {
 
           } else {
             // Arrays of reference types need to be cloned by creating a new instance
-            // of the reference type and then transferring the propertys over
+            // of the reference type and then transferring the properties over
             ParameterExpression originalElement = Expression.Variable(elementType);
             loopVariables.Add(originalElement);
 
@@ -279,7 +362,7 @@ namespace Nuclex.Support.Cloning {
                 Expression.Assign(Expression.ArrayAccess(clone, indexes), clonedElement)
               );
             } else {
-              // Complex types are cloned by checking their actual, concrete type (propertys
+              // Complex types are cloned by checking their actual, concrete type (properties
               // may be typed to an interface or base class) and requesting a cloner for that
               // type during runtime
               MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
@@ -363,7 +446,7 @@ namespace Nuclex.Support.Cloning {
       IList<ParameterExpression> variables,
       ICollection<Expression> transferExpressions
     ) {
-      // Enumerate all of the type's propertys and generate transfer expressions for each
+      // Enumerate all of the type's properties and generate transfer expressions for each
       PropertyInfo[] propertyInfos = clonedType.GetProperties(
         BindingFlags.Public | BindingFlags.NonPublic |
         BindingFlags.Instance | BindingFlags.FlattenHierarchy
@@ -395,7 +478,7 @@ namespace Nuclex.Support.Cloning {
             Expression.Assign(clonedProperty, Expression.New(propertyType))
           );
 
-          // A nested value type is part of the parent and will have its propertys directly
+          // A nested value type is part of the parent and will have its properties directly
           // assigned without boxing, new instance creation or anything like that.
           generatePropertyBasedComplexTypeTransferExpressions(
             propertyType,
@@ -428,6 +511,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="transferExpressions">
     ///   Receives the expression generated to transfer the values
     /// </param>
+    /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="propertyInfo">Reflection informations about the property being cloned</param>
     /// <param name="propertyType">Type of the property being cloned</param>
     private static void generatePropertyBasedReferenceTypeTransferExpressions(
@@ -480,7 +564,7 @@ namespace Nuclex.Support.Cloning {
           Expression.Assign(Expression.Property(clone, propertyInfo), propertyClone)
         );
       } else {
-        // Complex types are cloned by checking their actual, concrete type (propertys
+        // Complex types are cloned by checking their actual, concrete type (properties
         // may be typed to an interface or base class) and requesting a cloner for that
         // type during runtime
         MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(

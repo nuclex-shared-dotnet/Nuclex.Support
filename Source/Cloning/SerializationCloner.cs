@@ -244,6 +244,11 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A deep clone of the provided object</returns>
     public static TCloned DeepFieldClone<TCloned>(TCloned objectToClone) {
+      if(typeof(TCloned).IsClass || typeof(TCloned).IsArray) {
+        if(ReferenceEquals(objectToClone, null)) {
+          return default(TCloned);
+        }
+      }
       using(var memoryStream = new MemoryStream()) {
         fieldBasedFormatter.Serialize(memoryStream, objectToClone);
         memoryStream.Position = 0;
@@ -259,6 +264,11 @@ namespace Nuclex.Support.Cloning {
     /// <param name="objectToClone">Object that will be cloned</param>
     /// <returns>A deep clone of the provided object</returns>
     public static TCloned DeepPropertyClone<TCloned>(TCloned objectToClone) {
+      if(typeof(TCloned).IsClass || typeof(TCloned).IsArray) {
+        if(ReferenceEquals(objectToClone, null)) {
+          return default(TCloned);
+        }
+      }
       using(var memoryStream = new MemoryStream()) {
         propertyBasedFormatter.Serialize(memoryStream, objectToClone);
         memoryStream.Position = 0;

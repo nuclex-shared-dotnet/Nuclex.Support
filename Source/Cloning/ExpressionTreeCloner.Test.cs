@@ -36,6 +36,15 @@ namespace Nuclex.Support.Cloning {
       this.cloneFactory = new ExpressionTreeCloner();
     }
 
+    /// <summary>Verifies that cloning a null object simply returns null</summary>
+    [Test]
+    public void CloningNullYieldsNull() {
+      Assert.IsNull(this.cloneFactory.DeepFieldClone<object>(null));
+      Assert.IsNull(this.cloneFactory.DeepPropertyClone<object>(null));
+      Assert.IsNull(this.cloneFactory.ShallowFieldClone<object>(null));
+      Assert.IsNull(this.cloneFactory.ShallowPropertyClone<object>(null));
+    }
+
     /// <summary>Verifies that clones of primitive types can be created</summary>
     [Test]
     public void PrimitiveTypesCanBeCloned() {
@@ -150,14 +159,13 @@ namespace Nuclex.Support.Cloning {
       VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
-#if false
     /// <summary>
     ///   Verifies that a property-based shallow clone of a value type can be performed
     /// </summary>
     [Test]
     public void ShallowPropertyBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = CreateValueType();
-      HierarchicalValueType clone = this.cloneFactory.ShallowClone(original, true);
+      HierarchicalValueType clone = this.cloneFactory.ShallowPropertyClone(original);
       VerifyClone(ref original, ref clone, isDeepClone: false, isPropertyBasedClone: true);
     }
 
@@ -167,10 +175,9 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void ShallowPropertyBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = CreateReferenceType();
-      HierarchicalReferenceType clone = this.cloneFactory.ShallowClone(original, true);
+      HierarchicalReferenceType clone = this.cloneFactory.ShallowPropertyClone(original);
       VerifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: true);
     }
-#endif
 
     /// <summary>
     ///   Verifies that a property-based deep clone of a value type can be performed

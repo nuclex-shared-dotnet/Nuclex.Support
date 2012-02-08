@@ -101,8 +101,7 @@ namespace Nuclex.Support.Cloning {
         return default(TCloned);
       }
 
-      throw new NotImplementedException("Not implemented yet");
-      Func<object, object> cloner = getOrCreateShallowFieldBasedCloner(typeof(TCloned));
+      Func<object, object> cloner = getOrCreateShallowPropertyBasedCloner(typeof(TCloned));
       return (TCloned)cloner(objectToCloneAsObject);
     }
 
@@ -239,8 +238,7 @@ namespace Nuclex.Support.Cloning {
       Func<object, object> cloner;
 
       if(!shallowPropertyBasedCloners.TryGetValue(clonedType, out cloner)) {
-        throw new NotImplementedException();
-        //cloner = createShallowPropertyBasedCloner(clonedType);
+        cloner = createShallowPropertyBasedCloner(clonedType);
         shallowPropertyBasedCloners.TryAdd(clonedType, cloner);
       }
 
