@@ -45,6 +45,19 @@ namespace Nuclex.Support.Cloning {
       Assert.IsNull(this.cloneFactory.ShallowPropertyClone<object>(null));
     }
 
+    /// <summary>
+    ///   Verifies that clones of objects whose class doesn't possess a default constructor
+    ///   can be made
+    /// </summary>
+    [Test]
+    public void ClassWithoutDefaultConstructorCanBeCloned() {
+      var original = new ClassWithoutDefaultConstructor(1234);
+      ClassWithoutDefaultConstructor clone = this.cloneFactory.DeepFieldClone(original);
+
+      Assert.AreNotSame(original, clone);
+      Assert.AreEqual(original.Dummy, clone.Dummy);
+    }
+
     /// <summary>Verifies that clones of primitive types can be created</summary>
     [Test]
     public void PrimitiveTypesCanBeCloned() {

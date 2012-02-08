@@ -196,19 +196,21 @@ namespace Nuclex.Support.Cloning {
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        Type propertyType = propertyInfo.PropertyType;
-        object originalValue = propertyInfo.GetValue(original, null);
-        if(originalValue != null) {
-          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
-            // Primitive types can be assigned directly
-            propertyInfo.SetValue(clone, originalValue, null);
-          } else if(propertyType.IsValueType) {
-            // Value types are seen as part of the original type and are thus recursed into
-            propertyInfo.SetValue(clone, shallowCloneComplexPropertyBased(originalValue), null);
-          } else if(propertyType.IsArray) { // Arrays are assigned directly in a shallow clone
-            propertyInfo.SetValue(clone, originalValue, null);
-          } else { // Complex types are directly assigned without creating a copy
-            propertyInfo.SetValue(clone, originalValue, null);
+        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+          Type propertyType = propertyInfo.PropertyType;
+          object originalValue = propertyInfo.GetValue(original, null);
+          if(originalValue != null) {
+            if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+              // Primitive types can be assigned directly
+              propertyInfo.SetValue(clone, originalValue, null);
+            } else if(propertyType.IsValueType) {
+              // Value types are seen as part of the original type and are thus recursed into
+              propertyInfo.SetValue(clone, shallowCloneComplexPropertyBased(originalValue), null);
+            } else if(propertyType.IsArray) { // Arrays are assigned directly in a shallow clone
+              propertyInfo.SetValue(clone, originalValue, null);
+            } else { // Complex types are directly assigned without creating a copy
+              propertyInfo.SetValue(clone, originalValue, null);
+            }
           }
         }
       }
@@ -366,20 +368,22 @@ namespace Nuclex.Support.Cloning {
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        Type propertyType = propertyInfo.PropertyType;
-        object originalValue = propertyInfo.GetValue(original, null);
-        if(originalValue != null) {
-          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
-            // Primitive types can be assigned directly
-            propertyInfo.SetValue(clone, originalValue, null);
-          } else if(propertyType.IsArray) { // Arrays need to be cloned element-by-element
-            propertyInfo.SetValue(
-              clone,
-              deepCloneArrayPropertyBased((Array)originalValue, propertyType.GetElementType()),
-              null
-            );
-          } else { // Complex types need to be cloned member-by-member
-            propertyInfo.SetValue(clone, deepCloneSinglePropertyBased(originalValue), null);
+        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+          Type propertyType = propertyInfo.PropertyType;
+          object originalValue = propertyInfo.GetValue(original, null);
+          if(originalValue != null) {
+            if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+              // Primitive types can be assigned directly
+              propertyInfo.SetValue(clone, originalValue, null);
+            } else if(propertyType.IsArray) { // Arrays need to be cloned element-by-element
+              propertyInfo.SetValue(
+                clone,
+                deepCloneArrayPropertyBased((Array)originalValue, propertyType.GetElementType()),
+                null
+              );
+            } else { // Complex types need to be cloned member-by-member
+              propertyInfo.SetValue(clone, deepCloneSinglePropertyBased(originalValue), null);
+            }
           }
         }
       }

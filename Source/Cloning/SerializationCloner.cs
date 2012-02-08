@@ -184,7 +184,9 @@ namespace Nuclex.Support.Cloning {
         );
         for(int index = 0; index < propertyInfos.Length; ++index) {
           PropertyInfo propertyInfo = propertyInfos[index];
-          info.AddValue(propertyInfo.Name, propertyInfo.GetValue(objectToSerialize, null));
+          if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+            info.AddValue(propertyInfo.Name, propertyInfo.GetValue(objectToSerialize, null));
+          }
         }
       }
 
@@ -210,11 +212,13 @@ namespace Nuclex.Support.Cloning {
         );
         for(int index = 0; index < propertyInfos.Length; ++index) {
           PropertyInfo propertyInfo = propertyInfos[index];
-          propertyInfo.SetValue(
-            deserializedObject,
-            info.GetValue(propertyInfo.Name, propertyInfo.PropertyType),
-            null
-          );
+          if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+            propertyInfo.SetValue(
+              deserializedObject,
+              info.GetValue(propertyInfo.Name, propertyInfo.PropertyType),
+              null
+            );
+          }
         }
 
         return deserializedObject;

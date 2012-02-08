@@ -213,44 +213,46 @@ namespace Nuclex.Support.Cloning {
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        Type propertyType = propertyInfo.PropertyType;
+        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+          Type propertyType = propertyInfo.PropertyType;
 
-        if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Property(clone, propertyInfo),
-              Expression.Property(original, propertyInfo)
-            )
-          );
-        } else if(propertyType.IsValueType) {
-          ParameterExpression originalProperty = Expression.Variable(propertyType);
-          variables.Add(originalProperty);
-          transferExpressions.Add(
-            Expression.Assign(
-              originalProperty, Expression.Property(original, propertyInfo)
-            )
-          );
+          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Property(clone, propertyInfo),
+                Expression.Property(original, propertyInfo)
+              )
+            );
+          } else if(propertyType.IsValueType) {
+            ParameterExpression originalProperty = Expression.Variable(propertyType);
+            variables.Add(originalProperty);
+            transferExpressions.Add(
+              Expression.Assign(
+                originalProperty, Expression.Property(original, propertyInfo)
+              )
+            );
 
-          ParameterExpression clonedProperty = Expression.Variable(propertyType);
-          variables.Add(clonedProperty);
-          transferExpressions.Add(
-            Expression.Assign(clonedProperty, Expression.New(propertyType))
-          );
+            ParameterExpression clonedProperty = Expression.Variable(propertyType);
+            variables.Add(clonedProperty);
+            transferExpressions.Add(
+              Expression.Assign(clonedProperty, Expression.New(propertyType))
+            );
 
-          generateShallowPropertyBasedComplexCloneExpressions(propertyType, originalProperty, clonedProperty, transferExpressions, variables);
+            generateShallowPropertyBasedComplexCloneExpressions(propertyType, originalProperty, clonedProperty, transferExpressions, variables);
 
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Property(clone, propertyInfo), clonedProperty
-            )
-          );
-        } else {
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Property(clone, propertyInfo),
-              Expression.Property(original, propertyInfo)
-            )
-          );
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Property(clone, propertyInfo), clonedProperty
+              )
+            );
+          } else {
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Property(clone, propertyInfo),
+                Expression.Property(original, propertyInfo)
+              )
+            );
+          }
         }
       }
     }
@@ -503,52 +505,54 @@ namespace Nuclex.Support.Cloning {
       );
       for(int index = 0; index < propertyInfos.Length; ++index) {
         PropertyInfo propertyInfo = propertyInfos[index];
-        Type propertyType = propertyInfo.PropertyType;
+        if(propertyInfo.CanRead && propertyInfo.CanWrite) {
+          Type propertyType = propertyInfo.PropertyType;
 
-        if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
-          // Primitive types and strings can be transferred by simple assignment
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Property(clone, propertyInfo),
-              Expression.Property(original, propertyInfo)
-            )
-          );
-        } else if(propertyType.IsValueType) {
-          ParameterExpression originalProperty = Expression.Variable(propertyType);
-          variables.Add(originalProperty);
-          ParameterExpression clonedProperty = Expression.Variable(propertyType);
-          variables.Add(clonedProperty);
+          if(propertyType.IsPrimitive || (propertyType == typeof(string))) {
+            // Primitive types and strings can be transferred by simple assignment
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Property(clone, propertyInfo),
+                Expression.Property(original, propertyInfo)
+              )
+            );
+          } else if(propertyType.IsValueType) {
+            ParameterExpression originalProperty = Expression.Variable(propertyType);
+            variables.Add(originalProperty);
+            ParameterExpression clonedProperty = Expression.Variable(propertyType);
+            variables.Add(clonedProperty);
 
-          transferExpressions.Add(
-            Expression.Assign(
-              originalProperty, Expression.Property(original, propertyInfo)
-            )
-          );
-          transferExpressions.Add(
-            Expression.Assign(clonedProperty, Expression.New(propertyType))
-          );
+            transferExpressions.Add(
+              Expression.Assign(
+                originalProperty, Expression.Property(original, propertyInfo)
+              )
+            );
+            transferExpressions.Add(
+              Expression.Assign(clonedProperty, Expression.New(propertyType))
+            );
 
-          // A nested value type is part of the parent and will have its properties directly
-          // assigned without boxing, new instance creation or anything like that.
-          generatePropertyBasedComplexTypeTransferExpressions(
-            propertyType,
-            originalProperty,
-            clonedProperty,
-            variables,
-            transferExpressions
-          );
+            // A nested value type is part of the parent and will have its properties directly
+            // assigned without boxing, new instance creation or anything like that.
+            generatePropertyBasedComplexTypeTransferExpressions(
+              propertyType,
+              originalProperty,
+              clonedProperty,
+              variables,
+              transferExpressions
+            );
 
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Property(clone, propertyInfo),
-              clonedProperty
-            )
-          );
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Property(clone, propertyInfo),
+                clonedProperty
+              )
+            );
 
-        } else {
-          generatePropertyBasedReferenceTypeTransferExpressions(
-            original, clone, transferExpressions, variables, propertyInfo, propertyType
-          );
+          } else {
+            generatePropertyBasedReferenceTypeTransferExpressions(
+              original, clone, transferExpressions, variables, propertyInfo, propertyType
+            );
+          }
         }
       }
     }

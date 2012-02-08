@@ -78,6 +78,14 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType[,][] ReferenceTypeArrayField;
       /// <summary>An array property of reference types</summary>
       public TestReferenceType[,][] ReferenceTypeArrayProperty { get; set; }
+      /// <summary>A reference type field that's always null</summary>
+      public TestReferenceType AlwaysNullField;
+      /// <summary>A reference type property that's always null</summary>
+      public TestReferenceType AlwaysNullProperty { get; set; }
+      /// <summary>A property that only has a getter</summary>
+      public TestReferenceType GetOnlyProperty { get { return null; } }
+      /// <summary>A property that only has a s</summary>
+      public TestReferenceType SetOnlyProperty { set { } }
 
     }
 
@@ -104,10 +112,43 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType[,][] ReferenceTypeArrayField;
       /// <summary>An array property of reference types</summary>
       public TestReferenceType[,][] ReferenceTypeArrayProperty { get; set; }
+      /// <summary>A reference type field that's always null</summary>
+      public TestReferenceType AlwaysNullField;
+      /// <summary>A reference type property that's always null</summary>
+      public TestReferenceType AlwaysNullProperty { get; set; }
+      /// <summary>A property that only has a getter</summary>
+      public TestReferenceType GetOnlyProperty { get { return null; } }
+      /// <summary>A property that only has a s</summary>
+      public TestReferenceType SetOnlyProperty { set { } }
 
     }
 
     #endregion // struct HierarchicalReferenceType
+
+    #region class ClassWithoutDefaultConstructor
+
+    /// <summary>A class that does not have a default constructor</summary>
+    public class ClassWithoutDefaultConstructor {
+
+      /// <summary>
+      ///   Initializes a new instance of the class without default constructor
+      /// </summary>
+      /// <param name="dummy">Dummy value that will be saved by the instance</param>
+      public ClassWithoutDefaultConstructor(int dummy) {
+        this.dummy = dummy;
+      }
+
+      /// <summary>Dummy value that has been saved by the instance</summary>
+      public int Dummy {
+        get { return this.dummy; }
+      }
+
+      /// <summary>Dummy value that has been saved by the instance</summary>
+      private int dummy;
+
+    }
+
+    #endregion // class ClassWithoutDefaultConstructor
 
     /// <summary>
     ///   Verifies that a cloned object exhibits the expected state for the type of
