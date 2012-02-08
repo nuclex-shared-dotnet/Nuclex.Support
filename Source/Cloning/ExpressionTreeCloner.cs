@@ -285,23 +285,35 @@ namespace Nuclex.Support.Cloning {
                 Expression.Assign(Expression.ArrayAccess(clone, indexes), clonedElement)
               );
             } else {
-              ParameterExpression clonedElement = Expression.Variable(elementType);
-              loopVariables.Add(clonedElement);
-
-              nestedTransferExpressions.Add(
-                Expression.Assign(clonedElement, originalElement)
+              // Complex types are cloned by checking their actual, concrete type (fields
+              // may be typed to an interface or base class) and requesting a cloner for that
+              // type during runtime
+              MethodInfo getOrCreateClonerMethodInfo = typeof(ExpressionTreeCloner).GetMethod(
+                "getOrCreateDeepFieldBasedCloner",
+                BindingFlags.NonPublic | BindingFlags.Static
               );
+              MethodInfo getTypeMethodInfo = typeof(object).GetMethod("GetType");
+              MethodInfo invokeMethodInfo = typeof(Func<object, object>).GetMethod("Invoke");
 
-              //generateComplexTypeTransferExpressions(
-              //	elementType,
-              //	originalElement,
-              //	clonedElement,
-              //	loopVariables,
-              //	loopExpressions
-              //);
-
+              // Generate expressions to do this:
+              //   clone.SomeField = getOrCreateDeepFieldBasedCloner(
+              //     original.SomeField.GetType()
+              //   ).Invoke(original.SomeField);
               nestedTransferExpressions.Add(
-                Expression.Assign(Expression.ArrayAccess(clone, indexes), clonedElement)
+                Expression.Assign(
+                  Expression.ArrayAccess(clone, indexes),
+                  Expression.Convert(
+                    Expression.Call(
+                      Expression.Call(
+                        getOrCreateClonerMethodInfo,
+                        Expression.Call(originalElement, getTypeMethodInfo)
+                      ),
+                      invokeMethodInfo,
+                      originalElement
+                    ),
+                    elementType
+                  )
+                )
               );
             }
 
@@ -637,25 +649,6 @@ namespace Nuclex.Support.Cloning {
       throw new NotImplementedException();
     }
 
-    /// <summary>
-    ///   Compiles a method that copies the state of one object into another object
-    /// </summary>
-    /// <typeparam name="TCloned">Type of object whose state will be copied</typeparam>
-    /// <param name="deepClone">Whether to create clones of the referenced objects</param>
-    /// <returns>A method that copies the state from one object into another object</returns>
-    public static ReferenceAction<TCloned, TCloned> CreateValueCopier<TCloned>(bool deepClone)
-      where TCloned : struct {
-      throw new NotImplementedException();
-    }
-
-    /// <summary>Compiles a method that creates a clone of an object</summary>
-    /// <typeparam name="TCloned">Type of object that will be cloned</typeparam>
-    /// <param name="deepClone">Whether to create clones of the referenced objects</param>
-    /// <returns>A method that clones an object of the provided type</returns>
-    public static Func<TCloned, TCloned> CreateCloner<TCloned>(bool deepClone)
-      where TCloned : class, new() {
-      throw new NotImplementedException();
-    }
 #endif
 
     /// <summary>Compiled cloners that perform shallow clone operations</summary>

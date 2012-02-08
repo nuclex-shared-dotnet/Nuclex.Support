@@ -77,6 +77,7 @@ namespace Nuclex.Support.Cloning {
       Assert.AreSame(original[0], clone[0]);
     }
 #endif
+
     /// <summary>Verifies that deep clones of arrays can be made</summary>
     [Test]
     public void DeepClonesOfArraysCanBeMade() {
@@ -87,11 +88,11 @@ namespace Nuclex.Support.Cloning {
       };
       TestReferenceType[,] clone = this.cloneFactory.DeepClone(original, false);
 
-      //Assert.AreNotSame(original[0, 0], clone[0, 0]);
-      //Assert.AreEqual(original[0,0].TestField, clone[0,0].TestField);
-      //Assert.AreEqual(original[0,0].TestProperty, clone[0,0].TestProperty);
+      Assert.AreNotSame(original[0, 0], clone[0, 0]);
+      Assert.AreEqual(original[0, 0].TestField, clone[0, 0].TestField);
+      Assert.AreEqual(original[0, 0].TestProperty, clone[0, 0].TestProperty);
     }
-#if false
+
     /// <summary>Verifies that deep clones of a generic list can be made</summary>
     [Test]
     public void GenericListsCanBeCloned() {
@@ -111,6 +112,7 @@ namespace Nuclex.Support.Cloning {
       Assert.AreEqual("one", clone[1]);
     }
 
+#if false
     /// <summary>
     ///   Verifies that a field-based shallow clone of a value type can be performed
     /// </summary>
@@ -138,7 +140,7 @@ namespace Nuclex.Support.Cloning {
     public void DeepFieldBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = CreateValueType();
       HierarchicalValueType clone = this.cloneFactory.DeepClone(original, false);
-      //VerifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: false);
+      VerifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
     /// <summary>
@@ -148,7 +150,7 @@ namespace Nuclex.Support.Cloning {
     public void DeepFieldBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = CreateReferenceType();
       HierarchicalReferenceType clone = this.cloneFactory.DeepClone(original, false);
-      //VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
+      VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
 #if false
@@ -171,7 +173,9 @@ namespace Nuclex.Support.Cloning {
       HierarchicalReferenceType clone = this.cloneFactory.ShallowClone(original, true);
       VerifyClone(original, clone, isDeepClone: false, isPropertyBasedClone: true);
     }
+#endif
 
+#if false
     /// <summary>
     ///   Verifies that a property-based deep clone of a value type can be performed
     /// </summary>
