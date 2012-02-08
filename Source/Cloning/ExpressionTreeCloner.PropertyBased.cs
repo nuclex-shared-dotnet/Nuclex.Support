@@ -29,8 +29,6 @@ namespace Nuclex.Support.Cloning {
 
   partial class ExpressionTreeCloner : ICloneFactory {
 
-#if false
-
     /// <summary>Compiles a method that creates a deep clone of an object</summary>
     /// <param name="clonedType">Type for which a clone method will be created</param>
     /// <returns>A method that clones an object of the provided type</returns>
@@ -383,18 +381,40 @@ namespace Nuclex.Support.Cloning {
             )
           );
         } else if(propertyType.IsValueType) {
+          ParameterExpression originalProperty = Expression.Variable(propertyType);
+          variables.Add(originalProperty);
+          ParameterExpression clonedProperty = Expression.Variable(propertyType);
+          variables.Add(clonedProperty);
+
+          transferExpressions.Add(
+            Expression.Assign(
+              originalProperty, Expression.Property(original, propertyInfo)
+            )
+          );
+          transferExpressions.Add(
+            Expression.Assign(clonedProperty, Expression.New(propertyType))
+          );
+
           // A nested value type is part of the parent and will have its propertys directly
           // assigned without boxing, new instance creation or anything like that.
           generatePropertyBasedComplexTypeTransferExpressions(
             propertyType,
-            Expression.Property(original, propertyInfo),
-            Expression.Property(clone, propertyInfo),
+            originalProperty,
+            clonedProperty,
             variables,
             transferExpressions
           );
+
+          transferExpressions.Add(
+            Expression.Assign(
+              Expression.Property(clone, propertyInfo),
+              clonedProperty
+            )
+          );
+
         } else {
           generatePropertyBasedReferenceTypeTransferExpressions(
-            original, clone, transferExpressions, propertyInfo, propertyType
+            original, clone, transferExpressions, variables, propertyInfo, propertyType
           );
         }
       }
@@ -414,9 +434,17 @@ namespace Nuclex.Support.Cloning {
       Expression original,
       Expression clone,
       ICollection<Expression> transferExpressions,
+      ICollection<ParameterExpression> variables,
       PropertyInfo propertyInfo,
       Type propertyType
     ) {
+      ParameterExpression originalProperty = Expression.Variable(propertyType);
+      variables.Add(originalProperty);
+
+      transferExpressions.Add(
+        Expression.Assign(originalProperty, Expression.Property(original, propertyInfo))
+      );
+
       // Reference types and arrays require special care because they can be null,
       // so gather the transfer expressions in a separate block for the null check
       var propertyTransferExpressions = new List<Expression>();
@@ -431,7 +459,7 @@ namespace Nuclex.Support.Cloning {
           // For primitive arrays, the Array.Clone() method is sufficient
           propertyClone = generatePropertyBasedPrimitiveArrayTransferExpressions(
             propertyType,
-            Expression.Property(original, propertyInfo),
+            originalProperty,
             propertyVariables,
             propertyTransferExpressions
           );
@@ -439,7 +467,7 @@ namespace Nuclex.Support.Cloning {
           // Arrays of complex types require manual cloning
           propertyClone = generatePropertyBasedComplexArrayTransferExpressions(
             propertyType,
-            Expression.Property(original, propertyInfo),
+            originalProperty,
             propertyVariables,
             propertyTransferExpressions
           );
@@ -473,12 +501,10 @@ namespace Nuclex.Support.Cloning {
               Expression.Call(
                 Expression.Call(
                   getOrCreateClonerMethodInfo,
-                  Expression.Call(
-                    Expression.Property(original, propertyInfo), getTypeMethodInfo
-                  )
+                  Expression.Call(originalProperty, getTypeMethodInfo)
                 ),
                 invokeMethodInfo,
-                Expression.Property(original, propertyInfo)
+                originalProperty
               ),
               propertyType
             )
@@ -491,14 +517,12 @@ namespace Nuclex.Support.Cloning {
       transferExpressions.Add(
         Expression.IfThen(
           Expression.NotEqual(
-            Expression.Property(original, propertyInfo), Expression.Constant(null)
+            originalProperty, Expression.Constant(null)
           ),
           Expression.Block(propertyVariables, propertyTransferExpressions)
         )
       );
     }
-
-#endif
 
   }
 

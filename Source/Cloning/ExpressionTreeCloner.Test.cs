@@ -172,7 +172,6 @@ namespace Nuclex.Support.Cloning {
     }
 #endif
 
-#if false
     /// <summary>
     ///   Verifies that a property-based deep clone of a value type can be performed
     /// </summary>
@@ -192,7 +191,6 @@ namespace Nuclex.Support.Cloning {
       HierarchicalReferenceType clone = this.cloneFactory.DeepClone(original, true);
       VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: true);
     }
-#endif
 
     /// <summary>Clone factory being tested</summary>
     private ICloneFactory cloneFactory;

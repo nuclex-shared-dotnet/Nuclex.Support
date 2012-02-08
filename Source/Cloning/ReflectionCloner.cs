@@ -120,7 +120,11 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original instance</returns>
     private static object shallowCloneComplexFieldBased(object original) {
       Type originalType = original.GetType();
-			object clone = FormatterServices.GetUninitializedObject(originalType);
+#if (XBOX360 || WINDOWS_PHONE)
+      object clone = Activator.CreateInstance(originalType);
+#else
+      object clone = FormatterServices.GetUninitializedObject(originalType);
+#endif
 
       FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |
@@ -197,7 +201,11 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original instance</returns>
     private static object deepCloneComplexFieldBased(object original) {
       Type originalType = original.GetType();
-			object clone = FormatterServices.GetUninitializedObject(originalType);
+#if (XBOX360 || WINDOWS_PHONE)
+      object clone = Activator.CreateInstance(originalType);
+#else
+      object clone = FormatterServices.GetUninitializedObject(originalType);
+#endif
 
       FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |

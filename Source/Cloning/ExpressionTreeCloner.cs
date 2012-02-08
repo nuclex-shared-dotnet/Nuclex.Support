@@ -35,6 +35,8 @@ namespace Nuclex.Support.Cloning {
     static ExpressionTreeCloner() {
       shallowFieldBasedCloners = new ConcurrentDictionary<Type, Func<object, object>>();
       deepFieldBasedCloners = new ConcurrentDictionary<Type, Func<object, object>>();
+      shallowPropertyBasedCloners = new ConcurrentDictionary<Type, Func<object, object>>();
+      deepPropertyBasedCloners = new ConcurrentDictionary<Type, Func<object, object>>();
     }
 
     /// <summary>
@@ -55,12 +57,13 @@ namespace Nuclex.Support.Cloning {
         return default(TCloned);
       }
 
+      Func<object, object> cloner;
       if(usePropertyBasedClone) {
-        throw new NotImplementedException("Not implemented yet");
+        cloner = getOrCreateDeepPropertyBasedCloner(typeof(TCloned));
       } else {
-        Func<object, object> cloner = getOrCreateDeepFieldBasedCloner(typeof(TCloned));
-        return (TCloned)cloner(objectToCloneAsObject);
+        cloner = getOrCreateDeepFieldBasedCloner(typeof(TCloned));
       }
+      return (TCloned)cloner(objectToCloneAsObject);
     }
 
     /// <summary>
@@ -164,17 +167,6 @@ namespace Nuclex.Support.Cloning {
       throw new NotImplementedException();
     }
 
-    /// <summary>
-    ///   Compiles a method that copies the state of one object into another object
-    /// </summary>
-    /// <typeparam name="TCloned">Type of object whose state will be copied</typeparam>
-    /// <param name="deepClone">Whether to create clones of the referenced objects</param>
-    /// <returns>A method that copies the state from one object into another object</returns>
-    public static Action<TCloned, TCloned> CreateReferenceCopier<TCloned>(bool deepClone)
-      where TCloned : class {
-      throw new NotImplementedException();
-    }
-
 #endif
 
     /// <summary>
@@ -206,6 +198,41 @@ namespace Nuclex.Support.Cloning {
       if(!deepFieldBasedCloners.TryGetValue(clonedType, out cloner)) {
         cloner = createDeepFieldBasedCloner(clonedType);
         deepFieldBasedCloners.TryAdd(clonedType, cloner);
+      }
+
+      return cloner;
+    }
+
+    /// <summary>
+    ///   Retrieves the existing clone method for the specified type or compiles one if
+    ///   none exists for the type yet
+    /// </summary>
+    /// <param name="clonedType">Type for which a clone method will be retrieved</param>
+    /// <returns>The clone method for the specified type</returns>
+    private static Func<object, object> getOrCreateShallowPropertyBasedCloner(Type clonedType) {
+      Func<object, object> cloner;
+
+      if(!shallowPropertyBasedCloners.TryGetValue(clonedType, out cloner)) {
+        throw new NotImplementedException();
+        //cloner = createShallowPropertyBasedCloner(clonedType);
+        shallowPropertyBasedCloners.TryAdd(clonedType, cloner);
+      }
+
+      return cloner;
+    }
+
+    /// <summary>
+    ///   Retrieves the existing clone method for the specified type or compiles one if
+    ///   none exists for the type yet
+    /// </summary>
+    /// <param name="clonedType">Type for which a clone method will be retrieved</param>
+    /// <returns>The clone method for the specified type</returns>
+    private static Func<object, object> getOrCreateDeepPropertyBasedCloner(Type clonedType) {
+      Func<object, object> cloner;
+
+      if(!deepPropertyBasedCloners.TryGetValue(clonedType, out cloner)) {
+        cloner = createDeepPropertyBasedCloner(clonedType);
+        deepPropertyBasedCloners.TryAdd(clonedType, cloner);
       }
 
       return cloner;
