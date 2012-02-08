@@ -123,6 +123,8 @@ namespace Nuclex.Support.Cloning {
       HierarchicalReferenceType original, HierarchicalReferenceType clone,
       bool isDeepClone, bool isPropertyBasedClone
     ) {
+      Assert.AreNotSame(original, clone);
+
       if(isPropertyBasedClone) {
         Assert.AreEqual(0, clone.TestField);
         Assert.AreEqual(0, clone.ValueTypeField.TestField);
