@@ -27,7 +27,21 @@ using NUnit.Framework;
 namespace Nuclex.Support.Cloning {
 
   /// <summary>Base class for unit tests verifying the clone factory</summary>
-  internal abstract class CloneFactoryTest {
+  public abstract class CloneFactoryTest {
+
+    #region class DerivedReferenceType
+
+    /// <summary>A derived reference type being used for testing</summary>
+    protected class DerivedReferenceType : TestReferenceType {
+
+      /// <summary>Field holding an integer value for testing</summary>
+      public int DerivedField;
+      /// <summary>Property holding an integer value for testing</summary>
+      public int DerivedProperty { get; set; }
+
+    }
+
+    #endregion // class DerivedReferenceType
 
     #region class TestReferenceType
 
@@ -84,8 +98,12 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType AlwaysNullProperty { get; set; }
       /// <summary>A property that only has a getter</summary>
       public TestReferenceType GetOnlyProperty { get { return null; } }
-      /// <summary>A property that only has a s</summary>
+      /// <summary>A property that only has a setter</summary>
       public TestReferenceType SetOnlyProperty { set { } }
+      /// <summary>Field typed as base class holding a derived instance</summary>
+      public TestReferenceType DerivedField;
+      /// <summary>Field typed as base class holding a derived instance</summary>
+      public TestReferenceType DerivedProperty { get; set; }
 
     }
 
@@ -120,6 +138,10 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType GetOnlyProperty { get { return null; } }
       /// <summary>A property that only has a s</summary>
       public TestReferenceType SetOnlyProperty { set { } }
+      /// <summary>Field typed as base class holding a derived instance</summary>
+      public TestReferenceType DerivedField;
+      /// <summary>Field typed as base class holding a derived instance</summary>
+      public TestReferenceType DerivedProperty { get; set; }
 
     }
 
@@ -172,12 +194,21 @@ namespace Nuclex.Support.Cloning {
         Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
         Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
         Assert.IsNull(clone.ReferenceTypeField);
+        Assert.IsNull(clone.DerivedField);
 
         if(isDeepClone) {
           Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreNotSame(
             original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
           );
+          Assert.AreNotSame(original.DerivedProperty, clone.DerivedProperty);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedProperty);
+
+          var originalDerived = (DerivedReferenceType)original.DerivedProperty;
+          var clonedDerived = (DerivedReferenceType)clone.DerivedProperty;
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
           Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
           Assert.AreNotSame(
             original.ReferenceTypeArrayProperty[1, 3][0],
@@ -190,6 +221,7 @@ namespace Nuclex.Support.Cloning {
           Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][0].TestField);
           Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][2].TestField);
         } else {
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(
             original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
@@ -215,6 +247,25 @@ namespace Nuclex.Support.Cloning {
         if(isDeepClone) {
           Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
           Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(original.DerivedField, clone.DerivedField);
+          Assert.AreNotSame(original.DerivedProperty, clone.DerivedProperty);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedField);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedProperty);
+
+          var originalDerived = (DerivedReferenceType)original.DerivedField;
+          var clonedDerived = (DerivedReferenceType)clone.DerivedField;
+          Assert.AreEqual(originalDerived.TestField, clonedDerived.TestField);
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedField, clonedDerived.DerivedField);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
+          originalDerived = (DerivedReferenceType)original.DerivedProperty;
+          clonedDerived = (DerivedReferenceType)clone.DerivedProperty;
+          Assert.AreEqual(originalDerived.TestField, clonedDerived.TestField);
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedField, clonedDerived.DerivedField);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
           Assert.AreNotSame(
             original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
           );
@@ -238,6 +289,8 @@ namespace Nuclex.Support.Cloning {
             clone.ReferenceTypeArrayProperty[1, 3][2].TestField
           );
         } else {
+          Assert.AreSame(original.DerivedField, clone.DerivedField);
+          Assert.AreSame(original.DerivedProperty, clone.DerivedProperty);
           Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
           Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(
@@ -248,22 +301,6 @@ namespace Nuclex.Support.Cloning {
           );
         }
       }
-
-      Assert.AreEqual(original.TestProperty, clone.TestProperty);
-      Assert.AreEqual(
-        original.ValueTypeProperty.TestProperty, clone.ValueTypeProperty.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeProperty.TestProperty, clone.ReferenceTypeProperty.TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeArrayProperty[1, 3][0].TestProperty,
-        clone.ReferenceTypeArrayProperty[1, 3][0].TestProperty
-      );
-      Assert.AreEqual(
-        original.ReferenceTypeArrayProperty[1, 3][2].TestProperty,
-        clone.ReferenceTypeArrayProperty[1, 3][2].TestProperty
-      );
     }
 
     /// <summary>
@@ -286,12 +323,21 @@ namespace Nuclex.Support.Cloning {
         Assert.AreEqual(0, clone.ValueTypeField.TestProperty);
         Assert.AreEqual(0, clone.ValueTypeProperty.TestField);
         Assert.IsNull(clone.ReferenceTypeField);
+        Assert.IsNull(clone.DerivedField);
 
         if(isDeepClone) {
           Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreNotSame(
             original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
           );
+          Assert.AreNotSame(original.DerivedProperty, clone.DerivedProperty);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedProperty);
+
+          var originalDerived = (DerivedReferenceType)original.DerivedProperty;
+          var clonedDerived = (DerivedReferenceType)clone.DerivedProperty;
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
           Assert.AreEqual(0, clone.ReferenceTypeProperty.TestField);
           Assert.AreNotSame(
             original.ReferenceTypeArrayProperty[1, 3][0],
@@ -304,6 +350,7 @@ namespace Nuclex.Support.Cloning {
           Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][0].TestField);
           Assert.AreEqual(0, clone.ReferenceTypeArrayProperty[1, 3][2].TestField);
         } else {
+          Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(
             original.ReferenceTypeArrayProperty, clone.ReferenceTypeArrayProperty
@@ -329,6 +376,25 @@ namespace Nuclex.Support.Cloning {
         if(isDeepClone) {
           Assert.AreNotSame(original.ReferenceTypeField, clone.ReferenceTypeField);
           Assert.AreNotSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
+          Assert.AreNotSame(original.DerivedField, clone.DerivedField);
+          Assert.AreNotSame(original.DerivedProperty, clone.DerivedProperty);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedField);
+          Assert.IsInstanceOf<DerivedReferenceType>(clone.DerivedProperty);
+
+          var originalDerived = (DerivedReferenceType)original.DerivedField;
+          var clonedDerived = (DerivedReferenceType)clone.DerivedField;
+          Assert.AreEqual(originalDerived.TestField, clonedDerived.TestField);
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedField, clonedDerived.DerivedField);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
+          originalDerived = (DerivedReferenceType)original.DerivedProperty;
+          clonedDerived = (DerivedReferenceType)clone.DerivedProperty;
+          Assert.AreEqual(originalDerived.TestField, clonedDerived.TestField);
+          Assert.AreEqual(originalDerived.TestProperty, clonedDerived.TestProperty);
+          Assert.AreEqual(originalDerived.DerivedField, clonedDerived.DerivedField);
+          Assert.AreEqual(originalDerived.DerivedProperty, clonedDerived.DerivedProperty);
+
           Assert.AreNotSame(
             original.ReferenceTypeArrayField, clone.ReferenceTypeArrayField
           );
@@ -352,6 +418,8 @@ namespace Nuclex.Support.Cloning {
             clone.ReferenceTypeArrayProperty[1, 3][2].TestField
           );
         } else {
+          Assert.AreSame(original.DerivedField, clone.DerivedField);
+          Assert.AreSame(original.DerivedProperty, clone.DerivedProperty);
           Assert.AreSame(original.ReferenceTypeField, clone.ReferenceTypeField);
           Assert.AreSame(original.ReferenceTypeProperty, clone.ReferenceTypeProperty);
           Assert.AreSame(
@@ -427,6 +495,18 @@ namespace Nuclex.Support.Cloning {
         ReferenceTypeProperty = new TestReferenceType() {
           TestField = 246,
           TestProperty = 642,
+        },
+        DerivedField = new DerivedReferenceType() {
+          DerivedField = 100,
+          DerivedProperty = 200,
+          TestField = 300,
+          TestProperty = 400
+        },
+        DerivedProperty = new DerivedReferenceType() {
+          DerivedField = 500,
+          DerivedProperty = 600,
+          TestField = 700,
+          TestProperty = 800
         }
       };
     }
@@ -478,6 +558,18 @@ namespace Nuclex.Support.Cloning {
         ReferenceTypeProperty = new TestReferenceType() {
           TestField = 246,
           TestProperty = 642,
+        },
+        DerivedField = new DerivedReferenceType() {
+          DerivedField = 100,
+          DerivedProperty = 200,
+          TestField = 300,
+          TestProperty = 400
+        },
+        DerivedProperty = new DerivedReferenceType() {
+          DerivedField = 500,
+          DerivedProperty = 600,
+          TestField = 700,
+          TestProperty = 800
         }
       };
     }

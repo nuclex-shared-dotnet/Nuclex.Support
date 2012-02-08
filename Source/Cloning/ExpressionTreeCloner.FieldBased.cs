@@ -185,9 +185,8 @@ namespace Nuclex.Support.Cloning {
         );
 
         // Enumerate all of the type's fields and generate transfer expressions for each
-        FieldInfo[] fieldInfos = clonedType.GetFields(
-          BindingFlags.Public | BindingFlags.NonPublic |
-          BindingFlags.Instance | BindingFlags.FlattenHierarchy
+        FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
+          clonedType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
         );
         for(int index = 0; index < fieldInfos.Length; ++index) {
           FieldInfo fieldInfo = fieldInfos[index];
@@ -462,9 +461,9 @@ namespace Nuclex.Support.Cloning {
       ICollection<Expression> transferExpressions
     ) {
       // Enumerate all of the type's fields and generate transfer expressions for each
-      FieldInfo[] fieldInfos = clonedType.GetFields(
-        BindingFlags.Public | BindingFlags.NonPublic |
-        BindingFlags.Instance | BindingFlags.FlattenHierarchy
+      FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
+        clonedType,
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];
