@@ -103,7 +103,6 @@
       <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
-    <Compile Include="Source\Cloning\CloningParameters.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.FieldBased.cs">
       <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
