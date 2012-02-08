@@ -27,7 +27,7 @@ using NUnit.Framework;
 namespace Nuclex.Support.Cloning {
 
   /// <summary>Base class for unit tests verifying the clone factory</summary>
-  public abstract class CloneFactoryTest {
+  internal abstract class CloneFactoryTest {
 
     #region class TestReferenceType
 

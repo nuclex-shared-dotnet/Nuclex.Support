@@ -20,6 +20,7 @@ License along with this library
 
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Cloning {
 
@@ -119,7 +120,7 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original instance</returns>
     private static object shallowCloneComplexFieldBased(object original) {
       Type originalType = original.GetType();
-      object clone = Activator.CreateInstance(originalType);
+			object clone = FormatterServices.GetUninitializedObject(originalType);
 
       FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |
@@ -196,7 +197,7 @@ namespace Nuclex.Support.Cloning {
     /// <returns>A clone of the original instance</returns>
     private static object deepCloneComplexFieldBased(object original) {
       Type originalType = original.GetType();
-      object clone = Activator.CreateInstance(originalType);
+			object clone = FormatterServices.GetUninitializedObject(originalType);
 
       FieldInfo[] fieldInfos = originalType.GetFields(
         BindingFlags.Public | BindingFlags.NonPublic |

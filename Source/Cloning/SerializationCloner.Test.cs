@@ -29,7 +29,7 @@ namespace Nuclex.Support.Cloning {
 
   /// <summary>Unit Test for the binary serializer-based cloner</summary>
   [TestFixture]
-  public class SerializationClonerTest : CloneFactoryTest {
+  internal class SerializationClonerTest : CloneFactoryTest {
 
     /// <summary>Initializes a new unit test suite for the reflection cloner</summary>
     public SerializationClonerTest() {

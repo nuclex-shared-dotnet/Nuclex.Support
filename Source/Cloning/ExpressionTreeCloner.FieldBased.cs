@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Cloning {
 
@@ -60,7 +61,7 @@ namespace Nuclex.Support.Cloning {
         if(elementType.IsPrimitive || (elementType == typeof(string))) {
           // For primitive arrays, the Array.Clone() method is sufficient
           transferExpressions.Add(
-            generatePrimitiveArrayTransferExpressions(
+            generateFieldBasedPrimitiveArrayTransferExpressions(
               clonedType, original, variables, transferExpressions
             )
           );
@@ -75,7 +76,7 @@ namespace Nuclex.Support.Cloning {
 
           // Arrays of complex types require manual cloning
           transferExpressions.Add(
-            generateComplexArrayTransferExpressions(
+            generateFieldBasedComplexArrayTransferExpressions(
               clonedType, typedOriginal, variables, transferExpressions
             )
           );
@@ -87,7 +88,20 @@ namespace Nuclex.Support.Cloning {
         variables.Add(clone);
 
         // Give it a new instance of the type being cloned
-        transferExpressions.Add(Expression.Assign(clone, Expression.New(clonedType)));
+        MethodInfo getUninitializedObjectMethodInfo = typeof(FormatterServices).GetMethod(
+          "GetUninitializedObject", BindingFlags.Static | BindingFlags.Public
+        );
+        transferExpressions.Add(
+          Expression.Assign(
+            clone,
+            Expression.Convert(
+              Expression.Call(
+                getUninitializedObjectMethodInfo, Expression.Constant(clonedType)
+              ),
+              clonedType
+            )
+          )
+        );
 
         // To access the fields of the original type, we need it to be of the actual
         // type instead of an object, so perform a downcast
@@ -98,7 +112,7 @@ namespace Nuclex.Support.Cloning {
         );
 
         // Generate the expressions required to transfer the type field by field
-        generateComplexTypeTransferExpressions(
+        generateFieldBasedComplexTypeTransferExpressions(
           clonedType, typedOriginal, clone, variables, transferExpressions
         );
 
@@ -136,7 +150,7 @@ namespace Nuclex.Support.Cloning {
         transferExpressions.Add(original);
       } else if(clonedType.IsArray) {
         transferExpressions.Add(
-          generatePrimitiveArrayTransferExpressions(
+          generateFieldBasedPrimitiveArrayTransferExpressions(
             clonedType, original, variables, transferExpressions
           )
         );
@@ -201,7 +215,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="transferExpressions">Receives the generated transfer expressions</param>
     /// <returns>The variable holding the cloned array</returns>
-    private static Expression generatePrimitiveArrayTransferExpressions(
+    private static Expression generateFieldBasedPrimitiveArrayTransferExpressions(
       Type clonedType,
       Expression original,
       ICollection<ParameterExpression> variables,
@@ -224,7 +238,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="transferExpressions">Receives the generated transfer expressions</param>
     /// <returns>The variable holding the cloned array</returns>
-    private static ParameterExpression generateComplexArrayTransferExpressions(
+    private static ParameterExpression generateFieldBasedComplexArrayTransferExpressions(
       Type clonedType,
       Expression original,
       IList<ParameterExpression> variables,
@@ -310,7 +324,7 @@ namespace Nuclex.Support.Cloning {
             // Arrays of complex value types can be transferred by assigning all fields
             // of the source array element to the destination array element (cloning
             // any nested reference types appropriately)
-            generateComplexTypeTransferExpressions(
+            generateFieldBasedComplexTypeTransferExpressions(
               elementType,
               Expression.ArrayAccess(original, indexes),
               Expression.ArrayAccess(clone, indexes),
@@ -338,11 +352,11 @@ namespace Nuclex.Support.Cloning {
 
               Type nestedElementType = elementType.GetElementType();
               if(nestedElementType.IsPrimitive || (nestedElementType == typeof(string))) {
-                clonedElement = generatePrimitiveArrayTransferExpressions(
+                clonedElement = generateFieldBasedPrimitiveArrayTransferExpressions(
                   elementType, originalElement, nestedVariables, nestedTransferExpressions
                 );
               } else {
-                clonedElement = generateComplexArrayTransferExpressions(
+                clonedElement = generateFieldBasedComplexArrayTransferExpressions(
                   elementType, originalElement, nestedVariables, nestedTransferExpressions
                 );
               }
@@ -427,7 +441,7 @@ namespace Nuclex.Support.Cloning {
     /// <param name="clone">Variable expression for the cloned instance</param>
     /// <param name="variables">Receives variables used by the transfer expressions</param>
     /// <param name="transferExpressions">Receives the generated transfer expressions</param>
-    private static void generateComplexTypeTransferExpressions(
+    private static void generateFieldBasedComplexTypeTransferExpressions(
       Type clonedType, // Actual, concrete type (not declared type)
       Expression original, // Expected to be an object
       Expression clone,	// As actual, concrete type
@@ -454,7 +468,7 @@ namespace Nuclex.Support.Cloning {
         } else if(fieldType.IsValueType) {
           // A nested value type is part of the parent and will have its fields directly
           // assigned without boxing, new instance creation or anything like that.
-          generateComplexTypeTransferExpressions(
+          generateFieldBasedComplexTypeTransferExpressions(
             fieldType,
             Expression.Field(original, fieldInfo),
             Expression.Field(clone, fieldInfo),
@@ -462,7 +476,7 @@ namespace Nuclex.Support.Cloning {
             transferExpressions
           );
         } else {
-          generateReferenceTypeTransferExpressions(
+          generateFieldBasedReferenceTypeTransferExpressions(
             original, clone, transferExpressions, fieldInfo, fieldType
           );
         }
@@ -479,7 +493,7 @@ namespace Nuclex.Support.Cloning {
     /// </param>
     /// <param name="fieldInfo">Reflection informations about the field being cloned</param>
     /// <param name="fieldType">Type of the field being cloned</param>
-    private static void generateReferenceTypeTransferExpressions(
+    private static void generateFieldBasedReferenceTypeTransferExpressions(
       Expression original,
       Expression clone,
       ICollection<Expression> transferExpressions,
@@ -498,7 +512,7 @@ namespace Nuclex.Support.Cloning {
         Type elementType = fieldType.GetElementType();
         if(elementType.IsPrimitive || (elementType == typeof(string))) {
           // For primitive arrays, the Array.Clone() method is sufficient
-          fieldClone = generatePrimitiveArrayTransferExpressions(
+          fieldClone = generateFieldBasedPrimitiveArrayTransferExpressions(
             fieldType,
             Expression.Field(original, fieldInfo),
             fieldVariables,
@@ -506,7 +520,7 @@ namespace Nuclex.Support.Cloning {
           );
         } else {
           // Arrays of complex types require manual cloning
-          fieldClone = generateComplexArrayTransferExpressions(
+          fieldClone = generateFieldBasedComplexArrayTransferExpressions(
             fieldType,
             Expression.Field(original, fieldInfo),
             fieldVariables,
