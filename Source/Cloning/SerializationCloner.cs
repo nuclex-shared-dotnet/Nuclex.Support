@@ -242,23 +242,12 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A deep clone of the provided object</returns>
-    public static TCloned DeepClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
+    public static TCloned DeepFieldClone<TCloned>(TCloned objectToClone) {
       using(var memoryStream = new MemoryStream()) {
-        if(usePropertyBasedClone) {
-          propertyBasedFormatter.Serialize(memoryStream, objectToClone);
-          memoryStream.Position = 0;
-          return (TCloned)propertyBasedFormatter.Deserialize(memoryStream);
-        } else {
-          fieldBasedFormatter.Serialize(memoryStream, objectToClone);
-          memoryStream.Position = 0;
-          return (TCloned)fieldBasedFormatter.Deserialize(memoryStream);
-        }
+        fieldBasedFormatter.Serialize(memoryStream, objectToClone);
+        memoryStream.Position = 0;
+        return (TCloned)fieldBasedFormatter.Deserialize(memoryStream);
       }
     }
 
@@ -268,14 +257,13 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A deep clone of the provided object</returns>
-    TCloned ICloneFactory.DeepClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
-      return SerializationCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
+    public static TCloned DeepPropertyClone<TCloned>(TCloned objectToClone) {
+      using(var memoryStream = new MemoryStream()) {
+        propertyBasedFormatter.Serialize(memoryStream, objectToClone);
+        memoryStream.Position = 0;
+        return (TCloned)propertyBasedFormatter.Deserialize(memoryStream);
+      }
     }
 
     /// <summary>
@@ -283,14 +271,41 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A shallow clone of the provided object</returns>
-    TCloned ICloneFactory.ShallowClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
+    TCloned ICloneFactory.ShallowFieldClone<TCloned>(TCloned objectToClone) {
       throw new NotSupportedException("The serialization cloner cannot create shallow clones");
+    }
+
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A shallow clone of the provided object</returns>
+    TCloned ICloneFactory.ShallowPropertyClone<TCloned>(TCloned objectToClone) {
+      throw new NotSupportedException("The serialization cloner cannot create shallow clones");
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepFieldClone<TCloned>(TCloned objectToClone) {
+      return SerializationCloner.DeepFieldClone<TCloned>(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepPropertyClone<TCloned>(TCloned objectToClone) {
+      return SerializationCloner.DeepPropertyClone<TCloned>(objectToClone);
     }
 
     /// <summary>Serializes objects by storing their fields</summary>

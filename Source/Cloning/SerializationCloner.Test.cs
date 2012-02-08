@@ -40,7 +40,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void PrimitiveTypesCanBeCloned() {
       int original = 12345;
-      int clone = this.cloneFactory.DeepClone(original, false);
+      int clone = this.cloneFactory.DeepFieldClone(original);
       Assert.AreEqual(original, clone);
     }
 
@@ -50,7 +50,7 @@ namespace Nuclex.Support.Cloning {
       var original = new TestReferenceType[] {
         new TestReferenceType() { TestField = 123, TestProperty = 456 }
       };
-      TestReferenceType[] clone = this.cloneFactory.DeepClone(original, false);
+      TestReferenceType[] clone = this.cloneFactory.DeepFieldClone(original);
 
       Assert.AreNotSame(original[0], clone[0]);
       Assert.AreEqual(original[0].TestField, clone[0].TestField);
@@ -61,7 +61,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void GenericListsCanBeCloned() {
       var original = new List<int>(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-      List<int> clone = this.cloneFactory.DeepClone(original, false);
+      List<int> clone = this.cloneFactory.DeepFieldClone(original);
 
       CollectionAssert.AreEqual(original, clone);
     }
@@ -71,7 +71,7 @@ namespace Nuclex.Support.Cloning {
     public void GenericDictionariesCanBeCloned() {
       var original = new Dictionary<int, string>();
       original.Add(1, "one");
-      Dictionary<int, string> clone = this.cloneFactory.DeepClone(original, false);
+      Dictionary<int, string> clone = this.cloneFactory.DeepFieldClone(original);
 
       Assert.AreEqual("one", clone[1]);
     }
@@ -82,7 +82,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void DeepFieldBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = CreateValueType();
-      HierarchicalValueType clone = this.cloneFactory.DeepClone(original, false);
+      HierarchicalValueType clone = this.cloneFactory.DeepFieldClone(original);
       VerifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
@@ -92,7 +92,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void DeepFieldBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = CreateReferenceType();
-      HierarchicalReferenceType clone = this.cloneFactory.DeepClone(original, false);
+      HierarchicalReferenceType clone = this.cloneFactory.DeepFieldClone(original);
       VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: false);
     }
 
@@ -102,7 +102,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void DeepPropertyBasedClonesOfValueTypesCanBeMade() {
       HierarchicalValueType original = CreateValueType();
-      HierarchicalValueType clone = this.cloneFactory.DeepClone(original, true);
+      HierarchicalValueType clone = this.cloneFactory.DeepPropertyClone(original);
       VerifyClone(ref original, ref clone, isDeepClone: true, isPropertyBasedClone: true);
     }
 
@@ -112,7 +112,7 @@ namespace Nuclex.Support.Cloning {
     [Test]
     public void DeepPropertyBasedClonesOfReferenceTypesCanBeMade() {
       HierarchicalReferenceType original = CreateReferenceType();
-      HierarchicalReferenceType clone = this.cloneFactory.DeepClone(original, true);
+      HierarchicalReferenceType clone = this.cloneFactory.DeepPropertyClone(original);
       VerifyClone(original, clone, isDeepClone: true, isPropertyBasedClone: true);
     }
 

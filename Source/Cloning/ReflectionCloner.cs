@@ -39,50 +39,17 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A shallow clone of the provided object</returns>
-    public static TCloned ShallowClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
+    public static TCloned ShallowFieldClone<TCloned>(TCloned objectToClone) {
       Type originalType = objectToClone.GetType();
       if(originalType.IsPrimitive || (originalType == typeof(string))) {
         return objectToClone; // Being value types, primitives are copied by default
       } else if(originalType.IsArray) {
         return (TCloned)shallowCloneArray(objectToClone);
       } else if(originalType.IsValueType) {
-        if(usePropertyBasedClone) {
-          return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
-        } else {
-          return objectToClone; // Value types can be copied directly
-        }
+        return objectToClone; // Value types can be copied directly
       } else {
-        if(usePropertyBasedClone) {
-          return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
-        } else {
-          return (TCloned)shallowCloneComplexFieldBased(objectToClone);
-        }
-      }
-    }
-
-    /// <summary>
-    ///   Creates a deep clone of the specified object, also creating clones of all
-    ///   child objects being referenced
-    /// </summary>
-    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
-    /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
-    /// <returns>A deep clone of the provided object</returns>
-    public static TCloned DeepClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
-      if(usePropertyBasedClone) {
-        return (TCloned)deepCloneSinglePropertyBased(objectToClone);
-      } else {
-        return (TCloned)deepCloneSingleFieldBased(objectToClone);
+        return (TCloned)shallowCloneComplexFieldBased(objectToClone);
       }
     }
 
@@ -95,10 +62,17 @@ namespace Nuclex.Support.Cloning {
     ///   Whether to clone the object based on its properties only
     /// </param>
     /// <returns>A shallow clone of the provided object</returns>
-    TCloned ICloneFactory.ShallowClone<TCloned>(
-      TCloned objectToClone, bool usePropertyBasedClone
-    ) {
-      return ReflectionCloner.ShallowClone<TCloned>(objectToClone, usePropertyBasedClone);
+    public static TCloned ShallowPropertyClone<TCloned>(TCloned objectToClone) {
+      Type originalType = objectToClone.GetType();
+      if(originalType.IsPrimitive || (originalType == typeof(string))) {
+        return objectToClone; // Being value types, primitives are copied by default
+      } else if(originalType.IsArray) {
+        return (TCloned)shallowCloneArray(objectToClone);
+      } else if(originalType.IsValueType) {
+        return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
+      } else {
+        return (TCloned)shallowCloneComplexPropertyBased(objectToClone);
+      }
     }
 
     /// <summary>
@@ -107,12 +81,62 @@ namespace Nuclex.Support.Cloning {
     /// </summary>
     /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
     /// <param name="objectToClone">Object that will be cloned</param>
-    /// <param name="usePropertyBasedClone">
-    ///   Whether to clone the object based on its properties only
-    /// </param>
     /// <returns>A deep clone of the provided object</returns>
-    TCloned ICloneFactory.DeepClone<TCloned>(TCloned objectToClone, bool usePropertyBasedClone) {
-      return ReflectionCloner.DeepClone<TCloned>(objectToClone, usePropertyBasedClone);
+    public static TCloned DeepFieldClone<TCloned>(TCloned objectToClone) {
+      return (TCloned)deepCloneSingleFieldBased(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A deep clone of the provided object</returns>
+    public static TCloned DeepPropertyClone<TCloned>(TCloned objectToClone) {
+      return (TCloned)deepCloneSinglePropertyBased(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A shallow clone of the provided object</returns>
+    TCloned ICloneFactory.ShallowFieldClone<TCloned>(TCloned objectToClone) {
+      return ReflectionCloner.ShallowFieldClone<TCloned>(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a shallow clone of the specified object, reusing any referenced objects
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A shallow clone of the provided object</returns>
+    TCloned ICloneFactory.ShallowPropertyClone<TCloned>(TCloned objectToClone) {
+      return ReflectionCloner.ShallowPropertyClone<TCloned>(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepFieldClone<TCloned>(TCloned objectToClone) {
+      return ReflectionCloner.DeepFieldClone<TCloned>(objectToClone);
+    }
+
+    /// <summary>
+    ///   Creates a deep clone of the specified object, also creating clones of all
+    ///   child objects being referenced
+    /// </summary>
+    /// <typeparam name="TCloned">Type of the object that will be cloned</typeparam>
+    /// <param name="objectToClone">Object that will be cloned</param>
+    /// <returns>A deep clone of the provided object</returns>
+    TCloned ICloneFactory.DeepPropertyClone<TCloned>(TCloned objectToClone) {
+      return ReflectionCloner.DeepPropertyClone<TCloned>(objectToClone);
     }
 
     /// <summary>Clones a complex type using field-based value transfer</summary>
