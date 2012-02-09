@@ -462,8 +462,7 @@ namespace Nuclex.Support.Cloning {
     ) {
       // Enumerate all of the type's fields and generate transfer expressions for each
       FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
-        clonedType,
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+        clonedType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];

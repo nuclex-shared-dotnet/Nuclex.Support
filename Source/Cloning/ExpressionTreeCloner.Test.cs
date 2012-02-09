@@ -29,7 +29,7 @@ namespace Nuclex.Support.Cloning {
 
   /// <summary>Unit Test for the expression tree-based cloner</summary>
   [TestFixture]
-  public class ExpressionTreeClonerTest : CloneFactoryTest {
+  internal class ExpressionTreeClonerTest : CloneFactoryTest {
 
     /// <summary>Initializes a new unit test suite for the reflection cloner</summary>
     public ExpressionTreeClonerTest() {
