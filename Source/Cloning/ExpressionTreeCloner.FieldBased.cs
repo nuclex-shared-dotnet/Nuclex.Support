@@ -261,7 +261,6 @@ namespace Nuclex.Support.Cloning {
       variables.Add(clone);
 
       int dimensionCount = clonedType.GetArrayRank();
-      int baseVariableIndex = variables.Count;
       Type elementType = clonedType.GetElementType();
 
       var lengths = new List<ParameterExpression>();

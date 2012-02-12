@@ -219,7 +219,7 @@ namespace Nuclex.Support {
     public void Release() {
 
       // Release one lock on the resource
-      int newFree = Interlocked.Increment(ref this.free);
+      Interlocked.Increment(ref this.free);
 
       // Wake up any threads waiting for the resource to become available
       this.manualResetEvent.Set();

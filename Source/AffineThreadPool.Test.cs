@@ -235,18 +235,19 @@ namespace Nuclex.Support {
     ///   be determined using the GetProcessThread() method
     /// </summary>
     [Test]
-    public void TestGetProcessThread() {
-      Thread.BeginThreadAffinity();
-      try {
-        int threadId = AffineThreadPool.GetCurrentThreadId();
+    public void CanGetProcessThreadForManagedThread() {
+      if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
+        Thread.BeginThreadAffinity();
+        try {
+          int threadId = AffineThreadPool.GetCurrentThreadId();
 
-        Assert.IsNotNull(AffineThreadPool.GetProcessThread(threadId));
-        Assert.IsNull(AffineThreadPool.GetProcessThread(0));
+          Assert.IsNotNull(AffineThreadPool.GetProcessThread(threadId));
+          Assert.IsNull(AffineThreadPool.GetProcessThread(0));
+        }
+        finally {
+          Thread.EndThreadAffinity();
+        }
       }
-      finally {
-        Thread.EndThreadAffinity();
-      }
-
     }
 
     /// <summary>
@@ -299,7 +300,7 @@ namespace Nuclex.Support {
             "Task " + index.ToString() + " was started"
           );
         }
-        
+
         // All Thread should now be active and no work items should be waiting
         Assert.AreEqual(
           createdTasks, AffineThreadPool.ActiveThreads,

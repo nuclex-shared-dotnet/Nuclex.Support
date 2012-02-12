@@ -570,8 +570,21 @@ namespace Nuclex.Support.Parsing {
     ///   Tests whether the existence of named arguments can be checked
     /// </summary>
     [Test]
-    public void TestHasArgument() {
-      CommandLine test = CommandLine.Parse("/first:x /second:y /second:z third");
+    public void HasArgumentWorksForWindowsStyleArguments() {
+      CommandLine test = CommandLine.Parse("/first:x /second:y /second:z third", true);
+
+      Assert.IsTrue(test.HasArgument("first"));
+      Assert.IsTrue(test.HasArgument("second"));
+      Assert.IsFalse(test.HasArgument("third"));
+      Assert.IsFalse(test.HasArgument("fourth"));
+    }
+
+    /// <summary>
+    ///   Tests whether the existence of named arguments can be checked
+    /// </summary>
+    [Test]
+    public void HasArgumentWorksForUnixStyleArguments() {
+      CommandLine test = CommandLine.Parse("--first=x --second=y --second=z third", false);
 
       Assert.IsTrue(test.HasArgument("first"));
       Assert.IsTrue(test.HasArgument("second"));

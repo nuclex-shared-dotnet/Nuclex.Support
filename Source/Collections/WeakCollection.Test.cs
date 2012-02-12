@@ -410,7 +410,6 @@ namespace Nuclex.Support.Collections {
       Dummy oneTwoThreeDummy = new Dummy(123);
       dummies.Add(oneTwoThreeDummy);
 
-      Dummy fourFiveSixDummy = new Dummy(456);
       Assert.Throws<ArgumentException>(
         delegate() { (dummies as IList).Insert(0, new object()); }
       );
