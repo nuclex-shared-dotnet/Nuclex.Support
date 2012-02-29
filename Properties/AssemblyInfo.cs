@@ -21,7 +21,11 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("1308e4c3-a0c1-423a-aaae-61c7314777e0")]
 
+#if !(WINDOWS_PHONE || XBOX360)
+// This is required to NMock can derive its proxies from interfaces in
+// the internal unit test classes
 [assembly: InternalsVisibleTo(NMock.Constants.InternalsVisibleToDynamicProxy)]
+#endif
 
 // Version information for an assembly consists of the following four values:
 //
