@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -32,14 +32,14 @@ namespace Nuclex.Support.Collections {
   ///   are managed in it. The elements have to derive from the Parentable&lt;&gt;
   ///   base class.
   /// </remarks>
-  /// <typeparam name="ParentType">Type of the parent object to assign to items</typeparam>
-  /// <typeparam name="ItemType">Type of the items being managed in the collection</typeparam>
-  public class ParentingCollection<ParentType, ItemType> : Collection<ItemType>
-    where ItemType : Parentable<ParentType> {
+  /// <typeparam name="TParent">Type of the parent object to assign to items</typeparam>
+  /// <typeparam name="TItem">Type of the items being managed in the collection</typeparam>
+  public class ParentingCollection<TParent, TItem> : Collection<TItem>
+    where TItem : Parentable<TParent> {
 
     /// <summary>Reparents all elements in the collection</summary>
     /// <param name="parent">New parent to take ownership of the items</param>
-    protected void Reparent(ParentType parent) {
+    protected void Reparent(TParent parent) {
       this.parent = parent;
 
       for(int index = 0; index < Count; ++index)
@@ -49,7 +49,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Clears all elements from the collection</summary>
     protected override void ClearItems() {
       for(int index = 0; index < Count; ++index)
-        base[index].SetParent(default(ParentType));
+        base[index].SetParent(default(TParent));
 
       base.ClearItems();
     }
@@ -57,7 +57,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Inserts a new element into the collection</summary>
     /// <param name="index">Index at which to insert the element</param>
     /// <param name="item">Item to be inserted</param>
-    protected override void InsertItem(int index, ItemType item) {
+    protected override void InsertItem(int index, TItem item) {
       base.InsertItem(index, item);
       item.SetParent(this.parent);
     }
@@ -65,15 +65,15 @@ namespace Nuclex.Support.Collections {
     /// <summary>Removes an element from the collection</summary>
     /// <param name="index">Index of the element to remove</param>
     protected override void RemoveItem(int index) {
-      base[index].SetParent(default(ParentType));
+      base[index].SetParent(default(TParent));
       base.RemoveItem(index);
     }
 
     /// <summary>Takes over a new element that is directly assigned</summary>
     /// <param name="index">Index of the element that was assigned</param>
     /// <param name="item">New item</param>
-    protected override void SetItem(int index, ItemType item) {
-      base[index].SetParent(default(ParentType));
+    protected override void SetItem(int index, TItem item) {
+      base[index].SetParent(default(TParent));
       base.SetItem(index, item);
       item.SetParent(this.parent);
     }
@@ -112,7 +112,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Parent this collection currently belongs to</summary>
-    private ParentType parent;
+    private TParent parent;
 
   }
 

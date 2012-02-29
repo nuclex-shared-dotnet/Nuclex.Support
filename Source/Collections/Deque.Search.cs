@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -24,17 +24,17 @@ using System.Collections;
 
 namespace Nuclex.Support.Collections {
 
-  partial class Deque<ItemType> {
+  partial class Deque<TItem> {
 
     /// <summary>
     ///   Determines the index of the first occurence of the specified item in the deque
     /// </summary>
     /// <param name="item">Item that will be located in the deque</param>
     /// <returns>The index of the item or -1 if it wasn't found</returns>
-    public int IndexOf(ItemType item) {
+    public int IndexOf(TItem item) {
       if(this.blocks.Count == 1) { // Only one block to scan?
         int length = this.lastBlockEndIndex - this.firstBlockStartIndex;
-        int index = Array.IndexOf<ItemType>(
+        int index = Array.IndexOf<TItem>(
           this.blocks[0], item, this.firstBlockStartIndex, length
         );
 
@@ -49,7 +49,7 @@ namespace Nuclex.Support.Collections {
 
         // Scan the first block for the item and if found, return the index
         int length = this.blockSize - this.firstBlockStartIndex;
-        int index = Array.IndexOf<ItemType>(
+        int index = Array.IndexOf<TItem>(
           this.blocks[0], item, this.firstBlockStartIndex, length
         );
 
@@ -60,7 +60,7 @@ namespace Nuclex.Support.Collections {
 
         int lastBlock = this.blocks.Count - 1;
         for(int tempIndex = 1; tempIndex < lastBlock; ++tempIndex) {
-          index = Array.IndexOf<ItemType>(
+          index = Array.IndexOf<TItem>(
             this.blocks[tempIndex], item, 0, this.blockSize
           );
           if(index != -1) {
@@ -69,7 +69,7 @@ namespace Nuclex.Support.Collections {
         }
 
         // Nothing found, continue the search in the 
-        index = Array.IndexOf<ItemType>(
+        index = Array.IndexOf<TItem>(
           this.blocks[lastBlock], item, 0, this.lastBlockEndIndex
         );
         if(index == -1) {

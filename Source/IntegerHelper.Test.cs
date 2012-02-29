@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -29,7 +29,7 @@ namespace Nuclex.Support {
 
   /// <summary>Contains unit tests for the integer helper class</summary>
   [TestFixture]
-  public class IntegerHelperTest {
+  internal class IntegerHelperTest {
 
     /// <summary>
     ///   Verifies that the next power of 2 calculation works for long integers

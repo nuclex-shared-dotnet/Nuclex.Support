@@ -117,12 +117,12 @@
     <Compile Include="Source\Cloning\ExpressionTreeCloner.Test.cs">
       <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Cloning\ICloneFactory.cs" />
     <Compile Include="Source\Cloning\IStateCopier.cs" />
     <Compile Include="Source\Cloning\ReflectionCloner.cs" />
     <Compile Include="Source\Cloning\ReflectionCloner.Test.cs">
       <DependentUpon>ReflectionCloner.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Cloning\ICloneFactory.cs" />
     <Compile Include="Source\Cloning\SerializationCloner.cs" />
     <Compile Include="Source\Cloning\SerializationCloner.Test.cs">
       <DependentUpon>SerializationCloner.cs</DependentUpon>
@@ -150,6 +150,10 @@
     <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
       <DependentUpon>ItemEventArgs.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ItemReplaceEventArgs.cs" />
+    <Compile Include="Source\Collections\ItemReplaceEventArgs.Test.cs">
+      <DependentUpon>ItemReplaceEventArgs.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\MultiDictionary.cs" />
     <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
       <DependentUpon>MultiDictionary.cs</DependentUpon>
@@ -171,6 +175,10 @@
     <Compile Include="Source\Collections\ObservableList.cs" />
     <Compile Include="Source\Collections\ObservableList.Test.cs">
       <DependentUpon>ObservableList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ObservableSet.cs" />
+    <Compile Include="Source\Collections\ObservableSet.Test.cs">
+      <DependentUpon>ObservableSet.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\PairPriorityQueue.cs" />
     <Compile Include="Source\Collections\PairPriorityQueue.Test.cs">
@@ -208,6 +216,10 @@
     <Compile Include="Source\Collections\ReadOnlyList.Test.cs">
       <DependentUpon>ReadOnlyList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ReadOnlySet.cs" />
+    <Compile Include="Source\Collections\ReadOnlySet.Test.cs">
+      <DependentUpon>ReadOnlySet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ReverseComparer.cs" />
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
@@ -224,34 +236,6 @@
     <Compile Include="Source\Semaphore.cs" />
     <Compile Include="Source\Semaphore.Test.cs">
       <DependentUpon>Semaphore.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\AppDomainTypeLister.cs" />
-    <Compile Include="Source\Services\AppDomainTypeLister.Test.cs">
-      <DependentUpon>AppDomainTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\MultiAssemblyTypeLister.cs" />
-    <Compile Include="Source\Services\ExplicitTypeLister.Test.cs">
-      <DependentUpon>ExplicitTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\Instancing.cs" />
-    <Compile Include="Source\Services\ITypeLister.cs" />
-    <Compile Include="Source\Services\MultiAssemblyTypeLister.Test.cs">
-      <DependentUpon>MultiAssemblyTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ProgressTracking\IProgressPublishingService.cs" />
-    <Compile Include="Source\Services\ProgressTracking\IProgressCollectingService.cs" />
-    <Compile Include="Source\Services\ProgressTracking\ITrackedProcess.cs" />
-    <Compile Include="Source\Services\ProgressTracking\ProgressTrackingComponent.cs" />
-    <Compile Include="Source\Services\RepositoryTypeLister.cs" />
-    <Compile Include="Source\Services\RepositoryTypeLister.Test.cs">
-      <DependentUpon>RepositoryTypeLister.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ServiceManager.Analyzer.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ServiceManager.cs" />
-    <Compile Include="Source\Services\ServiceManager.For.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">
@@ -338,10 +322,6 @@
     <Compile Include="Source\Plugins\PluginRepository.Test.cs">
       <DependentUpon>PluginRepository.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Services\ServiceManager.Test.cs">
-      <DependentUpon>ServiceManager.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Services\ExplicitTypeLister.cs" />
     <Compile Include="Source\Shared.cs" />
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>
@@ -375,14 +355,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Documents\CommandLine.txt" />
-    <Content Include="Documents\Nuclex.Support.txt" />
-    <Content Include="Documents\Request Framework.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Foundation.snk">
       <Link>Foundation.snk</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documents\CommandLine.txt" />
+    <Content Include="Documents\Nuclex.Support.txt" />
+    <Content Include="Documents\Request Framework.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

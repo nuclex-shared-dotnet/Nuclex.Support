@@ -29,15 +29,16 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the item event argument container</summary>
   [TestFixture]
-  internal class ItemEventArgsTest {
+  public class ItemReplaceEventArgsTest {
 
     /// <summary>
     ///   Tests whether an integer argument can be stored in the argument container
     /// </summary>
     [Test]
     public void IntegersCanBeCarried() {
-      var test = new ItemEventArgs<int>(12345);
-      Assert.AreEqual(12345, test.Item);
+      var test = new ItemReplaceEventArgs<int>(12345, 54321);
+      Assert.AreEqual(12345, test.OldItem);
+      Assert.AreEqual(54321, test.NewItem);
     }
 
     /// <summary>
@@ -45,8 +46,9 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void StringsCanBeCarried() {
-      var test = new ItemEventArgs<string>("hello world");
-      Assert.AreEqual("hello world", test.Item);
+      var test = new ItemReplaceEventArgs<string>("hello", "world");
+      Assert.AreEqual("hello", test.OldItem);
+      Assert.AreEqual("world", test.NewItem);
     }
 
   }

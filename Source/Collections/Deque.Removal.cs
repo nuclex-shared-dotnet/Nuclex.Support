@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -24,7 +24,7 @@ using System.Collections;
 
 namespace Nuclex.Support.Collections {
 
-  partial class Deque<ItemType> {
+  partial class Deque<TItem> {
 
     /// <summary>Removes all items from the deque</summary>
     public void Clear() {
@@ -33,7 +33,7 @@ namespace Nuclex.Support.Collections {
         // Clear the items in the first block to avoid holding on to references
         // in memory unreachable to the user
         for(int index = this.firstBlockStartIndex; index < this.blockSize; ++index) {
-          this.blocks[0][index] = default(ItemType);
+          this.blocks[0][index] = default(TItem);
         }
 
         // Remove any other blocks
@@ -45,7 +45,7 @@ namespace Nuclex.Support.Collections {
         for(
           int index = this.firstBlockStartIndex; index < this.lastBlockEndIndex; ++index
         ) {
-          this.blocks[0][index] = default(ItemType);
+          this.blocks[0][index] = default(TItem);
         }
 
       }
@@ -62,7 +62,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Removes the specified item from the deque</summary>
     /// <param name="item">Item that will be removed from the deque</param>
     /// <returns>True if the item was found and removed</returns>
-    public bool Remove(ItemType item) {
+    public bool Remove(TItem item) {
       int index = IndexOf(item);
       if(index == -1) {
         return false;
@@ -83,7 +83,7 @@ namespace Nuclex.Support.Collections {
 
       // This is necessary to make sure the deque doesn't hold dead objects alive
       // in unreachable spaces of its memory.
-      this.blocks[0][this.firstBlockStartIndex] = default(ItemType);
+      this.blocks[0][this.firstBlockStartIndex] = default(TItem);
 
       // Cut off the item from the first block. If the block became empty and it's
       // not the last remaining block, remove it as well.
@@ -112,7 +112,7 @@ namespace Nuclex.Support.Collections {
       // This is necessary to make sure the deque doesn't hold dead objects alive
       // in unreachable spaces of its memory.
       int lastBlock = this.blocks.Count - 1;
-      this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
+      this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(TItem);
 
       // Cut off the last item in the last block. If the block became empty and it's
       // not the last remaining block, remove it as well.
@@ -193,7 +193,7 @@ namespace Nuclex.Support.Collections {
           this.blocks.RemoveAt(0);
           this.firstBlockStartIndex = 0;
         } else {
-          this.blocks[0][this.firstBlockStartIndex] = default(ItemType);
+          this.blocks[0][this.firstBlockStartIndex] = default(TItem);
           ++this.firstBlockStartIndex;
         }
 
@@ -248,7 +248,7 @@ namespace Nuclex.Support.Collections {
           this.blocks.RemoveAt(lastBlock);
           this.lastBlockEndIndex = this.blockSize;
         } else {
-          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(ItemType);
+          this.blocks[lastBlock][this.lastBlockEndIndex - 1] = default(TItem);
           --this.lastBlockEndIndex;
         }
 

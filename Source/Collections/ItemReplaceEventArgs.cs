@@ -24,23 +24,32 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Collections {
 
   /// <summary>
-  ///   Argument container used by collections to notify about changed items
+  ///   Argument container used by collections to notify about replaced items
   /// </summary>
-  public class ItemEventArgs<TItem> : EventArgs {
+  public class ItemReplaceEventArgs<TItem> : EventArgs {
 
     /// <summary>Initializes a new event arguments supplier</summary>
-    /// <param name="item">Item to be supplied to the event handler</param>
-    public ItemEventArgs(TItem item) {
-      this.item = item;
+    /// <param name="oldItem">Item that has been replaced by another item</param>
+    /// <param name="newItem">Replacement item that is now part of the collection</param>
+    public ItemReplaceEventArgs(TItem oldItem, TItem newItem) {
+      this.oldItem = oldItem;
+      this.newItem = newItem;
     }
 
-    /// <summary>Obtains the collection item the event arguments are carrying</summary>
-    public TItem Item {
-      get { return this.item; }
+    /// <summary>Item that has been replaced by another item</summary>
+    public TItem OldItem {
+      get { return this.oldItem; }
     }
 
-    /// <summary>Item to be passed to the event handler</summary>
-    private TItem item;
+    /// <summary>Replacement item that is now part of the collection</summary>
+    public TItem NewItem {
+      get { return this.newItem; }
+    }
+
+    /// <summary>Item that was removed from the collection</summary>
+    private TItem oldItem;
+    /// <summary>Item that was added to the collection</summary>
+    private TItem newItem;
 
   }
 

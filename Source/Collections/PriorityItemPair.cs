@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,20 +25,20 @@ using System.Text;
 namespace Nuclex.Support.Collections {
 
   /// <summary>An pair of a priority and an item</summary>
-  public struct PriorityItemPair<PriorityType, ItemType> {
+  public struct PriorityItemPair<TPriority, TItem> {
 
     /// <summary>Initializes a new priority / item pair</summary>
     /// <param name="priority">Priority of the item in the pair</param>
     /// <param name="item">Item to be stored in the pair</param>
-    public PriorityItemPair(PriorityType priority, ItemType item) {
+    public PriorityItemPair(TPriority priority, TItem item) {
       this.Priority = priority;
       this.Item = item;
     }
 
     /// <summary>Priority assigned to this priority / item pair</summary>
-    public PriorityType Priority;
+    public TPriority Priority;
     /// <summary>Item contained in this priority / item pair</summary>
-    public ItemType Item;
+    public TItem Item;
 
     /// <summary>Converts the priority / item pair into a string</summary>
     /// <returns>A string describing the priority / item pair</returns>

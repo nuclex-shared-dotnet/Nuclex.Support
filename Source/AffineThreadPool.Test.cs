@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -30,7 +30,7 @@ namespace Nuclex.Support {
 
   /// <summary>Unit Test for the CPU core-affine thread pool</summary>
   [TestFixture]
-  public class AffineThreadPoolTest {
+  internal class AffineThreadPoolTest {
 
     #region class TestTask
 

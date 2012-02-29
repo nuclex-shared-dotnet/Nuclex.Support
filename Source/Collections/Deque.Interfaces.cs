@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -24,7 +24,7 @@ using System.Collections;
 
 namespace Nuclex.Support.Collections {
 
-  partial class Deque<ItemType> {
+  partial class Deque<TItem> {
 
     #region IEnumerable members
 
@@ -44,7 +44,7 @@ namespace Nuclex.Support.Collections {
     int IList.Add(object value) {
       verifyCompatibleObject(value);
 
-      AddLast((ItemType)value);
+      AddLast((TItem)value);
       return this.count - 1;
     }
 
@@ -52,7 +52,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Item the deque will be scanned for</param>
     /// <returns>True if the deque contained the specified item</returns>
     bool IList.Contains(object value) {
-      return isCompatibleObject(value) && Contains((ItemType)value);
+      return isCompatibleObject(value) && Contains((TItem)value);
     }
 
     /// <summary>Determines the index of the item in the deque</summary>
@@ -60,7 +60,7 @@ namespace Nuclex.Support.Collections {
     /// <returns>The index of the specified item in the deque</returns>
     int IList.IndexOf(object value) {
       if(isCompatibleObject(value)) {
-        return IndexOf((ItemType)value);
+        return IndexOf((TItem)value);
       } else {
         return -1;
       }
@@ -71,7 +71,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Item that will be inserted</param>
     void IList.Insert(int index, object value) {
       verifyCompatibleObject(value);
-      Insert(index, (ItemType)value);
+      Insert(index, (TItem)value);
     }
 
     /// <summary>Whether the deque has a fixed size</summary>
@@ -88,7 +88,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Item that will be removed from the deque</param>
     void IList.Remove(object value) {
       if(isCompatibleObject(value)) {
-        Remove((ItemType)value);
+        Remove((TItem)value);
       }
     }
 
@@ -99,7 +99,7 @@ namespace Nuclex.Support.Collections {
       get { return this[index]; }
       set {
         verifyCompatibleObject(value);
-        this[index] = (ItemType)value;
+        this[index] = (TItem)value;
       }
     }
 
@@ -109,12 +109,12 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Adds an item into the deque</summary>
     /// <param name="item">Item that will be added to the deque</param>
-    void ICollection<ItemType>.Add(ItemType item) {
+    void ICollection<TItem>.Add(TItem item) {
       AddLast(item);
     }
 
     /// <summary>Whether the collection is read-only</summary>
-    bool ICollection<ItemType>.IsReadOnly {
+    bool ICollection<TItem>.IsReadOnly {
       get { return false; }
     }
 
@@ -126,11 +126,11 @@ namespace Nuclex.Support.Collections {
     /// <param name="array">Array the contents of the deque will be copied into</param>
     /// <param name="index">Index at which writing into the array will begin</param>
     void ICollection.CopyTo(Array array, int index) {
-      if(!(array is ItemType[])) {
+      if(!(array is TItem[])) {
         throw new ArgumentException("Incompatible array type", "array");
       }
 
-      CopyTo((ItemType[])array, index);
+      CopyTo((TItem[])array, index);
     }
 
     /// <summary>Whether the deque is thread-synchronized</summary>

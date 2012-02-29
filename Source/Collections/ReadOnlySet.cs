@@ -21,18 +21,28 @@ License along with this library
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Collections {
 
+#if false
   /// <summary>Wraps a List and prevents users from modifying it</summary>
   /// <typeparam name="TItem">Type of items to manage in the List</typeparam>
-  public class ReadOnlyList<TItem> : IList<TItem>, IList {
+#if !NO_SERIALIZATION
+  [Serializable]
+#endif
+  public class ReadOnlySet<TItem> :
+#if !NO_SERIALIZATION
+    ISerializable,
+    IDeserializationCallback,
+#endif
+    ISet<TItem>,
+    ICollection<TItem> {
 
     /// <summary>Initializes a new read-only List wrapper</summary>
     /// <param name="list">List that will be wrapped</param>
-    public ReadOnlyList(IList<TItem> list) {
+    public ReadOnlySet(ISet<TItem> list) {
       this.typedList = list;
-      this.objectList = (list as IList);
     }
 
     /// <summary>Retrieves the index of an item within the List</summary>
@@ -80,7 +90,7 @@ namespace Nuclex.Support.Collections {
       return this.typedList.GetEnumerator();
     }
 
-    #region IList<> implementation
+  #region IList<> implementation
 
     /// <summary>Inserts an item into the List</summary>
     /// <param name="index">Zero-based index before which the item will be inserted</param>
@@ -101,7 +111,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Accesses the List item with the specified index</summary>
     /// <param name="index">Zero-based index of the List item that will be accessed</param>
-    TItem IList<TItem>.this[int index] {
+    TItem IList<ItemType>.this[int index] {
       get { return this.typedList[index]; }
       set {
         throw new NotSupportedException(
@@ -112,7 +122,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-    #region ICollection<> implementation
+  #region ICollection<> implementation
 
     /// <summary>Adds an item to the end of the List</summary>
     /// <param name="item">Item that will be added to the List</param>
@@ -140,7 +150,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-    #region IEnumerable implementation
+  #region IEnumerable implementation
 
     /// <summary>Returns a new enumerator over the contents of the List</summary>
     /// <returns>The new List contents enumerator</returns>
@@ -150,7 +160,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-    #region IList implementation
+  #region IList implementation
 
     /// <summary>Removes all items from the List</summary>
     void IList.Clear() {
@@ -225,7 +235,7 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-    #region ICollection implementation
+  #region ICollection implementation
 
     /// <summary>Copies the contents of the List into an array</summary>
     /// <param name="array">Array the List will be copied into</param>
@@ -249,10 +259,9 @@ namespace Nuclex.Support.Collections {
     #endregion
 
     /// <summary>The wrapped List under its type-safe interface</summary>
-    private IList<TItem> typedList;
-    /// <summary>The wrapped List under its object interface</summary>
-    private IList objectList;
+    private ISet<TItem> typedList;
 
   }
+#endif
 
 } // namespace Nuclex.Support.Collections

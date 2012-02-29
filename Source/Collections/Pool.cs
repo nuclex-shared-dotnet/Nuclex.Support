@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,7 +25,7 @@ using System.Text;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Pool that recycles objects in order to avoid garbage build-up</summary>
-  /// <typeparam name="ItemType">Type of objects being pooled</typeparam>
+  /// <typeparam name="TItem">Type of objects being pooled</typeparam>
   /// <remarks>
   ///   <para>
   ///     Use this class to recycle objects instead of letting them become garbage,
@@ -45,7 +45,7 @@ namespace Nuclex.Support.Collections {
   ///     automatically call its IRecyclable.Recycle() method.
   ///   </para>
   /// </remarks>
-  public class Pool<ItemType> where ItemType : class, new() {
+  public class Pool<TItem> where TItem : class, new() {
 
     /// <summary>Default number of recyclable objects the pool will store</summary>
     public const int DefaultPoolSize = 64;
@@ -63,12 +63,12 @@ namespace Nuclex.Support.Collections {
     ///   Returns a new or recycled instance of the types managed by the pool
     /// </summary>
     /// <returns>A new or recycled instance</returns>
-    public ItemType Get() {
+    public TItem Get() {
       lock(this) {
         if(this.items.Count > 0) {
           return this.items.Dequeue();
         } else {
-          return new ItemType();
+          return new TItem();
         }
       }
     }
@@ -77,7 +77,7 @@ namespace Nuclex.Support.Collections {
     ///   Redeems an instance that is no longer used to be recycled by the pool
     /// </summary>
     /// <param name="item">The instance that will be redeemed</param>
-    public void Redeem(ItemType item) {
+    public void Redeem(TItem item) {
 
       // Call Recycle() when the object is redeemed (instead of when it leaves
       // the pool again) in order to eliminate any references the object may hold
@@ -100,7 +100,7 @@ namespace Nuclex.Support.Collections {
       get { return this.capacity; }
       set {
         this.capacity = value;
-        this.items = new Queue<ItemType>(value);
+        this.items = new Queue<TItem>(value);
       }
     }
 
@@ -111,7 +111,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">
     ///   Object whose Recycle() method will be called if supported by the object
     /// </param>
-    private static void callRecycleIfSupported(ItemType item) {
+    private static void callRecycleIfSupported(TItem item) {
       IRecyclable recycleable = item as IRecyclable;
       if(recycleable != null) {
         recycleable.Recycle();
@@ -119,7 +119,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Objects being retained for recycling</summary>
-    private Queue<ItemType> items;
+    private Queue<TItem> items;
     /// <summary>Capacity of the pool</summary>
     /// <remarks>
     ///   Required because the Queue class doesn't allow this value to be retrieved

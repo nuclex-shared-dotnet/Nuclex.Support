@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -29,18 +29,17 @@ namespace Nuclex.Support.Licensing {
 
   /// <summary>Unit test for the license key class</summary>
   [TestFixture]
-  public class LicenseKeyTest {
+  internal class LicenseKeyTest {
 
     /// <summary>Tests the default constructor of the license key class</summary>
     [Test]
-    public void TestDefaultConstructor() {
-      new LicenseKey();
+    public void DefaultConstructorCanBeUsed() {
+      Assert.IsNotNull(new LicenseKey()); // Nonsense, prevents compiler warning
     }
 
     /// <summary>Validates the correct translation of keys to GUIDs and back</summary>
     [Test]
-    public void TestGuidKeyConversion() {
-
+    public void LicenseKeysCanBeConvertedToGuidsAndBack() {
       for(int i = 0; i < 128; ++i) {
 
         // Create a new BitArray with the n.th bit set
@@ -60,12 +59,11 @@ namespace Nuclex.Support.Licensing {
         Assert.AreEqual(originalGuid, rebuiltGuid, "Test for GUID bit " + i);
 
       }
-
     }
 
     /// <summary>Tests whether license keys can be modified without destroying them</summary>
     [Test]
-    public void TestKeyModification() {
+    public void LicenseKeysCanBeModified() {
 
       for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 8; ++j) {
@@ -96,7 +94,7 @@ namespace Nuclex.Support.Licensing {
 
     /// <summary>Tests whether license keys can be modified without destroying them</summary>
     [Test]
-    public void TestParseInvalidLicenseKey() {
+    public void ParsingInvalidLicenseKeyThrowsArgumentException() {
       Assert.Throws<ArgumentException>(
         delegate() { LicenseKey.Parse("hello world"); }
       );
@@ -107,7 +105,7 @@ namespace Nuclex.Support.Licensing {
     ///   with an invalid index to retrieve a component of the key
     /// </summary>
     [Test]
-    public void TestGetByIndexerWithInvalidIndex() {
+    public void ReadingInvalidIndexThrowsIndexOutOfRangeException() {
       LicenseKey key = new LicenseKey();
       Assert.Throws<IndexOutOfRangeException>(
         delegate() { Console.WriteLine(key[-1]); }
@@ -119,7 +117,7 @@ namespace Nuclex.Support.Licensing {
     ///   with an invalid index to set a component of the key
     /// </summary>
     [Test]
-    public void TestSetByIndexerWithInvalidIndex() {
+    public void WritingInvalidIndexThrowsIndexOutOfRangeException() {
       LicenseKey key = new LicenseKey();
       Assert.Throws<IndexOutOfRangeException>(
         delegate() { key[-1] = 0; }
@@ -130,7 +128,7 @@ namespace Nuclex.Support.Licensing {
     ///   Verifies that a license key can be converted into a byte array
     /// </summary>
     [Test]
-    public void TestToByteArray() {
+    public void LicenseKeyCanBeConvertedToByteArray() {
       Guid someGuid = Guid.NewGuid();
       LicenseKey someKey = new LicenseKey(someGuid);
 

@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Collections {
 
-  partial class WeakCollection<ItemType> {
+  partial class WeakCollection<TItem> {
 
     #region IEnumerable Members
 
@@ -49,8 +49,8 @@ namespace Nuclex.Support.Collections {
     ///   The System.Collections.IList is read-only or the WeakCollection has a fixed size.
     /// </exception>
     int IList.Add(object value) {
-      ItemType valueAsItemType = downcastToItemType(value);
-      return (this.items as IList).Add(new WeakReference<ItemType>(valueAsItemType));
+      TItem valueAsItemType = downcastToItemType(value);
+      return (this.items as IList).Add(new WeakReference<TItem>(valueAsItemType));
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ namespace Nuclex.Support.Collections {
     ///   True if the System.Object is found in the WeakCollection; otherwise, false.
     /// </returns>
     bool IList.Contains(object value) {
-      ItemType valueAsItemType = downcastToItemType(value);
+      TItem valueAsItemType = downcastToItemType(value);
       return Contains(valueAsItemType);
     }
 
@@ -71,7 +71,7 @@ namespace Nuclex.Support.Collections {
     ///   The index of value if found in the list; otherwise, -1.
     /// </returns>
     int IList.IndexOf(object value) {
-      ItemType valueAsItemType = downcastToItemType(value);
+      TItem valueAsItemType = downcastToItemType(value);
       return IndexOf(valueAsItemType);
     }
 
@@ -92,7 +92,7 @@ namespace Nuclex.Support.Collections {
     ///   Value is null reference in the WeakCollection.
     /// </exception>
     void IList.Insert(int index, object value) {
-      ItemType valueAsItemType = downcastToItemType(value);
+      TItem valueAsItemType = downcastToItemType(value);
       Insert(index, valueAsItemType);
     }
 
@@ -111,7 +111,7 @@ namespace Nuclex.Support.Collections {
     ///   The WeakCollection is read-only or the WeakCollection has a fixed size.
     /// </exception>
     void IList.Remove(object value) {
-      ItemType valueAsItemType = downcastToItemType(value);
+      TItem valueAsItemType = downcastToItemType(value);
       Remove(valueAsItemType);
     }
 
@@ -124,7 +124,7 @@ namespace Nuclex.Support.Collections {
     object IList.this[int index] {
       get { return this[index]; }
       set {
-        ItemType valueAsItemType = downcastToItemType(value);
+        TItem valueAsItemType = downcastToItemType(value);
         this[index] = valueAsItemType;
       }
     }
@@ -158,7 +158,7 @@ namespace Nuclex.Support.Collections {
     ///   the destination array.
     /// </exception>
     void ICollection.CopyTo(Array array, int index) {
-      CopyTo((ItemType[])array, index);
+      CopyTo((TItem[])array, index);
     }
 
     /// <summary>
@@ -196,8 +196,8 @@ namespace Nuclex.Support.Collections {
     /// <returns>
     ///   The specified object referecne as a reference to the collection's item type
     /// </returns>
-    private static ItemType downcastToItemType(object value) {
-      ItemType valueAsItemType = value as ItemType;
+    private static TItem downcastToItemType(object value) {
+      TItem valueAsItemType = value as TItem;
       if(!ReferenceEquals(value, null)) {
         if(valueAsItemType == null) {
           throw new ArgumentException("Object is not of a compatible type", "value");

@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -30,7 +30,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the double ended queue</summary>
   [TestFixture]
-  public class DequeTest {
+  internal class DequeTest {
 
     /// <summary>Verifies that the AddLast() method of the deque is working</summary>
     [Test]

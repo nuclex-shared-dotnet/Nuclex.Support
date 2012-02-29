@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -32,7 +32,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the read only dictionary wrapper</summary>
   [TestFixture]
-  public class ReadOnlyDictionaryTest {
+  internal class ReadOnlyDictionaryTest {
 
     /// <summary>
     ///   Verifies that the copy constructor of the read only dictionary works

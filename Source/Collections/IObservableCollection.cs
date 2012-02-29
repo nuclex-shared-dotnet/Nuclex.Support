@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,14 +25,19 @@ using System.Collections.ObjectModel;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Interface for collections that can be observed</summary>
-  /// <typeparam name="ItemType">Type of items managed in the collection</typeparam>
-  public interface IObservableCollection<ItemType> {
+  /// <typeparam name="TItem">Type of items managed in the collection</typeparam>
+  public interface IObservableCollection<TItem> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
-    event EventHandler<ItemEventArgs<ItemType>> ItemAdded;
+    event EventHandler<ItemEventArgs<TItem>> ItemAdded;
 
     /// <summary>Raised when an item is removed from the collection</summary>
-    event EventHandler<ItemEventArgs<ItemType>> ItemRemoved;
+    event EventHandler<ItemEventArgs<TItem>> ItemRemoved;
+
+#if false
+    /// <summary>Raised when an item is replaced in the collection</summary>
+    event EventHandler<ItemReplaceEventArgs<ItemType>> ItemReplaced;
+#endif
 
     /// <summary>Raised when the collection is about to be cleared</summary>
     /// <remarks>

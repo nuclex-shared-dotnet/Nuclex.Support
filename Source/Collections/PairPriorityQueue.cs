@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -30,17 +30,17 @@ namespace Nuclex.Support.Collections {
   ///   priority data type implements the IComparable interface, the user does not
   ///   even
   /// </remarks>
-  public class PairPriorityQueue<PriorityType, ItemType>
-    : ICollection, IEnumerable<PriorityItemPair<PriorityType, ItemType>> {
+  public class PairPriorityQueue<TPriority, TItem>
+    : ICollection, IEnumerable<PriorityItemPair<TPriority, TItem>> {
     
     #region class PairComparer
 
     /// <summary>Compares two priority queue entries based on their priority</summary>
-    private class PairComparer : IComparer<PriorityItemPair<PriorityType, ItemType>> {
+    private class PairComparer : IComparer<PriorityItemPair<TPriority, TItem>> {
 
       /// <summary>Initializes a new entry comparer</summary>
       /// <param name="priorityComparer">Comparer used to compare entry priorities</param>
-      public PairComparer(IComparer<PriorityType> priorityComparer) {
+      public PairComparer(IComparer<TPriority> priorityComparer) {
         this.priorityComparer = priorityComparer;
       }
 
@@ -49,48 +49,48 @@ namespace Nuclex.Support.Collections {
       /// <param name="right">Entry on the right side</param>
       /// <returns>The relationship of the two entries</returns>
       public int Compare(
-        PriorityItemPair<PriorityType, ItemType> left,
-        PriorityItemPair<PriorityType, ItemType> right
+        PriorityItemPair<TPriority, TItem> left,
+        PriorityItemPair<TPriority, TItem> right
       ) {
         return this.priorityComparer.Compare(left.Priority, right.Priority);
       }
 
       /// <summary>Comparer used to compare the priorities of the entries</summary>
-      private IComparer<PriorityType> priorityComparer;
+      private IComparer<TPriority> priorityComparer;
 
     }
 
     #endregion // class EntryComparer
 
     /// <summary>Initializes a new non-intrusive priority queue</summary>
-    public PairPriorityQueue() : this(Comparer<PriorityType>.Default) { }
+    public PairPriorityQueue() : this(Comparer<TPriority>.Default) { }
 
     /// <summary>Initializes a new non-intrusive priority queue</summary>
     /// <param name="priorityComparer">Comparer used to compare the item priorities</param>
-    public PairPriorityQueue(IComparer<PriorityType> priorityComparer) {
-      this.internalQueue = new PriorityQueue<PriorityItemPair<PriorityType, ItemType>>(
+    public PairPriorityQueue(IComparer<TPriority> priorityComparer) {
+      this.internalQueue = new PriorityQueue<PriorityItemPair<TPriority, TItem>>(
         new PairComparer(priorityComparer)
       );
     }
 
     /// <summary>Returns the topmost item in the queue without dequeueing it</summary>
     /// <returns>The topmost item in the queue</returns>
-    public PriorityItemPair<PriorityType, ItemType> Peek() {
+    public PriorityItemPair<TPriority, TItem> Peek() {
       return this.internalQueue.Peek();
     }
 
     /// <summary>Takes the item with the highest priority off from the queue</summary>
     /// <returns>The item with the highest priority in the list</returns>
-    public PriorityItemPair<PriorityType, ItemType> Dequeue() {
+    public PriorityItemPair<TPriority, TItem> Dequeue() {
       return this.internalQueue.Dequeue();
     }
 
     /// <summary>Puts an item into the priority queue</summary>
     /// <param name="priority">Priority of the item to be queued</param>
     /// <param name="item">Item to be queued</param>
-    public void Enqueue(PriorityType priority, ItemType item) {
+    public void Enqueue(TPriority priority, TItem item) {
       this.internalQueue.Enqueue(
-        new PriorityItemPair<PriorityType, ItemType>(priority, item)
+        new PriorityItemPair<TPriority, TItem>(priority, item)
       );
     }
 
@@ -126,7 +126,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Returns a typesafe enumerator for the priority queue</summary>
     /// <returns>A new enumerator for the priority queue</returns>
-    public IEnumerator<PriorityItemPair<PriorityType, ItemType>> GetEnumerator() {
+    public IEnumerator<PriorityItemPair<TPriority, TItem>> GetEnumerator() {
       return this.internalQueue.GetEnumerator();
     }
 
@@ -137,7 +137,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Intrusive priority queue being wrapped by this class</summary>
-    private PriorityQueue<PriorityItemPair<PriorityType, ItemType>> internalQueue;
+    private PriorityQueue<PriorityItemPair<TPriority, TItem>> internalQueue;
 
   }
 

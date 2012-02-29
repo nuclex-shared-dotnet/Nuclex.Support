@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -65,6 +65,18 @@ namespace Nuclex.Support.Cloning {
         typeof(Derived), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
       );
       Assert.AreEqual(4, fieldInfos.Length);
+    }
+
+    /// <summary>
+    ///   Useless test that avoids a compile warning about unused fields
+    /// </summary>
+    [Test]
+    public void AvoidCompilerWarnings() {
+      var derived = new Derived() {
+        PublicBaseField = 123,
+        PublicBaseProperty = 321,
+        PublicDerivedField = 456
+      };
     }
 
   }

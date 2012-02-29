@@ -19,28 +19,15 @@ License along with this library
 #endregion
 
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-#if UNITTEST
+namespace Nuclex.Support.Collections {
 
-using NUnit.Framework;
+#if false
+	public class ObservableSet<TItem> {
+	}
+#endif
 
-namespace Nuclex.Support.Plugins {
-
-  /// <summary>Unit Test for the no plugin attribute class</summary>
-  [TestFixture]
-  internal class NoPluginAttributeTest {
-
-    /// <summary>
-    ///   Tests whether the default consturctor of the no plugin attribute works
-    /// </summary>
-    [Test]
-    public void TestDefaultConstructor() {
-      new NoPluginAttribute();
-    }
-
-  }
-
-} // namespace Nuclex.Support.Plugins
-
-#endif // UNITTEST
+} // namespace Nuclex.Support.Collections

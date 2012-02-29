@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -32,8 +32,8 @@ namespace Nuclex.Support.Collections {
   ///   when the collection detects that one of its items was garbage collected, it
   ///   will silently remove that item.
   /// </remarks>
-  public partial class WeakCollection<ItemType> : IList<ItemType>, IList
-    where ItemType : class {
+  public partial class WeakCollection<TItem> : IList<TItem>, IList
+    where TItem : class {
 
     #region class UnpackingEnumerator
 
@@ -41,14 +41,14 @@ namespace Nuclex.Support.Collections {
     ///   An enumerator that unpacks the items returned by an enumerator of the
     ///   weak reference collection into the actual item type on-the-fly.
     /// </summary>
-    private class UnpackingEnumerator : IEnumerator<ItemType> {
+    private class UnpackingEnumerator : IEnumerator<TItem> {
 
       /// <summary>Initializes a new unpacking enumerator</summary>
       /// <param name="containedTypeEnumerator">
       ///   Enumerator of the weak reference collection
       /// </param>
       public UnpackingEnumerator(
-        IEnumerator<WeakReference<ItemType>> containedTypeEnumerator
+        IEnumerator<WeakReference<TItem>> containedTypeEnumerator
       ) {
         this.containedTypeEnumerator = containedTypeEnumerator;
       }
@@ -61,7 +61,7 @@ namespace Nuclex.Support.Collections {
       /// <summary>
       ///   The element in the collection at the current position of the enumerator.
       /// </summary>
-      public ItemType Current {
+      public TItem Current {
         get { return this.containedTypeEnumerator.Current.Target; }
       }
 
@@ -96,7 +96,7 @@ namespace Nuclex.Support.Collections {
       }
 
       /// <summary>An enumerator from the wrapped collection</summary>
-      private IEnumerator<WeakReference<ItemType>> containedTypeEnumerator;
+      private IEnumerator<WeakReference<TItem>> containedTypeEnumerator;
 
     }
 
@@ -107,8 +107,8 @@ namespace Nuclex.Support.Collections {
     ///   Internal list of weak references that are unpacking when accessed through
     ///   the WeakCollection's interface.
     /// </param>
-    public WeakCollection(IList<WeakReference<ItemType>> items) :
-      this(items, EqualityComparer<ItemType>.Default) { }
+    public WeakCollection(IList<WeakReference<TItem>> items) :
+      this(items, EqualityComparer<TItem>.Default) { }
 
     /// <summary>Initializes a new weak reference collection</summary>
     /// <param name="items">
@@ -119,7 +119,7 @@ namespace Nuclex.Support.Collections {
     ///   Comparer used to identify and compare items to each other
     /// </param>
     public WeakCollection(
-      IList<WeakReference<ItemType>> items, IEqualityComparer<ItemType> comparer
+      IList<WeakReference<TItem>> items, IEqualityComparer<TItem> comparer
     ) {
       this.items = items;
       this.comparer = comparer;
@@ -141,7 +141,7 @@ namespace Nuclex.Support.Collections {
     ///   looking for. It is recommended to provide a custom implementation of
     ///   this method, if possible.
     /// </remarks>
-    public virtual bool Contains(ItemType item) {
+    public virtual bool Contains(TItem item) {
       return (IndexOf(item) != -1);
     }
 
@@ -167,7 +167,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentNullException">
     ///   Array is null.
     /// </exception>
-    public void CopyTo(ItemType[] array, int index) {
+    public void CopyTo(TItem[] array, int index) {
       if(this.items.Count > (array.Length - index)) {
         throw new ArgumentException(
           "Array too small to fit the collection items starting at the specified index"
@@ -188,7 +188,7 @@ namespace Nuclex.Support.Collections {
     ///   Returns an enumerator that iterates through the WeakCollection.
     /// </summary>
     /// <returns>An enumerator or the WeakCollection.</returns>
-    public IEnumerator<ItemType> GetEnumerator() {
+    public IEnumerator<TItem> GetEnumerator() {
       return new UnpackingEnumerator(this.items.GetEnumerator());
     }
 
@@ -211,9 +211,9 @@ namespace Nuclex.Support.Collections {
     ///   looking for. It is recommended to provide a custom implementation of
     ///   this method, if possible.
     /// </remarks>
-    public int IndexOf(ItemType item) {
+    public int IndexOf(TItem item) {
       for(int index = 0; index < this.items.Count; ++index) {
-        ItemType itemAtIndex = this.items[index].Target;
+        TItem itemAtIndex = this.items[index].Target;
         if((itemAtIndex == null) || (item == null)) {
           if(ReferenceEquals(item, itemAtIndex)) {
             return index;
@@ -242,9 +242,9 @@ namespace Nuclex.Support.Collections {
     ///    Index is less than zero or index is equal to or greater than
     ///    WeakCollection.Count.
     /// </exception>
-    public ItemType this[int index] {
+    public TItem this[int index] {
       get { return this.items[index].Target; }
-      set { this.items[index] = new WeakReference<ItemType>(value); }
+      set { this.items[index] = new WeakReference<TItem>(value); }
     }
 
     /// <summary>
@@ -254,9 +254,9 @@ namespace Nuclex.Support.Collections {
     /// <returns>
     ///   True if item was successfully removed from the WeakCollection; otherwise, false.
     /// </returns>
-    public bool Remove(ItemType item) {
+    public bool Remove(TItem item) {
       for(int index = 0; index < this.items.Count; ++index) {
-        ItemType itemAtIndex = this.items[index].Target;
+        TItem itemAtIndex = this.items[index].Target;
         if((itemAtIndex == null) || (item == null)) {
           if(ReferenceEquals(item, itemAtIndex)) {
             this.items.RemoveAt(index);
@@ -275,8 +275,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Adds an item to the WeakCollection.</summary>
     /// <param name="item">The object to add to the WeakCollection</param>
-    public void Add(ItemType item) {
-      this.items.Add(new WeakReference<ItemType>(item));
+    public void Add(TItem item) {
+      this.items.Add(new WeakReference<TItem>(item));
     }
 
     /// <summary>Inserts an item to the WeakCollection at the specified index.</summary>
@@ -287,8 +287,8 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentOutOfRangeException">
     ///   index is not a valid index in the WeakCollection.
     /// </exception>
-    public void Insert(int index, ItemType item) {
-      this.items.Insert(index, new WeakReference<ItemType>(item));
+    public void Insert(int index, TItem item) {
+      this.items.Insert(index, new WeakReference<TItem>(item));
     }
 
     /// <summary>
@@ -329,9 +329,9 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Weak references to the items contained in the collection</summary>
-    private IList<WeakReference<ItemType>> items;
+    private IList<WeakReference<TItem>> items;
     /// <summary>Used to identify and compare items in the collection</summary>
-    private IEqualityComparer<ItemType> comparer;
+    private IEqualityComparer<TItem> comparer;
     /// <summary>Synchronization root for threaded accesses to this collection</summary>
     private object syncRoot;
 

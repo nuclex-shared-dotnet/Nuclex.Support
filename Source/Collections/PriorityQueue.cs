@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,16 +25,16 @@ using System.Collections;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Queue that dequeues items in order of their priority</summary>
-  public class PriorityQueue<ItemType> : ICollection, IEnumerable<ItemType> {
+  public class PriorityQueue<TItem> : ICollection, IEnumerable<TItem> {
 
     #region class Enumerator
 
     /// <summary>Enumerates all items contained in a priority queue</summary>
-    private class Enumerator : IEnumerator<ItemType> {
+    private class Enumerator : IEnumerator<TItem> {
 
       /// <summary>Initializes a new priority queue enumerator</summary>
       /// <param name="priorityQueue">Priority queue to be enumerated</param>
-      public Enumerator(PriorityQueue<ItemType> priorityQueue) {
+      public Enumerator(PriorityQueue<TItem> priorityQueue) {
         this.priorityQueue = priorityQueue;
         Reset();
       }
@@ -48,7 +48,7 @@ namespace Nuclex.Support.Collections {
       }
 
       /// <summary>The current item being enumerated</summary>
-      ItemType IEnumerator<ItemType>.Current {
+      TItem IEnumerator<TItem>.Current {
         get {
 #if DEBUG
           checkVersion();
@@ -95,7 +95,7 @@ namespace Nuclex.Support.Collections {
       /// <summary>Index of the current item in the priority queue</summary>
       private int index;
       /// <summary>The priority queue whose items this instance enumerates</summary>
-      private PriorityQueue<ItemType> priorityQueue;
+      private PriorityQueue<TItem> priorityQueue;
 #if DEBUG
       /// <summary>Expected version of the priority queue</summary>
       private int expectedVersion;
@@ -108,19 +108,19 @@ namespace Nuclex.Support.Collections {
     /// <summary>
     ///   Initializes a new priority queue using IComparable for comparing items
     /// </summary>
-    public PriorityQueue() : this(Comparer<ItemType>.Default) { }
+    public PriorityQueue() : this(Comparer<TItem>.Default) { }
 
     /// <summary>Initializes a new priority queue</summary>
     /// <param name="comparer">Comparer to use for ordering the items</param>
-    public PriorityQueue(IComparer<ItemType> comparer) {
+    public PriorityQueue(IComparer<TItem> comparer) {
       this.comparer = comparer;
       this.capacity = 15; // 15 is equal to 4 complete levels
-      this.heap = new ItemType[this.capacity];
+      this.heap = new TItem[this.capacity];
     }
 
     /// <summary>Returns the topmost item in the queue without dequeueing it</summary>
     /// <returns>The topmost item in the queue</returns>
-    public ItemType Peek() {
+    public TItem Peek() {
       if(this.count == 0) {
         throw new InvalidOperationException("No items queued");
       }
@@ -131,12 +131,12 @@ namespace Nuclex.Support.Collections {
     /// <summary>Takes the item with the highest priority off from the queue</summary>
     /// <returns>The item with the highest priority in the list</returns>
     /// <exception cref="InvalidOperationException">When the queue is empty</exception>
-    public ItemType Dequeue() {
+    public TItem Dequeue() {
       if(this.count == 0) {
         throw new InvalidOperationException("No items available to dequeue");
       }
 
-      ItemType result = this.heap[0];
+      TItem result = this.heap[0];
       --this.count;
       trickleDown(0, this.heap[this.count]);
 #if DEBUG
@@ -147,7 +147,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Puts an item into the priority queue</summary>
     /// <param name="item">Item to be queued</param>
-    public void Enqueue(ItemType item) {
+    public void Enqueue(TItem item) {
       if(this.count == capacity)
         growHeap();
 
@@ -194,14 +194,14 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Returns a typesafe enumerator for the priority queue</summary>
     /// <returns>A new enumerator for the priority queue</returns>
-    public IEnumerator<ItemType> GetEnumerator() {
+    public IEnumerator<TItem> GetEnumerator() {
       return new Enumerator(this);
     }
 
     /// <summary>Moves an item upwards in the heap tree</summary>
     /// <param name="index">Index of the item to be moved</param>
     /// <param name="item">Item to be moved</param>
-    private void bubbleUp(int index, ItemType item) {
+    private void bubbleUp(int index, TItem item) {
       int parent = getParent(index);
 
       // Note: (index > 0) means there is a parent
@@ -217,7 +217,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Move the item downwards in the heap tree</summary>
     /// <param name="index">Index of the item to be moved</param>
     /// <param name="item">Item to be moved</param>
-    private void trickleDown(int index, ItemType item) {
+    private void trickleDown(int index, TItem item) {
       int child = getLeftChild(index);
 
       while(child < this.count) {
@@ -256,7 +256,7 @@ namespace Nuclex.Support.Collections {
     private void growHeap() {
       this.capacity = (capacity * 2) + 1;
 
-      ItemType[] newHeap = new ItemType[this.capacity];
+      TItem[] newHeap = new TItem[this.capacity];
       Array.Copy(this.heap, 0, newHeap, 0, this.count);
       this.heap = newHeap;
     }
@@ -268,13 +268,13 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>Comparer used to order the items in the priority queue</summary>
-    private IComparer<ItemType> comparer;
+    private IComparer<TItem> comparer;
     /// <summary>Total number of items in the priority queue</summary>
     private int count;
     /// <summary>Available space in the priority queue</summary>
     private int capacity;
     /// <summary>Tree containing the items in the priority queue</summary>
-    private ItemType[] heap;
+    private TItem[] heap;
 #if DEBUG
     /// <summary>Incremented whenever the priority queue is modified</summary>
     private int version;

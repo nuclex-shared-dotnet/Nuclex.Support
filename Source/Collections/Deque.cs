@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -25,7 +25,7 @@ using System.Collections;
 namespace Nuclex.Support.Collections {
 
   /// <summary>A double-ended queue that allocates memory in blocks</summary>
-  /// <typeparam name="ItemType">Type of the items being stored in the queue</typeparam>
+  /// <typeparam name="TItem">Type of the items being stored in the queue</typeparam>
   /// <remarks>
   ///   <para>
   ///     The double-ended queue allows items to be appended to either side of the queue
@@ -38,16 +38,16 @@ namespace Nuclex.Support.Collections {
   ///     require items to be copied around and it still can be accessed by index.
   ///   </para>
   /// </remarks>
-  public partial class Deque<ItemType> : IList<ItemType>, IList {
+  public partial class Deque<TItem> : IList<TItem>, IList {
 
     #region class Enumerator
 
     /// <summary>Enumerates over the items in a deque</summary>
-    private class Enumerator : IEnumerator<ItemType>, IEnumerator {
+    private class Enumerator : IEnumerator<TItem>, IEnumerator {
 
       /// <summary>Initializes a new deque enumerator</summary>
       /// <param name="deque">Deque whose items will be enumerated</param>
-      public Enumerator(Deque<ItemType> deque) {
+      public Enumerator(Deque<TItem> deque) {
         this.deque = deque;
         this.blockSize = this.deque.blockSize;
         this.lastBlock = this.deque.blocks.Count - 1;
@@ -63,7 +63,7 @@ namespace Nuclex.Support.Collections {
       }
 
       /// <summary>The item at the enumerator's current position</summary>
-      public ItemType Current {
+      public TItem Current {
         get {
 #if DEBUG
           checkVersion();
@@ -143,7 +143,7 @@ namespace Nuclex.Support.Collections {
 #endif
 
       /// <summary>Deque the enumerator belongs to</summary>
-      private Deque<ItemType> deque;
+      private Deque<TItem> deque;
       /// <summary>Size of the blocks in the deque</summary>
       private int blockSize;
       /// <summary>Index of the last block in the deque</summary>
@@ -154,7 +154,7 @@ namespace Nuclex.Support.Collections {
       /// <summary>Index of the block the enumerator currently is in</summary>
       private int currentBlockIndex;
       /// <summary>Reference to the block being enumerated</summary>
-      private ItemType[] currentBlock;
+      private TItem[] currentBlock;
       /// <summary>Index in the current block</summary>
       private int subIndex;
 #if DEBUG
@@ -173,8 +173,8 @@ namespace Nuclex.Support.Collections {
     public Deque(int blockSize) {
       this.blockSize = blockSize;
 
-      this.blocks = new List<ItemType[]>();
-      this.blocks.Add(new ItemType[this.blockSize]);
+      this.blocks = new List<TItem[]>();
+      this.blocks.Add(new TItem[this.blockSize]);
     }
 
     /// <summary>Number of items contained in the double ended queue</summary>
@@ -185,7 +185,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Accesses an item by its index</summary>
     /// <param name="index">Index of the item that will be accessed</param>
     /// <returns>The item at the specified index</returns>
-    public ItemType this[int index] {
+    public TItem this[int index] {
       get {
         int blockIndex, subIndex;
         findIndex(index, out blockIndex, out subIndex);
@@ -201,7 +201,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>The first item in the double-ended queue</summary>
-    public ItemType First {
+    public TItem First {
       get {
         if (this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
@@ -211,7 +211,7 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>The last item in the double-ended queue</summary>
-    public ItemType Last {
+    public TItem Last {
       get {
         if (this.count == 0) {
           throw new InvalidOperationException("The deque is empty");
@@ -223,14 +223,14 @@ namespace Nuclex.Support.Collections {
     /// <summary>Determines whether the deque contains the specified item</summary>
     /// <param name="item">Item the deque will be scanned for</param>
     /// <returns>True if the deque contains the item, false otherwise</returns>
-    public bool Contains(ItemType item) {
+    public bool Contains(TItem item) {
       return (IndexOf(item) != -1);
     }
 
     /// <summary>Copies the contents of the deque into an array</summary>
     /// <param name="array">Array the contents of the deque will be copied into</param>
     /// <param name="arrayIndex">Array index the deque contents will begin at</param>
-    public void CopyTo(ItemType[] array, int arrayIndex) {
+    public void CopyTo(TItem[] array, int arrayIndex) {
       if (this.count > (array.Length - arrayIndex)) {
         throw new ArgumentException(
           "Array too small to hold the collection items starting at the specified index"
@@ -280,7 +280,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Obtains a new enumerator for the contents of the deque</summary>
     /// <returns>The new enumerator</returns>
-    public IEnumerator<ItemType> GetEnumerator() {
+    public IEnumerator<TItem> GetEnumerator() {
       return new Enumerator(this);
     }
 
@@ -308,7 +308,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Value that will be checked for compatibility</param>
     /// <returns>True if the value can be placed in the deque</returns>
     private static bool isCompatibleObject(object value) {
-      return ((value is ItemType) || ((value == null) && !typeof(ItemType).IsValueType));
+      return ((value is TItem) || ((value == null) && !typeof(TItem).IsValueType));
     }
 
     /// <summary>Verifies that the provided object matches the deque's type</summary>
@@ -324,7 +324,7 @@ namespace Nuclex.Support.Collections {
     /// <summary>Size of a single deque block</summary>
     private int blockSize;
     /// <summary>Memory blocks being used to store the deque's data</summary>
-    private List<ItemType[]> blocks;
+    private List<TItem[]> blocks;
     /// <summary>Starting index of data in the first block</summary>
     private int firstBlockStartIndex;
     /// <summary>End index of data in the last block</summary>

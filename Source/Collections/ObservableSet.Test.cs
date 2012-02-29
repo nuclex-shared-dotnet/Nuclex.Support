@@ -18,29 +18,26 @@ License along with this library
 */
 #endregion
 
-using System;
-using System.IO;
-
 #if UNITTEST
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
 using NUnit.Framework;
+using NMock;
 
-namespace Nuclex.Support.Plugins {
+namespace Nuclex.Support.Collections {
 
-  /// <summary>Unit Test for the no plugin attribute class</summary>
+#if false
+  /// <summary>Unit Test for the observable set wrapper</summary>
   [TestFixture]
-  internal class NoPluginAttributeTest {
-
-    /// <summary>
-    ///   Tests whether the default consturctor of the no plugin attribute works
-    /// </summary>
-    [Test]
-    public void TestDefaultConstructor() {
-      new NoPluginAttribute();
-    }
-
+  internal class ObservableSetTest {
   }
+#endif
 
-} // namespace Nuclex.Support.Plugins
+} // namespace Nuclex.Support.Collections
 
 #endif // UNITTEST

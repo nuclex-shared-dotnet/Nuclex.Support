@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -26,10 +26,10 @@ using System.Collections.ObjectModel;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Collection that transforms the contents of another collection.</summary>
-  /// <typeparam name="ContainedItemType">
+  /// <typeparam name="TContainedItem">
   ///   Type of the items contained in the wrapped collection.
   /// </typeparam>
-  /// <typeparam name="ExposedItemType">
+  /// <typeparam name="TExposedItem">
   ///   Type this collection exposes its items as.
   /// </typeparam>
   /// <remarks>
@@ -49,8 +49,8 @@ namespace Nuclex.Support.Collections {
   ///   </para>
   /// </remarks>
   public abstract partial class TransformingReadOnlyCollection<
-    ContainedItemType, ExposedItemType
-  > : IList<ExposedItemType>, IList {
+    TContainedItem, TExposedItem
+  > : IList<TExposedItem>, IList {
 
     #region class TransformingEnumerator
 
@@ -58,14 +58,14 @@ namespace Nuclex.Support.Collections {
     ///   An enumerator that transforms the items returned by an enumerator of the
     ///   wrapped collection into the exposed type on-the-fly.
     /// </summary>
-    private class TransformingEnumerator : IEnumerator<ExposedItemType> {
+    private class TransformingEnumerator : IEnumerator<TExposedItem> {
 
       /// <summary>Initializes a new transforming enumerator</summary>
       /// <param name="transformer">Owner; used to invoke the Transform() method</param>
       /// <param name="containedTypeEnumerator">Enumerator of the wrapped collection</param>
       public TransformingEnumerator(
-        TransformingReadOnlyCollection<ContainedItemType, ExposedItemType> transformer,
-        IEnumerator<ContainedItemType> containedTypeEnumerator
+        TransformingReadOnlyCollection<TContainedItem, TExposedItem> transformer,
+        IEnumerator<TContainedItem> containedTypeEnumerator
       ) {
         this.transformer = transformer;
         this.containedTypeEnumerator = containedTypeEnumerator;
@@ -79,7 +79,7 @@ namespace Nuclex.Support.Collections {
       /// <summary>
       ///   The element in the collection at the current position of the enumerator.
       /// </summary>
-      public ExposedItemType Current {
+      public TExposedItem Current {
         get {
           return this.transformer.Transform(this.containedTypeEnumerator.Current);
         }
@@ -119,9 +119,9 @@ namespace Nuclex.Support.Collections {
       ///   Collection that owns this enumerator; required to invoke the item
       ///   transformation method.
       /// </summary>
-      private TransformingReadOnlyCollection<ContainedItemType, ExposedItemType> transformer;
+      private TransformingReadOnlyCollection<TContainedItem, TExposedItem> transformer;
       /// <summary>An enumerator from the wrapped collection</summary>
-      private IEnumerator<ContainedItemType> containedTypeEnumerator;
+      private IEnumerator<TContainedItem> containedTypeEnumerator;
 
     }
 
@@ -132,7 +132,7 @@ namespace Nuclex.Support.Collections {
     ///   Internal list of items that are transformed into the exposed type when
     ///   accessed through the TransformingReadOnlyCollection.
     /// </param>
-    public TransformingReadOnlyCollection(IList<ContainedItemType> items) {
+    public TransformingReadOnlyCollection(IList<TContainedItem> items) {
       this.items = items;
     }
 
@@ -153,7 +153,7 @@ namespace Nuclex.Support.Collections {
     ///   looking for. It is recommended to provide a custom implementation of
     ///   this method, if possible.
     /// </remarks>
-    public virtual bool Contains(ExposedItemType item) {
+    public virtual bool Contains(TExposedItem item) {
       return (IndexOf(item) != -1);
     }
 
@@ -180,7 +180,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentNullException">
     ///   Array is null.
     /// </exception>
-    public void CopyTo(ExposedItemType[] array, int index) {
+    public void CopyTo(TExposedItem[] array, int index) {
       if(this.items.Count > (array.Length - index)) {
         throw new ArgumentException(
           "Array too small to fit the collection items starting at the specified index"
@@ -198,7 +198,7 @@ namespace Nuclex.Support.Collections {
     /// <returns>
     ///   An enumerator or the TransformingReadOnlyCollection.
     /// </returns>
-    public IEnumerator<ExposedItemType> GetEnumerator() {
+    public IEnumerator<TExposedItem> GetEnumerator() {
       return new TransformingEnumerator(this, this.items.GetEnumerator());
     }
 
@@ -221,7 +221,7 @@ namespace Nuclex.Support.Collections {
     ///   looking for. It is recommended to provide a custom implementation of
     ///   this method, if possible.
     /// </remarks>
-    public int IndexOf(ExposedItemType item) {
+    public int IndexOf(TExposedItem item) {
 
       if(item == null) {
 
@@ -233,9 +233,7 @@ namespace Nuclex.Support.Collections {
 
       } else {
 
-        EqualityComparer<ExposedItemType> comparer =
-          EqualityComparer<ExposedItemType>.Default;
-
+        var comparer = EqualityComparer<TExposedItem>.Default;
         for(int index = 0; index < this.items.Count; ++index) {
           if(comparer.Equals(Transform(this.items[index]), item)) {
             return index;
@@ -262,7 +260,7 @@ namespace Nuclex.Support.Collections {
     ///    Index is less than zero or index is equal to or greater than
     ///    TransformingReadOnlyCollection.Count.
     /// </exception>
-    public ExposedItemType this[int index] {
+    public TExposedItem this[int index] {
       get { return Transform(this.items[index]); }
     }
 
@@ -280,10 +278,10 @@ namespace Nuclex.Support.Collections {
     ///   be called frequently, because the TransformingReadOnlyCollection does
     ///   not cache or otherwise store the transformed items.
     /// </remarks>
-    protected abstract ExposedItemType Transform(ContainedItemType item);
+    protected abstract TExposedItem Transform(TContainedItem item);
 
     /// <summary>Items being transformed upon exposure by this collection</summary>
-    private IList<ContainedItemType> items;
+    private IList<TContainedItem> items;
     /// <summary>Synchronization root for threaded accesses to this collection</summary>
     private object syncRoot;
 

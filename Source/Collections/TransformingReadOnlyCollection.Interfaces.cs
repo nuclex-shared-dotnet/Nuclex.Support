@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -29,11 +29,9 @@ namespace Nuclex.Support.Collections {
   // Shows the niceties of having to support languages without generics and using
   // an inferior design to make collections "more convenient" for the user :/
 
-  partial class TransformingReadOnlyCollection<
-    ContainedItemType, ExposedItemType
-  > {
+  partial class TransformingReadOnlyCollection<TContainedItem, TExposedItem> {
 
-    #region IList<ExposedItemType> Members
+    #region IList<TExposedItem> Members
 
     /// <summary>
     ///   Inserts an item to the TransformingReadOnlyCollection at the specified index.
@@ -50,7 +48,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentOutOfRangeException">
     ///   index is not a valid index in the TransformingReadOnlyCollection.
     /// </exception>
-    void IList<ExposedItemType>.Insert(int index, ExposedItemType item) {
+    void IList<TExposedItem>.Insert(int index, TExposedItem item) {
       throw new NotSupportedException("The collection is ready-only");
     }
 
@@ -64,7 +62,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.ArgumentOutOfRangeException">
     ///   Index is not a valid index in the TransformingReadOnlyCollection.
     /// </exception>
-    void IList<ExposedItemType>.RemoveAt(int index) {
+    void IList<TExposedItem>.RemoveAt(int index) {
       throw new NotSupportedException("The collection is ready-only");
     }
 
@@ -77,7 +75,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.NotSupportedException">
     ///   The property is set and the TransformingReadOnlyCollection is read-only
     /// </exception>
-    ExposedItemType IList<ExposedItemType>.this[int index] {
+    TExposedItem IList<TExposedItem>.this[int index] {
       get {
         return this[index];
       }
@@ -88,14 +86,14 @@ namespace Nuclex.Support.Collections {
 
     #endregion
 
-    #region ICollection<ExposedItemType> Members
+    #region ICollection<TExposedItem> Members
 
     /// <summary>Adds an item to the TransformingReadOnlyCollection.</summary>
     /// <param name="item">The object to add to the TransformingReadOnlyCollection</param>
     /// <exception cref="System.NotSupportedException">
     ///   The TransformingReadOnlyCollection is read-only.
     /// </exception>
-    void ICollection<ExposedItemType>.Add(ExposedItemType item) {
+    void ICollection<TExposedItem>.Add(TExposedItem item) {
       throw new NotSupportedException("The collection is ready-only");
     }
 
@@ -103,7 +101,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.NotSupportedException">
     ///    The TransformingReadOnlyCollection is read-only.
     /// </exception>
-    void ICollection<ExposedItemType>.Clear() {
+    void ICollection<TExposedItem>.Clear() {
       throw new NotSupportedException("The collection is ready-only");
     }
 
@@ -122,7 +120,7 @@ namespace Nuclex.Support.Collections {
     /// <exception cref="System.NotSupportedException">
     ///   The TransformingReadOnlyCollection is read-only.
     /// </exception>
-    bool ICollection<ExposedItemType>.Remove(ExposedItemType item) {
+    bool ICollection<TExposedItem>.Remove(TExposedItem item) {
       throw new NotSupportedException("The collection is ready-only");
     }
 
@@ -175,7 +173,7 @@ namespace Nuclex.Support.Collections {
     ///   otherwise, false.
     /// </returns>
     bool IList.Contains(object value) {
-      return Contains((ExposedItemType)value);
+      return Contains((TExposedItem)value);
     }
 
     /// <summary>
@@ -188,7 +186,7 @@ namespace Nuclex.Support.Collections {
     ///   The index of value if found in the list; otherwise, -1.
     /// </returns>
     int IList.IndexOf(object value) {
-      return IndexOf((ExposedItemType)value);
+      return IndexOf((TExposedItem)value);
     }
 
     /// <summary>
@@ -301,7 +299,7 @@ namespace Nuclex.Support.Collections {
     ///   automatically to the type of the destination array.
     /// </exception>
     void ICollection.CopyTo(Array array, int index) {
-      CopyTo((ExposedItemType[])array, index);
+      CopyTo((TExposedItem[])array, index);
     }
 
     /// <summary>

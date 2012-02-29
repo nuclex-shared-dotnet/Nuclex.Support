@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2010 Nuclex Development Labs
+Copyright (C) 2002-2012 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -30,7 +30,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit tests for the multi dictionary</summary>
   [TestFixture]
-  public class MultiDictionaryTest {
+  internal class MultiDictionaryTest {
 
     /// <summary>
     ///   Verifies that new instances of the multi dictionary can be created
