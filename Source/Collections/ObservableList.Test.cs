@@ -57,6 +57,11 @@ namespace Nuclex.Support.Collections {
       /// <param name="arguments">Contains the item that is being removed</param>
       void ItemRemoved(object sender, ItemEventArgs<int> arguments);
 
+      /// <summary>Called when an item is replaced in the dictionary</summary>
+      /// <param name="sender">Dictionary in which an item is being replaced</param>
+      /// <param name="arguments">Contains the replaced item and its replacement</param>
+      void ItemReplaced(object sender, ItemReplaceEventArgs<int> arguments);
+
     }
 
     #endregion // interface IObservableCollectionSubscriber
@@ -80,6 +85,9 @@ namespace Nuclex.Support.Collections {
       );
       this.observedList.ItemRemoved += new EventHandler<ItemEventArgs<int>>(
         this.mockedSubscriber.MockObject.ItemRemoved
+      );
+      this.observedList.ItemReplaced += new EventHandler<ItemReplaceEventArgs<int>>(
+        this.mockedSubscriber.MockObject.ItemReplaced
       );
     }
 
@@ -128,8 +136,7 @@ namespace Nuclex.Support.Collections {
       this.observedList.Add(2);
       this.observedList.Add(3);
 
-      this.mockedSubscriber.Expects.One.Method(m => m.ItemRemoved(null, null)).WithAnyArguments();
-      this.mockedSubscriber.Expects.One.Method(m => m.ItemAdded(null, null)).WithAnyArguments();
+      this.mockedSubscriber.Expects.One.Method(m => m.ItemReplaced(null, null)).WithAnyArguments();
 
       // Replace the middle item with something else
       this.observedList[1] = 4;

@@ -19,16 +19,20 @@ License along with this library
 #endregion
 
 using System;
+#if !NO_SPECIALIZED_COLLECTIONS
 using System.Collections.Specialized;
+#endif
 
 namespace Nuclex.Support.Collections {
 
   /// <summary>Contains fixed constants used by some collections</summary>
   public static class Constants {
 
+#if !NO_SPECIALIZED_COLLECTIONS
     /// <summary>Fixed event args used to notify that the collection has reset</summary>
     public static readonly NotifyCollectionChangedEventArgs NotifyCollectionResetEventArgs =
       new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+#endif
 
   }
 
