@@ -21,247 +21,192 @@ License along with this library
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Collections {
 
-#if false
-  /// <summary>Wraps a List and prevents users from modifying it</summary>
-  /// <typeparam name="TItem">Type of items to manage in the List</typeparam>
-#if !NO_SERIALIZATION
-  [Serializable]
-#endif
-  public class ReadOnlySet<TItem> :
-#if !NO_SERIALIZATION
-    ISerializable,
-    IDeserializationCallback,
-#endif
-    ISet<TItem>,
-    ICollection<TItem> {
+  /// <summary>Wraps a set and prevents it from being modified</summary>
+  /// <typeparam name="TItem">Type of items to manage in the set</typeparam>
+  public class ReadOnlySet<TItem> : ISet<TItem>, ICollection<TItem> {
 
-    /// <summary>Initializes a new read-only List wrapper</summary>
-    /// <param name="list">List that will be wrapped</param>
-    public ReadOnlySet(ISet<TItem> list) {
-      this.typedList = list;
+    /// <summary>
+    ///   Initializes a new observable set forwarding operations to the specified set
+    /// </summary>
+    /// <param name="set">Set operations will be forwarded to</param>
+    public ReadOnlySet(ISet<TItem> set) {
+      this.set = set;
     }
 
-    /// <summary>Retrieves the index of an item within the List</summary>
-    /// <param name="item">Item whose index will be returned</param>
-    /// <returns>The zero-based index of the specified item in the List</returns>
-    public int IndexOf(TItem item) {
-      return this.typedList.IndexOf(item);
+    /// <summary>
+    ///   Determines whether the current set is a proper (strict) subset of a collection
+    /// </summary>
+    /// <param name="other">Collection against which the set will be tested</param>
+    /// <returns>True if the set is a proper subset of the specified collection</returns>
+    public bool IsProperSubsetOf(IEnumerable<TItem> other) {
+      return this.set.IsProperSubsetOf(other);
     }
 
-    /// <summary>Accesses the List item with the specified index</summary>
-    /// <param name="index">Zero-based index of the List item that will be accessed</param>
-    public TItem this[int index] {
-      get { return this.typedList[index]; }
+    /// <summary>
+    ///   Determines whether the current set is a proper (strict) superset of a collection
+    /// </summary>
+    /// <param name="other">Collection against which the set will be tested</param>
+    /// <returns>True if the set is a proper superset of the specified collection</returns>
+    public bool IsProperSupersetOf(IEnumerable<TItem> other) {
+      return this.set.IsProperSupersetOf(other);
     }
 
-    /// <summary>Determines whether the List contains the specified item</summary>
-    /// <param name="item">Item that will be checked for</param>
-    /// <returns>True if the specified item is contained in the List</returns>
+    /// <summary>Determines whether the current set is a subset of a collection</summary>
+    /// <param name="other">Collection against which the set will be tested</param>
+    /// <returns>True if the set is a subset of the specified collection</returns>
+    public bool IsSubsetOf(IEnumerable<TItem> other) {
+      return this.set.IsSubsetOf(other);
+    }
+
+    /// <summary>Determines whether the current set is a superset of a collection</summary>
+    /// <param name="other">Collection against which the set will be tested</param>
+    /// <returns>True if the set is a superset of the specified collection</returns>
+    public bool IsSupersetOf(IEnumerable<TItem> other) {
+      return this.set.IsSupersetOf(other);
+    }
+
+    /// <summary>
+    ///   Determines if the set shares at least one common element with the collection
+    /// </summary>
+    /// <param name="other">Collection the set will be tested against</param>
+    /// <returns>
+    ///   True if the set shares at least one common element with the collection
+    /// </returns>
+    public bool Overlaps(IEnumerable<TItem> other) {
+      return this.set.Overlaps(other);
+    }
+
+    /// <summary>
+    ///   Determines whether the set contains the same elements as the specified collection
+    /// </summary>
+    /// <param name="other">Collection the set will be tested against</param>
+    /// <returns>True if the set contains the same elements as the collection</returns>
+    public bool SetEquals(IEnumerable<TItem> other) {
+      return this.set.SetEquals(other);
+    }
+
+    /// <summary>Determines whether the set contains the specified item</summary>
+    /// <param name="item">Item the set will be tested for</param>
+    /// <returns>True if the set contains the specified item</returns>
     public bool Contains(TItem item) {
-      return this.typedList.Contains(item);
+      return this.set.Contains(item);
     }
 
-    /// <summary>Copies the contents of the List into an array</summary>
-    /// <param name="array">Array the List will be copied into</param>
+    /// <summary>Copies the contents of the set into an array</summary>
+    /// <param name="array">Array the set's contents will be copied to</param>
     /// <param name="arrayIndex">
-    ///   Starting index at which to begin filling the destination array
+    ///   Index in the array the first copied element will be written to
     /// </param>
     public void CopyTo(TItem[] array, int arrayIndex) {
-      this.typedList.CopyTo(array, arrayIndex);
+      this.set.CopyTo(array, arrayIndex);
     }
 
-    /// <summary>The number of items current contained in the List</summary>
+    /// <summary>Counts the number of items contained in the set</summary>
     public int Count {
-      get { return this.typedList.Count; }
+      get { return this.set.Count; }
     }
 
-    /// <summary>Whether the List is write-protected</summary>
+    /// <summary>Determines whether the set is readonly</summary>
     public bool IsReadOnly {
       get { return true; }
     }
 
-    /// <summary>Returns a new enumerator over the contents of the List</summary>
-    /// <returns>The new List contents enumerator</returns>
+
+    /// <summary>Creates an enumerator for the set's contents</summary>
+    /// <returns>A new enumerator for the sets contents</returns>
     public IEnumerator<TItem> GetEnumerator() {
-      return this.typedList.GetEnumerator();
+      return this.set.GetEnumerator();
     }
 
-  #region IList<> implementation
+    /// <summary>Creates an enumerator for the set's contents</summary>
+    /// <returns>A new enumerator for the sets contents</returns>
+    IEnumerator IEnumerable.GetEnumerator() {
+      return this.set.GetEnumerator();
+    }
 
-    /// <summary>Inserts an item into the List</summary>
-    /// <param name="index">Zero-based index before which the item will be inserted</param>
-    /// <param name="item">Item that will be inserted into the List</param>
-    void IList<TItem>.Insert(int index, TItem item) {
+    /// <summary>
+    ///   Modifies the current set so that it contains only elements that are present either
+    ///   in the current set or in the specified collection, but not both
+    /// </summary>
+    /// <param name="other">Collection the set will be excepted with</param>
+    void ISet<TItem>.SymmetricExceptWith(IEnumerable<TItem> other) {
       throw new NotSupportedException(
-        "Inserting items is not supported by the read-only List"
+        "Excepting is not supported by the read-only set"
       );
     }
 
-    /// <summary>Removes an item from the list</summary>
-    /// <param name="index">Zero-based index of the item that will be removed</param>
-    void IList<TItem>.RemoveAt(int index) {
+    /// <summary>
+    ///   Modifies the current set so that it contains all elements that are present in both
+    ///   the current set and in the specified collection
+    /// </summary>
+    /// <param name="other">Collection an union will be built with</param>
+    void ISet<TItem>.UnionWith(IEnumerable<TItem> other) {
       throw new NotSupportedException(
-        "Removing items is not supported by the read-only List"
+        "Unioning is not supported by the read-only set"
       );
     }
 
-    /// <summary>Accesses the List item with the specified index</summary>
-    /// <param name="index">Zero-based index of the List item that will be accessed</param>
-    TItem IList<ItemType>.this[int index] {
-      get { return this.typedList[index]; }
-      set {
-        throw new NotSupportedException(
-          "Assigning items is not supported by the read-only List"
-        );
-      }
-    }
-
-    #endregion
-
-  #region ICollection<> implementation
-
-    /// <summary>Adds an item to the end of the List</summary>
-    /// <param name="item">Item that will be added to the List</param>
-    void ICollection<TItem>.Add(TItem item) {
+    /// <summary>Removes all items from the set</summary>
+    public void Clear() {
       throw new NotSupportedException(
-        "Adding items is not supported by the read-only List"
+        "Clearing is not supported by the read-only set"
       );
     }
 
-    /// <summary>Removes all items from the List</summary>
-    void ICollection<TItem>.Clear() {
-      throw new NotSupportedException(
-        "Clearing is not supported by the read-only List"
-      );
-    }
-
-    /// <summary>Removes the specified item from the List</summary>
-    /// <param name="item">Item that will be removed from the List</param>
-    /// <returns>True of the specified item was found in the List and removed</returns>
+    /// <summary>Removes an item from the set</summary>
+    /// <param name="item">Item that will be removed from the set</param>
+    /// <returns>
+    ///   True if the item was contained in the set and is now removed
+    /// </returns>
     bool ICollection<TItem>.Remove(TItem item) {
       throw new NotSupportedException(
-        "Removing items is not supported by the read-only List"
+        "Removing items is not supported by the read-only set"
       );
     }
 
-    #endregion
-
-  #region IEnumerable implementation
-
-    /// <summary>Returns a new enumerator over the contents of the List</summary>
-    /// <returns>The new List contents enumerator</returns>
-    IEnumerator IEnumerable.GetEnumerator() {
-      return this.objectList.GetEnumerator();
-    }
-
-    #endregion
-
-  #region IList implementation
-
-    /// <summary>Removes all items from the List</summary>
-    void IList.Clear() {
+    /// <summary>Adds an item to the set</summary>
+    /// <param name="item">Item that will be added to the set</param>
+    /// <returns>
+    ///   True if the element was added, false if it was already contained in the set
+    /// </returns>
+    bool ISet<TItem>.Add(TItem item) {
       throw new NotSupportedException(
-        "Clearing is not supported by the read-only List"
+        "Adding items is not supported by the read-only set"
       );
     }
 
-    /// <summary>Adds an item to the end of the List</summary>
-    /// <param name="value">Item that will be added to the List</param>
-    int IList.Add(object value) {
+    /// <summary>Removes all elements that are contained in the collection</summary>
+    /// <param name="other">Collection whose elements will be removed from this set</param>
+    void ISet<TItem>.ExceptWith(IEnumerable<TItem> other) {
       throw new NotSupportedException(
-        "Adding items is not supported by the read-only List"
+        "Excepting items is not supported by the read-only set"
       );
     }
 
-    /// <summary>Determines whether the List contains the specified item</summary>
-    /// <param name="value">Item that will be checked for</param>
-    /// <returns>True if the specified item is contained in the List</returns>
-    bool IList.Contains(object value) {
-      return this.objectList.Contains(value);
-    }
-
-    /// <summary>Retrieves the index of an item within the List</summary>
-    /// <param name="value">Item whose index will be returned</param>
-    /// <returns>The zero-based index of the specified item in the List</returns>
-    int IList.IndexOf(object value) {
-      return this.objectList.IndexOf(value);
-    }
-
-    /// <summary>Inserts an item into the List</summary>
-    /// <param name="index">Zero-based index before which the item will be inserted</param>
-    /// <param name="value">Item that will be inserted into the List</param>
-    void IList.Insert(int index, object value) {
+    /// <summary>
+    ///   Only keeps those elements in this set that are contained in the collection
+    /// </summary>
+    /// <param name="other">Other set this set will be filtered by</param>
+    void ISet<TItem>.IntersectWith(IEnumerable<TItem> other) {
       throw new NotSupportedException(
-        "Inserting items is not supported by the read-only List"
+        "Intersecting items is not supported by the read-only set"
       );
     }
 
-    /// <summary>Whether the size of the List is fixed</summary>
-    bool IList.IsFixedSize {
-      get { return this.objectList.IsFixedSize; }
-    }
-
-    /// <summary>Removes the specified item from the List</summary>
-    /// <param name="value">Item that will be removed from the List</param>
-    /// <returns>True of the specified item was found in the List and removed</returns>
-    void IList.Remove(object value) {
+    /// <summary>Adds an item to the set</summary>
+    /// <param name="item">Item that will be added to the set</param>
+    void ICollection<TItem>.Add(TItem item) {
       throw new NotSupportedException(
-        "Removing items is not supported by the read-only List"
+        "Adding is not supported by the read-only set"
       );
     }
 
-    /// <summary>Removes an item from the list</summary>
-    /// <param name="index">Zero-based index of the item that will be removed</param>
-    void IList.RemoveAt(int index) {
-      throw new NotSupportedException(
-        "Removing items is not supported by the read-only List"
-      );
-    }
-
-    /// <summary>Accesses the List item with the specified index</summary>
-    /// <param name="index">Zero-based index of the List item that will be accessed</param>
-    object IList.this[int index] {
-      get { return this.objectList[index]; }
-      set {
-        throw new NotSupportedException(
-          "Assigning items is not supported by the read-only List"
-        );
-      }
-    }
-
-    #endregion
-
-  #region ICollection implementation
-
-    /// <summary>Copies the contents of the List into an array</summary>
-    /// <param name="array">Array the List will be copied into</param>
-    /// <param name="index">
-    ///   Starting index at which to begin filling the destination array
-    /// </param>
-    void ICollection.CopyTo(Array array, int index) {
-      this.objectList.CopyTo(array, index);
-    }
-
-    /// <summary>Whether the List is synchronized for multi-threaded usage</summary>
-    bool ICollection.IsSynchronized {
-      get { return this.objectList.IsSynchronized; }
-    }
-
-    /// <summary>Synchronization root on which the List locks</summary>
-    object ICollection.SyncRoot {
-      get { return this.objectList.SyncRoot; }
-    }
-
-    #endregion
-
-    /// <summary>The wrapped List under its type-safe interface</summary>
-    private ISet<TItem> typedList;
+    /// <summary>The set being wrapped</summary>
+    private ISet<TItem> set;
 
   }
-#endif
 
 } // namespace Nuclex.Support.Collections

@@ -34,9 +34,9 @@ namespace Nuclex.Support.Collections {
     ICollection<TItem>,
     ICollection,
 #if !NO_SPECIALIZED_COLLECTIONS
- INotifyCollectionChanged,
+    INotifyCollectionChanged,
 #endif
- IObservableCollection<TItem> {
+    IObservableCollection<TItem> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemAdded;

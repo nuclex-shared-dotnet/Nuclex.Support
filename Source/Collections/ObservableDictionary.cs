@@ -36,15 +36,15 @@ namespace Nuclex.Support.Collections {
 #endif
   public class ObservableDictionary<TKey, TValue> :
 #if !NO_SERIALIZATION
- ISerializable,
+    ISerializable,
     IDeserializationCallback,
 #endif
- IDictionary<TKey, TValue>,
+    IDictionary<TKey, TValue>,
     IDictionary,
 #if !NO_SPECIALIZED_COLLECTIONS
- INotifyCollectionChanged,
+    INotifyCollectionChanged,
 #endif
- IObservableCollection<KeyValuePair<TKey, TValue>> {
+    IObservableCollection<KeyValuePair<TKey, TValue>> {
 
 #if !NO_SERIALIZATION
     #region class SerializedDictionary
@@ -300,15 +300,16 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Fires the 'Clearing' event</summary>
     protected virtual void OnClearing() {
-      if(Clearing != null)
+      if(Clearing != null) {
         Clearing(this, EventArgs.Empty);
+      }
     }
 
     /// <summary>Fires the 'Cleared' event</summary>
     protected virtual void OnCleared() {
-      if(Cleared != null)
+      if(Cleared != null) {
         Cleared(this, EventArgs.Empty);
-
+      }
 #if !NO_SPECIALIZED_COLLECTIONS
       if(CollectionChanged != null) {
         CollectionChanged(this, Constants.NotifyCollectionResetEventArgs);
