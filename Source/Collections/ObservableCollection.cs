@@ -34,14 +34,19 @@ namespace Nuclex.Support.Collections {
     ICollection<TItem>,
     ICollection,
 #if !NO_SPECIALIZED_COLLECTIONS
-    INotifyCollectionChanged,
+ INotifyCollectionChanged,
 #endif
-    IObservableCollection<TItem> {
+ IObservableCollection<TItem> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemRemoved;
+    /// <summary>Raised when an item is replaced in the collection</summary>
+    public event EventHandler<ItemReplaceEventArgs<TItem>> ItemReplaced {
+      add { }
+      remove { }
+    }
     /// <summary>Raised when the collection is about to be cleared</summary>
     /// <remarks>
     ///   This could be covered by calling ItemRemoved for each item currently
@@ -58,7 +63,7 @@ namespace Nuclex.Support.Collections {
 #endif
 
     /// <summary>Initializes a new ObservableCollection with no items</summary>
-    public ObservableCollection() : this(new Collection<TItem>()) {}
+    public ObservableCollection() : this(new Collection<TItem>()) { }
 
     /// <summary>
     ///   Initializes a new ObservableCollection as a wrapper for an existing collection
@@ -75,11 +80,6 @@ namespace Nuclex.Support.Collections {
       OnClearing();
       this.typedCollection.Clear();
       OnCleared();
-#if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null) {
-        CollectionChanged(this, CollectionResetEventArgs);
-      }
-#endif
     }
 
     /// <summary>Adds an item to the collection</summary>
@@ -87,14 +87,6 @@ namespace Nuclex.Support.Collections {
     public void Add(TItem item) {
       this.typedCollection.Add(item);
       OnAdded(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null) {
-        CollectionChanged(
-          this,
-          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item)
-        );
-      }
-#endif
     }
 
     /// <summary>Determines whether the collection contains the specified item</summary>
@@ -132,14 +124,6 @@ namespace Nuclex.Support.Collections {
       bool wasRemoved = this.typedCollection.Remove(item);
       if(wasRemoved) {
         OnRemoved(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-        if(CollectionChanged != null) {
-          CollectionChanged(
-            this,
-            new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item)
-          );
-        }
-#endif
       }
 
       return wasRemoved;
@@ -154,27 +138,52 @@ namespace Nuclex.Support.Collections {
     /// <summary>Fires the 'ItemAdded' event</summary>
     /// <param name="item">Item that has been added to the collection</param>
     protected virtual void OnAdded(TItem item) {
-      if(ItemAdded != null)
+      if(ItemAdded != null) {
         ItemAdded(this, new ItemEventArgs<TItem>(item));
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item)
+        );
+      }
+#endif
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
     protected virtual void OnRemoved(TItem item) {
-      if(ItemRemoved != null)
+      if(ItemRemoved != null) {
         ItemRemoved(this, new ItemEventArgs<TItem>(item));
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item)
+        );
+      }
+#endif
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
     protected virtual void OnClearing() {
-      if(Clearing != null)
+      if(Clearing != null) {
         Clearing(this, EventArgs.Empty);
+      }
     }
 
     /// <summary>Fires the 'Cleared' event</summary>
     protected virtual void OnCleared() {
-      if(Cleared != null)
+      if(Cleared != null) {
         Cleared(this, EventArgs.Empty);
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(this, Constants.NotifyCollectionResetEventArgs);
+      }
+#endif
     }
 
     #region IEnumerable implementation
@@ -211,12 +220,6 @@ namespace Nuclex.Support.Collections {
     }
 
     #endregion // IEnumerable implementation
-
-#if !NO_SPECIALIZED_COLLECTIONS
-    /// <summary>Fixed event args used to notify that the collection has reset</summary>
-    private static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs =
-      new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-#endif
 
     /// <summary>The wrapped collection under its type-safe interface</summary>
     private ICollection<TItem> typedCollection;

@@ -36,15 +36,15 @@ namespace Nuclex.Support.Collections {
 #endif
   public class ObservableDictionary<TKey, TValue> :
 #if !NO_SERIALIZATION
-    ISerializable,
+ ISerializable,
     IDeserializationCallback,
 #endif
-    IDictionary<TKey, TValue>,
+ IDictionary<TKey, TValue>,
     IDictionary,
 #if !NO_SPECIALIZED_COLLECTIONS
-    INotifyCollectionChanged,
+ INotifyCollectionChanged,
 #endif
-    IObservableCollection<KeyValuePair<TKey, TValue>> {
+ IObservableCollection<KeyValuePair<TKey, TValue>> {
 
 #if !NO_SERIALIZATION
     #region class SerializedDictionary
@@ -81,6 +81,8 @@ namespace Nuclex.Support.Collections {
     public event EventHandler<ItemEventArgs<KeyValuePair<TKey, TValue>>> ItemAdded;
     /// <summary>Raised when an item is removed from the dictionary</summary>
     public event EventHandler<ItemEventArgs<KeyValuePair<TKey, TValue>>> ItemRemoved;
+    /// <summary>Raised when an item is replaced in the collection</summary>
+    public event EventHandler<ItemReplaceEventArgs<KeyValuePair<TKey, TValue>>> ItemReplaced;
     /// <summary>Raised when the dictionary is about to be cleared</summary>
     public event EventHandler Clearing;
     /// <summary>Raised when the dictionary has been cleared</summary>
@@ -202,9 +204,13 @@ namespace Nuclex.Support.Collections {
         this.typedDictionary[key] = value;
 
         if(removed) {
-          OnRemoved(new KeyValuePair<TKey, TValue>(key, oldValue));
+          OnReplaced(
+            new KeyValuePair<TKey, TValue>(key, oldValue),
+            new KeyValuePair<TKey, TValue>(key, value)
+          );
+        } else {
+          OnAdded(new KeyValuePair<TKey, TValue>(key, value));
         }
-        OnAdded(new KeyValuePair<TKey, TValue>(key, value));
       }
     }
 
@@ -244,28 +250,51 @@ namespace Nuclex.Support.Collections {
         ItemAdded(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
 
 #if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null)
+      if(CollectionChanged != null) {
         CollectionChanged(
-          this, new NotifyCollectionChangedEventArgs(
-            NotifyCollectionChangedAction.Add, item
-          )
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item)
         );
+      }
 #endif
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
     protected virtual void OnRemoved(KeyValuePair<TKey, TValue> item) {
-      if(ItemRemoved != null)
+      if(ItemRemoved != null) {
         ItemRemoved(this, new ItemEventArgs<KeyValuePair<TKey, TValue>>(item));
-
+      }
 #if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null)
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item)
+        );
+      }
+#endif
+    }
+
+    /// <summary>Fires the 'ItemReplaced' event</summary>
+    /// <param name="oldItem">Item that has been replaced in the collection</param>
+    /// <param name="newItem">Item with which the original item was replaced</param>
+    protected virtual void OnReplaced(
+      KeyValuePair<TKey, TValue> oldItem, KeyValuePair<TKey, TValue> newItem
+    ) {
+      if(ItemReplaced != null) {
+        ItemReplaced(
+          this,
+          new ItemReplaceEventArgs<KeyValuePair<TKey, TValue>>(oldItem, newItem)
+        );
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
         CollectionChanged(
           this, new NotifyCollectionChangedEventArgs(
-            NotifyCollectionChangedAction.Remove, item
+            NotifyCollectionChangedAction.Replace, newItem, oldItem
           )
         );
+      }
 #endif
     }
 
@@ -281,8 +310,9 @@ namespace Nuclex.Support.Collections {
         Cleared(this, EventArgs.Empty);
 
 #if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null)
-        CollectionChanged(this, CollectionResetEventArgs);
+      if(CollectionChanged != null) {
+        CollectionChanged(this, Constants.NotifyCollectionResetEventArgs);
+      }
 #endif
     }
 
@@ -448,12 +478,6 @@ namespace Nuclex.Support.Collections {
     private IDictionary<TKey, TValue> typedDictionary;
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
-
-#if !NO_SPECIALIZED_COLLECTIONS
-    /// <summary>Fixed event args used to notify that the collection has reset</summary>
-    private static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs =
-      new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-#endif
 
   }
 

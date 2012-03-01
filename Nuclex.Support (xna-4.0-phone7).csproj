@@ -116,6 +116,10 @@
     <Compile Include="Source\Cloning\SerializationCloner.Test.cs">
       <DependentUpon>SerializationCloner.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\Constants.cs" />
+    <Compile Include="Source\Collections\Constants.Test.cs">
+      <DependentUpon>Constants.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\Deque.cs" />
     <Compile Include="Source\Collections\Deque.Insertion.cs">
       <DependentUpon>Deque.cs</DependentUpon>

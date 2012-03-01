@@ -34,10 +34,8 @@ namespace Nuclex.Support.Collections {
     /// <summary>Raised when an item is removed from the collection</summary>
     event EventHandler<ItemEventArgs<TItem>> ItemRemoved;
 
-#if false
     /// <summary>Raised when an item is replaced in the collection</summary>
-    event EventHandler<ItemReplaceEventArgs<ItemType>> ItemReplaced;
-#endif
+    event EventHandler<ItemReplaceEventArgs<TItem>> ItemReplaced;
 
     /// <summary>Raised when the collection is about to be cleared</summary>
     /// <remarks>

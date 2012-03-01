@@ -30,16 +30,21 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>List which fires events when items are added or removed</summary>
   /// <typeparam name="TItem">Type of items the collection manages</typeparam>
-  public class ObservableList<TItem> : IList<TItem>, IList, ICollection,
+  public class ObservableList<TItem> :
+    IList<TItem>,
+    IList,
+    ICollection,
 #if !NO_SPECIALIZED_COLLECTIONS
-    INotifyCollectionChanged,
+ INotifyCollectionChanged,
 #endif
-    IObservableCollection<TItem> {
+ IObservableCollection<TItem> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemAdded;
     /// <summary>Raised when an item is removed from the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemRemoved;
+    /// <summary>Raised when an item is replaced in the collection</summary>
+    public event EventHandler<ItemReplaceEventArgs<TItem>> ItemReplaced;
     /// <summary>Raised when the collection is about to be cleared</summary>
     /// <remarks>
     ///   This could be covered by calling ItemRemoved for each item currently
@@ -83,10 +88,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">Item that will be inserted into the list</param>
     public void Insert(int index, TItem item) {
       this.typedList.Insert(index, item);
-      OnAdded(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
-#endif
+      OnAdded(item, index);
     }
 
     /// <summary>Removes the item at the specified index from the list</summary>
@@ -94,10 +96,7 @@ namespace Nuclex.Support.Collections {
     public void RemoveAt(int index) {
       TItem item = this.typedList[index];
       this.typedList.RemoveAt(index);
-      OnRemoved(item);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
-#endif
+      OnRemoved(item, index);
     }
 
     /// <summary>Accesses the item at the specified index in the list</summary>
@@ -108,18 +107,7 @@ namespace Nuclex.Support.Collections {
       set {
         TItem oldItem = this.typedList[index];
         this.typedList[index] = value;
-        OnRemoved(oldItem);
-        OnAdded(value);
-#if !NO_SPECIALIZED_COLLECTIONS
-        if(CollectionChanged != null) {
-          CollectionChanged(
-            this, new NotifyCollectionChangedEventArgs(
-              NotifyCollectionChangedAction.Replace, value, oldItem, index
-            )
-          );
-        }
-#endif
-
+        OnReplaced(oldItem, value, index);
       }
     }
 
@@ -127,7 +115,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="item">Item that will be added to the list</param>
     public void Add(TItem item) {
       this.typedList.Add(item);
-      OnAdded(item);
+      OnAdded(item, this.typedList.Count - 1);
     }
 
     /// <summary>Removes all items from the list</summary>
@@ -135,11 +123,6 @@ namespace Nuclex.Support.Collections {
       OnClearing();
       this.typedList.Clear();
       OnCleared();
-#if !NO_SPECIALIZED_COLLECTIONS
-      if(CollectionChanged != null) {
-        CollectionChanged(this, CollectionResetEventArgs);
-      }
-#endif
     }
 
     /// <summary>Checks whether the list contains the specified item</summary>
@@ -181,10 +164,8 @@ namespace Nuclex.Support.Collections {
 
       TItem removedItem = this.typedList[index];
       this.typedList.RemoveAt(index);
-      OnRemoved(removedItem);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
-#endif
+      OnRemoved(removedItem, index);
+
       return true;
     }
 
@@ -237,10 +218,7 @@ namespace Nuclex.Support.Collections {
     int IList.Add(object value) {
       int index = this.objectList.Add(value);
       TItem addedItem = this.typedList[index];
-      OnAdded(addedItem);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Add, addedItem, index);
-#endif
+      OnAdded(addedItem, index);
       return index;
     }
 
@@ -264,10 +242,7 @@ namespace Nuclex.Support.Collections {
     void IList.Insert(int index, object item) {
       this.objectList.Insert(index, item);
       TItem addedItem = this.typedList[index];
-      OnAdded(addedItem);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Add, addedItem, index);
-#endif
+      OnAdded(addedItem, index);
     }
 
     /// <summary>Whether the list is of a fixed size</summary>
@@ -285,10 +260,7 @@ namespace Nuclex.Support.Collections {
 
       TItem removedItem = this.typedList[index];
       this.objectList.RemoveAt(index);
-      OnRemoved(removedItem);
-#if !NO_SPECIALIZED_COLLECTIONS
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem, index);
-#endif
+      OnRemoved(removedItem, index);
     }
 
     /// <summary>Accesses the item at the specified index in the list</summary>
@@ -300,69 +272,84 @@ namespace Nuclex.Support.Collections {
         TItem oldItem = this.typedList[index];
         this.objectList[index] = value;
         TItem newItem = this.typedList[index];
-        OnRemoved(oldItem);
-        OnAdded(newItem);
-#if !NO_SPECIALIZED_COLLECTIONS
-        if(CollectionChanged != null) {
-          CollectionChanged(
-            this, new NotifyCollectionChangedEventArgs(
-              NotifyCollectionChangedAction.Replace, newItem, oldItem, index
-            )
-          );
-        }
-#endif
+        OnReplaced(oldItem, newItem, index);
       }
     }
 
     #endregion // IList implementation
 
-#if !NO_SPECIALIZED_COLLECTIONS
-    /// <summary>Fires the CollectionChanged event</summary>
-    /// <param name="action">Type of change that has occured</param>
-    /// <param name="item">The item that has been added, removed or replaced</param>
-    /// <param name="index">Index of the changed item</param>
-    protected virtual void OnCollectionChanged(
-      NotifyCollectionChangedAction action, TItem item, int index
-    ) {
-      if(CollectionChanged != null) {
-        CollectionChanged(
-          this, new NotifyCollectionChangedEventArgs(action, item, index)
-        );
-      }
-    }
-#endif
-
     /// <summary>Fires the 'ItemAdded' event</summary>
     /// <param name="item">Item that has been added to the collection</param>
-    protected virtual void OnAdded(TItem item) {
-      if(ItemAdded != null)
+    /// <param name="index">Index of the added item</param>
+    protected virtual void OnAdded(TItem item, int index) {
+      if(ItemAdded != null) {
         ItemAdded(this, new ItemEventArgs<TItem>(item));
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index)
+        );
+      }
+#endif
     }
 
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
-    protected virtual void OnRemoved(TItem item) {
-      if(ItemRemoved != null)
+    /// <param name="index">Index the item has been removed from</param>
+    protected virtual void OnRemoved(TItem item, int index) {
+      if(ItemRemoved != null) {
         ItemRemoved(this, new ItemEventArgs<TItem>(item));
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index)
+        );
+      }
+#endif
+    }
+
+    /// <summary>Fires the 'ItemReplaced' event</summary>
+    /// <param name="oldItem">Item that has been replaced</param>
+    /// <param name="newItem">New item the original item was replaced with</param>
+    /// <param name="index">Index of the replaced item</param>
+    protected virtual void OnReplaced(TItem oldItem, TItem newItem, int index) {
+      if(ItemReplaced != null) {
+        ItemReplaced(this, new ItemReplaceEventArgs<TItem>(oldItem, newItem));
+      }
+#if !NO_SPECIALIZED_COLLECTIONS
+      if(CollectionChanged != null) {
+        CollectionChanged(
+          this,
+          new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Replace, newItem, oldItem, index
+          )
+        );
+      }
+#endif
     }
 
     /// <summary>Fires the 'Clearing' event</summary>
     protected virtual void OnClearing() {
-      if(Clearing != null)
+      if(Clearing != null) {
         Clearing(this, EventArgs.Empty);
+      }
     }
 
     /// <summary>Fires the 'Cleared' event</summary>
     protected virtual void OnCleared() {
-      if(Cleared != null)
+      if(Cleared != null) {
         Cleared(this, EventArgs.Empty);
-    }
-
+      }
 #if !NO_SPECIALIZED_COLLECTIONS
-    /// <summary>Fixed event args used to notify that the collection has reset</summary>
-    private static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs =
-      new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+      if(CollectionChanged != null) {
+        CollectionChanged(this, Constants.NotifyCollectionResetEventArgs);
+      }
 #endif
+    }
 
     /// <summary>The wrapped list under its type-safe interface</summary>
     private IList<TItem> typedList;
