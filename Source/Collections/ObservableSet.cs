@@ -27,6 +27,8 @@ using System.Collections;
 using System.Collections.Specialized;
 #endif
 
+#if !(WINDOWS_PHONE || XBOX360)
+
 namespace Nuclex.Support.Collections {
 
   /// <summary>Set which fires events when items are removed or added to it</summary>
@@ -309,3 +311,5 @@ namespace Nuclex.Support.Collections {
   }
 
 } // namespace Nuclex.Support.Collections
+
+#endif // !(WINDOWS_PHONE || XBOX360)
