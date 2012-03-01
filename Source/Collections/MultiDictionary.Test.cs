@@ -139,6 +139,21 @@ namespace Nuclex.Support.Collections {
       );
     }
 
+    /// <summary>
+    ///   Verifies that the Count property returns the number of unique keys if it is called
+    ///   on the collection-of-collections interface implemented by the multi dictionary
+    /// </summary>
+    [Test]
+    public void CollectionOfCollectionCountIsUniqueKeyCount() {
+      var dictionary = new MultiDictionary<int, string>();
+      dictionary.Add(10, "ten");
+      dictionary.Add(10, "zehn");
+
+      Assert.AreEqual(2, dictionary.Count);
+      var collectionOfCollections = (ICollection<KeyValuePair<int, ICollection<string>>>)dictionary;
+      Assert.AreEqual(1, collectionOfCollections.Count);
+    }
+
   }
 
 } // namespace Nuclex.Support.Collections

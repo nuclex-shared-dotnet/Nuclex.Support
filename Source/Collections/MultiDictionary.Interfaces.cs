@@ -241,6 +241,13 @@ namespace Nuclex.Support.Collections {
       return this.typedDictionary.GetEnumerator();
     }
 
+    /// <summary>Removes the specified key/value pair from the dictionary</summary>
+    /// <param name="item">Key/value pair that will be removed</param>
+    /// <returns>True if the key/value pair was contained in the dictionary</returns>
+    int ICollection<KeyValuePair<TKey, ICollection<TValue>>>.Count {
+      get { return this.typedDictionary.Count; }
+    }
+
     #endregion // ICollection<KeyValuePair<TKey, ICollection<TValue>>> implementation
 
   }
