@@ -119,8 +119,6 @@ namespace Nuclex.Support.Collections {
         if(values.Count == 0) {
           this.typedDictionary.Remove(itemToRemove.Key);
         }
-
-        OnRemoved(itemToRemove);
         return true;
       } else {
         return false;
