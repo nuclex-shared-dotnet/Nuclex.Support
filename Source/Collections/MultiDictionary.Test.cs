@@ -42,6 +42,20 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
+    ///   Verifies that the count is initialized correctly when building
+    ///   a multi dictionary from a dictionary of value collections.
+    /// </summary>
+    [Test]
+    public void CountIsCalculatedIfInitializedFromDictionary() {
+      var contents = new Dictionary<int, ICollection<string>>();
+      contents.Add(1, new List<string>(new string[] { "one", "eins" }));
+      contents.Add(2, new List<string>(new string[] { "two", "zwei" }));
+
+      var multiDictionary = new MultiDictionary<int, string>(contents);
+      Assert.AreEqual(4, multiDictionary.Count);
+    }
+
+    /// <summary>
     ///   Verifies that a new multi dictionary based on a read-only dictionary is
     ///   also read-only
     /// </summary>
@@ -117,6 +131,15 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
+    ///   Verifies that counting the values of a non-existing key returns 0
+    /// </summary>
+    [Test]
+    public void CountingValuesOfNonExistentKeyReturnsNull() {
+      var dictionary = new MultiDictionary<int, string>();
+      Assert.AreEqual(0, dictionary.CountValues(1));
+    }
+
+    /// <summary>
     ///   Ensures that its possible to remove values individually without affecting
     ///   other values stored under the same key
     /// </summary>
@@ -150,8 +173,37 @@ namespace Nuclex.Support.Collections {
       dictionary.Add(10, "zehn");
 
       Assert.AreEqual(2, dictionary.Count);
-      var collectionOfCollections = (ICollection<KeyValuePair<int, ICollection<string>>>)dictionary;
+      var collectionOfCollections =
+        (ICollection<KeyValuePair<int, ICollection<string>>>)dictionary;
       Assert.AreEqual(1, collectionOfCollections.Count);
+    }
+
+    /// <summary>
+    ///   Verifies that the multi dictionary can be tested for containment of a specific value
+    /// </summary>
+    [Test]
+    public void ContainmentCanBeTested() {
+      var dictionary = new MultiDictionary<int, string>();
+      dictionary.Add(10, "ten");
+      dictionary.Add(10, "zehn");
+
+      Assert.IsTrue(dictionary.Contains(new KeyValuePair<int, string>(10, "ten")));
+      Assert.IsTrue(dictionary.Contains(new KeyValuePair<int, string>(10, "zehn")));
+      Assert.IsFalse(dictionary.Contains(new KeyValuePair<int, string>(10, "dix")));
+      Assert.IsFalse(dictionary.Contains(new KeyValuePair<int, string>(20, "ten")));
+    }
+
+    /// <summary>
+    ///   Verifies that the multi dictionary can be tested for containment of a specific key
+    /// </summary>
+    [Test]
+    public void KeyContainmentCanBeTested() {
+      var dictionary = new MultiDictionary<int, string>();
+      dictionary.Add(10, "ten");
+      dictionary.Add(10, "zehn");
+
+      Assert.IsTrue(dictionary.ContainsKey(10));
+      Assert.IsFalse(dictionary.ContainsKey(20));
     }
 
   }

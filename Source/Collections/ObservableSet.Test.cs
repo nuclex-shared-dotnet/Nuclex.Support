@@ -31,12 +31,40 @@ using NMock;
 
 namespace Nuclex.Support.Collections {
 
-#if false
   /// <summary>Unit Test for the observable set wrapper</summary>
   [TestFixture]
   internal class ObservableSetTest {
+
+    #region interface IObservableCollectionSubscriber<TItem>
+
+    public interface IObservableCollectionSubscriber<TItem> {
+
+      /// <summary>Raised when an item has been added to the collection</summary>
+      event EventHandler<ItemEventArgs<TItem>> ItemAdded;
+      /// <summary>Raised when an item is removed from the collection</summary>
+      event EventHandler<ItemEventArgs<TItem>> ItemRemoved;
+      /// <summary>Raised when an item is replaced in the collection</summary>
+      event EventHandler<ItemReplaceEventArgs<TItem>> ItemReplaced;
+      /// <summary>Raised when the collection is about to be cleared</summary>
+      event EventHandler Clearing;
+      /// <summary>Raised when the collection has been cleared</summary>
+      event EventHandler Cleared;
+
+    }
+
+    #endregion // interface IObservableCollectionSubscriber<TItem>
+
+    
+
+    /// <summary>
+    ///   Verifies that the observable set has a default constructor
+    /// </summary>
+    [Test]
+    public void HasDefaultConstructor() {
+      Assert.IsNotNull(new ObservableSet<int>());
+    }
+
   }
-#endif
 
 } // namespace Nuclex.Support.Collections
 

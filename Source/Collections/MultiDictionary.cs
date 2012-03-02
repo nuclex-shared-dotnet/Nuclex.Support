@@ -333,15 +333,39 @@ namespace Nuclex.Support.Collections {
 
         ICollection<TValue> currentValues;
         if(this.typedDictionary.TryGetValue(key, out currentValues)) {
-          currentValues.Clear();
+          ValueList currentValueList = (ValueList)currentValues;
+
+          int index = 0;
+          foreach(TValue addedValue in value) {
+            if(index < currentValueList.Count) {
+              TValue original = currentValueList[index];
+              currentValueList[index] = addedValue;
+              OnReplaced(
+                new KeyValuePair<TKey, TValue>(key, original),
+                new KeyValuePair<TKey, TValue>(key, addedValue)
+              );
+            } else {
+              currentValueList.Add(addedValue);
+              OnAdded(new KeyValuePair<TKey, TValue>(key, addedValue));
+            }
+            ++index;
+          }
+
+          int count = currentValueList.Count;
+          while(count > index) {
+            --count;
+            TValue removedValue = currentValueList[count];
+            currentValueList.RemoveAt(count);
+            OnRemoved(new KeyValuePair<TKey, TValue>(key, removedValue));
+          }
         } else {
           currentValues = new ValueList(this);
           this.typedDictionary.Add(key, currentValues);
-        }
 
-        foreach(TValue addedValue in value) {
-          currentValues.Add(addedValue);
-          OnAdded(new KeyValuePair<TKey, TValue>(key, addedValue));
+          foreach(TValue addedValue in value) {
+            currentValues.Add(addedValue);
+            OnAdded(new KeyValuePair<TKey, TValue>(key, addedValue));
+          }
         }
       }
     }
@@ -419,6 +443,13 @@ namespace Nuclex.Support.Collections {
     /// <summary>Fires the 'ItemRemoved' event</summary>
     /// <param name="item">Item that has been removed from the collection</param>
     protected virtual void OnRemoved(KeyValuePair<TKey, TValue> item) { }
+
+    /// <summary>Fires the 'ItemReplaced' event</summary>
+    /// <param name="oldItem">Item that was replaced in the collection</param>
+    /// <param name="newItem">Item that the original was replaced by</param>
+    protected virtual void OnReplaced(
+      KeyValuePair<TKey, TValue> oldItem, KeyValuePair<TKey, TValue> newItem
+    ) { }
 
     /// <summary>Fires the 'Clearing' event</summary>
     protected virtual void OnClearing() { }

@@ -82,7 +82,11 @@ namespace Nuclex.Support.Collections {
     ///   True if the element was added, false if it was already contained in the set
     /// </returns>
     public bool Add(TItem item) {
-      return this.set.Add(item);
+      bool wasAdded = this.set.Add(item);
+      if(wasAdded) {
+        OnAdded(item);
+      }
+      return wasAdded;
     }
 
     /// <summary>Removes all elements that are contained in the collection</summary>
