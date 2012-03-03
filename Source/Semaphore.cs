@@ -56,10 +56,12 @@ namespace Nuclex.Support {
   ///     become eligible for execution.
   ///   </para>
   /// </remarks>
-#if !(XBOX360 || WINDOWS_PHONE)
+#if WINDOWS
   [Obsolete("Prefer the normal semaphore on Windows builds.")]
-#endif
+  internal class Semaphore : WaitHandle {
+#else
   public class Semaphore : WaitHandle {
+#endif
 
     /// <summary>Initializes a new semaphore</summary>
     public Semaphore() {

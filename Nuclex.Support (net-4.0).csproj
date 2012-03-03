@@ -197,6 +197,7 @@
     <Compile Include="Source\Collections\WeakCollection.Test.cs">
       <DependentUpon>WeakCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\GarbagePolicy.cs" />
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">
       <DependentUpon>PartialStream.cs</DependentUpon>
@@ -335,6 +336,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documents\CommandLine.txt" />
+    <Content Include="Documents\DoubleConverter.txt" />
     <Content Include="Documents\Nuclex.Support.txt" />
     <Content Include="Documents\Request Framework.txt" />
   </ItemGroup>

@@ -29,22 +29,22 @@ namespace Nuclex.Support {
   public static class EnumHelper {
 
     /// <summary>Returns the highest value encountered in an enumeration</summary>
-    /// <typeparam name="EnumType">
+    /// <typeparam name="TEnum">
     ///   Enumeration of which the highest value will be returned
     /// </typeparam>
     /// <returns>The highest value in the enumeration</returns>
-    public static EnumType GetHighestValue<EnumType>() where EnumType : IComparable {
-      EnumType[] values = GetValues<EnumType>();
+    public static TEnum GetHighestValue<TEnum>() where TEnum : IComparable {
+      TEnum[] values = GetValues<TEnum>();
 
       // If the enumeration is empty, return nothing
       if(values.Length == 0) {
-        return default(EnumType);
+        return default(TEnum);
       }
 
       // Look for the highest value in the enumeration. We initialize the highest value
       // to the first enumeration value so we don't have to use some arbitrary starting
       // value which might actually appear in the enumeration.
-      EnumType highestValue = values[0];
+      TEnum highestValue = values[0];
       for(int index = 1; index < values.Length; ++index) {
         if(values[index].CompareTo(highestValue) > 0) {
           highestValue = values[index];
@@ -81,7 +81,7 @@ namespace Nuclex.Support {
     }
 
     /// <summary>Retrieves a list of all values contained in an enumeration</summary>
-    /// <typeparam name="EnumType">
+    /// <typeparam name="TEnum">
     ///   Type of the enumeration whose values will be returned
     /// </typeparam>
     /// <returns>All values contained in the specified enumeration</returns>
@@ -89,21 +89,21 @@ namespace Nuclex.Support {
     ///   This method produces collectable garbage so it's best to only call it once
     ///   and cache the result.
     /// </remarks>
-    public static EnumType[] GetValues<EnumType>() {
+    public static TEnum[] GetValues<TEnum>() {
 #if XBOX360 || WINDOWS_PHONE
-      return GetValuesXbox360<EnumType>();
+      return GetValuesXbox360<TEnum>();
 #else
-      return (EnumType[])Enum.GetValues(typeof(EnumType));
+      return (TEnum[])Enum.GetValues(typeof(TEnum));
 #endif
     }
 
     /// <summary>Retrieves a list of all values contained in an enumeration</summary>
-    /// <typeparam name="EnumType">
+    /// <typeparam name="TEnum">
     ///   Type of the enumeration whose values will be returned
     /// </typeparam>
     /// <returns>All values contained in the specified enumeration</returns>
-    internal static EnumType[] GetValuesXbox360<EnumType>() {
-      Type enumType = typeof(EnumType);
+    internal static TEnum[] GetValuesXbox360<TEnum>() {
+      Type enumType = typeof(TEnum);
       if(!enumType.IsEnum) {
         throw new ArgumentException(
           "The provided type needs to be an enumeration", "EnumType"
@@ -117,9 +117,9 @@ namespace Nuclex.Support {
 
       // Create an array to hold the enumeration values and copy them over from
       // the fields we just retrieved
-      EnumType[] values = new EnumType[fieldInfos.Length];
+      TEnum[] values = new TEnum[fieldInfos.Length];
       for(int index = 0; index < fieldInfos.Length; ++index) {
-        values[index] = (EnumType)fieldInfos[index].GetValue(null);
+        values[index] = (TEnum)fieldInfos[index].GetValue(null);
       }
 
       return values;

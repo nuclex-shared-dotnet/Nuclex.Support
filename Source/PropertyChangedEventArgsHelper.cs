@@ -175,9 +175,6 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Determines whether the property change affects the specified property
     /// </summary>
-    /// <typeparam name="TValue">
-    ///   Type of the property that will be tested for being affected
-    /// </typeparam>
     /// <param name="arguments">
     ///   Property change that has been reported by the observed object
     /// </param>

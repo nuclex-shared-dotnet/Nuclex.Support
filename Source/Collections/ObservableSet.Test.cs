@@ -194,6 +194,35 @@ namespace Nuclex.Support.Collections {
       Assert.IsFalse(set2.IsSubsetOf(set1));
     }
 
+    /// <summary>
+    ///   Verifies that a set can determine if another set overlaps with it
+    /// </summary>
+    [Test]
+    public void CanDetermineOverlap() {
+      var set1 = new ObservableSet<int>() { 1, 3, 5 };
+      var set2 = new ObservableSet<int>() { 3 };
+
+      Assert.IsTrue(set1.Overlaps(set2));
+      Assert.IsTrue(set2.Overlaps(set1));
+    }
+
+    /// <summary>
+    ///   Verifies that a set can determine if another set contains the same elements
+    /// </summary>
+    [Test]
+    public void CanDetermineSetEquality() {
+      var set1 = new ObservableSet<int>() { 1, 3, 5 };
+      var set2 = new ObservableSet<int>() { 3, 1, 5 };
+
+      Assert.IsTrue(set1.SetEquals(set2));
+      Assert.IsTrue(set2.SetEquals(set1));
+
+      set1.Add(7);
+
+      Assert.IsFalse(set1.SetEquals(set2));
+      Assert.IsFalse(set2.SetEquals(set1));
+    }
+
     /// <summary>Creates mock object for the test</summary>
     private MockFactory mockFactory;
     /// <summary>Observable set being tested</summary>

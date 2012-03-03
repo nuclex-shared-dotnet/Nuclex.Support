@@ -19,27 +19,15 @@ License along with this library
 #endregion
 
 using System;
-using System.Diagnostics;
 
 namespace Nuclex.Support {
 
-  /// <summary>Manages a globally shared instance of the given Type</summary>
-  /// <typeparam name="TShared">
-  ///   Type of which a globally shared instance will be provided
-  /// </typeparam>
-  public static class Shared<TShared> where TShared : new() {
-
-    /// <summary>Returns the global instance of the class</summary>
-    public static TShared Instance {
-      [DebuggerStepThrough]
-      get {
-        return instance;
-      }
-    }
-
-    /// <summary>Stored the globally shared instance</summary>
-    private static readonly TShared instance = new TShared();
-
+  /// <summary>How to behave in in respect to the garbage collector</summary>
+  public enum GarbagePolicy {
+    /// <summary>Avoid feeding the garbage collector whenever possible</summary>
+    Avoid,
+    /// <summary>Accept garbage production</summary>
+    Accept
   }
 
 } // namespace Nuclex.Support

@@ -25,12 +25,6 @@ using System.Text;
 
 namespace Nuclex.Support {
 
-  /*
-    public enum Garbage {
-      Avoid,
-      Accept
-    }
-  */
   /// <summary>Contains helper methods for the string builder class</summary>
   public static class StringBuilderHelper {
 
@@ -50,13 +44,20 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder to which an integer will be appended</param>
     /// <param name="value">Byte that will be appended to the string builder</param>
+    /// <param name="garbagePolicy">How to behave regarding the garbage collector</param>
     /// <remarks>
     ///   The normal StringBuilder.Append() method generates garbage when converting
     ///   integer arguments whereas this method will avoid any garbage, albeit probably
     ///   with a small performance impact compared to the built-in method.
     /// </remarks>
-    public static void Append(StringBuilder builder, byte value) {
-      recursiveAppend(builder, value);
+    public static void Append(
+      this StringBuilder builder, byte value, GarbagePolicy garbagePolicy
+    ) {
+      if(garbagePolicy == GarbagePolicy.Avoid) {
+        recursiveAppend(builder, value);
+      } else {
+        builder.Append((int)value);
+      }
     }
 
     /// <summary>
@@ -64,17 +65,24 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder to which an integer will be appended</param>
     /// <param name="value">Integer that will be appended to the string builder</param>
+    /// <param name="garbagePolicy">How to behave regarding the garbage collector</param>
     /// <remarks>
     ///   The normal StringBuilder.Append() method generates garbage when converting
     ///   integer arguments whereas this method will avoid any garbage, albeit probably
     ///   with a small performance impact compared to the built-in method.
     /// </remarks>
-    public static void Append(StringBuilder builder, int value) {
-      if (value < 0) {
-        builder.Append('-');
-        recursiveAppend(builder, -value);
+    public static void Append(
+      this StringBuilder builder, int value, GarbagePolicy garbagePolicy
+    ) {
+      if(garbagePolicy == GarbagePolicy.Avoid) {
+        if(value < 0) {
+          builder.Append('-');
+          recursiveAppend(builder, -value);
+        } else {
+          recursiveAppend(builder, value);
+        }
       } else {
-        recursiveAppend(builder, value);
+        builder.Append(value);
       }
     }
 
@@ -83,17 +91,24 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder to which an integer will be appended</param>
     /// <param name="value">Long integer that will be appended to the string builder</param>
+    /// <param name="garbagePolicy">How to behave regarding the garbage collector</param>
     /// <remarks>
     ///   The normal StringBuilder.Append() method generates garbage when converting
     ///   integer arguments whereas this method will avoid any garbage, albeit probably
     ///   with a small performance impact compared to the built-in method.
     /// </remarks>
-    public static void Append(StringBuilder builder, long value) {
-      if (value < 0) {
-        builder.Append('-');
-        recursiveAppend(builder, -value);
+    public static void Append(
+      this StringBuilder builder, long value, GarbagePolicy garbagePolicy
+    ) {
+      if(garbagePolicy == GarbagePolicy.Avoid) {
+        if(value < 0) {
+          builder.Append('-');
+          recursiveAppend(builder, -value);
+        } else {
+          recursiveAppend(builder, value);
+        }
       } else {
-        recursiveAppend(builder, value);
+        builder.Append(value);
       }
     }
 
@@ -102,14 +117,22 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder the value will be appended to</param>
     /// <param name="value">Value that will be appended to the string builder</param>
+    /// <param name="garbagePolicy">How to behave regarding the garbage collector</param>
     /// <returns>Whether the value was inside the algorithm's supported range</returns>
     /// <remarks>
     ///   Uses an algorithm that covers the sane range of possible values but will
     ///   fail to render extreme values, NaNs and infinity. In these cases, false
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
-    public static bool Append(StringBuilder builder, float value) {
-      return Append(builder, value, int.MaxValue);
+    public static bool Append(
+      this StringBuilder builder, float value, GarbagePolicy garbagePolicy
+    ) {
+      if(garbagePolicy == GarbagePolicy.Avoid) {
+        return Append(builder, value, int.MaxValue);
+      } else {
+        builder.Append(value);
+        return true;
+      }
     }
 
     /// <summary>
@@ -124,7 +147,7 @@ namespace Nuclex.Support {
     ///   fail to render extreme values, NaNs and infinity. In these cases, false
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
-    public static bool Append(StringBuilder builder, float value, int decimalPlaces) {
+    public static bool Append(this StringBuilder builder, float value, int decimalPlaces) {
       const int ExponentBits = 0xFF; // Bit mask for the exponent bits
       const int FractionalBitCount = 23; // Number of bits for fractional part
       const int ExponentBias = 127; // Bias subtraced from exponent
@@ -142,9 +165,9 @@ namespace Nuclex.Support {
 
       int integral;
       int fractional;
-      if (exponent >= 0) {
-        if (exponent >= FractionalBitCount) {
-          if (exponent >= NumericBitCount) {
+      if(exponent >= 0) {
+        if(exponent >= FractionalBitCount) {
+          if(exponent >= NumericBitCount) {
             return false;
           }
           integral = mantissa << (exponent - FractionalBitCount);
@@ -154,7 +177,7 @@ namespace Nuclex.Support {
           fractional = (mantissa << (exponent + 1)) & FractionalBits;
         }
       } else {
-        if (exponent < -FractionalBitCount) {
+        if(exponent < -FractionalBitCount) {
           return false;
         }
         integral = 0;
@@ -162,30 +185,30 @@ namespace Nuclex.Support {
       }
 
       // Build the integral part      
-      if (intValue < 0) {
+      if(intValue < 0) {
         builder.Append('-');
       }
-      if (integral == 0) {
+      if(integral == 0) {
         builder.Append('0');
       } else {
         recursiveAppend(builder, integral);
       }
 
-      if (decimalPlaces > 0) {
+      if(decimalPlaces > 0) {
         builder.Append('.');
 
         // Build the fractional part
-        if (fractional == 0) {
+        if(fractional == 0) {
           builder.Append('0');
         } else {
-          while (fractional != 0) {
+          while(fractional != 0) {
             fractional *= 10;
             int digit = (fractional >> FractionalBitCountPlusOne);
             builder.Append(numbers[digit]);
             fractional &= FractionalBits;
 
             --decimalPlaces;
-            if (decimalPlaces == 0) {
+            if(decimalPlaces == 0) {
               break;
             }
           }
@@ -201,14 +224,22 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="builder">String builder the value will be appended to</param>
     /// <param name="value">Value that will be appended to the string builder</param>
+    /// <param name="garbagePolicy">How to behave regarding the garbage collector</param>
     /// <returns>Whether the value was inside the algorithm's supported range</returns>
     /// <remarks>
     ///   Uses an algorithm that covers the sane range of possible values but will
     ///   fail to render extreme values, NaNs and infinity. In these cases, false
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
-    public static bool Append(StringBuilder builder, double value) {
-      return Append(builder, value, int.MaxValue);
+    public static bool Append(
+      this StringBuilder builder, double value, GarbagePolicy garbagePolicy
+    ) {
+      if(garbagePolicy == GarbagePolicy.Avoid) {
+        return Append(builder, value, int.MaxValue);
+      } else {
+        builder.Append(value);
+        return true;
+      }
     }
 
     /// <summary>
@@ -224,7 +255,7 @@ namespace Nuclex.Support {
     ///   fail to render extreme values, NaNs and infinity. In these cases, false
     ///   is returned and the traditional double.ToString() method can be used.
     /// </remarks>
-    public static bool Append(StringBuilder builder, double value, int decimalPlaces) {
+    public static bool Append(this StringBuilder builder, double value, int decimalPlaces) {
       const long ExponentBits = 0x7FF; // Bit mask for the exponent bits
       const int FractionalBitCount = 52; // Number of bits for fractional part
       const int ExponentBias = 1023; // Bias subtraced from exponent
@@ -242,9 +273,9 @@ namespace Nuclex.Support {
 
       long integral;
       long fractional;
-      if (exponent >= 0) {
-        if (exponent >= FractionalBitCount) {
-          if (exponent >= NumericBitCount) {
+      if(exponent >= 0) {
+        if(exponent >= FractionalBitCount) {
+          if(exponent >= NumericBitCount) {
             return false;
           }
           integral = mantissa << (int)(exponent - FractionalBitCount);
@@ -254,7 +285,7 @@ namespace Nuclex.Support {
           fractional = (mantissa << (int)(exponent + 1)) & FractionalBits;
         }
       } else {
-        if (exponent < -FractionalBitCount) {
+        if(exponent < -FractionalBitCount) {
           return false;
         }
         integral = 0;
@@ -262,30 +293,30 @@ namespace Nuclex.Support {
       }
 
       // Build the integral part      
-      if (longValue < 0) {
+      if(longValue < 0) {
         builder.Append('-');
       }
-      if (integral == 0) {
+      if(integral == 0) {
         builder.Append('0');
       } else {
         recursiveAppend(builder, integral);
       }
 
-      if (decimalPlaces > 0) {
+      if(decimalPlaces > 0) {
         builder.Append('.');
 
         // Build the fractional part
-        if (fractional == 0) {
+        if(fractional == 0) {
           builder.Append('0');
         } else {
-          while (fractional != 0) {
+          while(fractional != 0) {
             fractional *= 10;
             long digit = (fractional >> FractionalBitCountPlusOne);
             builder.Append(numbers[digit]);
             fractional &= FractionalBits;
 
             --decimalPlaces;
-            if (decimalPlaces == 0) {
+            if(decimalPlaces == 0) {
               break;
             }
           }
@@ -307,7 +338,7 @@ namespace Nuclex.Support {
       int tenth = remaining / 10;
 #endif
 
-      if (tenth > 0) {
+      if(tenth > 0) {
         recursiveAppend(builder, tenth);
       }
 
@@ -326,7 +357,7 @@ namespace Nuclex.Support {
       long tenth = remaining / 10;
 #endif
 
-      if (tenth > 0) {
+      if(tenth > 0) {
         recursiveAppend(builder, tenth);
       }
 

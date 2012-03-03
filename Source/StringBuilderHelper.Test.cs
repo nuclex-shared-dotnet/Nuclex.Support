@@ -40,8 +40,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendByte() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, (byte)255);
 
+      builder.Append((byte)255, GarbagePolicy.Avoid);
+      Assert.AreEqual("255", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append((byte)255, GarbagePolicy.Accept);
       Assert.AreEqual("255", builder.ToString());
     }
 
@@ -51,8 +56,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNullByte() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, (byte)0);
 
+      builder.Append((byte)0, GarbagePolicy.Avoid);
+      Assert.AreEqual("0", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append((byte)0, GarbagePolicy.Accept);
       Assert.AreEqual("0", builder.ToString());
     }
 
@@ -62,8 +72,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendPositiveInteger() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 12345);
 
+      builder.Append(12345, GarbagePolicy.Avoid);
+      Assert.AreEqual("12345", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(12345, GarbagePolicy.Accept);
       Assert.AreEqual("12345", builder.ToString());
     }
 
@@ -73,8 +88,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNullInteger() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0);
 
+      builder.Append(0, GarbagePolicy.Avoid);
+      Assert.AreEqual("0", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(0, GarbagePolicy.Accept);
       Assert.AreEqual("0", builder.ToString());
     }
 
@@ -84,8 +104,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNegativeInteger() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, -12345);
 
+      builder.Append(-12345, GarbagePolicy.Avoid);
+      Assert.AreEqual("-12345", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(-12345, GarbagePolicy.Accept);
       Assert.AreEqual("-12345", builder.ToString());
     }
 
@@ -95,8 +120,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendPositiveLong() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 12345L);
 
+      builder.Append(12345L, GarbagePolicy.Avoid);
+      Assert.AreEqual("12345", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(12345L, GarbagePolicy.Accept);
       Assert.AreEqual("12345", builder.ToString());
     }
 
@@ -106,8 +136,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNullLong() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0L);
 
+      builder.Append(0L, GarbagePolicy.Avoid);
+      Assert.AreEqual("0", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(0L, GarbagePolicy.Accept);
       Assert.AreEqual("0", builder.ToString());
     }
 
@@ -117,8 +152,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNegativeLong() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, -12345L);
 
+      builder.Append(-12345L, GarbagePolicy.Avoid);
+      Assert.AreEqual("-12345", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(-12345L, GarbagePolicy.Accept);
       Assert.AreEqual("-12345", builder.ToString());
     }
 
@@ -128,9 +168,14 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNegativeFloat() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, -32.015625f);
 
-      Assert.AreEqual("-32.015625", builder.ToString());
+      builder.Append(-0.125f, GarbagePolicy.Avoid);
+      Assert.AreEqual("-0.125", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(-0.125f, GarbagePolicy.Accept);
+      Assert.AreEqual("-0.125", builder.ToString());
     }
 
     /// <summary>
@@ -139,8 +184,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendPositiveFloat() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 10.0625f);
 
+      builder.Append(10.0625f, GarbagePolicy.Avoid);
+      Assert.AreEqual("10.0625", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(10.0625f, GarbagePolicy.Accept);
       Assert.AreEqual("10.0625", builder.ToString());
     }
 
@@ -150,8 +200,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendSmallFloat() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0.00390625f);
 
+      builder.Append(0.00390625f, GarbagePolicy.Avoid);
+      Assert.AreEqual("0.00390625", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(0.00390625f, GarbagePolicy.Accept);
       Assert.AreEqual("0.00390625", builder.ToString());
     }
 
@@ -161,17 +216,21 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendHugeFloat() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 1000000000.0f);
 
+      builder.Append(1000000000.0f, GarbagePolicy.Avoid);
       Assert.AreEqual("1000000000.0", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(1000000000.0f, GarbagePolicy.Accept);
+      Assert.AreEqual("1E+09", builder.ToString());
     }
 
     /// <summary>Tests whether the number of decimal places can be restricted</summary>
     [Test]
     public void TestAppendFloatLimitDecimalPlaces() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0.00390625f, 3);
-
+      builder.Append(0.00390625f, 3);
       Assert.AreEqual("0.003", builder.ToString());
     }
 
@@ -181,8 +240,7 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendFloatWithoutDecimalPlaces() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0.00390625f, 0);
-
+      builder.Append(0.00390625f, 0);
       Assert.AreEqual("0", builder.ToString()); // Note: no rounding!
     }
 
@@ -192,10 +250,10 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendOutOfRangeFloat() {
       StringBuilder builder = new StringBuilder();
-      Assert.IsFalse(StringBuilderHelper.Append(builder, float.PositiveInfinity));
-      Assert.IsFalse(StringBuilderHelper.Append(builder, float.NegativeInfinity));
-      Assert.IsFalse(StringBuilderHelper.Append(builder, float.NaN));
-      Assert.IsFalse(StringBuilderHelper.Append(builder, 0.000000059604644775390625f));
+      Assert.IsFalse(builder.Append(float.PositiveInfinity, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(float.NegativeInfinity, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(float.NaN, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(0.000000059604644775390625f, GarbagePolicy.Avoid));
     }
 
     /// <summary>
@@ -205,8 +263,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendNegativeDouble() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, -32.015625);
 
+      builder.Append(-32.015625, GarbagePolicy.Avoid);
+      Assert.AreEqual("-32.015625", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(-32.015625, GarbagePolicy.Accept);
       Assert.AreEqual("-32.015625", builder.ToString());
     }
 
@@ -217,8 +280,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendPositiveDouble() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 10.0625);
 
+      builder.Append(10.0625, GarbagePolicy.Avoid);
+      Assert.AreEqual("10.0625", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(10.0625, GarbagePolicy.Accept);
       Assert.AreEqual("10.0625", builder.ToString());
     }
 
@@ -229,8 +297,13 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendSmallDouble() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 0.00390625);
 
+      builder.Append(0.00390625, GarbagePolicy.Avoid);
+      Assert.AreEqual("0.00390625", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(0.00390625, GarbagePolicy.Accept);
       Assert.AreEqual("0.00390625", builder.ToString());
     }
 
@@ -241,9 +314,14 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendHugeDouble() {
       StringBuilder builder = new StringBuilder();
-      StringBuilderHelper.Append(builder, 1000000000000000000.0);
 
+      builder.Append(1000000000000000000.0, GarbagePolicy.Avoid);
       Assert.AreEqual("1000000000000000000.0", builder.ToString());
+
+      builder.Clear();
+
+      builder.Append(1000000000000000000.0, GarbagePolicy.Accept);
+      Assert.AreEqual("1E+18", builder.ToString());
     }
 
     /// <summary>Tests whether the number of decimal places can be restricted</summary>
@@ -273,12 +351,10 @@ namespace Nuclex.Support {
     [Test]
     public void TestAppendOutOfRangeDouble() {
       StringBuilder builder = new StringBuilder();
-      Assert.IsFalse(StringBuilderHelper.Append(builder, double.PositiveInfinity));
-      Assert.IsFalse(StringBuilderHelper.Append(builder, double.NegativeInfinity));
-      Assert.IsFalse(StringBuilderHelper.Append(builder, double.NaN));
-      Assert.IsFalse(
-        StringBuilderHelper.Append(builder, 1.1102230246251565404236316680908e-16)
-      );
+      Assert.IsFalse(builder.Append(double.PositiveInfinity, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(double.NegativeInfinity, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(double.NaN, GarbagePolicy.Avoid));
+      Assert.IsFalse(builder.Append(1.1102230246251565404236316680908e-16, GarbagePolicy.Avoid));
     }
 
     /// <summary>
@@ -291,7 +367,7 @@ namespace Nuclex.Support {
 
       Assert.AreEqual(string.Empty, builder.ToString());
     }
-    
+
   }
 
 } // namespace Nuclex.Support
