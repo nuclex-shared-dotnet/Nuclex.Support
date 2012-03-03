@@ -247,7 +247,11 @@ namespace Nuclex.Support.Collections {
     ///   True if the item was contained in the set and is now removed
     /// </returns>
     public bool Remove(TItem item) {
-      return this.set.Remove(item);
+      bool wasRemoved = this.set.Remove(item);
+      if(wasRemoved) {
+        OnRemoved(item);
+      }
+      return wasRemoved;
     }
 
     /// <summary>Creates an enumerator for the set's contents</summary>
@@ -307,17 +311,25 @@ namespace Nuclex.Support.Collections {
 #endif
     }
 
+    #region ICollection<T> implementation
+
     /// <summary>Adds an item to the set</summary>
     /// <param name="item">Item that will be added to the set</param>
     void ICollection<TItem>.Add(TItem item) {
       this.set.Add(item);
     }
 
+    #endregion // ICollection<T> implementation
+
+    #region IEnumerable implementation
+
     /// <summary>Creates an enumerator for the set's contents</summary>
     /// <returns>A new enumerator for the sets contents</returns>
     IEnumerator IEnumerable.GetEnumerator() {
       return this.set.GetEnumerator();
     }
+
+    #endregion // IEnumerable implementation
 
     /// <summary>The set being wrapped</summary>
     private ISet<TItem> set;

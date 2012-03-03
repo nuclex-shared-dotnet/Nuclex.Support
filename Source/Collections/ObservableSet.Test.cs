@@ -98,6 +98,18 @@ namespace Nuclex.Support.Collections {
     }
 
     /// <summary>
+    ///   Verifies that removing items from the set triggers the 'ItemRemoved' event
+    /// </summary>
+    [Test]
+    public void RemovingItemsTriggersEvent() {
+      this.subscriber.Expects.One.Method((s) => s.ItemAdded(null, null)).WithAnyArguments();
+      this.observableSet.Add(123);
+
+      this.subscriber.Expects.One.Method((s) => s.ItemRemoved(null, null)).WithAnyArguments();
+      this.observableSet.Remove(123);
+    }
+
+    /// <summary>
     ///   Verifies that adding items to the set triggers the 'ItemAdded' event
     /// </summary>
     [Test]
@@ -114,14 +126,21 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void ExceptWithSelfEmptiesSet() {
-      var set = new ObservableSet<int>();
-      set.Add(1);
-      set.Add(2);
-      set.Add(3);
+      this.subscriber.Expects.Exactly(3).Method(
+        (s) => s.ItemAdded(null, null)
+      ).WithAnyArguments();
 
-      Assert.AreEqual(3, set.Count);
-      set.ExceptWith(set);
-      Assert.AreEqual(0, set.Count);
+      this.observableSet.Add(1);
+      this.observableSet.Add(2);
+      this.observableSet.Add(3);
+
+      Assert.AreEqual(3, this.observableSet.Count);
+
+      this.subscriber.Expects.One.Method((s) => s.Clearing(null, null)).WithAnyArguments();
+      this.subscriber.Expects.One.Method((s) => s.Cleared(null, null)).WithAnyArguments();
+
+      this.observableSet.ExceptWith(this.observableSet);
+      Assert.AreEqual(0, this.observableSet.Count);
     }
 
     /// <summary>
@@ -129,16 +148,19 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void SetCanBeExceptedWithCollection() {
-      var set = new ObservableSet<int>();
-      set.Add(1);
-      set.Add(2);
+      this.subscriber.Expects.Exactly(2).Method(
+        (s) => s.ItemAdded(null, null)
+      ).WithAnyArguments();
+
+      this.observableSet.Add(1);
+      this.observableSet.Add(2);
 
       var collection = new List<int>() { 1 };
 
-      Assert.AreEqual(2, set.Count);
-      set.ExceptWith(collection);
-      Assert.AreEqual(1, set.Count);
-      Assert.IsTrue(set.Contains(2));
+      this.subscriber.Expects.One.Method((s) => s.ItemRemoved(null, null)).WithAnyArguments();
+      this.observableSet.ExceptWith(collection);
+      Assert.AreEqual(1, this.observableSet.Count);
+      Assert.IsTrue(this.observableSet.Contains(2));
     }
 
     /// <summary>
@@ -146,16 +168,19 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     [Test]
     public void SetCanBeIntersectedWithCollection() {
-      var set = new ObservableSet<int>();
-      set.Add(1);
-      set.Add(2);
+      this.subscriber.Expects.Exactly(2).Method(
+        (s) => s.ItemAdded(null, null)
+      ).WithAnyArguments();
+
+      this.observableSet.Add(1);
+      this.observableSet.Add(2);
 
       var collection = new List<int>() { 1 };
 
-      Assert.AreEqual(2, set.Count);
-      set.IntersectWith(collection);
-      Assert.AreEqual(1, set.Count);
-      Assert.IsTrue(set.Contains(1));
+      this.subscriber.Expects.One.Method((s) => s.ItemRemoved(null, null)).WithAnyArguments();
+      this.observableSet.IntersectWith(collection);
+      Assert.AreEqual(1, this.observableSet.Count);
+      Assert.IsTrue(this.observableSet.Contains(1));
     }
 
     /// <summary>
@@ -221,6 +246,41 @@ namespace Nuclex.Support.Collections {
 
       Assert.IsFalse(set1.SetEquals(set2));
       Assert.IsFalse(set2.SetEquals(set1));
+    }
+
+    /// <summary>
+    ///   Verifies that a set can be symmetrically excepted with another set
+    /// </summary>
+    [Test]
+    public void CanBeSymmetricallyExcepted() {
+      var set1 = new ObservableSet<int>() { 1, 2, 3 };
+      var set2 = new ObservableSet<int>() { 3, 4, 5 };
+
+      set1.SymmetricExceptWith(set2);
+
+      Assert.AreEqual(4, set1.Count);
+    }
+
+    /// <summary>
+    ///   Verifies that a union of two sets can be built
+    /// </summary>
+    [Test]
+    public void CanBeUnioned() {
+      this.subscriber.Expects.Exactly(3).Method(
+        (s) => s.ItemAdded(null, null)
+      ).WithAnyArguments();
+
+      this.observableSet.Add(1);
+      this.observableSet.Add(2);
+      this.observableSet.Add(3);
+
+      var set2 = new ObservableSet<int>() { 3, 4, 5 };
+
+      this.subscriber.Expects.Exactly(2).Method(
+        (s) => s.ItemAdded(null, null)
+      ).WithAnyArguments();
+      this.observableSet.UnionWith(set2);
+      Assert.AreEqual(5, this.observableSet.Count);
     }
 
     /// <summary>Creates mock object for the test</summary>
