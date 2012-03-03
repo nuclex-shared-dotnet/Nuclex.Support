@@ -37,9 +37,9 @@ namespace Nuclex.Support.Collections {
     ISet<TItem>,
     ICollection<TItem>,
 #if !NO_SPECIALIZED_COLLECTIONS
-    INotifyCollectionChanged,
+ INotifyCollectionChanged,
 #endif
-    IObservableCollection<TItem> {
+ IObservableCollection<TItem> {
 
     /// <summary>Raised when an item has been added to the collection</summary>
     public event EventHandler<ItemEventArgs<TItem>> ItemAdded;
@@ -109,11 +109,21 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     /// <param name="other">Other set this set will be filtered by</param>
     public void IntersectWith(IEnumerable<TItem> other) {
-      foreach(TItem item in other) {
-        if(!other.Contains(item)) {
-          this.set.Remove(item);
-          OnRemoved(item);
+      var otherSet = other as ISet<TItem>;
+      if(otherSet == null) {
+        otherSet = new HashSet<TItem>(other);
+      }
+
+      var itemsToRemove = new List<TItem>();
+      foreach(TItem item in this.set) {
+        if(!otherSet.Contains(item)) {
+          itemsToRemove.Add(item);
         }
+      }
+
+      for(int index = 0; index < itemsToRemove.Count; ++index) {
+        this.set.Remove(itemsToRemove[index]);
+        OnRemoved(itemsToRemove[index]);
       }
     }
 

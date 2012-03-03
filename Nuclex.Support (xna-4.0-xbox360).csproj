@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\xna-4.0-xbox360\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XBOX;XBOX360;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT;NO_SPECIALIZED_COLLECTIONS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XBOX;XBOX360;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT;NO_SPECIALIZED_COLLECTIONS;NO_LINQ_EXPRESSIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
@@ -34,7 +34,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\xna-4.0-xbox360\Release\</OutputPath>
-    <DefineConstants>TRACE;XBOX;XBOX360;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT;NO_SPECIALIZED_COLLECTIONS</DefineConstants>
+    <DefineConstants>TRACE;XBOX;XBOX360;NO_CLONING;NO_SERIALIZATION;NO_XMLSCHEMA;NO_SYSTEMEVENTS;NO_EXITCONTEXT;NO_SPECIALIZED_COLLECTIONS;NO_LINQ_EXPRESSIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
@@ -99,9 +99,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\AffineThreadPool.Test.cs">
-      <DependentUpon>AffineThreadPool.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
     <Compile Include="Source\Cloning\ClonerHelpers.cs" />
     <Compile Include="Source\Cloning\ClonerHelpers.Test.cs">
@@ -228,27 +225,6 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\AffineThreadPool.cs" />
-    <Compile Include="Source\EnumHelper.cs" />
-    <Compile Include="Source\EnumHelper.Test.cs">
-      <DependentUpon>EnumHelper.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\PrototypeFactory.cs" />
-    <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
-      <DependentUpon>PrototypeFactory.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Semaphore.cs" />
-    <Compile Include="Source\Semaphore.Test.cs">
-      <DependentUpon>Semaphore.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\IO\PartialStream.cs" />
-    <Compile Include="Source\IO\PartialStream.Test.cs">
-      <DependentUpon>PartialStream.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\IO\RingMemoryStream.cs" />
-    <Compile Include="Source\IO\RingMemoryStream.Test.cs">
-      <DependentUpon>RingMemoryStream.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
@@ -263,13 +239,17 @@
     <Compile Include="Source\Collections\WeakCollection.Test.cs">
       <DependentUpon>WeakCollection.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\FloatHelper.cs" />
-    <Compile Include="Source\FloatHelper.Test.cs">
-      <DependentUpon>FloatHelper.cs</DependentUpon>
+    <Compile Include="Source\IO\PartialStream.cs" />
+    <Compile Include="Source\IO\PartialStream.Test.cs">
+      <DependentUpon>PartialStream.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\IntegerHelper.cs" />
-    <Compile Include="Source\IntegerHelper.Test.cs">
-      <DependentUpon>IntegerHelper.cs</DependentUpon>
+    <Compile Include="Source\IO\RingMemoryStream.cs" />
+    <Compile Include="Source\IO\RingMemoryStream.Test.cs">
+      <DependentUpon>RingMemoryStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\IO\ChainStream.cs" />
+    <Compile Include="Source\IO\ChainStream.Test.cs">
+      <DependentUpon>ChainStream.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Licensing\LicenseKey.cs" />
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
@@ -288,10 +268,6 @@
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\PathHelper.cs" />
-    <Compile Include="Source\PathHelper.Test.cs">
-      <DependentUpon>PathHelper.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Plugins\AssemblyLoadEventArgs.cs" />
     <Compile Include="Source\Plugins\AssemblyLoadEventArgs.Test.cs">
       <DependentUpon>AssemblyLoadEventArgs.cs</DependentUpon>
@@ -302,6 +278,10 @@
     </Compile>
     <Compile Include="Source\Plugins\FactoryEmployer.Test.cs">
       <DependentUpon>FactoryEmployer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Plugins\PrototypeFactory.cs" />
+    <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
+      <DependentUpon>PrototypeFactory.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Plugins\IAssemblyLoader.cs" />
     <Compile Include="Source\Plugins\InstanceEmployer.Test.cs">
@@ -326,13 +306,45 @@
     <Compile Include="Source\Plugins\PluginRepository.Test.cs">
       <DependentUpon>PluginRepository.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
+    <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
+      <DependentUpon>PropertyChangedEventArgsHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\AffineThreadPool.cs" />
+    <Compile Include="Source\AffineThreadPool.Test.cs">
+      <DependentUpon>AffineThreadPool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\EnumHelper.cs" />
+    <Compile Include="Source\EnumHelper.Test.cs">
+      <DependentUpon>EnumHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Observable.cs" />
+    <Compile Include="Source\Observable.Test.cs">
+      <DependentUpon>Observable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\ObservableHelper.cs" />
+    <Compile Include="Source\ObservableHelper.Test.cs">
+      <DependentUpon>ObservableHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Semaphore.cs" />
+    <Compile Include="Source\Semaphore.Test.cs">
+      <DependentUpon>Semaphore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\FloatHelper.cs" />
+    <Compile Include="Source\FloatHelper.Test.cs">
+      <DependentUpon>FloatHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\IntegerHelper.cs" />
+    <Compile Include="Source\IntegerHelper.Test.cs">
+      <DependentUpon>IntegerHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\PathHelper.cs" />
+    <Compile Include="Source\PathHelper.Test.cs">
+      <DependentUpon>PathHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Shared.cs" />
     <Compile Include="Source\Shared.Test.cs">
       <DependentUpon>Shared.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\IO\ChainStream.cs" />
-    <Compile Include="Source\IO\ChainStream.Test.cs">
-      <DependentUpon>ChainStream.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\StringBuilderHelper.cs" />
     <Compile Include="Source\StringBuilderHelper.Test.cs">

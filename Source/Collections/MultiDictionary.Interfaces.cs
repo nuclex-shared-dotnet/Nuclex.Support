@@ -239,9 +239,25 @@ namespace Nuclex.Support.Collections {
       return this.typedDictionary.GetEnumerator();
     }
 
-    /// <summary>Removes the specified key/value pair from the dictionary</summary>
-    /// <param name="item">Key/value pair that will be removed</param>
-    /// <returns>True if the key/value pair was contained in the dictionary</returns>
+    /// <summary>Number of unique keys in the dictionary</summary>
+    /// <remarks>
+    ///   <para>
+    ///     This Count property returns a different value from the main interface of
+    ///     the multi dictionary to stay consistent with the implemented interfaces.
+    ///   </para>
+    ///   <para>
+    ///     If you cast a multi dictionary to a collection of collections, the count
+    ///     property of the outer collection should, of course, be the number of inner
+    ///     collections it contains (and not the sum of the items contained in all of
+    ///     the inner collections).
+    ///   </para>
+    ///   <para>
+    ///     If you use the count property in the main interface of the multi dictionary,
+    ///     the value collections are hidden (it behaves as if the key was in the
+    ///     dictionary multiple times), so now the sum of all key-value pairs should
+    ///     be returned.
+    ///   </para>
+    /// </remarks>
     int ICollection<KeyValuePair<TKey, ICollection<TValue>>>.Count {
       get { return this.typedDictionary.Count; }
     }
