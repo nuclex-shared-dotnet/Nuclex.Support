@@ -191,12 +191,47 @@ namespace Nuclex.Support.Cloning {
         for(int index = 0; index < fieldInfos.Length; ++index) {
           FieldInfo fieldInfo = fieldInfos[index];
 
-          transferExpressions.Add(
-            Expression.Assign(
-              Expression.Field(clone, fieldInfo),
-              Expression.Field(typedOriginal, fieldInfo)
-            )
-          );
+          if(fieldInfo.IsInitOnly) {
+            Expression source = Expression.Field(typedOriginal, fieldInfo);
+            if(fieldInfo.FieldType.IsValueType) {
+              source = Expression.Convert(source, typeof(object));
+            }
+
+            if(clone.Type.IsValueType) {
+              MethodInfo assignInitOnlyField = typeof(ExpressionTreeCloner).GetMethod(
+                "assignInitOnlyField", BindingFlags.Static | BindingFlags.NonPublic
+              ).MakeGenericMethod(clone.Type);
+
+              transferExpressions.Add(
+                Expression.Call(
+                  assignInitOnlyField,
+                  clone,
+                  Expression.Constant(fieldInfo),
+                  source
+                )
+              );
+            } else {
+              MethodInfo setValueMethodInfo = typeof(FieldInfo).GetMethod(
+                "SetValue", new Type[] { typeof(object), typeof(object) }
+              );
+
+              transferExpressions.Add(
+                Expression.Call(
+                  Expression.Constant(fieldInfo),
+                  setValueMethodInfo,
+                  clone,
+                  source
+                )
+              );
+            }
+          } else {
+            transferExpressions.Add(
+              Expression.Assign(
+                Expression.Field(clone, fieldInfo),
+                Expression.Field(typedOriginal, fieldInfo)
+              )
+            );
+          }
         }
 
         // Make sure the clone is the last thing in the block to set the return value
@@ -555,28 +590,62 @@ namespace Nuclex.Support.Cloning {
         MethodInfo getTypeMethodInfo = typeof(object).GetMethod("GetType");
         MethodInfo invokeMethodInfo = typeof(Func<object, object>).GetMethod("Invoke");
 
-        // Generate expressions to do this:
-        //   clone.SomeField = getOrCreateDeepFieldBasedCloner(
+        // Equivalent to
+        //   (TField)getOrCreateDeepFieldBasedCloner(
         //     original.SomeField.GetType()
         //   ).Invoke(original.SomeField);
-        fieldTransferExpressions.Add(
-          Expression.Assign(
-            Expression.Field(clone, fieldInfo),
-            Expression.Convert(
-              Expression.Call(
-                Expression.Call(
-                  getOrCreateClonerMethodInfo,
-                  Expression.Call(
-                    Expression.Field(original, fieldInfo), getTypeMethodInfo
-                  )
-                ),
-                invokeMethodInfo,
-                Expression.Field(original, fieldInfo)
-              ),
-              fieldType
+        Expression result = Expression.Call(
+          Expression.Call(
+            getOrCreateClonerMethodInfo,
+            Expression.Call(
+              Expression.Field(original, fieldInfo), getTypeMethodInfo
             )
-          )
+          ),
+          invokeMethodInfo,
+          Expression.Field(original, fieldInfo)
         );
+
+        // If the field is a readonly field, set the value via reflection because
+        // Expression Trees do not support assigning .initonly fields directly yet
+        if(fieldInfo.IsInitOnly) {
+          if(fieldInfo.FieldType.IsValueType) {
+            result = Expression.Convert(result, typeof(object));
+          }
+
+          if(clone.Type.IsValueType) {
+            MethodInfo assignInitOnlyField = typeof(ExpressionTreeCloner).GetMethod(
+              "assignInitOnlyField", BindingFlags.Static | BindingFlags.NonPublic
+            ).MakeGenericMethod(clone.Type);
+            fieldTransferExpressions.Add(
+              Expression.Call(
+                assignInitOnlyField,
+                clone,
+                Expression.Constant(fieldInfo),
+                result
+              )
+            );
+          } else {
+            MethodInfo setValueMethodInfo = typeof(FieldInfo).GetMethod(
+              "SetValue", new Type[] { typeof(object), typeof(object) }
+            );
+
+            fieldTransferExpressions.Add(
+              Expression.Call(
+                Expression.Constant(fieldInfo),
+                setValueMethodInfo,
+                clone,
+                result
+              )
+            );
+          }
+        } else {
+          fieldTransferExpressions.Add(
+            Expression.Assign(
+              Expression.Field(clone, fieldInfo),
+              Expression.Convert(result, fieldType)
+            )
+          );
+        }
       }
 
       // Wrap up the generated array or complex reference type transfer expressions
@@ -589,6 +658,19 @@ namespace Nuclex.Support.Cloning {
           Expression.Block(fieldVariables, fieldTransferExpressions)
         )
       );
+    }
+
+    /// <summary>Assigns the value of an .initonly field</summary>
+    /// <typeparam name="TValueType">Type of structure that contains the field</typeparam>
+    /// <param name="instance">
+    ///   Reference to the structure on which the field will be assigned
+    /// </param>
+    /// <param name="fieldInfo">Field that will be assigned</param>
+    /// <param name="value">Value that will be assigned to the field</param>
+    private static void assignInitOnlyField<TValueType>(
+      ref TValueType instance, FieldInfo fieldInfo, object value
+    ) where TValueType : struct {
+      fieldInfo.SetValueDirect(__makeref(instance), value);
     }
 
   }

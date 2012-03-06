@@ -190,7 +190,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void CanDetermineProperSubsetAndSuperset() {
       var set1 = new ObservableSet<int>() { 1, 2, 3 };
-      var set2 = new ObservableSet<int>() { 1, 3 };
+      var set2 = new HashSet<int>() { 1, 3 };
 
       Assert.IsTrue(set1.IsProperSupersetOf(set2));
       Assert.IsTrue(set2.IsProperSubsetOf(set1));
@@ -208,7 +208,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void CanDetermineSubsetAndSuperset() {
       var set1 = new ObservableSet<int>() { 1, 2, 3 };
-      var set2 = new ObservableSet<int>() { 1, 2, 3 };
+      var set2 = new HashSet<int>() { 1, 2, 3 };
 
       Assert.IsTrue(set1.IsSupersetOf(set2));
       Assert.IsTrue(set2.IsSubsetOf(set1));
@@ -225,7 +225,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void CanDetermineOverlap() {
       var set1 = new ObservableSet<int>() { 1, 3, 5 };
-      var set2 = new ObservableSet<int>() { 3 };
+      var set2 = new HashSet<int>() { 3 };
 
       Assert.IsTrue(set1.Overlaps(set2));
       Assert.IsTrue(set2.Overlaps(set1));
@@ -237,7 +237,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void CanDetermineSetEquality() {
       var set1 = new ObservableSet<int>() { 1, 3, 5 };
-      var set2 = new ObservableSet<int>() { 3, 1, 5 };
+      var set2 = new HashSet<int>() { 3, 1, 5 };
 
       Assert.IsTrue(set1.SetEquals(set2));
       Assert.IsTrue(set2.SetEquals(set1));
@@ -254,7 +254,7 @@ namespace Nuclex.Support.Collections {
     [Test]
     public void CanBeSymmetricallyExcepted() {
       var set1 = new ObservableSet<int>() { 1, 2, 3 };
-      var set2 = new ObservableSet<int>() { 3, 4, 5 };
+      var set2 = new HashSet<int>() { 3, 4, 5 };
 
       set1.SymmetricExceptWith(set2);
 

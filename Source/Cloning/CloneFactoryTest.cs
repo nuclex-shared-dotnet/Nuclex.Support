@@ -100,6 +100,8 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType GetOnlyProperty { get { return null; } }
       /// <summary>A property that only has a setter</summary>
       public TestReferenceType SetOnlyProperty { set { } }
+      /// <summary>A read-only field</summary>
+      public readonly TestValueType ReadOnlyField;
       /// <summary>Field typed as base class holding a derived instance</summary>
       public TestReferenceType DerivedField;
       /// <summary>Field typed as base class holding a derived instance</summary>
@@ -136,8 +138,10 @@ namespace Nuclex.Support.Cloning {
       public TestReferenceType AlwaysNullProperty { get; set; }
       /// <summary>A property that only has a getter</summary>
       public TestReferenceType GetOnlyProperty { get { return null; } }
-      /// <summary>A property that only has a s</summary>
+      /// <summary>A property that only has a setter</summary>
       public TestReferenceType SetOnlyProperty { set { } }
+      /// <summary>A read-only field</summary>
+      public readonly TestValueType ReadOnlyField;
       /// <summary>Field typed as base class holding a derived instance</summary>
       public TestReferenceType DerivedField;
       /// <summary>Field typed as base class holding a derived instance</summary>
