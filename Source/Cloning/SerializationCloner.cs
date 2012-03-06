@@ -92,7 +92,7 @@ namespace Nuclex.Support.Cloning {
       }
 
       /// <summary>Surrogate the that will be selected for any non-primitive types</summary>
-      private ISerializationSurrogate staticSurrogate;
+      private readonly ISerializationSurrogate staticSurrogate;
       /// <summary>Surrogate selector to escalate to if no surrogate can be provided</summary>
       private ISurrogateSelector chainedSelector;
 
@@ -321,9 +321,9 @@ namespace Nuclex.Support.Cloning {
     }
 
     /// <summary>Serializes objects by storing their fields</summary>
-    private static BinaryFormatter fieldBasedFormatter;
+    private static readonly BinaryFormatter fieldBasedFormatter;
     /// <summary>Serializes objects by storing their properties</summary>
-    private static BinaryFormatter propertyBasedFormatter;
+    private static readonly BinaryFormatter propertyBasedFormatter;
 
   }
 

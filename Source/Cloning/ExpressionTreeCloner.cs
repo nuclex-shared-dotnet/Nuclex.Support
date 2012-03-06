@@ -263,13 +263,21 @@ namespace Nuclex.Support.Cloning {
     }
 
     /// <summary>Compiled cloners that perform shallow clone operations</summary>
-    private static ConcurrentDictionary<Type, Func<object, object>> shallowFieldBasedCloners;
+    private static readonly ConcurrentDictionary<
+      Type, Func<object, object>
+    > shallowFieldBasedCloners;
     /// <summary>Compiled cloners that perform deep clone operations</summary>
-    private static ConcurrentDictionary<Type, Func<object, object>> deepFieldBasedCloners;
+    private static readonly ConcurrentDictionary<
+      Type, Func<object, object>
+    > deepFieldBasedCloners;
     /// <summary>Compiled cloners that perform shallow clone operations</summary>
-    private static ConcurrentDictionary<Type, Func<object, object>> shallowPropertyBasedCloners;
+    private static readonly ConcurrentDictionary<
+      Type, Func<object, object>
+    > shallowPropertyBasedCloners;
     /// <summary>Compiled cloners that perform deep clone operations</summary>
-    private static ConcurrentDictionary<Type, Func<object, object>> deepPropertyBasedCloners;
+    private static readonly ConcurrentDictionary<
+      Type, Func<object, object>
+    > deepPropertyBasedCloners;
 
   }
 
