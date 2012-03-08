@@ -166,7 +166,9 @@ namespace Nuclex.Support.Collections {
     ///   Required because the Queue class doesn't allow this value to be retrieved
     /// </remarks>
     private int capacity;
+    /// <summary>Delegate used to create new instances of the pool's type</summary>
     private Func<TItem> createNewDelegate;
+    /// <summary>Delegate used to recycle instances</summary>
     private Action<TItem> recycleDelegate;
 
   }

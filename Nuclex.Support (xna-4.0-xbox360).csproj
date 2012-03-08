@@ -321,7 +321,7 @@
     </Compile>
     <Compile Include="Source\TypeHelper.cs" />
     <Compile Include="Source\TypeHelper.Test.cs">
-      <DependentUpon>\TypeHelper.cs</DependentUpon>
+      <DependentUpon>TypeHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Semaphore.cs" />
     <Compile Include="Source\Semaphore.Test.cs">
