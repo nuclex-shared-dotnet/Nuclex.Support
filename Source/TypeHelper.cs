@@ -167,6 +167,17 @@ namespace Nuclex.Support {
       return false;
     }
 
+    /// <summary>Determines whether the type has the specified attribute</summary>
+    /// <typeparam name="TAttribute">Attribute the type will be checked for</typeparam>
+    /// <param name="type">
+    ///   Type that will be checked for presence of the specified attribute
+    /// </param>
+    /// <returns>True if the type has the specified attribute, otherwise false</returns>
+    public static bool HasAttribute<TAttribute>(this Type type) {
+      object[] attributes = type.GetCustomAttributes(typeof(TAttribute), true);
+      return (attributes != null) && (attributes.Length > 0);
+    }
+
   }
 
 } // namespace Nuclex.Support

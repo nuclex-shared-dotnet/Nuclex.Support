@@ -86,8 +86,7 @@ namespace Nuclex.Support.Plugins {
         }
 
         // Types that have been tagged with the [NoPlugin] attribute will be ignored
-        object[] attributes = type.GetCustomAttributes(true);
-        if(containsNoPluginAttribute(attributes)) {
+        if(type.HasAttribute<NoPluginAttribute>()) {
           continue;
         }
 
@@ -102,20 +101,6 @@ namespace Nuclex.Support.Plugins {
         }
       }
 
-    }
-
-    /// <summary>
-    ///   Determines whether the specifies list of attributes contains a NoPluginAttribute
-    /// </summary>
-    /// <param name="attributes">List of attributes to check</param>
-    /// <returns>True if the list contained a NoPluginAttribute, false otherwise</returns>
-    private static bool containsNoPluginAttribute(object[] attributes) {
-      for(int index = 0; index < attributes.Length; ++index) {
-        if(attributes[index] is NoPluginAttribute) {
-          return true;
-        }
-      }
-      return false;
     }
 
     /// <summary>Reports an error to the debugging console</summary>

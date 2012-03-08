@@ -35,8 +35,8 @@ namespace Nuclex.Support.Plugins {
     ///   Tests whether the default consturctor of the no plugin attribute works
     /// </summary>
     [Test]
-    public void TestDefaultConstructor() {
-      new NoPluginAttribute();
+    public void HasDefaultConstructor() {
+      Assert.NotNull(new NoPluginAttribute());
     }
 
   }

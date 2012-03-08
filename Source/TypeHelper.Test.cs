@@ -86,6 +86,23 @@ namespace Nuclex.Support {
 
     #endregion // class Derived
 
+    #region class HasIgnoreAttribute
+
+    /// <summary>Class that carries an IgnoreAttribute</summary>
+    [Ignore]
+    private class HasIgnoreAttribute { }
+
+    #endregion // class HasIgnoreAttribute
+
+    /// <summary>
+    ///   Verifies that the type helper can determine whether a class is carrying an attribute
+    /// </summary>
+    [Test]
+    public void CanDetermineIfTypeHasAttribute() {
+      Assert.IsTrue(typeof(HasIgnoreAttribute).HasAttribute<IgnoreAttribute>());
+      Assert.IsFalse(typeof(HasIgnoreAttribute).HasAttribute<TestAttribute>());
+    }
+
     /// <summary>
     ///   Verifies that the GetFieldInfosIncludingBaseClasses() will include the backing
     ///   fields of automatically implemented properties in base classes
