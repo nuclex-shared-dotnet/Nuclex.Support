@@ -7,16 +7,16 @@ namespace Nuclex.Support.Plugins {
 #if !NO_CLONING
 
   /// <summary>Factory that creates instances by cloning a prototype</summary>
-  /// <typeparam name="ProductType">Type of product created by the factory</typeparam>
-  /// <typeparam name="ConcreteType">Type of the prototype that will be cloned</typeparam>
-  public class PrototypeFactory<ProductType, ConcreteType> :
-    IAbstractFactory<ProductType>, IAbstractFactory, IDisposable
-    where ProductType : class
-    where ConcreteType : class, ICloneable {
+  /// <typeparam name="TProduct">Type of product created by the factory</typeparam>
+  /// <typeparam name="TConcreteType">Type of the prototype that will be cloned</typeparam>
+  public class PrototypeFactory<TProduct, TConcreteType> :
+    IAbstractFactory<TProduct>, IAbstractFactory, IDisposable
+    where TProduct : class
+    where TConcreteType : class, ICloneable {
 
     /// <summary>Initializes a new prototype based factory</summary>
     /// <param name="prototype">Prototype instance that will be cloned</param>
-    public PrototypeFactory(ConcreteType prototype) {
+    public PrototypeFactory(TConcreteType prototype) {
       this.prototype = prototype;
     }
 
@@ -24,8 +24,8 @@ namespace Nuclex.Support.Plugins {
     ///   Creates a new instance of the type to which the factory is specialized
     /// </summary>
     /// <returns>The newly created instance</returns>
-    public ProductType CreateInstance() {
-      return (ProductType)this.prototype.Clone();
+    public TProduct CreateInstance() {
+      return (TProduct)this.prototype.Clone();
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace Nuclex.Support.Plugins {
     }
 
     /// <summary>The prototype object</summary>
-    private ConcreteType prototype;
+    private TConcreteType prototype;
 
   }
 

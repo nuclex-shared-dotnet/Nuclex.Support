@@ -118,8 +118,8 @@ namespace Nuclex.Support.Cloning {
       ) {
         Type originalType = objectToSerialize.GetType();
 
-        FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
-          originalType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+        FieldInfo[] fieldInfos = originalType.GetFieldInfosIncludingBaseClasses(
+          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
         );
         for(int index = 0; index < fieldInfos.Length; ++index) {
           FieldInfo fieldInfo = fieldInfos[index];
@@ -143,8 +143,8 @@ namespace Nuclex.Support.Cloning {
       ) {
         Type originalType = deserializedObject.GetType();
 
-        FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
-          originalType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+        FieldInfo[] fieldInfos = originalType.GetFieldInfosIncludingBaseClasses(
+          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
         );
         for(int index = 0; index < fieldInfos.Length; ++index) {
           FieldInfo fieldInfo = fieldInfos[index];

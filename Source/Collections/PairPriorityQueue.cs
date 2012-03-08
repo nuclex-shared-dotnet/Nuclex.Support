@@ -30,9 +30,9 @@ namespace Nuclex.Support.Collections {
   ///   priority data type implements the IComparable interface, the user does not
   ///   even
   /// </remarks>
-  public class PairPriorityQueue<TPriority, TItem>
-    : ICollection, IEnumerable<PriorityItemPair<TPriority, TItem>> {
-    
+  public class PairPriorityQueue<TPriority, TItem> :
+    ICollection, IEnumerable<PriorityItemPair<TPriority, TItem>> {
+
     #region class PairComparer
 
     /// <summary>Compares two priority queue entries based on their priority</summary>

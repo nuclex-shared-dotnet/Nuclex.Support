@@ -98,13 +98,12 @@ namespace Nuclex.Support.Collections {
       // starting from the last item in the assumption that this is the fastest
       // way to empty a list without causing excessive shiftings in the array.
       for(int index = base.Count - 1; index >= 0; --index) {
-
         IDisposable disposable = base[index] as IDisposable;
 
         // If the item is disposable, destroy it now
-        if(disposable != null)
+        if(disposable != null) {
           disposable.Dispose();
-
+        }
       }
 
       base.ClearItems();

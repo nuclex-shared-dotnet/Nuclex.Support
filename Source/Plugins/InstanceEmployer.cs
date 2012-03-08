@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Plugins {
 
   /// <summary>Employer that directly creates instances of the types in a plugin</summary>
-  /// <typeparam name="T">Interface or base class required for the employed types</typeparam>
+  /// <typeparam name="TEmployedType">Interface or base class required for the employed types</typeparam>
   /// <remarks>
   ///   <para>
   ///     This employer directly creates an instance of any type in a plugin assembly that
@@ -44,15 +44,15 @@ namespace Nuclex.Support.Plugins {
   ///     factory would then be implemented on the plugin side.
   ///   </para>
   /// </remarks>
-  public class InstanceEmployer<T> : Employer {
+  public class InstanceEmployer<TEmployedType> : Employer {
 
     /// <summary>Initializes a new instance employer</summary>
     public InstanceEmployer() {
-      this.employedInstances = new List<T>();
+      this.employedInstances = new List<TEmployedType>();
     }
 
     /// <summary>All instances that have been employed</summary>
-    public List<T> Instances {
+    public List<TEmployedType> Instances {
       get { return this.employedInstances; }
     }
 
@@ -61,19 +61,19 @@ namespace Nuclex.Support.Plugins {
     /// <returns>True if the type can be employed</returns>
     public override bool CanEmploy(Type type) {
       return
-        PluginHelper.HasDefaultConstructor(type) &&
-        typeof(T).IsAssignableFrom(type) &&
+        type.HasDefaultConstructor() &&
+        typeof(TEmployedType).IsAssignableFrom(type) &&
         !type.ContainsGenericParameters;
     }
 
     /// <summary>Employs the specified plugin type</summary>
     /// <param name="type">Type to be employed</param>
     public override void Employ(Type type) {
-      this.employedInstances.Add((T)Activator.CreateInstance(type));
+      this.employedInstances.Add((TEmployedType)Activator.CreateInstance(type));
     }
 
     /// <summary>All instances employed by the instance employer</summary>
-    private List<T> employedInstances;
+    private List<TEmployedType> employedInstances;
 
   }
 

@@ -18,18 +18,18 @@ License along with this library
 */
 #endregion
 
-using System;
-using System.IO;
-
 #if UNITTEST
+
+using System;
+using System.Reflection;
 
 using NUnit.Framework;
 
-namespace Nuclex.Support.Plugins {
+namespace Nuclex.Support {
 
-  /// <summary>Unit Test for the plugin helper class</summary>
+  /// <summary>Unit Test for the strign segment class</summary>
   [TestFixture]
-  internal class PluginHelperTest {
+  internal class TypeHelperTest {
 
     #region class NoDefaultConstructor
 
@@ -62,22 +62,64 @@ namespace Nuclex.Support.Plugins {
 
     #endregion // class PublicDefaultConstructor
 
+    #region class Base
+
+    /// <summary>Base class used to test the helper methods</summary>
+    private class Base {
+      /// <summary>A simple public field</summary>
+      public int PublicBaseField;
+      /// <summary>An automatic property with a hidden backing field</summary>
+      public int PublicBaseProperty { get; set; }
+    }
+
+    #endregion // class Base
+
+    #region class Derived
+
+    /// <summary>Derived class used to test the helper methods</summary>
+    private class Derived : Base {
+      /// <summary>A simple public field</summary>
+      public int PublicDerivedField;
+      /// <summary>An automatic property with a hidden backing field</summary>
+      public int PublicDerivedProperty { get; set; }
+    }
+
+    #endregion // class Derived
+
+    /// <summary>
+    ///   Verifies that the GetFieldInfosIncludingBaseClasses() will include the backing
+    ///   fields of automatically implemented properties in base classes
+    /// </summary>
+    [Test]
+    public void CanGetBackingFieldsForPropertiesInBaseClasses() {
+      FieldInfo[] fieldInfos = typeof(Derived).GetFieldInfosIncludingBaseClasses(
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+      );
+      Assert.AreEqual(4, fieldInfos.Length);
+    }
+
+    /// <summary>
+    ///   Useless test that avoids a compile warning about unused fields
+    /// </summary>
+    [Test]
+    public void AvoidCompilerWarnings() {
+      var derived = new Derived() {
+        PublicBaseField = 123,
+        PublicBaseProperty = 321,
+        PublicDerivedField = 456
+      };
+    }
+
     /// <summary>Tests whether the default constructor detection works as expected</summary>
     [Test]
     public void TestDefaultConstructorDetection() {
-      Assert.IsFalse(
-        PluginHelper.HasDefaultConstructor(typeof(NoDefaultConstructor))
-      );
-      Assert.IsFalse(
-        PluginHelper.HasDefaultConstructor(typeof(NonPublicDefaultConstructor))
-      );
-      Assert.IsTrue(
-        PluginHelper.HasDefaultConstructor(typeof(PublicDefaultConstructor))
-      );
+      Assert.IsFalse(typeof(NoDefaultConstructor).HasDefaultConstructor());
+      Assert.IsFalse(typeof(NonPublicDefaultConstructor).HasDefaultConstructor());
+      Assert.IsTrue(typeof(PublicDefaultConstructor).HasDefaultConstructor());
     }
 
   }
 
-} // namespace Nuclex.Support.Plugins
+} // namespace Nuclex.Support
 
 #endif // UNITTEST

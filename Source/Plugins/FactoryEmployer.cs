@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Plugins {
 
   /// <summary>Employer to create factories of suiting types found in plugins</summary>
-  /// <typeparam name="ProductType">
+  /// <typeparam name="TProduct">
   ///   Interface or base class that the types need to implement
   /// </typeparam>
   /// <remarks>
@@ -41,12 +41,12 @@ namespace Nuclex.Support.Plugins {
   ///     a human-readable name, capabilities or an icon.
   ///   </para>
   /// </remarks>
-  public class FactoryEmployer<ProductType> : Employer where ProductType : class {
+  public class FactoryEmployer<TProduct> : Employer where TProduct : class {
 
     #region class ConcreteFactory
 
     /// <summary>Concrete factory for the types in a plugin assembly</summary>
-    private class ConcreteFactory : IAbstractFactory<ProductType>, IAbstractFactory {
+    private class ConcreteFactory : IAbstractFactory<TProduct>, IAbstractFactory {
 
       /// <summary>
       ///   Initializes a factory and configures it for the specified product
@@ -58,8 +58,8 @@ namespace Nuclex.Support.Plugins {
 
       /// <summary>Create a new instance of the type the factory is configured to</summary>
       /// <returns>The newly created instance</returns>
-      public ProductType CreateInstance() {
-        return (ProductType)Activator.CreateInstance(this.concreteType);
+      public TProduct CreateInstance() {
+        return (TProduct)Activator.CreateInstance(this.concreteType);
       }
 
       /// <summary>Create a new instance of the type the factory is configured to</summary>
@@ -77,11 +77,11 @@ namespace Nuclex.Support.Plugins {
 
     /// <summary>Initializes a new FactoryEmployer</summary>
     public FactoryEmployer() {
-      this.employedFactories = new List<IAbstractFactory<ProductType>>();
+      this.employedFactories = new List<IAbstractFactory<TProduct>>();
     }
 
     /// <summary>List of all factories that the instance employer has created</summary>
-    public List<IAbstractFactory<ProductType>> Factories {
+    public List<IAbstractFactory<TProduct>> Factories {
       get { return this.employedFactories; }
     }
 
@@ -90,20 +90,20 @@ namespace Nuclex.Support.Plugins {
     /// <returns>True if the type can be employed</returns>
     public override bool CanEmploy(Type type) {
       return
-        PluginHelper.HasDefaultConstructor(type) &&
-        typeof(ProductType).IsAssignableFrom(type) &&
+        type.HasDefaultConstructor() &&
+        typeof(TProduct).IsAssignableFrom(type) &&
         !type.ContainsGenericParameters;
     }
 
     /// <summary>Employs the specified plugin type</summary>
     /// <param name="type">Type to be employed</param>
     public override void Employ(Type type) {
-      if(!PluginHelper.HasDefaultConstructor(type)) {
+      if(!type.HasDefaultConstructor()) {
         throw new MissingMethodException(
           "Cannot employ type because it does not have a public default constructor"
         );
       }
-      if(!typeof(ProductType).IsAssignableFrom(type)) {
+      if(!typeof(TProduct).IsAssignableFrom(type)) {
         throw new InvalidCastException(
           "Cannot employ type because it cannot be cast to the factory's product type"
         );
@@ -118,7 +118,7 @@ namespace Nuclex.Support.Plugins {
     }
 
     /// <summary>All factories that the instance employer has created</summary>
-    private List<IAbstractFactory<ProductType>> employedFactories;
+    private List<IAbstractFactory<TProduct>> employedFactories;
 
   }
 

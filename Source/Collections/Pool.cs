@@ -45,18 +45,35 @@ namespace Nuclex.Support.Collections {
   ///     automatically call its IRecyclable.Recycle() method.
   ///   </para>
   /// </remarks>
-  public class Pool<TItem> where TItem : class, new() {
+  public class Pool<TItem> {
 
     /// <summary>Default number of recyclable objects the pool will store</summary>
     public const int DefaultPoolSize = 64;
 
     /// <summary>Initializes a new pool using the default capacity</summary>
-    public Pool() : this(DefaultPoolSize) { }
+    /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
+    /// <param name="recycleDelegate">Delegate that will be used to recycle items</param>
+    public Pool(Func<TItem> createNewDelegate = null, Action<TItem> recycleDelegate = null) :
+      this(DefaultPoolSize, createNewDelegate, recycleDelegate) { }
 
     /// <summary>Initializes a new pool using a user-specified capacity</summary>
     /// <param name="capacity">Capacity of the pool</param>
-    public Pool(int capacity) {
+    /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
+    /// <param name="recycleDelegate">Delegate that will be used to recycle items</param>
+    public Pool(
+      int capacity, Func<TItem> createNewDelegate = null, Action<TItem> recycleDelegate = null
+    ) {
       Capacity = capacity;
+
+      if(createNewDelegate == null) {
+        createNewDelegate = new Func<TItem>(Activator.CreateInstance<TItem>);
+      }
+      if(recycleDelegate == null) {
+        recycleDelegate = new Action<TItem>(callRecycleIfSupported);
+      }
+
+      this.createNewDelegate = createNewDelegate;
+      this.recycleDelegate = recycleDelegate;
     }
 
     /// <summary>
@@ -68,7 +85,7 @@ namespace Nuclex.Support.Collections {
         if(this.items.Count > 0) {
           return this.items.Dequeue();
         } else {
-          return new TItem();
+          return this.createNewDelegate();
         }
       }
     }
@@ -82,13 +99,14 @@ namespace Nuclex.Support.Collections {
       // Call Recycle() when the object is redeemed (instead of when it leaves
       // the pool again) in order to eliminate any references the object may hold
       // to other objects.
-      callRecycleIfSupported(item);
+      this.recycleDelegate(item);
 
       lock(this) {
         if(this.items.Count < this.capacity) {
           this.items.Enqueue(item);
         }
       }
+
     }
 
     /// <summary>Number of objects the pool can retain</summary>
@@ -125,6 +143,8 @@ namespace Nuclex.Support.Collections {
     ///   Required because the Queue class doesn't allow this value to be retrieved
     /// </remarks>
     private int capacity;
+    private Func<TItem> createNewDelegate;
+    private Action<TItem> recycleDelegate;
 
   }
 

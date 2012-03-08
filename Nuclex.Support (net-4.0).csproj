@@ -58,10 +58,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
-    <Compile Include="Source\Cloning\ClonerHelpers.cs" />
-    <Compile Include="Source\Cloning\ClonerHelpers.Test.cs">
-      <DependentUpon>ClonerHelpers.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.FieldBased.cs">
       <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
@@ -253,10 +249,6 @@
     <Compile Include="Source\Plugins\NoPluginAttribute.Test.cs">
       <DependentUpon>NoPluginAttribute.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Plugins\PluginHelper.cs" />
-    <Compile Include="Source\Plugins\PluginHelper.Test.cs">
-      <DependentUpon>PluginHelper.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Plugins\PluginHost.cs" />
     <Compile Include="Source\Plugins\PluginHost.Test.cs">
       <DependentUpon>PluginHost.cs</DependentUpon>
@@ -284,6 +276,10 @@
     <Compile Include="Source\ObservableHelper.cs" />
     <Compile Include="Source\ObservableHelper.Test.cs">
       <DependentUpon>ObservableHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\TypeHelper.cs" />
+    <Compile Include="Source\TypeHelper.Test.cs">
+      <DependentUpon>\TypeHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Semaphore.cs" />
     <Compile Include="Source\Semaphore.Test.cs">

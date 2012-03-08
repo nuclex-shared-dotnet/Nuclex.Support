@@ -167,8 +167,8 @@ namespace Nuclex.Support.Cloning {
       object clone = FormatterServices.GetUninitializedObject(originalType);
 #endif
 
-      FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
-        originalType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+      FieldInfo[] fieldInfos = originalType.GetFieldInfosIncludingBaseClasses(
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];
@@ -249,8 +249,8 @@ namespace Nuclex.Support.Cloning {
       object clone = FormatterServices.GetUninitializedObject(originalType);
 #endif
 
-      FieldInfo[] fieldInfos = ClonerHelpers.GetFieldInfosIncludingBaseClasses(
-        originalType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+      FieldInfo[] fieldInfos = originalType.GetFieldInfosIncludingBaseClasses(
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
       );
       for(int index = 0; index < fieldInfos.Length; ++index) {
         FieldInfo fieldInfo = fieldInfos[index];
