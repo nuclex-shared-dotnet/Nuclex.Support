@@ -51,21 +51,44 @@ namespace Nuclex.Support.Collections {
     public const int DefaultPoolSize = 64;
 
     /// <summary>Initializes a new pool using the default capacity</summary>
+    public Pool() : this(DefaultPoolSize, null, null) { }
+
+    /// <summary>Initializes a new pool using the default capacity</summary>
+    /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
+    public Pool(Func<TItem> createNewDelegate) :
+      this(DefaultPoolSize, createNewDelegate, null) { }
+
+    /// <summary>Initializes a new pool using the default capacity</summary>
     /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
     /// <param name="recycleDelegate">Delegate that will be used to recycle items</param>
-    public Pool(Func<TItem> createNewDelegate = null, Action<TItem> recycleDelegate = null) :
+    public Pool(Func<TItem> createNewDelegate, Action<TItem> recycleDelegate) :
       this(DefaultPoolSize, createNewDelegate, recycleDelegate) { }
+
+    /// <summary>Initializes a new pool using a user-specified capacity</summary>
+    /// <param name="capacity">Capacity of the pool</param>
+    public Pool(int capacity) :
+      this(capacity, null, null) { }
+
+    /// <summary>Initializes a new pool using a user-specified capacity</summary>
+    /// <param name="capacity">Capacity of the pool</param>
+    /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
+    public Pool(int capacity, Func<TItem> createNewDelegate) :
+      this(capacity, createNewDelegate, null) { }
 
     /// <summary>Initializes a new pool using a user-specified capacity</summary>
     /// <param name="capacity">Capacity of the pool</param>
     /// <param name="createNewDelegate">Delegate that will be used to create new items</param>
     /// <param name="recycleDelegate">Delegate that will be used to recycle items</param>
-    public Pool(
-      int capacity, Func<TItem> createNewDelegate = null, Action<TItem> recycleDelegate = null
-    ) {
+    public Pool(int capacity, Func<TItem> createNewDelegate, Action<TItem> recycleDelegate) {
       Capacity = capacity;
 
       if(createNewDelegate == null) {
+        if(!typeof(TItem).HasDefaultConstructor()) {
+          throw new ArgumentException(
+            "Type " + typeof(TItem).Name + " has no default constructor and " +
+            "requires a custom 'create instance' delegate"
+          );
+        }
         createNewDelegate = new Func<TItem>(Activator.CreateInstance<TItem>);
       }
       if(recycleDelegate == null) {

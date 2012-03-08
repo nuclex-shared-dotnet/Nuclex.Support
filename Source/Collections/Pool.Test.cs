@@ -48,32 +48,43 @@ namespace Nuclex.Support.Collections {
 
     #endregion // class TestClass
 
+    #region class NoDefaultConstructor
+
+    /// <summary>Used to test the pool</summary>
+    private class NoDefaultConstructor {
+
+      /// <summary>Private constructor so no instances can be created</summary>
+      private NoDefaultConstructor() { }
+
+    }
+
+    #endregion // class NoDefaultConstructor
+
     /// <summary>
     ///   Verifies that the pool can return newly constructed objects
     /// </summary>
     [Test]
-    public void TestGet() {
+    public void NewInstancesCanBeObtained() {
       Pool<TestClass> pool = new Pool<TestClass>();
       Assert.IsNotNull(pool.Get());
     }
 
     /// <summary>
-    ///   Verifies that the pool will return a recycled object if one is available
+    ///   Verifies that an exception is thrown if the pool's default instance creator is used
+    ///   on a type that doesn't have a default constructor
     /// </summary>
     [Test]
-    public void TestGetRecycled() {
-      Pool<TestClass> pool = new Pool<TestClass>();
-      pool.Redeem(new TestClass());
-
-      TestClass test = pool.Get();
-      Assert.IsTrue(test.Recycled);
+    public void UsingDefaultInstanceCreatorRequiresDefaultConstructor() {
+      Assert.Throws<ArgumentException>(
+        delegate() { new Pool<NoDefaultConstructor>(); }
+      );
     }
 
     /// <summary>
     ///   Tests whether the pool can redeem objects that are no longer used
     /// </summary>
     [Test]
-    public void TestRedeem() {
+    public void InstancesCanBeRedeemed() {
       Pool<TestClass> pool = new Pool<TestClass>();
       pool.Redeem(new TestClass());
     }
@@ -82,7 +93,7 @@ namespace Nuclex.Support.Collections {
     ///   Tests whether the Recycle() method is called at the appropriate time
     /// </summary>
     [Test]
-    public void TestRecycle() {
+    public void RedeemedItemsWillBeRecycled() {
       Pool<TestClass> pool = new Pool<TestClass>();
       TestClass x = new TestClass();
 
@@ -93,7 +104,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Verifies that the pool's Capacity is applied correctly</summary>
     [Test]
-    public void TestPoolSize() {
+    public void PoolCapacityCanBeAdjusted() {
       Pool<TestClass> pool = new Pool<TestClass>(123);
       Assert.AreEqual(123, pool.Capacity);
       pool.Capacity = 321;
