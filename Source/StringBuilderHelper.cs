@@ -19,8 +19,7 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace Nuclex.Support {
@@ -32,6 +31,9 @@ namespace Nuclex.Support {
     private static readonly char[] numbers = new char[] {
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
+
+    /// <summary>Characters used to separate decimal places in a number</summary>
+    private static readonly string decimalSeparator = getDecimalSeparator();
 
     /// <summary>Clears the contents of a string builder</summary>
     /// <param name="builder">String builder that will be cleared</param>
@@ -195,7 +197,7 @@ namespace Nuclex.Support {
       }
 
       if(decimalPlaces > 0) {
-        builder.Append('.');
+        builder.Append(decimalSeparator);
 
         // Build the fractional part
         if(fractional == 0) {
@@ -303,7 +305,7 @@ namespace Nuclex.Support {
       }
 
       if(decimalPlaces > 0) {
-        builder.Append('.');
+        builder.Append(decimalSeparator);
 
         // Build the fractional part
         if(fractional == 0) {
@@ -362,6 +364,13 @@ namespace Nuclex.Support {
       }
 
       builder.Append(numbers[digit]);
+    }
+
+    /// <summary>Looks up the decimal separator used by the current system</summary>
+    /// <returns></returns>
+    private static string getDecimalSeparator() {
+      NumberFormatInfo numberFormatInfo = CultureInfo.CurrentCulture.NumberFormat;
+      return numberFormatInfo.NumberDecimalSeparator;
     }
 
   }

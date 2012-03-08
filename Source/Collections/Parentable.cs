@@ -24,11 +24,11 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Collections {
 
   /// <summary>Base class for objects that can be parented to an owner</summary>
-  /// <typeparam name="ParentType">Type of the parent object</typeparam>
-  public class Parentable<ParentType> {
+  /// <typeparam name="TParent">Type of the parent object</typeparam>
+  public class Parentable<TParent> {
 
     /// <summary>The parent object that owns this instance</summary>
-    protected ParentType Parent {
+    protected TParent Parent {
       get { return this.parent; }
     }
 
@@ -39,18 +39,18 @@ namespace Nuclex.Support.Collections {
     ///   current parent will be null.
     /// </remarks>
     /// <param name="oldParent">Previous owner of the instance</param>
-    protected virtual void OnParentChanged(ParentType oldParent) { }
+    protected virtual void OnParentChanged(TParent oldParent) { }
 
     /// <summary>Assigns a new parent to this instance</summary>
-    internal void SetParent(ParentType parent) {
-      ParentType oldParent = this.parent;
+    internal void SetParent(TParent parent) {
+      TParent oldParent = this.parent;
       this.parent = parent;
 
       OnParentChanged(oldParent);
     }
 
     /// <summary>Current parent of this object</summary>
-    private ParentType parent;
+    private TParent parent;
 
   }
 

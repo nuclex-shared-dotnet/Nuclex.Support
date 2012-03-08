@@ -42,12 +42,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append((byte)255, GarbagePolicy.Avoid);
-      Assert.AreEqual("255", builder.ToString());
+      Assert.AreEqual(((byte)255).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append((byte)255, GarbagePolicy.Accept);
-      Assert.AreEqual("255", builder.ToString());
+      Assert.AreEqual(((byte)255).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -58,12 +58,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append((byte)0, GarbagePolicy.Avoid);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual(((byte)0).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append((byte)0, GarbagePolicy.Accept);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual(((byte)0).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -74,12 +74,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(12345, GarbagePolicy.Avoid);
-      Assert.AreEqual("12345", builder.ToString());
+      Assert.AreEqual((12345).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(12345, GarbagePolicy.Accept);
-      Assert.AreEqual("12345", builder.ToString());
+      Assert.AreEqual((12345).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -90,12 +90,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(0, GarbagePolicy.Avoid);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual((0).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(0, GarbagePolicy.Accept);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual((0).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -106,12 +106,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(-12345, GarbagePolicy.Avoid);
-      Assert.AreEqual("-12345", builder.ToString());
+      Assert.AreEqual((-12345).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(-12345, GarbagePolicy.Accept);
-      Assert.AreEqual("-12345", builder.ToString());
+      Assert.AreEqual((-12345).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -122,12 +122,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(12345L, GarbagePolicy.Avoid);
-      Assert.AreEqual("12345", builder.ToString());
+      Assert.AreEqual((12345L).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(12345L, GarbagePolicy.Accept);
-      Assert.AreEqual("12345", builder.ToString());
+      Assert.AreEqual((12345L).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -138,12 +138,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(0L, GarbagePolicy.Avoid);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual((0L).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(0L, GarbagePolicy.Accept);
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual((0L).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -154,12 +154,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(-12345L, GarbagePolicy.Avoid);
-      Assert.AreEqual("-12345", builder.ToString());
+      Assert.AreEqual((-12345L).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(-12345L, GarbagePolicy.Accept);
-      Assert.AreEqual("-12345", builder.ToString());
+      Assert.AreEqual((-12345L).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -170,12 +170,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(-0.125f, GarbagePolicy.Avoid);
-      Assert.AreEqual("-0.125", builder.ToString());
+      Assert.AreEqual((-0.125f).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(-0.125f, GarbagePolicy.Accept);
-      Assert.AreEqual("-0.125", builder.ToString());
+      Assert.AreEqual((-0.125f).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -186,12 +186,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(10.0625f, GarbagePolicy.Avoid);
-      Assert.AreEqual("10.0625", builder.ToString());
+      Assert.AreEqual((10.0625f).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(10.0625f, GarbagePolicy.Accept);
-      Assert.AreEqual("10.0625", builder.ToString());
+      Assert.AreEqual((10.0625f).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -202,12 +202,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(0.00390625f, GarbagePolicy.Avoid);
-      Assert.AreEqual("0.00390625", builder.ToString());
+      Assert.AreEqual((0.00390625f).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(0.00390625f, GarbagePolicy.Accept);
-      Assert.AreEqual("0.00390625", builder.ToString());
+      Assert.AreEqual((0.00390625f).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -218,12 +218,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(1000000000.0f, GarbagePolicy.Avoid);
-      Assert.AreEqual("1000000000.0", builder.ToString());
+      Assert.AreEqual((1000000000.0f).ToString("F1"), builder.ToString());
 
       builder.Clear();
 
       builder.Append(1000000000.0f, GarbagePolicy.Accept);
-      Assert.AreEqual("1E+09", builder.ToString());
+      Assert.AreEqual((1000000000.0f).ToString(), builder.ToString());
     }
 
     /// <summary>Tests whether the number of decimal places can be restricted</summary>
@@ -231,7 +231,7 @@ namespace Nuclex.Support {
     public void TestAppendFloatLimitDecimalPlaces() {
       StringBuilder builder = new StringBuilder();
       builder.Append(0.00390625f, 3);
-      Assert.AreEqual("0.003", builder.ToString());
+      Assert.AreEqual((0.003f).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ namespace Nuclex.Support {
     public void TestAppendFloatWithoutDecimalPlaces() {
       StringBuilder builder = new StringBuilder();
       builder.Append(0.00390625f, 0);
-      Assert.AreEqual("0", builder.ToString()); // Note: no rounding!
+      Assert.AreEqual((0.0f).ToString(), builder.ToString()); // Note: no rounding!
     }
 
     /// <summary>
@@ -265,12 +265,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(-32.015625, GarbagePolicy.Avoid);
-      Assert.AreEqual("-32.015625", builder.ToString());
+      Assert.AreEqual((-32.015625).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(-32.015625, GarbagePolicy.Accept);
-      Assert.AreEqual("-32.015625", builder.ToString());
+      Assert.AreEqual((-32.015625).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -282,12 +282,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(10.0625, GarbagePolicy.Avoid);
-      Assert.AreEqual("10.0625", builder.ToString());
+      Assert.AreEqual((10.0625).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(10.0625, GarbagePolicy.Accept);
-      Assert.AreEqual("10.0625", builder.ToString());
+      Assert.AreEqual((10.0625).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -299,12 +299,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(0.00390625, GarbagePolicy.Avoid);
-      Assert.AreEqual("0.00390625", builder.ToString());
+      Assert.AreEqual((0.00390625).ToString(), builder.ToString());
 
       builder.Clear();
 
       builder.Append(0.00390625, GarbagePolicy.Accept);
-      Assert.AreEqual("0.00390625", builder.ToString());
+      Assert.AreEqual((0.00390625).ToString(), builder.ToString());
     }
 
     /// <summary>
@@ -316,12 +316,12 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
 
       builder.Append(1000000000000000000.0, GarbagePolicy.Avoid);
-      Assert.AreEqual("1000000000000000000.0", builder.ToString());
+      Assert.AreEqual((1000000000000000000.0).ToString("F1"), builder.ToString());
 
       builder.Clear();
 
       builder.Append(1000000000000000000.0, GarbagePolicy.Accept);
-      Assert.AreEqual("1E+18", builder.ToString());
+      Assert.AreEqual((1000000000000000000.0).ToString(), builder.ToString());
     }
 
     /// <summary>Tests whether the number of decimal places can be restricted</summary>
@@ -330,7 +330,7 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
       StringBuilderHelper.Append(builder, 0.00390625, 3);
 
-      Assert.AreEqual("0.003", builder.ToString()); // Note: no rounding!
+      Assert.AreEqual((0.003).ToString(), builder.ToString()); // Note: no rounding!
     }
 
     /// <summary>
@@ -341,7 +341,7 @@ namespace Nuclex.Support {
       StringBuilder builder = new StringBuilder();
       StringBuilderHelper.Append(builder, 0.00390625, 0);
 
-      Assert.AreEqual("0", builder.ToString());
+      Assert.AreEqual((0.0).ToString(), builder.ToString());
     }
 
     /// <summary>
