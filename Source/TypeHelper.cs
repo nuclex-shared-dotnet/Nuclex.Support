@@ -73,7 +73,7 @@ namespace Nuclex.Support {
 
       // If this class doesn't have a base, don't waste any time
       if(type.BaseType != typeof(object)) {
-        var fieldInfoSet = new HashSet<FieldInfo>(fieldInfos, MemberInfoComparer.Default);
+        var fieldInfoSet = new HashSet<FieldInfo>(fieldInfos, FieldInfoComparer.Default);
         while(type.BaseType != typeof(object)) {
           type = type.BaseType;
           fieldInfos = type.GetFields(bindingFlags);
