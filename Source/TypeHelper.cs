@@ -27,38 +27,38 @@ namespace Nuclex.Support {
   /// <summary>Helper methods for the reflection Type class</summary>
   public static class TypeHelper {
 
-#if !(XBOX360 || WINDOWS_PHONE)
-
-    #region class MemberInfoComparer
+    #region class FieldInfoComparer
 
     /// <summary>Determines whether member informations relate to the same member</summary>
-    private class MemberInfoComparer : IEqualityComparer<MemberInfo> {
+    private class FieldInfoComparer : IEqualityComparer<FieldInfo> {
 
       /// <summary>Default instance of the comparer</summary>
-      public static readonly MemberInfoComparer Default = new MemberInfoComparer();
+      public static readonly FieldInfoComparer Default = new FieldInfoComparer();
 
       /// <summary>Checks whether two member informations are equal</summary>
       /// <param name="left">Informations about the left member in the comaprison</param>
       /// <param name="right">Informations about the right member in the comparison</param>
       /// <returns>True if the two member informations relate to the same member</returns>
-      public bool Equals(MemberInfo left, MemberInfo right) {
+      public bool Equals(FieldInfo left, FieldInfo right) {
         return
           (left.DeclaringType == right.DeclaringType) &&
           (left.Name == right.Name);
       }
 
       /// <summary>Determines the hash code of the specified member informations</summary>
-      /// <param name="memberInfo">
+      /// <param name="FieldInfo">
       ///   Member informations whose hash code will be determined
       /// </param>
       /// <returns>The hash code of the specified member informations</returns>
-      public int GetHashCode(MemberInfo memberInfo) {
-        return (memberInfo.DeclaringType.GetHashCode() ^ memberInfo.Name.GetHashCode());
+      public int GetHashCode(FieldInfo FieldInfo) {
+        return (FieldInfo.DeclaringType.GetHashCode() ^ FieldInfo.Name.GetHashCode());
       }
 
     }
 
     #endregion // class MemberInfoComparer
+
+#if !(XBOX360 || WINDOWS_PHONE)
 
     /// <summary>
     ///   Returns all the fields of a type, including those defined in the type's base classes
@@ -104,9 +104,9 @@ namespace Nuclex.Support {
 
       // If this class doesn't have a base, don't waste any time
       if(type.BaseType != typeof(object)) {
-        var fieldInfoList = new List<FieldInfo>(fieldInfos.Length * 2);
+        var fieldInfoSet = new Dictionary<FieldInfo, object>(FieldInfoComparer.Default);
         for(int index = 0; index < fieldInfos.Length; ++index) {
-          fieldInfoList.Add(fieldInfos[index]);
+          fieldInfoSet.Add(fieldInfos[index], null);
         }
 
         while(type.BaseType != typeof(object)) {
@@ -114,11 +114,12 @@ namespace Nuclex.Support {
           fieldInfos = type.GetFields(bindingFlags);
 
           for(int index = 0; index < fieldInfos.Length; ++index) {
-            addIfNotExists(fieldInfoList, fieldInfos[index]);
+            addIfNotExists(fieldInfoSet, fieldInfos[index]);
           }
         }
 
-        fieldInfos = fieldInfoList.ToArray();
+        fieldInfos = new FieldInfo[fieldInfoSet.Count];
+        fieldInfoSet.Keys.CopyTo(fieldInfos, 0);
       }
 
       return fieldInfos;
@@ -129,23 +130,11 @@ namespace Nuclex.Support {
     /// </summary>
     /// <param name="fieldInfos">List the field informations will be added to</param>
     /// <param name="fieldInfo">Field informations that will be added to the list</param>
-    private static void addIfNotExists(IList<FieldInfo> fieldInfos, FieldInfo fieldInfo) {
-      bool matchFound = false;
-
-      for(int index = 0; index < fieldInfos.Count; ++index) {
-        FieldInfo current = fieldInfos[index];
-
-        matchFound =
-          (current.DeclaringType == fieldInfo.DeclaringType) &&
-          (current.Name == fieldInfo.Name);
-
-        if(matchFound) {
-          break;
-        }
-      }
-
-      if(!matchFound) {
-        fieldInfos.Add(fieldInfo);
+    private static void addIfNotExists(
+      IDictionary<FieldInfo, object> fieldInfos, FieldInfo fieldInfo
+    ) {
+      if(!fieldInfos.ContainsKey(fieldInfo)) {
+        fieldInfos.Add(fieldInfo, null);
       }
     }
 
