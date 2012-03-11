@@ -223,40 +223,6 @@
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Plugins\AssemblyLoadEventArgs.cs" />
-    <Compile Include="Source\Plugins\AssemblyLoadEventArgs.Test.cs">
-      <DependentUpon>AssemblyLoadEventArgs.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\IAbstractFactory.cs" />
-    <Compile Include="Source\Plugins\Employer.Test.cs">
-      <DependentUpon>Employer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\FactoryEmployer.Test.cs">
-      <DependentUpon>FactoryEmployer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\PrototypeFactory.cs" />
-    <Compile Include="Source\Plugins\PrototypeFactory.Test.cs">
-      <DependentUpon>PrototypeFactory.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\IAssemblyLoader.cs" />
-    <Compile Include="Source\Plugins\InstanceEmployer.Test.cs">
-      <DependentUpon>InstanceEmployer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\NoPluginAttribute.cs" />
-    <Compile Include="Source\Plugins\Employer.cs" />
-    <Compile Include="Source\Plugins\FactoryEmployer.cs" />
-    <Compile Include="Source\Plugins\InstanceEmployer.cs" />
-    <Compile Include="Source\Plugins\NoPluginAttribute.Test.cs">
-      <DependentUpon>NoPluginAttribute.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\PluginHost.cs" />
-    <Compile Include="Source\Plugins\PluginHost.Test.cs">
-      <DependentUpon>PluginHost.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\Plugins\PluginRepository.cs" />
-    <Compile Include="Source\Plugins\PluginRepository.Test.cs">
-      <DependentUpon>PluginRepository.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
     <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
       <DependentUpon>PropertyChangedEventArgsHelper.cs</DependentUpon>
