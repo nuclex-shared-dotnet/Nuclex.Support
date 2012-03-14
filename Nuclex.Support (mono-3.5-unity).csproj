@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F6ED62EA-24D4-4D5D-847A-0F717DA147BD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Nuclex.Support</RootNamespace>
+    <AssemblyName>Nuclex.Support</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <DefineConstants>NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
+    <Compile Include="Source\Cloning\IStateCopier.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.cs" />
+    <Compile Include="Source\Cloning\ReflectionCloner.Test.cs">
+      <DependentUpon>ReflectionCloner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Cloning\ICloneFactory.cs" />
+    <Compile Include="Source\Cloning\SerializationCloner.cs" />
+    <Compile Include="Source\Cloning\SerializationCloner.Test.cs">
+      <DependentUpon>SerializationCloner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Constants.cs" />
+    <Compile Include="Source\Collections\Constants.Test.cs">
+      <DependentUpon>Constants.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.cs" />
+    <Compile Include="Source\Collections\Deque.Insertion.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Interfaces.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Removal.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Search.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Deque.Test.cs">
+      <DependentUpon>Deque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\IMultiDictionary.cs" />
+    <Compile Include="Source\Collections\IObservableCollection.cs" />
+    <Compile Include="Source\Collections\IRecyclable.cs" />
+    <Compile Include="Source\Collections\ItemEventArgs.cs" />
+    <Compile Include="Source\Collections\ItemEventArgs.Test.cs">
+      <DependentUpon>ItemEventArgs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ItemReplaceEventArgs.cs" />
+    <Compile Include="Source\Collections\ItemReplaceEventArgs.Test.cs">
+      <DependentUpon>ItemReplaceEventArgs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.cs" />
+    <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Interfaces.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\MultiDictionary.Test.cs">
+      <DependentUpon>MultiDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ObservableCollection.cs" />
+    <Compile Include="Source\Collections\ObservableCollection.Test.cs">
+      <DependentUpon>ObservableCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ObservableDictionary.cs" />
+    <Compile Include="Source\Collections\ObservableDictionary.Test.cs">
+      <DependentUpon>ObservableDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ObservableList.cs" />
+    <Compile Include="Source\Collections\ObservableList.Test.cs">
+      <DependentUpon>ObservableList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\PairPriorityQueue.cs" />
+    <Compile Include="Source\Collections\PairPriorityQueue.Test.cs">
+      <DependentUpon>PairPriorityQueue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Parentable.cs" />
+    <Compile Include="Source\Collections\Parentable.Test.cs">
+      <DependentUpon>Parentable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ParentingCollection.cs" />
+    <Compile Include="Source\Collections\ParentingCollection.Test.cs">
+      <DependentUpon>ParentingCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Pool.cs" />
+    <Compile Include="Source\Collections\Pool.Test.cs">
+      <DependentUpon>Pool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\PriorityItemPair.cs" />
+    <Compile Include="Source\Collections\PriorityItemPair.Test.cs">
+      <DependentUpon>PriorityItemPair.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\PriorityQueue.cs" />
+    <Compile Include="Source\Collections\PriorityQueue.Test.cs">
+      <DependentUpon>PriorityQueue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ReadOnlyCollection.cs" />
+    <Compile Include="Source\Collections\ReadOnlyCollection.Test.cs">
+      <DependentUpon>ReadOnlyCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Source\Collections\ReadOnlyDictionary.Test.cs">
+      <DependentUpon>ReadOnlyDictionary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ReadOnlyList.cs" />
+    <Compile Include="Source\Collections\ReadOnlyList.Test.cs">
+      <DependentUpon>ReadOnlyList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\ReverseComparer.cs" />
+    <Compile Include="Source\Collections\ReverseComparer.Test.cs">
+      <DependentUpon>ReverseComparer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs">
+      <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\TransformingReadOnlyCollection.Test.cs">
+      <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\WeakCollection.cs" />
+    <Compile Include="Source\Collections\WeakCollection.Interfaces.cs">
+      <DependentUpon>WeakCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\WeakCollection.Test.cs">
+      <DependentUpon>WeakCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\GarbagePolicy.cs" />
+    <Compile Include="Source\IO\PartialStream.cs" />
+    <Compile Include="Source\IO\PartialStream.Test.cs">
+      <DependentUpon>PartialStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\IO\RingMemoryStream.cs" />
+    <Compile Include="Source\IO\RingMemoryStream.Test.cs">
+      <DependentUpon>RingMemoryStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\IO\ChainStream.cs" />
+    <Compile Include="Source\IO\ChainStream.Test.cs">
+      <DependentUpon>ChainStream.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Licensing\LicenseKey.cs" />
+    <Compile Include="Source\Licensing\LicenseKey.Test.cs">
+      <DependentUpon>LicenseKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.Argument.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.Formatter.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.Test.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\CommandLine.cs" />
+    <Compile Include="Source\Parsing\CommandLine.Parser.cs">
+      <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
+    <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
+      <DependentUpon>PropertyChangedEventArgsHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\AffineThreadPool.cs" />
+    <Compile Include="Source\AffineThreadPool.Test.cs">
+      <DependentUpon>AffineThreadPool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\EnumHelper.cs" />
+    <Compile Include="Source\EnumHelper.Test.cs">
+      <DependentUpon>EnumHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Observable.cs" />
+    <Compile Include="Source\Observable.Test.cs">
+      <DependentUpon>Observable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\ObservableHelper.cs" />
+    <Compile Include="Source\ObservableHelper.Test.cs">
+      <DependentUpon>ObservableHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\TypeHelper.cs" />
+    <Compile Include="Source\TypeHelper.Test.cs">
+      <DependentUpon>TypeHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Semaphore.cs" />
+    <Compile Include="Source\Semaphore.Test.cs">
+      <DependentUpon>Semaphore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\FloatHelper.cs" />
+    <Compile Include="Source\FloatHelper.Test.cs">
+      <DependentUpon>FloatHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\IntegerHelper.cs" />
+    <Compile Include="Source\IntegerHelper.Test.cs">
+      <DependentUpon>IntegerHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\PathHelper.cs" />
+    <Compile Include="Source\PathHelper.Test.cs">
+      <DependentUpon>PathHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Shared.cs" />
+    <Compile Include="Source\Shared.Test.cs">
+      <DependentUpon>Shared.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\StringBuilderHelper.cs" />
+    <Compile Include="Source\StringBuilderHelper.Test.cs">
+      <DependentUpon>StringBuilderHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\StringHelper.cs" />
+    <Compile Include="Source\StringHelper.Test.cs">
+      <DependentUpon>StringHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\StringSegment.cs" />
+    <Compile Include="Source\StringSegment.Test.cs">
+      <DependentUpon>StringSegment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\WeakReference.cs" />
+    <Compile Include="Source\WeakReference.Phone7.cs">
+      <DependentUpon>WeakReference.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\WeakReference.Test.cs">
+      <DependentUpon>WeakReference.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\XmlHelper.cs" />
+    <Compile Include="Source\XmlHelper.Test.cs">
+      <DependentUpon>XmlHelper.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documents\CommandLine.txt" />
+    <Content Include="Documents\DoubleConverter.txt" />
+    <Content Include="Documents\Nuclex.Support.txt" />
+    <Content Include="Documents\Request Framework.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
