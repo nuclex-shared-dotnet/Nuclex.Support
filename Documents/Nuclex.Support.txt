@@ -26,9 +26,3 @@
   
   #endif
 
-
-Benchmark of cloners:
-
-  SerializationCloner took 13424 ms
-	ReflectionCloner took 2126 ms
-	ExpressionTreeCloner took 171 ms

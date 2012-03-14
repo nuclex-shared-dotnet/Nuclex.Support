@@ -26,17 +26,17 @@ namespace Nuclex.Support.Collections {
   /// <summary>
   ///   Compares two values in reverse or reverses the output of another comparer
   /// </summary>
-  /// <typeparam name="ComparedType">Type of values to be compared</typeparam>
-  public class ReverseComparer<ComparedType> : IComparer<ComparedType> {
+  /// <typeparam name="TCompared">Type of values to be compared</typeparam>
+  public class ReverseComparer<TCompared> : IComparer<TCompared> {
 
     /// <summary>Initializes a new reverse comparer</summary>
-    public ReverseComparer() : this(Comparer<ComparedType>.Default) { }
+    public ReverseComparer() : this(Comparer<TCompared>.Default) { }
 
     /// <summary>
     ///   Initializes the comparer to provide the inverse results of another comparer
     /// </summary>
     /// <param name="comparerToReverse">Comparer whose results will be inversed</param>
-    public ReverseComparer(IComparer<ComparedType> comparerToReverse) {
+    public ReverseComparer(IComparer<TCompared> comparerToReverse) {
       this.comparer = comparerToReverse;
     }
 
@@ -44,12 +44,12 @@ namespace Nuclex.Support.Collections {
     /// <param name="left">Value on the left side</param>
     /// <param name="right">Value on the right side</param>
     /// <returns>The relationship of the two values</returns>
-    public int Compare(ComparedType left, ComparedType right) {
+    public int Compare(TCompared left, TCompared right) {
       return this.comparer.Compare(right, left); // intentionally reversed 
     }
 
     /// <summary>The default comparer from the .NET framework</summary>
-    private IComparer<ComparedType> comparer;
+    private IComparer<TCompared> comparer;
 
   }
 
