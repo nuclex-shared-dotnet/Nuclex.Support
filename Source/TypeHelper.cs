@@ -170,7 +170,7 @@ namespace Nuclex.Support {
     /// <param name="type">
     ///   Type that will be checked for presence of the specified attribute
     /// </param>
-    /// <name="attributeType">Attribute the type will be checked for</typeparam>
+    /// <param name="attributeType">Attribute the type will be checked for</typeparam>
     /// <returns>True if the type has the specified attribute, otherwise false</returns>
     public static bool HasAttribute(this Type type, Type attributeType) {
       object[] attributes = type.GetCustomAttributes(attributeType, true);
