@@ -40,7 +40,11 @@ namespace Nuclex.Support.Collections {
     IDeserializationCallback,
 #endif
     IDictionary<TKey, TValue>,
+#if WINRT
+    ICollection,
+#else
     IDictionary,
+#endif
 #if !NO_SPECIALIZED_COLLECTIONS
     INotifyCollectionChanged,
 #endif
@@ -329,6 +333,8 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
+#if !WINRT
+
     /// <summary>Adds an item into the Dictionary</summary>
     /// <param name="key">Key under which the item will be added</param>
     /// <param name="value">Item that will be added</param>
@@ -342,12 +348,6 @@ namespace Nuclex.Support.Collections {
     /// <returns>True if an item with the specified key exists in the Dictionary</returns>
     bool IDictionary.Contains(object key) {
       return this.objectDictionary.Contains(key);
-    }
-
-    /// <summary>Returns a new entry enumerator for the dictionary</summary>
-    /// <returns>The new entry enumerator</returns>
-    IDictionaryEnumerator IDictionary.GetEnumerator() {
-      return this.objectDictionary.GetEnumerator();
     }
 
     /// <summary>Whether the size of the Dictionary is fixed</summary>
@@ -395,7 +395,23 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    #endregion
+#endif // !WINRT
+
+    #endregion // IDictionary implementation
+
+    #region IDictionaryEnumerator implementation
+
+#if !WINRT
+
+    /// <summary>Returns a new entry enumerator for the dictionary</summary>
+    /// <returns>The new entry enumerator</returns>
+    IDictionaryEnumerator IDictionary.GetEnumerator() {
+      return this.objectDictionary.GetEnumerator();
+    }
+
+#endif // !WINRT
+
+    #endregion // IDictionaryEnumerator implementation
 
     #region ICollection<> implementation
 
@@ -477,8 +493,10 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<TKey, TValue> typedDictionary;
+#if !WINRT
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
+#endif
 
   }
 

@@ -37,8 +37,12 @@ namespace Nuclex.Support.Collections {
     ISerializable,
     IDeserializationCallback,
 #endif
-    IDictionary<KeyType, ValueType>,
-    IDictionary {
+#if WINRT
+    ICollection,
+#else
+    IDictionary,
+#endif
+    IDictionary<KeyType, ValueType> {
 
 #if !NO_SERIALIZATION
 
@@ -233,6 +237,8 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
+#if !WINRT
+
     /// <summary>Removes all items from the Dictionary</summary>
     void IDictionary.Clear() {
       throw new NotSupportedException(
@@ -254,12 +260,6 @@ namespace Nuclex.Support.Collections {
     /// <returns>True if an item with the specified key exists in the Dictionary</returns>
     bool IDictionary.Contains(object key) {
       return this.objectDictionary.Contains(key);
-    }
-
-    /// <summary>Returns a new entry enumerator for the dictionary</summary>
-    /// <returns>The new entry enumerator</returns>
-    IDictionaryEnumerator IDictionary.GetEnumerator() {
-      return this.objectDictionary.GetEnumerator();
     }
 
     /// <summary>Whether the size of the Dictionary is fixed</summary>
@@ -313,7 +313,23 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    #endregion
+#endif // !WINRT
+
+    #endregion // IDictionary implementation
+
+    #region IDictionaryEnumerator implementation
+
+#if !WINRT
+
+    /// <summary>Returns a new entry enumerator for the dictionary</summary>
+    /// <returns>The new entry enumerator</returns>
+    IDictionaryEnumerator IDictionary.GetEnumerator() {
+      return this.objectDictionary.GetEnumerator();
+    }
+
+#endif // !WINRT
+
+    #endregion // IDictionaryEnumerator implementation
 
     #region ICollection<> implementation
 
@@ -394,8 +410,10 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<KeyType, ValueType> typedDictionary;
+#if !WINRT
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
+#endif
     /// <summary>ReadOnly wrapper for the keys collection of the Dictionary</summary>
     private ReadOnlyCollection<KeyType> readonlyKeyCollection;
     /// <summary>ReadOnly wrapper for the values collection of the Dictionary</summary>

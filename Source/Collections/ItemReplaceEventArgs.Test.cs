@@ -29,7 +29,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the item event argument container</summary>
   [TestFixture]
-  public class ItemReplaceEventArgsTest {
+  internal class ItemReplaceEventArgsTest {
 
     /// <summary>
     ///   Tests whether an integer argument can be stored in the argument container

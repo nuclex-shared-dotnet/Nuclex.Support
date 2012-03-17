@@ -38,6 +38,8 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
+#if !WINRT
+
     /// <summary>Adds an item into the dictionary</summary>
     /// <param name="key">Key under which the item will be added</param>
     /// <param name="value">Item that will be added</param>
@@ -50,12 +52,6 @@ namespace Nuclex.Support.Collections {
     /// <returns>True if an item with the specified key exists in the dictionary</returns>
     bool IDictionary.Contains(object key) {
       return this.objectDictionary.Contains(key);
-    }
-
-    /// <summary>Returns a new entry enumerator for the dictionary</summary>
-    /// <returns>The new entry enumerator</returns>
-    IDictionaryEnumerator IDictionary.GetEnumerator() {
-      return new Enumerator(this);
     }
 
     /// <summary>Whether the size of the dictionary is fixed</summary>
@@ -93,7 +89,23 @@ namespace Nuclex.Support.Collections {
       set { this[(TKey)key] = (ICollection<TValue>)value; }
     }
 
+#endif // !WINRT
+
     #endregion
+
+    #region IDictionaryEnumerator implementation
+
+#if !WINRT
+
+    /// <summary>Returns a new entry enumerator for the dictionary</summary>
+    /// <returns>The new entry enumerator</returns>
+    IDictionaryEnumerator IDictionary.GetEnumerator() {
+      return new Enumerator(this);
+    }
+
+#endif // !WINRT
+
+    #endregion // IDictionaryEnumerator implementation
 
     #region ICollection<KeyValuePair<TKey, TValue>> implementation
 
