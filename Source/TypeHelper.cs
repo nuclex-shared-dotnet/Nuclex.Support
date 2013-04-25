@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2012 Nuclex Development Labs
+Copyright (C) 2002-2013 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -229,7 +229,7 @@ namespace Nuclex.Support {
     /// <param name="type">
     ///   Type that will be checked for presence of the specified attribute
     /// </param>
-    /// <param name="attributeType">Attribute the type will be checked for</typeparam>
+    /// <param name="attributeType">Attribute the type will be checked for</param>
     /// <returns>True if the type has the specified attribute, otherwise false</returns>
     public static bool HasAttribute(this Type type, Type attributeType) {
       object[] attributes = type.GetCustomAttributes(attributeType, true);

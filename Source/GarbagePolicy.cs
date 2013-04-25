@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2012 Nuclex Development Labs
+Copyright (C) 2002-2013 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -24,10 +24,12 @@ namespace Nuclex.Support {
 
   /// <summary>How to behave in in respect to the garbage collector</summary>
   public enum GarbagePolicy {
+
     /// <summary>Avoid feeding the garbage collector whenever possible</summary>
     Avoid,
     /// <summary>Accept garbage production</summary>
     Accept
+
   }
 
 } // namespace Nuclex.Support

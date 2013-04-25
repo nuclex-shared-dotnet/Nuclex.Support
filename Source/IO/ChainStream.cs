@@ -1,7 +1,7 @@
 ﻿#region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2012 Nuclex Development Labs
+Copyright (C) 2002-2013 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -139,7 +139,7 @@ namespace Nuclex.Support.IO {
       int totalBytesRead = 0;
       int lastStreamIndex = this.streams.Length - 1;
 
-      if(this.CanSeek) {
+      if(this.allStreamsCanSeek) {
 
         // Find out from which stream and at which position we need to begin reading
         int streamIndex;
