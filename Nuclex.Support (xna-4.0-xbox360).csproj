@@ -265,6 +265,10 @@
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Parsing\ParserHelper.cs" />
+    <Compile Include="Source\Parsing\ParserHelper.Test.cs">
+      <DependentUpon>ParserHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
     <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
       <DependentUpon>PropertyChangedEventArgsHelper.cs</DependentUpon>
