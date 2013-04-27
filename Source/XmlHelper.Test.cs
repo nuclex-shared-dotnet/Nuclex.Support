@@ -171,7 +171,7 @@ namespace Nuclex.Support {
     ///   Verifies that an exception is thrown when a schema fails to load
     /// </summary>
     [Test]
-    public void TestThrowOnInvalidSchema() {
+    public void LoadSchemaThrowsOnInvalidSchema() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(brokenSchemaXml)
       ) {
@@ -183,7 +183,7 @@ namespace Nuclex.Support {
     ///   Verifies that an exception is thrown when a schema contains a syntax error
     /// </summary>
     [Test]
-    public void TestThrowOnSyntaxErrorSchema() {
+    public void LoadSchemaThrowsOnSyntaxErrors() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(syntaxErrorSchemaXml)
       ) {
@@ -196,7 +196,7 @@ namespace Nuclex.Support {
     ///   when the schema is not a valid XML document
     /// </summary>
     [Test]
-    public void TestFailOnTryLoadNonExistingFile() {
+    public void TryLoadSchemaHandlesMissingFiles() {
       XmlSchema schema;
       Assert.IsFalse(XmlHelper.TryLoadSchema("-- hello world --", out schema));
       Assert.IsNull(schema);
@@ -207,7 +207,7 @@ namespace Nuclex.Support {
     ///   when the schema is not a valid XML document
     /// </summary>
     [Test]
-    public void TestFailOnTryLoadBrokenSchema() {
+    public void TryLoadSchemaHandlesBrokenSchemas() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(brokenSchemaXml)
       ) {
@@ -222,7 +222,7 @@ namespace Nuclex.Support {
     ///   when the schema contains a syntax error
     /// </summary>
     [Test]
-    public void TestFailOnTryLoadSyntaxErrorSchema() {
+    public void TryLoadSchemaHandlesSyntaxErrors() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(syntaxErrorSchemaXml)
       ) {
@@ -234,7 +234,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests whether a normal, valid schema can be loaded successfully</summary>
     [Test]
-    public void TestLoadSchema() {
+    public void SchemasCanBeLoadedFromFiles() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(pointsSchemaXml)
       ) {
@@ -244,7 +244,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests whether a normal, valid schema can be loaded successfully</summary>
     [Test]
-    public void TestTryLoadSchema() {
+    public void TryLoadSchemaCanLoadSchemas() {
       using(
         TempFileKeeper tempFile = new TempFileKeeper(pointsSchemaXml)
       ) {
@@ -258,7 +258,7 @@ namespace Nuclex.Support {
     ///   Verifies that an exception is thrown when an invalid XML document is loaded
     /// </summary>
     [Test]
-    public void TestFailOnLoadInvalidDocument() {
+    public void LoadingInvalidDocumentThrows() {
       using(TextReader schemaReader = new StringReader(pointsSchemaXml)) {
         XmlSchema schema = XmlHelper.LoadSchema(schemaReader);
         using(
@@ -275,7 +275,7 @@ namespace Nuclex.Support {
     ///   Verifies that an exception is thrown when a nonconformant XML document is loaded
     /// </summary>
     [Test]
-    public void TestFailOnLoadNonConformingDocument() {
+    public void SchemaValidationFailureCausesException() {
       using(TextReader schemaReader = new StringReader(pointsSchemaXml)) {
         XmlSchema schema = XmlHelper.LoadSchema(schemaReader);
         using(
@@ -292,7 +292,7 @@ namespace Nuclex.Support {
     ///   Tests whether a normal, conformant XML document can be loaded successfully
     /// </summary>
     [Test]
-    public void TestLoadConformingDocument() {
+    public void LoadedDocumentIsValidatedAgainstSchema() {
       using(TextReader schemaReader = new StringReader(pointsSchemaXml)) {
         XmlSchema schema = XmlHelper.LoadSchema(schemaReader);
         using(
