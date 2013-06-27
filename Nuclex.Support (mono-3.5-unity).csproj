@@ -38,6 +38,16 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.FieldBased.cs">
+      <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.PropertyBased.cs">
+      <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Cloning\ExpressionTreeCloner.Test.cs">
+      <DependentUpon>ExpressionTreeCloner.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Cloning\IStateCopier.cs" />
     <Compile Include="Source\Cloning\ReflectionCloner.cs" />
     <Compile Include="Source\Cloning\ReflectionCloner.Test.cs">
@@ -101,6 +111,10 @@
     <Compile Include="Source\Collections\ObservableList.Test.cs">
       <DependentUpon>ObservableList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ObservableSet.cs" />
+    <Compile Include="Source\Collections\ObservableSet.Test.cs">
+      <DependentUpon>ObservableSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\PairPriorityQueue.cs" />
     <Compile Include="Source\Collections\PairPriorityQueue.Test.cs">
       <DependentUpon>PairPriorityQueue.cs</DependentUpon>
@@ -137,6 +151,10 @@
     <Compile Include="Source\Collections\ReadOnlyList.Test.cs">
       <DependentUpon>ReadOnlyList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ReadOnlySet.cs" />
+    <Compile Include="Source\Collections\ReadOnlySet.Test.cs">
+      <DependentUpon>ReadOnlySet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\ReverseComparer.cs" />
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
@@ -146,6 +164,10 @@
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Test.cs">
+      <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Collections\Variegator.cs" />
+    <Compile Include="Source\Collections\Variegator.Test.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\WeakCollection.cs" />
@@ -184,6 +206,10 @@
     <Compile Include="Source\Parsing\CommandLine.cs" />
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Parsing\ParserHelper.cs" />
+    <Compile Include="Source\Parsing\ParserHelper.Test.cs">
+      <DependentUpon>ParserHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
     <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
@@ -252,6 +278,11 @@
     <Compile Include="Source\XmlHelper.Test.cs">
       <DependentUpon>XmlHelper.cs</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Foundation.snk">
+      <Link>Foundation.snk</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documents\CommandLine.txt" />

@@ -290,7 +290,7 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Number of elements contained in the Dictionary</summary>
+    /// <summary>Number of elements contained in the multi dictionary</summary>
     public int Count {
       get { return this.count; }
     }

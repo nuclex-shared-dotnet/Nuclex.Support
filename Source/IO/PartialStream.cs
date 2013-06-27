@@ -43,16 +43,16 @@ namespace Nuclex.Support.IO {
         throw new ArgumentException("Start index must not be less than 0", "start");
       }
 
-      if(!stream.CanSeek) {
-        if(start != 0) {
-          throw new ArgumentException(
-            "The only valid start for unseekable streams is 0", "start"
-          );
-        }
-      } else {
+      if(stream.CanSeek) {
         if(start + length > stream.Length) {
           throw new ArgumentException(
             "Partial stream exceeds end of full stream", "length"
+          );
+        }
+      } else {
+        if(start != 0) {
+          throw new ArgumentException(
+            "The only valid start for unseekable streams is 0", "start"
           );
         }
       }
@@ -257,7 +257,6 @@ namespace Nuclex.Support.IO {
     private long position;
     /// <summary>Length of the partial stream</summary>
     private long length;
-
 
   }
 
