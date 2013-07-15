@@ -23,8 +23,6 @@ using System.Collections.Generic;
 
 namespace Nuclex.Support.Collections {
 
-  // ------------------------------------------------------------------------------------------- //
-
   /// <summary>Randomly selects between different options, trying to avoid repetition</summary>
   /// <typeparam name="TKey">Type of keys through which values can be looked up</typeparam>
   /// <typeparam name="TValue">Type of values provided by the variegator</typeparam>
@@ -50,11 +48,14 @@ namespace Nuclex.Support.Collections {
   /// </remarks>
   public class Variegator<TKey, TValue> {
 
+    /// <summary>Initializes a new variegator using the default history length</summary>
+    public Variegator() : this(64) {}
+
     /// <summary>Initializes a new variegator</summary>
     /// <param name="historyLength">
     ///   How far into the past the variegator will look to avoid repetition
     /// </param>
-    public Variegator(int historyLength = 64) {
+    public Variegator(int historyLength) {
       this.historyLength = historyLength;
       this.history = new TValue[historyLength];
       this.values = new MultiDictionary<TKey, TValue>();
