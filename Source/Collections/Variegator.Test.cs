@@ -29,7 +29,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Unit Test for the Variegator multi dictionary</summary>
   [TestFixture]
-  public class VariegatorTest {
+  internal class VariegatorTest {
 
     /// <summary>
     ///   Tests whether the default constructor of the reverse comparer works

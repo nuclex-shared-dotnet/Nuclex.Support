@@ -29,11 +29,11 @@ namespace Nuclex.Support {
 
   /// <summary>Unit Test for the FloatHelper class</summary>
   [TestFixture]
-  internal class FloatHelperTest {
+  public class FloatHelperTest {
 
     /// <summary>Tests the floating point value comparison helper</summary>
     [Test]
-    public void TestFloatComparison() {
+    public void UlpDistancesOnFloatsCompareAsEqual() {
       Assert.IsTrue(
         FloatHelper.AreAlmostEqual(0.00000001f, 0.0000000100000008f, 1),
         "Minimal difference between very small floating point numbers is considered equal"
@@ -55,7 +55,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the double precision floating point value comparison helper</summary>
     [Test]
-    public void TestDoubleComparison() {
+    public void UlpDistancesOnDoublesCompareAsEqual() {
       Assert.IsTrue(
         FloatHelper.AreAlmostEqual(0.00000001, 0.000000010000000000000002, 1),
         "Minimal difference between very small double precision floating point " +
@@ -81,7 +81,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the integer reinterpretation functions</summary>
     [Test]
-    public void TestIntegerReinterpretation() {
+    public void IntegersCanBeReinterpretedAsFloats() {
       Assert.AreEqual(
         12345.0f,
         FloatHelper.ReinterpretAsFloat(FloatHelper.ReinterpretAsInt(12345.0f)),
@@ -91,7 +91,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the long reinterpretation functions</summary>
     [Test]
-    public void TestLongReinterpretation() {
+    public void LongsCanBeReinterpretedAsDoubles() {
       Assert.AreEqual(
         12345.67890,
         FloatHelper.ReinterpretAsDouble(FloatHelper.ReinterpretAsLong(12345.67890)),
@@ -101,7 +101,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the floating point reinterpretation functions</summary>
     [Test]
-    public void TestFloatReinterpretation() {
+    public void FloatsCanBeReinterpretedAsIntegers() {
       Assert.AreEqual(
         12345,
         FloatHelper.ReinterpretAsInt(FloatHelper.ReinterpretAsFloat(12345)),
@@ -109,17 +109,58 @@ namespace Nuclex.Support {
       );
     }
 
+    /// <summary>
+    ///   Verifies that the IsZero() method can distinguish zero from very small values
+    /// </summary>
+    [Test]
+    public void CanDetermineIfFloatIsZero() {
+      Assert.IsTrue(FloatHelper.IsZero(FloatHelper.PositiveZeroFloat));
+      Assert.IsTrue(FloatHelper.IsZero(FloatHelper.NegativeZeroFloat));
+      Assert.IsFalse(FloatHelper.IsZero(1.401298E-45f));
+      Assert.IsFalse(FloatHelper.IsZero(-1.401298E-45f));
+    }
+
+    /// <summary>
+    ///   Verifies that the IsZero() method can distinguish zero from very small values
+    /// </summary>
+    [Test]
+    public void CanDetermineIfDoubleIsZero() {
+      Assert.IsTrue(FloatHelper.IsZero(FloatHelper.PositiveZeroDouble));
+      Assert.IsTrue(FloatHelper.IsZero(FloatHelper.NegativeZeroDouble));
+      Assert.IsFalse(FloatHelper.IsZero(4.94065645841247E-324));
+      Assert.IsFalse(FloatHelper.IsZero(-4.94065645841247E-324));
+    }
 
     /// <summary>
     ///   Tests the double prevision floating point reinterpretation functions
     /// </summary>
     [Test]
-    public void TestDoubleReinterpretation() {
+    public void DoublesCanBeReinterpretedAsLongs() {
       Assert.AreEqual(
         1234567890,
         FloatHelper.ReinterpretAsLong(FloatHelper.ReinterpretAsDouble(1234567890)),
         "Number hasn't changed after mirrored reinterpretation"
       );
+    }
+
+    // http://www.altdevblogaday.com/2012/02/22/comparing-floating-point-numbers-2012-edition/
+    // Make both positive
+    // If both are negative -> fine
+    // If both are positive -> fine
+    // If different -> Measure both distances to zero in ulps and sum them
+    public void NegativeZeroEqualsPositiveZero() {
+      float zero = 0.0f;
+      float zeroPlusOneUlp = FloatHelper.ReinterpretAsFloat(
+        FloatHelper.ReinterpretAsInt(zero) + 1
+      );
+      float zeroMinusOneUlp = -zeroPlusOneUlp;
+
+      bool test = FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1);
+
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 1));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 1));
     }
 
   }

@@ -88,6 +88,40 @@ namespace Nuclex.Support {
 
     #endregion // struct DoubleLongUnion
 
+    /// <summary>A floating point value that holds a positive zero</summary>
+    public const float PositiveZeroFloat = +0.0f;
+
+    /// <summary>A floating point value that holds a negative zero</summary>
+    /// <remarks>
+    ///   Negative zeros have a special representation in IEEE 752 floating point math
+    /// </remarks>
+    public const float NegativeZeroFloat = -0.0f;
+
+    /// <summary>A double precision floating point value that holds a positive zero</summary>
+    public const double PositiveZeroDouble = +0.0;
+
+    /// <summary>A doublep precision floating point value that holds a negative zero</summary>
+    /// <remarks>
+    ///   Negative zeros have a special representation in IEEE 752 floating point math
+    /// </remarks>
+    public const double NegativeZeroDouble = -0.0;
+
+    /// <summary>Checks whether the floating point value is exactly zero</summary>
+    /// <param name="value">Value that will be checked for being zero</param>
+    /// <returns>True if the value is zero, false otherwise</returns>
+    public static bool IsZero(float value) {
+      return (value == PositiveZeroFloat) || (value == NegativeZeroFloat);
+    }
+
+    /// <summary>
+    ///   Checks whether the double precision floating point value is exactly zero
+    /// </summary>
+    /// <param name="value">Value that will be checked for being zero</param>
+    /// <returns>True if the value is zero, false otherwise</returns>
+    public static bool IsZero(double value) {
+      return (value == PositiveZeroDouble) || (value == NegativeZeroDouble);
+    }
+
     /// <summary>Compares two floating point values for equality</summary>
     /// <param name="left">First floating point value to be compared</param>
     /// <param name="right">Second floating point value t be compared</param>

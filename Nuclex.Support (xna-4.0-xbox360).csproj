@@ -228,6 +228,10 @@
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Test.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\Variegator.cs" />
+    <Compile Include="Source\Collections\Variegator.Test.cs">
+      <DependentUpon>Variegator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\WeakCollection.cs" />
     <Compile Include="Source\Collections\WeakCollection.Interfaces.cs">
       <DependentUpon>WeakCollection.cs</DependentUpon>
