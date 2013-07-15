@@ -21,6 +21,8 @@ License along with this library
 using System;
 using System.Collections.Generic;
 
+#if !(WINDOWS_PHONE || XBOX360)
+
 namespace Nuclex.Support.Collections {
 
   /// <summary>Randomly selects between different options, trying to avoid repetition</summary>
@@ -281,3 +283,5 @@ namespace Nuclex.Support.Collections {
   }
 
 } // namespace Nuclex { namespace Support { namespace Collections
+
+#endif // !(WINDOWS_PHONE || XBOX360)
