@@ -19,20 +19,22 @@ License along with this library
 #endregion
 
 using System;
-using System.IO;
+using System.Threading;
+using System.Collections.Generic;
 
 #if UNITTEST
 
 using NUnit.Framework;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace Nuclex.Support {
 
   /// <summary>Unit Test for the parallel background worker class</summary>
   [TestFixture]
-  public class ParallelBackgroundWorkerTest {
+  internal class ParallelBackgroundWorkerTest {
 
+    #region class TestWorker
+
+    /// <summary>Implementation of a background worker used for unit testing</summary>
     private class TestWorker : ParallelBackgroundWorker<object> {
 
       /// <summary>Initializes a new parallel background worker with unlimited threads</summary>
@@ -51,14 +53,14 @@ namespace Nuclex.Support {
       ///   be created, so specifying -2 on a single-core system will still occupy
       ///   the only core.
       /// </remarks>
-      public TestWorker(int threadCount) : base(threadCount) {}
+      public TestWorker(int threadCount) : base(threadCount) { }
 
       /// <summary>
       ///   Initializes a new parallel background worker that uses the specified name for
       ///   its worker threads.
       /// </summary>
       /// <param name="name">Name that will be assigned to the worker threads</param>
-      public TestWorker(string name) : base(name) {}
+      public TestWorker(string name) : base(name) { }
 
       /// <summary>
       ///   Initializes a new parallel background worker that uses the specified name for
@@ -97,12 +99,19 @@ namespace Nuclex.Support {
         }
       }
 
+      /// <summary>Whether the work tasks should throw exceptions</summary>
       public bool ThrowException;
+      /// <summary>Event that can be used to stop work tasks from completing</summary>
       public ManualResetEvent WaitEvent;
+
+      /// <summary>Set by work tasks if they have been cancelled</summary>
       public bool WasCancelled;
+      /// <summary>Work tasks that have reached execution</summary>
       public ICollection<object> Tasks;
 
     }
+
+    #endregion // class TestWorker
 
     /// <summary>Verifies that the background worker has a default constructor</summary>
     [Test]
@@ -196,7 +205,7 @@ namespace Nuclex.Support {
 
           testWorker.AddTask(new object());
           testWorker.CancelRunningTasks();
-          
+
           waitEvent.Set();
 
           Assert.IsTrue(testWorker.Wait(1000));

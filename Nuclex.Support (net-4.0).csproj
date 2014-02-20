@@ -214,8 +214,7 @@
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\ParallelBackgroundWorker.cs" />
-    <Compile Include="Source\ParallelBackgroundWorker.Test.cs" />
+    <Compile Include="Source\Parsing\CommandLine.cs" />
     <Compile Include="Source\Parsing\CommandLine.Argument.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
@@ -225,9 +224,12 @@
     <Compile Include="Source\Parsing\CommandLine.Test.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Parsing\CommandLine.cs" />
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\ParallelBackgroundWorker.cs" />
+    <Compile Include="Source\ParallelBackgroundWorker.Test.cs">
+      <DependentUpon>ParallelBackgroundWorker.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Parsing\ParserHelper.cs" />
     <Compile Include="Source\Parsing\ParserHelper.Test.cs">
