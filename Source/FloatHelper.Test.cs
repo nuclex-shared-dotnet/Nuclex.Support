@@ -148,12 +148,37 @@ namespace Nuclex.Support {
     // If both are negative -> fine
     // If both are positive -> fine
     // If different -> Measure both distances to zero in ulps and sum them
-    public void NegativeZeroEqualsPositiveZero() {
+    /// <summary>
+    ///   Verifies that the negative floating point zero is within one ulp of the positive
+    ///   floating point zero and vice versa
+    /// </summary>
+    [Test]
+    public void NegativeZeroFloatEqualsPositiveZero() {
       float zero = 0.0f;
       float zeroPlusOneUlp = FloatHelper.ReinterpretAsFloat(
         FloatHelper.ReinterpretAsInt(zero) + 1
       );
       float zeroMinusOneUlp = -zeroPlusOneUlp;
+
+      bool test = FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1);
+
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 1));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 1));
+    }
+
+    /// <summary>
+    ///   Verifies that the negative double precision floating point zero is within one ulp
+    ///   of the positive double precision floating point zero and vice versa
+    /// </summary>
+    [Test]
+    public void NegativeZeroDoubleEqualsPositiveZero() {
+      double zero = 0.0;
+      double zeroPlusOneUlp = FloatHelper.ReinterpretAsDouble(
+        FloatHelper.ReinterpretAsLong(zero) + 1
+      );
+      double zeroMinusOneUlp = -zeroPlusOneUlp;
 
       bool test = FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1);
 

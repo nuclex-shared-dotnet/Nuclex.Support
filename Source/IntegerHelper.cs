@@ -77,7 +77,7 @@ namespace Nuclex.Support {
       return value;
     }
 
-    /// <summary>Returns the number of bits set in an </summary>
+    /// <summary>Returns the number of bits set in an integer</summary>
     /// <param name="value">Value whose bits will be counted</param>
     /// <returns>The number of bits set in the integer</returns>
     public static int CountBits(this int value) {
