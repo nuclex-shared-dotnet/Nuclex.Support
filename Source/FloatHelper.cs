@@ -44,11 +44,11 @@ namespace Nuclex.Support {
   /// </remarks>
   public static class FloatHelper {
 
-    #region struct FloatInt32Union
+    #region struct FloatIntUnion
 
     /// <summary>Union of a floating point variable and an integer</summary>
     [StructLayout(LayoutKind.Explicit)]
-    private struct FloatInt32Union {
+    private struct FloatIntUnion {
 
       /// <summary>The union's value as a floating point variable</summary>
       [FieldOffset(0)]
@@ -64,13 +64,13 @@ namespace Nuclex.Support {
 
     }
 
-    #endregion // struct FloatInt32Union
+    #endregion // struct FloatIntUnion
 
-    #region struct DoubleInt64Union
+    #region struct DoubleLongUnion
 
     /// <summary>Union of a double precision floating point variable and a long</summary>
     [StructLayout(LayoutKind.Explicit)]
-    private struct DoubleInt64Union {
+    private struct DoubleLongUnion {
 
       /// <summary>The union's value as a double precision floating point variable</summary>
       [FieldOffset(0)]
@@ -86,7 +86,7 @@ namespace Nuclex.Support {
 
     }
 
-    #endregion // struct DoubleInt64Union
+    #endregion // struct DoubleLongUnion
 
     /// <summary>A floating point value that holds a positive zero</summary>
     public const float PositiveZeroFloat = +0.0f;
@@ -150,8 +150,8 @@ namespace Nuclex.Support {
     ///   </para>
     /// </remarks>
     public static bool AreAlmostEqual(float left, float right, int maxUlps) {
-      var leftUnion = new FloatInt32Union();
-      var rightUnion = new FloatInt32Union();
+      var leftUnion = new FloatIntUnion();
+      var rightUnion = new FloatIntUnion();
 
       leftUnion.Float = left;
       rightUnion.Float = right;
@@ -214,8 +214,8 @@ namespace Nuclex.Support {
     ///   </para>
     /// </remarks>
     public static bool AreAlmostEqual(double left, double right, long maxUlps) {
-      var leftUnion = new DoubleInt64Union();
-      var rightUnion = new DoubleInt64Union();
+      var leftUnion = new DoubleLongUnion();
+      var rightUnion = new DoubleLongUnion();
 
       leftUnion.Double = left;
       rightUnion.Double = right;
@@ -260,7 +260,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the floating point value interpreted as an integer
     /// </returns>
     public static int ReinterpretAsInt(this float value) {
-      FloatInt32Union union = new FloatInt32Union();
+      FloatIntUnion union = new FloatIntUnion();
       union.Float = value;
       return union.Int;
     }
@@ -277,7 +277,7 @@ namespace Nuclex.Support {
     ///   interpreted as an integer
     /// </returns>
     public static long ReinterpretAsLong(this double value) {
-      DoubleInt64Union union = new DoubleInt64Union();
+      DoubleLongUnion union = new DoubleLongUnion();
       union.Double = value;
       return union.Long;
     }
@@ -290,7 +290,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the integer value interpreted as a floating point value
     /// </returns>
     public static float ReinterpretAsFloat(this int value) {
-      FloatInt32Union union = new FloatInt32Union();
+      FloatIntUnion union = new FloatIntUnion();
       union.Int = value;
       return union.Float;
     }
@@ -305,7 +305,7 @@ namespace Nuclex.Support {
     ///   floating point value
     /// </returns>
     public static double ReinterpretAsDouble(this long value) {
-      DoubleInt64Union union = new DoubleInt64Union();
+      DoubleLongUnion union = new DoubleLongUnion();
       union.Long = value;
       return union.Double;
     }

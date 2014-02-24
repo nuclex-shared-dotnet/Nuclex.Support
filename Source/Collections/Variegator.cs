@@ -36,8 +36,8 @@ namespace Nuclex.Support.Collections {
   ///   </para>
   ///   <para>
   ///     In principle, it works like a multimap, associating keys with a number of values
-  ///     and allowing you to look up a values by their keys. Unlike a multimap, it will
-  ///     avoid handing out a previously provided value again.
+  ///     and allowing you to look up values by their keys. Unlike a multimap, it will try
+  ///     to avoid handing out a previously provided value again as long as possible.
   ///   </para>
   ///   <para>
   ///     A typical usage would be to set up a mapping between situations and dialogue lines.
@@ -282,6 +282,6 @@ namespace Nuclex.Support.Collections {
 
   }
 
-} // namespace Nuclex { namespace Support { namespace Collections
+} // namespace Nuclex.Support.Collections
 
 #endif // !(WINDOWS_PHONE || XBOX360)
