@@ -143,25 +143,80 @@ namespace Nuclex.Support {
       );
     }
 
-    // http://www.altdevblogaday.com/2012/02/22/comparing-floating-point-numbers-2012-edition/
-    // Make both positive
-    // If both are negative -> fine
-    // If both are positive -> fine
-    // If different -> Measure both distances to zero in ulps and sum them
     /// <summary>
-    ///   Verifies that the negative floating point zero is within one ulp of the positive
-    ///   floating point zero and vice versa
+    ///   Verifies that two denormalized floats can be compared in ulps
     /// </summary>
     [Test]
-    public void NegativeZeroFloatEqualsPositiveZero() {
+    public void DenormalizedFloatsCanBeCompared() {
       float zero = 0.0f;
       float zeroPlusOneUlp = FloatHelper.ReinterpretAsFloat(
         FloatHelper.ReinterpretAsInt(zero) + 1
       );
       float zeroMinusOneUlp = -zeroPlusOneUlp;
 
-      bool test = FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1);
+      // Across zero
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zeroPlusOneUlp, zeroMinusOneUlp, 2));
 
+      // Against zero
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 1));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 0));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 1));
+    }
+
+    /// <summary>
+    ///   Verifies that the negative floating point zero is within one ulp of the positive
+    ///   floating point zero and vice versa
+    /// </summary>
+    [Test]
+    public void NegativeZeroFloatEqualsPositiveZero() {
+      Assert.IsTrue(
+        FloatHelper.AreAlmostEqual(
+          FloatHelper.NegativeZeroFloat, FloatHelper.PositiveZeroFloat, 0
+        )
+      );
+      Assert.IsTrue(
+        FloatHelper.AreAlmostEqual(
+          FloatHelper.PositiveZeroFloat, FloatHelper.NegativeZeroFloat, 0
+        )
+      );
+    }
+
+    /// <summary>Verifies that floats can be compared across the zero boundary</summary>
+    [Test]
+    public void FloatsCanBeComparedAcrossZeroInUlps() {
+      float tenUlps = float.Epsilon * 10.0f;
+
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(-tenUlps, tenUlps, 20));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(tenUlps, -tenUlps, 20));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(-tenUlps, tenUlps, 19));
+
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(-tenUlps, 0, 10));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(0, -tenUlps, 10));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(-tenUlps, 0, 9));
+
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(0, tenUlps, 10));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(tenUlps, 0, 10));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(0, tenUlps, 9));
+    }
+
+    /// <summary>
+    ///   Verifies that two denormalized doubles can be compared in ulps
+    /// </summary>
+    [Test]
+    public void DenormalizedDoublesCanBeCompared() {
+      double zero = 0.0;
+      double zeroPlusOneUlp = FloatHelper.ReinterpretAsDouble(
+        FloatHelper.ReinterpretAsLong(zero) + 1
+      );
+      double zeroMinusOneUlp = -zeroPlusOneUlp;
+
+      // Across zero
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(zeroPlusOneUlp, zeroMinusOneUlp, 2));
+
+      // Against zero
       Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 0));
       Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 1));
       Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 0));
@@ -174,18 +229,34 @@ namespace Nuclex.Support {
     /// </summary>
     [Test]
     public void NegativeZeroDoubleEqualsPositiveZero() {
-      double zero = 0.0;
-      double zeroPlusOneUlp = FloatHelper.ReinterpretAsDouble(
-        FloatHelper.ReinterpretAsLong(zero) + 1
+      Assert.IsTrue(
+        FloatHelper.AreAlmostEqual(
+          FloatHelper.NegativeZeroDouble, FloatHelper.NegativeZeroDouble, 0
+        )
       );
-      double zeroMinusOneUlp = -zeroPlusOneUlp;
+      Assert.IsTrue(
+        FloatHelper.AreAlmostEqual(
+          FloatHelper.NegativeZeroDouble, FloatHelper.NegativeZeroDouble, 0
+        )
+      );
+    }
 
-      bool test = FloatHelper.AreAlmostEqual(zeroMinusOneUlp, zeroPlusOneUlp, 1);
+    /// <summary>Verifies that doubles can be compared across the zero boundary</summary>
+    [Test]
+    public void DoublesCanBeComparedAcrossZeroInUlps() {
+      double tenUlps = double.Epsilon * 10.0;
 
-      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 0));
-      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroPlusOneUlp, 1));
-      Assert.IsFalse(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 0));
-      Assert.IsTrue(FloatHelper.AreAlmostEqual(zero, zeroMinusOneUlp, 1));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(-tenUlps, tenUlps, 20));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(tenUlps, -tenUlps, 20));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(-tenUlps, tenUlps, 19));
+
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(-tenUlps, 0, 10));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(0, -tenUlps, 10));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(-tenUlps, 0, 9));
+
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(0, tenUlps, 10));
+      Assert.IsTrue(FloatHelper.AreAlmostEqual(tenUlps, 0, 10));
+      Assert.IsFalse(FloatHelper.AreAlmostEqual(0, tenUlps, 9));
     }
 
   }

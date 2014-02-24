@@ -44,11 +44,11 @@ namespace Nuclex.Support {
   /// </remarks>
   public static class FloatHelper {
 
-    #region struct FloatIntUnion
+    #region struct FloatInt32Union
 
     /// <summary>Union of a floating point variable and an integer</summary>
     [StructLayout(LayoutKind.Explicit)]
-    private struct FloatIntUnion {
+    private struct FloatInt32Union {
 
       /// <summary>The union's value as a floating point variable</summary>
       [FieldOffset(0)]
@@ -64,13 +64,13 @@ namespace Nuclex.Support {
 
     }
 
-    #endregion // struct FloatIntUnion
+    #endregion // struct FloatInt32Union
 
-    #region struct DoubleLongUnion
+    #region struct DoubleInt64Union
 
     /// <summary>Union of a double precision floating point variable and a long</summary>
     [StructLayout(LayoutKind.Explicit)]
-    private struct DoubleLongUnion {
+    private struct DoubleInt64Union {
 
       /// <summary>The union's value as a double precision floating point variable</summary>
       [FieldOffset(0)]
@@ -86,7 +86,7 @@ namespace Nuclex.Support {
 
     }
 
-    #endregion // struct DoubleLongUnion
+    #endregion // struct DoubleInt64Union
 
     /// <summary>A floating point value that holds a positive zero</summary>
     public const float PositiveZeroFloat = +0.0f;
@@ -145,11 +145,30 @@ namespace Nuclex.Support {
     ///   <para>
     ///     Implementation partially follows the code outlined here (link now defunct):
     ///     http://www.anttirt.net/2007/08/19/proper-floating-point-comparisons/
+    ///     And here:
+    ///     http://www.altdevblogaday.com/2012/02/22/comparing-floating-point-numbers-2012-edition/
     ///   </para>
     /// </remarks>
     public static bool AreAlmostEqual(float left, float right, int maxUlps) {
-      FloatIntUnion leftUnion = new FloatIntUnion();
-      FloatIntUnion rightUnion = new FloatIntUnion();
+      var leftUnion = new FloatInt32Union();
+      var rightUnion = new FloatInt32Union();
+
+      leftUnion.Float = left;
+      rightUnion.Float = right;
+
+      if(leftUnion.Int < 0) {
+        leftUnion.Int = unchecked((int)0x80000000 - leftUnion.Int);
+      }
+      if(rightUnion.Int < 0) {
+        rightUnion.Int = unchecked((int)0x80000000 - rightUnion.Int);
+      }
+
+      return Math.Abs(rightUnion.Int - leftUnion.Int) <= maxUlps;
+    }
+#if false
+    public static bool OldAreAlmostEqual(float left, float right, int maxUlps) {
+      FloatInt32Union leftUnion = new FloatInt32Union();
+      FloatInt32Union rightUnion = new FloatInt32Union();
 
       leftUnion.Float = left;
       rightUnion.Float = right;
@@ -165,6 +184,7 @@ namespace Nuclex.Support {
 
       return (Math.Abs(leftUnion.Int - rightUnion.Int) <= maxUlps);
     }
+#endif
 
     /// <summary>Compares two double precision floating point values for equality</summary>
     /// <param name="left">First double precision floating point value to be compared</param>
@@ -189,11 +209,30 @@ namespace Nuclex.Support {
     ///   <para>
     ///     Implementation partially follows the code outlined here:
     ///     http://www.anttirt.net/2007/08/19/proper-floating-point-comparisons/
+    ///     And here:
+    ///     http://www.altdevblogaday.com/2012/02/22/comparing-floating-point-numbers-2012-edition/
     ///   </para>
     /// </remarks>
     public static bool AreAlmostEqual(double left, double right, long maxUlps) {
-      DoubleLongUnion leftUnion = new DoubleLongUnion();
-      DoubleLongUnion rightUnion = new DoubleLongUnion();
+      var leftUnion = new DoubleInt64Union();
+      var rightUnion = new DoubleInt64Union();
+
+      leftUnion.Double = left;
+      rightUnion.Double = right;
+
+      if(leftUnion.Long < 0) {
+        leftUnion.Long = unchecked((long)0x8000000000000000 - leftUnion.Long);
+      }
+      if(rightUnion.Long < 0) {
+        rightUnion.Long = unchecked((long)0x8000000000000000 - rightUnion.Long);
+      }
+
+      return Math.Abs(rightUnion.Long - leftUnion.Long) <= maxUlps;
+    }
+#if false
+    public static bool OldAreAlmostEqual(double left, double right, long maxUlps) {
+      DoubleInt64Union leftUnion = new DoubleInt64Union();
+      DoubleInt64Union rightUnion = new DoubleInt64Union();
 
       leftUnion.Double = left;
       rightUnion.Double = right;
@@ -209,6 +248,7 @@ namespace Nuclex.Support {
 
       return (Math.Abs(leftUnion.Long - rightUnion.Long) <= maxUlps);
     }
+#endif
 
     /// <summary>
     ///   Reinterprets the memory contents of a floating point value as an integer value
@@ -220,7 +260,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the floating point value interpreted as an integer
     /// </returns>
     public static int ReinterpretAsInt(this float value) {
-      FloatIntUnion union = new FloatIntUnion();
+      FloatInt32Union union = new FloatInt32Union();
       union.Float = value;
       return union.Int;
     }
@@ -237,7 +277,7 @@ namespace Nuclex.Support {
     ///   interpreted as an integer
     /// </returns>
     public static long ReinterpretAsLong(this double value) {
-      DoubleLongUnion union = new DoubleLongUnion();
+      DoubleInt64Union union = new DoubleInt64Union();
       union.Double = value;
       return union.Long;
     }
@@ -250,7 +290,7 @@ namespace Nuclex.Support {
     ///   The memory contents of the integer value interpreted as a floating point value
     /// </returns>
     public static float ReinterpretAsFloat(this int value) {
-      FloatIntUnion union = new FloatIntUnion();
+      FloatInt32Union union = new FloatInt32Union();
       union.Int = value;
       return union.Float;
     }
@@ -265,7 +305,7 @@ namespace Nuclex.Support {
     ///   floating point value
     /// </returns>
     public static double ReinterpretAsDouble(this long value) {
-      DoubleLongUnion union = new DoubleLongUnion();
+      DoubleInt64Union union = new DoubleInt64Union();
       union.Long = value;
       return union.Double;
     }
