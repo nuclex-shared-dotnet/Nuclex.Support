@@ -95,7 +95,9 @@ namespace Nuclex.Support {
         this.WasCancelled = cancellationToken.IsCancellationRequested;
 
         if(this.Tasks != null) {
-          this.Tasks.Add(task);
+          lock(this.Tasks) {
+            this.Tasks.Add(task);
+          }
         }
       }
 
@@ -236,7 +238,9 @@ namespace Nuclex.Support {
           waitEvent.Set();
           testWorker.Join();
 
-          CollectionAssert.AreEquivalent(tasks, testWorker.Tasks);
+          lock(testWorker.Tasks) {
+            CollectionAssert.AreEquivalent(tasks, testWorker.Tasks);
+          }
         }
       } // disposes waitEvent
     }

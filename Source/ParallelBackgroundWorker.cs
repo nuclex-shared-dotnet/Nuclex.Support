@@ -94,9 +94,11 @@ namespace Nuclex.Support {
         this.threadTerminatedEvent.Dispose();
         this.threadTerminatedEvent = null;
       }
-      if(this.cancellationTokenSource != null) {
-        this.cancellationTokenSource.Dispose();
-        this.cancellationTokenSource = null;
+      lock(this.queueSynchronizationRoot) {
+        if(this.cancellationTokenSource != null) {
+          this.cancellationTokenSource.Dispose();
+          this.cancellationTokenSource = null;
+        }
       }
     }
 
@@ -132,11 +134,21 @@ namespace Nuclex.Support {
     }
 
     /// <summary>Cancels all tasks that are currently executing</summary>
+    /// <remarks>
+    ///   It is valid to call this method after Dispose()
+    /// </remarks>
     public void CancelRunningTasks() {
-      this.cancellationTokenSource.Cancel();
+      lock(this.queueSynchronizationRoot) {
+        if(this.cancellationTokenSource != null) {
+          this.cancellationTokenSource.Cancel();
+        }
+      }
     }
 
     /// <summary>Cancels all queued tasks waiting to be executed</summary>
+    /// <remarks>
+    ///   It is valid to call this method after Dispose()
+    /// </remarks>
     public void CancelPendingTasks() {
       lock(this.queueSynchronizationRoot) {
         this.tasks.Clear();
@@ -166,6 +178,15 @@ namespace Nuclex.Support {
     ///   True if all tasks have been processed, false if the timeout was reached
     /// </returns>
     public bool Wait(int timeoutMilliseconds) {
+
+      // Wait until the task queue has become empty
+      while(queuedTaskCount > 0) {
+        if(this.threadTerminatedEvent.WaitOne(timeoutMilliseconds) == false) {
+          return false;
+        }
+      }
+
+      // Now wait until all running tasks have finished
       while(Thread.VolatileRead(ref this.runningThreadCount) > 0) {
         if(this.threadTerminatedEvent.WaitOne(timeoutMilliseconds) == false) {
           return false;
@@ -173,6 +194,7 @@ namespace Nuclex.Support {
       }
 
       return true;
+
     }
 
     /// <summary>Called in a thread to execute a single task</summary>
@@ -215,6 +237,15 @@ namespace Nuclex.Support {
       finally {
         if(!string.IsNullOrEmpty(this.threadName)) {
           Thread.CurrentThread.Name = previousThreadName;
+        }
+      }
+    }
+
+    /// <summary>Number of task still waiting to be executed</summary>
+    private int queuedTaskCount {
+      get {
+        lock(this.queueSynchronizationRoot) {
+          return this.tasks.Count;
         }
       }
     }
