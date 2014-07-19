@@ -64,6 +64,10 @@ namespace Nuclex.Support.Parsing {
     /// <summary>Advances the index to the next character that isn't numeric</summary>
     /// <param name="text">String which is being indexed</param>
     /// <param name="index">Index that will be advanced</param>
+    /// <remarks>
+    ///   This skips only numeric characters, but not complete numbers -- if the number
+    ///   begins with a minus or plus sign, for example, this function will not skip it.
+    /// </remarks>
     public static void SkipNumbers(string text, ref int index) {
       if(text == null) {
         return;
@@ -113,6 +117,41 @@ namespace Nuclex.Support.Parsing {
 
       index = nextIndex;
       return true;
+    }
+
+    /// <summary>Skips a string appearing in the input text</summary>
+    /// <param name="text">Text in which a string will be skipped</param>
+    /// <param name="index">Index at which the string begins</param>
+    /// <returns>True if a string was found and skipped, otherwise false</returns>
+    public static bool SkipString(string text, ref int index) {
+      if(text == null) {
+        return false;
+      }
+
+      int length = text.Length;
+      if(index >= length) {
+        return false;
+      }
+
+      // If the string begins with an opening quote, look for the closing quote
+      if(text[index] == '"') {
+
+        int endIndex = text.IndexOf('"', index + 1);
+        if(endIndex == -1) {
+          return false;
+        }
+
+        index = endIndex + 1;
+        return true;
+
+      } else { // Normal strings end with the first whitespace
+
+        int startIndex = index;
+        SkipNonSpaces(text, ref index);
+
+        return (index != startIndex);
+
+      }
     }
 
   }
