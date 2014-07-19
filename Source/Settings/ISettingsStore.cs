@@ -21,7 +21,7 @@ License along with this library
 using System;
 using System.Collections.Generic;
 
-namespace Nuclex.Support.Configuration {
+namespace Nuclex.Support.Settings {
 
   /// <summary>Interface by which settings and configuration data can be accessed</summary>
   public interface ISettingsStore {
@@ -68,7 +68,7 @@ namespace Nuclex.Support.Configuration {
 
   }
 
-} // namespace Nuclex.Support.Configuration
+} // namespace Nuclex.Support.Settings
 
 #if WANT_TO_SUPPORT_MESSED_UP_CONFIGURATION_FILES
     /// <remarks>

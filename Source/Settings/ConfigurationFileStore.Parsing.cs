@@ -23,24 +23,102 @@ using System.IO;
 
 using Nuclex.Support.Parsing;
 
-namespace Nuclex.Support.Configuration {
+namespace Nuclex.Support.Settings {
 
   partial class ConfigurationFileStore {
+
+    #region class ParserState
+
+    /// <summary>Remembers the target store and current category of the parser</summary>
+    private class ParserState {
+
+      /// <summary>Store to which the parsed categories and options will be added</summary>
+      public ConfigurationFileStore Store;
+
+      /// <summary>Current category options belong to</summary>
+      public Category Category;
+
+    }
+
+    #endregion // class ParserState
 
     /// <summary>Parses a configuration file from the specified text reader</summary>
     /// <param name="reader">Reader the configuration file will be parsed from</param>
     /// <returns>The configuration file parsed from the specified reader</returns>
     public static ConfigurationFileStore Parse(TextReader reader) {
       var store = new ConfigurationFileStore();
+      var state = new ParserState() {
+        Store = store,
+        Category = store.RootCategory
+      };
 
       for(; ; ) {
         string line = reader.ReadLine();
         if(line == null) {
-          return store;
+          break;
         }
 
-
+        parseLine(state, line);
       }
+
+      return store;
+    }
+
+    /// <summary>Incrementally parses a line read from a configuration file</summary>
+    /// <param name="state">Current parser state</param>
+    /// <param name="line">Line that has been read</param>
+    private static void parseLine(ParserState state, string line) {
+      state.Store.lines.Add(line);
+
+      // If the line is empty, ignore it
+      int length = line.Length;
+      if(length == 0) {
+        return;
+      }
+
+      // Skip all spaces at the beginning of the line
+      int firstCharacterIndex = 0;
+      ParserHelper.SkipSpaces(line, ref firstCharacterIndex);
+
+      // If the line contained nothing but spaces, ignore it
+      if(firstCharacterIndex == length) {
+        return;
+      }
+
+      // If the line is a comment, ignore it
+      if((line[firstCharacterIndex] == '#') || (line[firstCharacterIndex] == ';')) {
+        return;
+      }
+
+      // Now the line is either a category definition or some attempt to set an option
+      if(line[firstCharacterIndex] == '[') {
+        parseCategory(state, line, firstCharacterIndex);
+      } else {
+        parseOption(state, line, firstCharacterIndex);
+      }
+    }
+
+    /// <summary>Parses a category definition encountered on a line</summary>
+    /// <param name="state">Current parser state</param>
+    /// <param name="line">Line containing the category definition</param>
+    /// <param name="firstCharacterIndex">Index of the definition's first character</param>
+    private static void parseCategory(
+      ParserState state, string line, int firstCharacterIndex
+    ) {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>Parses an option definition encountered on a line</summary>
+    /// <param name="state">Current parser state</param>
+    /// <param name="line">Line containing the option definition</param>
+    /// <param name="firstCharacterIndex">Index of the definition's first character</param>
+    private static void parseOption(
+      ParserState state, string line, int firstCharacterIndex
+    ) {
+      Option option = new Option() {
+        LineIndex = state.Store.lines.Count - 1
+      };
+      throw new NotImplementedException();
     }
 
     /// <summary>Determines the best matching type for an option value</summary>

@@ -20,83 +20,39 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 
-using Nuclex.Support.Parsing;
+namespace Nuclex.Support.Settings {
 
-namespace Nuclex.Support.Configuration {
+  /// <summary>Stores settings in memory</summary>
+  public class MemoryStore : ISettingsStore {
 
-  /// <summary>Represents an ini- or cfg-like configuration file</summary>
-  /// <remarks>
-  ///   This class tries its best to preserve the formatting of configuration files.
-  ///   Changing a value will keep the line it appears in intact.
-  /// </remarks>
-  public partial class ConfigurationFileStore : ISettingsStore {
-
-    #region class Category
-
-    /// <summary>Stores informations about a category found in the configuration file</summary>
-    private class Category {
-
-      /// <summary>Index of the line the category is defined in</summary>
-      public int LineIndex;
-
-      /// <summary>Name of the category as a string</summary>
-      public StringSegment CategoryName;
-
-    }
-
-    #endregion // class Category
-
-    #region class Option
-
-    /// <summary>Stores informations about an option found in the configuration file</summary>
-    private class Option {
-
-      /// <summary>Index of the line the option is defined in</summary>
-      public int LineIndex;
-
-      /// <summary>Name of the option as a string</summary>
-      public StringSegment OptionName;
-
-      /// <summary>Value of the option as a string</summary>
-      public StringSegment OptionValue;
-
-    }
-
-    #endregion // class Option
-
-    /// <summary>Initializes a new, empty configuration file</summary>
-    public ConfigurationFileStore() {
-      this.lines = new List<string>();
-      this.categories = new List<Category>();
-      this.options = new List<Option>();
-    }
-
-    /// <summary>Saves the configuration file into the specified writer</summary>
-    /// <param name="writer">Writer the configuration file will be saved into</param>
-    public void Save(TextWriter writer) {
-      for(int index = 0; index < this.lines.Count; ++index) {
-        writer.WriteLine(this.lines[index]);
-      }
+    /// <summary>Initializes a new settings store managing settings in memory</summary>
+    public MemoryStore() {
+      this.options = new Dictionary<string, IDictionary<string, object>>();
+      this.rootOptions = new Dictionary<string, object>();
     }
 
     /// <summary>Enumerates the categories defined in the configuration</summary>
     /// <returns>An enumerable list of all used categories</returns>
     public IEnumerable<string> EnumerateCategories() {
-      for(int index = 0; index < this.categories.Count; ++index) {
-        yield return this.categories[index].CategoryName.ToString();
-      }
+      return this.options.Keys;
     }
 
     /// <summary>Enumerates the options stored under the specified category</summary>
     /// <param name="category">Category whose options will be enumerated</param>
     /// <returns>An enumerable list of all options in the category</returns>
     public IEnumerable<OptionInfo> EnumerateOptions(string category = null) {
-      for(int index = 0; index < this.options.Count; ++index) {
+      IDictionary<string, object> categoryOptions;
+      if(string.IsNullOrEmpty(category)) {
+        categoryOptions = this.rootOptions;
+      } else if(!this.options.TryGetValue(category, out categoryOptions)) {
+        yield break;
+      }
+
+      foreach(KeyValuePair<string, object> option in categoryOptions) {
         OptionInfo optionInfo = new OptionInfo() {
-          Name = this.options[index].OptionName.ToString(),
-          OptionType = getBestMatchingType(ref this.options[index].OptionValue)
+          Name = option.Key,
+          OptionType = option.Value.GetType()
         };
         yield return optionInfo;
       }
@@ -114,12 +70,12 @@ namespace Nuclex.Support.Configuration {
       } else {
         if(string.IsNullOrEmpty(category)) {
           throw new KeyNotFoundException(
-            "There is no option named '" + optionName + "' in the configuration file"
+            "There is no option named '" + optionName + "' in the settings"
           );
         } else {
           throw new KeyNotFoundException(
             "There is no option named '" + optionName + "' under the category '" +
-            category + "' in the configuration file"
+            category + "' in the settings"
           );
         }
       }
@@ -155,13 +111,11 @@ namespace Nuclex.Support.Configuration {
       throw new NotImplementedException();
     }
 
-    /// <summary>Lines contained in the configuration file</summary>
-    private IList<string> lines;
-    /// <summary>Records where categories are stored in the configuration file</summary>
-    private IList<Category> categories;
-    /// <summary>Records where options are stored in the configuration file</summary>
-    private IList<Option> options;
+    /// <summary>Categories and the options stored in them</summary>
+    private IDictionary<string, IDictionary<string, object>> options;
+    /// <summary>Options stored at the root level</summary>
+    private IDictionary<string, object> rootOptions;
 
   }
 
-} // namespace Nuclex.Support.Configuration
+} // namespace Nuclex.Support.Settings

@@ -20,15 +20,16 @@ License along with this library
 
 using System;
 
-namespace Nuclex.Support.Configuration {
+namespace Nuclex.Support.Settings {
 
-  /// <summary>Stores settings in the registry of Windows systems</summary>
-  public class WindowsRegistryStore : IDisposable {
+  /// <summary>Informations about an option stored in a settings container</summary>
+  public struct OptionInfo {
 
-    /// <summary>Immediately releases all resources owned by the instance</summary>
-    public void Dispose() {
-    }
+    /// <summary>Name of the option</summary>
+    public string Name;
+    /// <summary>Data type of the option</summary>
+    public Type OptionType;
 
   }
 
-} // namespace Nuclex.Support.Configuration
+} // namespace Nuclex.Support.Settings
