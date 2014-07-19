@@ -22,13 +22,12 @@ using System;
 
 namespace Nuclex.Support.Configuration {
 
-  /// <summary>Informations about an option stored in a settings container</summary>
-  public struct OptionInfo {
+  /// <summary>Stores settings in the registry of Windows systems</summary>
+  public class WindowsRegistryStore : IDisposable {
 
-    /// <summary>Name of the option</summary>
-    public string Name;
-    /// <summary>Data type of the option</summary>
-    public Type OptionType;
+    /// <summary>Immediately releases all resources owned by the instance</summary>
+    public void Dispose() {
+    }
 
   }
 

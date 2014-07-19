@@ -68,7 +68,7 @@ namespace Nuclex.Support.Parsing {
     ///   This skips only numeric characters, but not complete numbers -- if the number
     ///   begins with a minus or plus sign, for example, this function will not skip it.
     /// </remarks>
-    public static void SkipNumbers(string text, ref int index) {
+    public static void SkipNumericals(string text, ref int index) {
       if(text == null) {
         return;
       }
@@ -102,14 +102,14 @@ namespace Nuclex.Support.Parsing {
       if((text[index] == '-') || (text[index] == '+')) {
         nextIndex = index + 1;
 
-        SkipNumbers(text, ref nextIndex);
+        SkipNumericals(text, ref nextIndex);
         if(nextIndex == (index + 1)) {
           return false;
         }
       } else {
         nextIndex = index;
 
-        SkipNumbers(text, ref nextIndex);
+        SkipNumericals(text, ref nextIndex);
         if(nextIndex == index) {
           return false;
         }
@@ -152,6 +152,28 @@ namespace Nuclex.Support.Parsing {
         return (index != startIndex);
 
       }
+    }
+
+    /// <summary>Skips a floating point value appearing in the input text</summary>
+    /// <param name="text">Text in which a floating point value will be skipped</param>
+    /// <param name="index">Index at which the floating point value begins</param>
+    /// <returns>True if the floating point value was skipped, otherwise false</returns>
+    public static bool SkipFloat(string text, ref int index) {
+      if(SkipInteger(text, ref index)) {
+        if(index < text.Length) {
+          if(text[index] == '.') {
+            ++index;
+            SkipNumericals(text, ref index);
+          }
+          if((text[index] == 'e') || (text[index] == 'E')) {
+            throw new NotImplementedException("Exponential format not supported yet");
+          }
+        }
+
+        return true;
+      }
+
+      return false;
     }
 
   }

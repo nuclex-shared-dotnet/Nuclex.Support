@@ -197,6 +197,14 @@
     <Compile Include="Source\Collections\WeakCollection.Test.cs">
       <DependentUpon>WeakCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Configuration\ConfigurationFileStore.cs" />
+    <Compile Include="Source\Configuration\ConfigurationFileStore.Parsing.cs">
+      <DependentUpon>ConfigurationFileStore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Configuration\ISettingsStore.cs" />
+    <Compile Include="Source\Configuration\MemoryStore.cs" />
+    <Compile Include="Source\Configuration\OptionInfo.cs" />
+    <Compile Include="Source\Configuration\WindowsRegistryStore.cs" />
     <Compile Include="Source\GarbagePolicy.cs" />
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">

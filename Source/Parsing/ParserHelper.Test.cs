@@ -93,7 +93,7 @@ namespace Nuclex.Support.Parsing {
     public void CanSkipNumbersInNullString() {
       int index = 0;
       Assert.DoesNotThrow(
-        delegate() { ParserHelper.SkipNumbers((string)null, ref index); }
+        delegate() { ParserHelper.SkipNumericals((string)null, ref index); }
       );
       Assert.AreEqual(0, index);
     }
@@ -103,7 +103,7 @@ namespace Nuclex.Support.Parsing {
     public void CanSkipNumbersInEmptyString() {
       int index = 0;
       Assert.DoesNotThrow(
-        delegate() { ParserHelper.SkipNumbers(string.Empty, ref index); }
+        delegate() { ParserHelper.SkipNumericals(string.Empty, ref index); }
       );
       Assert.AreEqual(0, index);
     }
@@ -112,7 +112,7 @@ namespace Nuclex.Support.Parsing {
     [Test]
     public void NumbersCanBeSkipped() {
       int index = 6;
-      ParserHelper.SkipNumbers("123abc456def789", ref index);
+      ParserHelper.SkipNumericals("123abc456def789", ref index);
       Assert.AreEqual(9, index);
     }
 
