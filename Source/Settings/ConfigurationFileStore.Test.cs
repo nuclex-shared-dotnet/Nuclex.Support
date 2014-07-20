@@ -21,10 +21,10 @@ License along with this library
 #if UNITTEST
 
 using System;
+using System.IO;
 
 using NUnit.Framework;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace Nuclex.Support.Settings {
 
@@ -58,6 +58,79 @@ namespace Nuclex.Support.Settings {
       ConfigurationFileStore configurationFile = load(fileContents);
 
       Assert.That(configurationFile.EnumerateCategories(), Is.EquivalentTo(categoryNames));
+    }
+
+    /// <summary>
+    ///   Verifies that malformed categories can be handled by the parser
+    /// </summary>
+    [Test]
+    public void MalformedCategoriesAreIgnored() {
+      string fileContents =
+        "[ Not a category\r\n" +
+        "  [";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(configurationFile.EnumerateCategories(), Is.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that empty lines in the configuration file have no meaning
+    /// </summary>
+    [Test]
+    public void EmptyLinesAreSkipped() {
+      string fileContents =
+        "\r\n" +
+        "  ";
+      ConfigurationFileStore configurationFile = load(fileContents);
+      Assert.That(configurationFile.EnumerateCategories(), Is.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that category definitions after a comment sign are ignored
+    /// </summary>
+    [Test]
+    public void CommentedOutCategoriesAreIgnored() {
+      string fileContents =
+        "#[NotACategory]\r\n" +
+        "; [ Also Not A Category ]\r\n";
+      ConfigurationFileStore configurationFile = load(fileContents);
+      Assert.That(configurationFile.EnumerateCategories(), Is.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that assignments without an option name are ignored by the parser
+    /// </summary>
+    [Test]
+    public void NamelessAssignmentsAreIgnored() {
+      string fileContents =
+        "=\r\n" +
+        " = \r\n" +
+        " = hello";
+      ConfigurationFileStore configurationFile = load(fileContents);
+      Assert.That(configurationFile.EnumerateCategories(), Is.Empty);
+      Assert.That(configurationFile.EnumerateOptions(), Is.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that assignments without an option name are ignored by the parser
+    /// </summary>
+    [Test]
+    public void OptionsCanHaveEmptyValues() {
+      string fileContents =
+        "a =\r\n" +
+        "b =   \r\n" +
+        "c =       ; hello";
+      ConfigurationFileStore configurationFile = load(fileContents);
+      Assert.That(configurationFile.EnumerateCategories(), Is.Empty);
+
+      var options = new List<OptionInfo>(configurationFile.EnumerateOptions());
+      Assert.That(options.Count, Is.EqualTo(3));
+
+      for(int index = 0; index < options.Count; ++index) {
+        Assert.That(
+          configurationFile.Get<string>(null, options[index].Name), Is.Null
+        );
+      }
     }
 
   }

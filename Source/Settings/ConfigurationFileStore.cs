@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using Nuclex.Support.Parsing;
+using System.Text;
 
 namespace Nuclex.Support.Settings {
 
@@ -101,15 +102,7 @@ namespace Nuclex.Support.Settings {
     /// <param name="category">Category whose options will be enumerated</param>
     /// <returns>An enumerable list of all options in the category</returns>
     public IEnumerable<OptionInfo> EnumerateOptions(string category = null) {
-      Category enumeratedCategory;
-
-      if(string.IsNullOrEmpty(category)) {
-        enumeratedCategory = this.RootCategory;
-      } else if(!this.categoryLookup.TryGetValue(category, out enumeratedCategory)) {
-        throw new KeyNotFoundException(
-          "There is no category named '" + category + "' in the configuration file"
-        );
-      }
+      Category enumeratedCategory = getCategoryByName(category);
 
       foreach(Option option in this.RootCategory.OptionLookup.Values) {
         OptionInfo optionInfo = new OptionInfo() {
@@ -153,7 +146,16 @@ namespace Nuclex.Support.Settings {
     ///   parameter, false otherwise
     /// </returns>
     public bool TryGet<TValue>(string category, string optionName, out TValue value) {
-      throw new NotImplementedException();
+      Category containingCategory = getCategoryByName(category);
+
+      Option option;
+      if(containingCategory.OptionLookup.TryGetValue(optionName, out option)) {
+        value = (TValue)Convert.ChangeType(option.OptionValue.ToString(), typeof(TValue));
+        return true;
+      } else {
+        value = default(TValue);
+        return false;
+      }
     }
 
     /// <summary>Saves an option in the settings store</summary>
@@ -162,7 +164,30 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be saved</param>
     /// <param name="value">The value under which the option will be saved</param>
     public void Set<TValue>(string category, string optionName, TValue value) {
-      throw new NotImplementedException();
+      Category targetCategory;
+      bool optionMightExist;
+
+      if(string.IsNullOrEmpty(category)) {
+        targetCategory = this.RootCategory;
+        optionMightExist = true;
+      } else if(this.categoryLookup.TryGetValue(category, out targetCategory)) {
+        optionMightExist = true;
+      } else {
+        targetCategory = createCategory(category);
+        optionMightExist = false;
+      }
+
+
+      Option targetOption;
+      if(optionMightExist) {
+        if(targetCategory.OptionLookup.TryGetValue(optionName, out targetOption)) {
+          return;
+        }
+      }
+
+      // Append at bottom of category
+
+
     }
 
     /// <summary>Removes the option with the specified name</summary>
@@ -171,6 +196,129 @@ namespace Nuclex.Support.Settings {
     /// <returns>True if the option was found and removed</returns>
     public bool Remove(string category, string optionName) {
       throw new NotImplementedException();
+    }
+
+    /// <summary>Looks a category up by its name</summary>
+    /// <param name="categoryName">
+    ///   Name of the category. Can be null for the root category
+    /// </param>
+    /// <returns>The category with the specified name</returns>
+    private Category getCategoryByName(string categoryName) {
+      Category category;
+
+      if(string.IsNullOrEmpty(categoryName)) {
+        category = this.RootCategory;
+      } else if(!this.categoryLookup.TryGetValue(categoryName, out category)) {
+        throw new KeyNotFoundException(
+          "There is no category named '" + categoryName + "' in the configuration file"
+        );
+      }
+
+      return category;
+    }
+
+    /// <summary>Creates a new option</summary>
+    /// <param name="category">Category the option will be added to</param>
+    /// <param name="name">Name of the option</param>
+    /// <param name="value">Value that will be assigned to the option</param>
+    private void createOption(Category category, string name, string value) {
+      int valueLength;
+      if(value == null) {
+        valueLength = 0;
+      } else {
+        valueLength = value.Length;
+      }
+
+      // Build the complete line containing the option assignment
+      string line;
+      {
+        StringBuilder builder = new StringBuilder(name.Length + 3 + valueLength);
+
+        builder.Append(name);
+        builder.Append(" = ");
+        if(valueLength > 0) {
+          builder.Append(value);
+        }
+
+        line = builder.ToString();
+      }
+
+      Option newOption = new Option() {
+        LineIndex = this.lines.Count,
+        OptionName = new StringSegment(line, 0, name.Length),
+        OptionValue = new StringSegment(line, name.Length + 3, valueLength)
+      };
+
+      // TODO: Find end line of category and add line
+    }
+
+    /// <summary>Changes the value of an option</summary>
+    /// <param name="option">Option whose value will be changed</param>
+    /// <param name="newValue">New value that will be assigned to the option</param>
+    private void changeOption(Option option, string newValue) {
+      int newValueLength;
+      if(newValue == null) {
+        newValueLength = 0;
+      } else {
+        newValueLength = newValue.Length;
+      }
+
+      // Form the new line
+      string line = option.OptionValue.Text;
+      {
+        StringBuilder builder = new StringBuilder(
+          line.Length - option.OptionValue.Count + newValue.Length
+        );
+
+        // Stuff before the value
+        if(option.OptionValue.Offset > 0) {
+          builder.Append(line, 0, option.OptionValue.Offset);
+        }
+
+        // The value itself
+        if(newValueLength > 0) {
+          builder.Append(newValue);
+        }
+
+        // Stuff after the value
+        int endIndex = option.OptionValue.Offset + option.OptionValue.Count;
+        if(endIndex < line.Length) {
+          builder.Append(line, endIndex, line.Length - endIndex);
+        }
+
+        line = builder.ToString();
+      }
+
+      this.lines[option.LineIndex] = line;
+      option.OptionValue = new StringSegment(line, option.OptionValue.Offset, newValueLength);
+    }
+
+    /// <summary>Creates a new category in the configuration file</summary>
+    /// <param name="category">Name of the new category</param>
+    /// <returns>The category that was created</returns>
+    private Category createCategory(string category) {
+      string categoryDefinition;
+      {
+        StringBuilder builder = new StringBuilder(category.Length + 2);
+        builder.Append('[');
+        builder.Append(category);
+        builder.Append(']');
+        categoryDefinition = builder.ToString();
+      }
+
+      // An empty line before the category definition for better readability
+      this.lines.Add(string.Empty);
+
+      Category newCategory = new Category() {
+        LineIndex = this.lines.Count,
+        CategoryName = new StringSegment(categoryDefinition, 1, category.Length),
+        OptionLookup = new Dictionary<string, Option>()
+      };
+      this.lines.Add(categoryDefinition);
+
+      this.categoryLookup.Add(category, newCategory);
+
+      return newCategory;
     }
 
     /// <summary>Lines contained in the configuration file</summary>

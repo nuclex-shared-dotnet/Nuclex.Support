@@ -122,10 +122,13 @@ namespace Nuclex.Support.Settings {
         return; // No closing brace in line
       }
 
+      // Skip any whitespaces between the last character and the closing brace
       do {
         --nameEndIndex;
       } while(char.IsWhiteSpace(line, nameEndIndex));
 
+      // Now we know that the line holds a category definition and where exactly in
+      // the line the category name is located. Create the category.
       state.Category = new Category() {
         LineIndex = state.Store.lines.Count - 1,
         CategoryName = new StringSegment(
@@ -134,6 +137,7 @@ namespace Nuclex.Support.Settings {
         OptionLookup = new Dictionary<string, Option>()
       };
       state.Store.categories.Add(state.Category);
+      state.Store.categoryLookup.Add(state.Category.CategoryName.ToString(), state.Category);
     }
 
     /// <summary>Parses an option definition encountered on a line</summary>
@@ -143,10 +147,43 @@ namespace Nuclex.Support.Settings {
     private static void parseOption(
       ParserState state, string line, int firstCharacterIndex
     ) {
+      int assignmentIndex = line.IndexOf('=', firstCharacterIndex + 1);
+      if(assignmentIndex == -1) {
+        return; // No assignment took place
+      }
+
+      // Cut off any whitespaces between the option name and the assignment
+      int nameEndIndex = assignmentIndex;
+      do {
+        --nameEndIndex;
+      } while(char.IsWhiteSpace(line, nameEndIndex));
+
+      // We have enough information to know that this is an assignment of some kind
       Option option = new Option() {
-        LineIndex = state.Store.lines.Count - 1
+        LineIndex = state.Store.lines.Count - 1,
+        OptionName = new StringSegment(
+          line, firstCharacterIndex, nameEndIndex - firstCharacterIndex + 1
+        ),
       };
-      throw new NotImplementedException();
+
+      // If there is a value in this assignment, parse it too
+      int valueStartIndex = assignmentIndex + 1;
+      ParserHelper.SkipSpaces(line, ref valueStartIndex);
+      if(valueStartIndex < line.Length) {
+        parseOptionValue(option, line, valueStartIndex);
+      }
+
+      // We've got the option assignment, either with an empty or proper value
+      state.Store.options.Add(option);
+      state.Category.OptionLookup.Add(option.OptionName.ToString(), option);
+    }
+
+    /// <summary>Parses the value assigned to an option</summary>
+    /// <param name="option">Option to which a value is being assigned</param>
+    /// <param name="line">Line containing the option assignment</param>
+    /// <param name="valueStartIndex">Index of the value's first character</param>
+    private static void parseOptionValue(Option option, string line, int valueStartIndex) {
+      
     }
 
     /// <summary>Determines the best matching type for an option value</summary>
