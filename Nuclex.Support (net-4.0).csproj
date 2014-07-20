@@ -201,10 +201,19 @@
     <Compile Include="Source\Settings\ConfigurationFileStore.Parsing.cs">
       <DependentUpon>ConfigurationFileStore.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Settings\ConfigurationFileStore.Test.cs">
+      <DependentUpon>ConfigurationFileStore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Settings\ISettingsStore.cs" />
     <Compile Include="Source\Settings\MemoryStore.cs" />
+    <Compile Include="Source\Settings\MemoryStore.Test.cs">
+      <DependentUpon>MemoryStore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Settings\OptionInfo.cs" />
     <Compile Include="Source\Settings\WindowsRegistryStore.cs" />
+    <Compile Include="Source\Settings\WindowsRegistryStore.Test.cs">
+      <DependentUpon>WindowsRegistryStore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\GarbagePolicy.cs" />
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">

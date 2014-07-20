@@ -19,9 +19,11 @@ License along with this library
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.IO;
 
 using Nuclex.Support.Parsing;
+using System.Collections.Generic;
 
 namespace Nuclex.Support.Settings {
 
@@ -105,7 +107,33 @@ namespace Nuclex.Support.Settings {
     private static void parseCategory(
       ParserState state, string line, int firstCharacterIndex
     ) {
-      throw new NotImplementedException();
+      Debug.Assert(line[firstCharacterIndex] == '[');
+
+      int nameStartIndex = firstCharacterIndex + 1;
+      ParserHelper.SkipSpaces(line, ref nameStartIndex);
+
+      int lastCharacterIndex = line.Length - 1;
+      if(nameStartIndex >= lastCharacterIndex) {
+        return; // No space left for closing brace
+      }
+      
+      int nameEndIndex = line.IndexOf(']', nameStartIndex);
+      if(nameEndIndex == -1) {
+        return; // No closing brace in line
+      }
+
+      do {
+        --nameEndIndex;
+      } while(char.IsWhiteSpace(line, nameEndIndex));
+
+      state.Category = new Category() {
+        LineIndex = state.Store.lines.Count - 1,
+        CategoryName = new StringSegment(
+          line, nameStartIndex, nameEndIndex - nameStartIndex + 1
+        ),
+        OptionLookup = new Dictionary<string, Option>()
+      };
+      state.Store.categories.Add(state.Category);
     }
 
     /// <summary>Parses an option definition encountered on a line</summary>

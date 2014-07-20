@@ -18,11 +18,11 @@ License along with this library
 */
 #endregion
 
+#if UNITTEST
+
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-#if UNITTEST
 
 using NUnit.Framework;
 
