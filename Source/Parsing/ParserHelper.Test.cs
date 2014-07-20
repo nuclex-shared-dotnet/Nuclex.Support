@@ -158,73 +158,73 @@ namespace Nuclex.Support.Parsing {
       Assert.AreEqual(5, index);
     }
 
-		/// <summary>
-		///   Verifies that trying to skip text as if it was an integer skips nothing
-		/// </summary>
-		[Test]
-		public void SkippingTextAsIntegerReturnsFalse() {
-			int index = 0;
-			Assert.IsFalse(ParserHelper.SkipInteger("hello", ref index));
-			Assert.AreEqual(0, index);
-		}
+    /// <summary>
+    ///   Verifies that trying to skip text as if it was an integer skips nothing
+    /// </summary>
+    [Test]
+    public void SkippingTextAsIntegerReturnsFalse() {
+      int index = 0;
+      Assert.IsFalse(ParserHelper.SkipInteger("hello", ref index));
+      Assert.AreEqual(0, index);
+    }
 
-		/// <summary>Ensures that the SkipIntegers() method can handle null strings</summary>
-		[Test]
-		public void CanSkipStringInNullString() {
-			int index = 0;
-			Assert.IsFalse(ParserHelper.SkipString((string)null, ref index));
-			Assert.AreEqual(0, index);
-		}
+    /// <summary>Ensures that the SkipIntegers() method can handle null strings</summary>
+    [Test]
+    public void CanSkipStringInNullString() {
+      int index = 0;
+      Assert.IsFalse(ParserHelper.SkipString((string)null, ref index));
+      Assert.AreEqual(0, index);
+    }
 
-		/// <summary>Ensures that the SkipNumbers() method can handle empty strings</summary>
-		[Test]
-		public void CanSkipStringInEmptyString() {
-			int index = 0;
-			Assert.IsFalse(ParserHelper.SkipString(string.Empty, ref index));
-			Assert.AreEqual(0, index);
-		}
+    /// <summary>Ensures that the SkipNumbers() method can handle empty strings</summary>
+    [Test]
+    public void CanSkipStringInEmptyString() {
+      int index = 0;
+      Assert.IsFalse(ParserHelper.SkipString(string.Empty, ref index));
+      Assert.AreEqual(0, index);
+    }
 
-		/// <summary>Verifies that a string consisting of a single word can be skipped</summary>
-		[Test]
-		public void SingleWordStringsCanBeSkipped() {
-			int index = 0;
-			Assert.IsTrue(ParserHelper.SkipString("hello", ref index));
-			Assert.AreEqual(5, index);
-		}
+    /// <summary>Verifies that a string consisting of a single word can be skipped</summary>
+    [Test]
+    public void SingleWordStringsCanBeSkipped() {
+      int index = 0;
+      Assert.IsTrue(ParserHelper.SkipString("hello", ref index));
+      Assert.AreEqual(5, index);
+    }
 
-		/// <summary>
-		///   Verifies that a space character is not skipped over when skipping a string
-		/// </summary>
-		[Test]
-		public void SpaceTerminatesUnquotedStrings() {
-			int index = 0;
-			Assert.IsTrue(ParserHelper.SkipString("hello world", ref index));
-			Assert.AreEqual(5, index);
-		}
+    /// <summary>
+    ///   Verifies that a space character is not skipped over when skipping a string
+    /// </summary>
+    [Test]
+    public void SpaceTerminatesUnquotedStrings() {
+      int index = 0;
+      Assert.IsTrue(ParserHelper.SkipString("hello world", ref index));
+      Assert.AreEqual(5, index);
+    }
 
-		/// <summary>Verifies that a string in quotes continues until the closing quote</summary>
-		[Test]
-		public void QuotedStringsCanBeSkipped() {
-			int index = 0;
-			Assert.IsTrue(ParserHelper.SkipString("\"This is a test\"", ref index));
-			Assert.AreEqual(16, index);
-		}
+    /// <summary>Verifies that a string in quotes continues until the closing quote</summary>
+    [Test]
+    public void QuotedStringsCanBeSkipped() {
+      int index = 0;
+      Assert.IsTrue(ParserHelper.SkipString("\"This is a test\"", ref index));
+      Assert.AreEqual(16, index);
+    }
 
-		/// <summary>Verifies that a string in quotes continues until the closing quote</summary>
-		[Test]
-		public void QuotedStringsStopAtClosingQuote() {
-			int index = 0;
-			Assert.IsTrue(ParserHelper.SkipString("\"This is a test\" but this not.", ref index));
-			Assert.AreEqual(16, index);
-		}
+    /// <summary>Verifies that a string in quotes continues until the closing quote</summary>
+    [Test]
+    public void QuotedStringsStopAtClosingQuote() {
+      int index = 0;
+      Assert.IsTrue(ParserHelper.SkipString("\"This is a test\" but this not.", ref index));
+      Assert.AreEqual(16, index);
+    }
 
-		/// <summary>Verifies that a string in quotes continues until the closing quote</summary>
-		[Test]
-		public void QuotedStringRequiresClosingQuote() {
-			int index = 0;
-			Assert.IsFalse(ParserHelper.SkipString("\"This is missing the closing quote", ref index));
-			Assert.AreEqual(0, index);
-		}
+    /// <summary>Verifies that a string in quotes continues until the closing quote</summary>
+    [Test]
+    public void QuotedStringRequiresClosingQuote() {
+      int index = 0;
+      Assert.IsFalse(ParserHelper.SkipString("\"This is missing the closing quote", ref index));
+      Assert.AreEqual(0, index);
+    }
 
   }
 
