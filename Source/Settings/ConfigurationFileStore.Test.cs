@@ -23,6 +23,7 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -31,15 +32,6 @@ namespace Nuclex.Support.Settings {
   /// <summary>Unit tests for the configuration file store</summary>
   [TestFixture]
   internal class ConfigurationFileStoreTest {
-
-    /// <summary>Loads a configuration file from a string</summary>
-    /// <param name="fileContents">Contents of the configuration file</param>
-    /// <returns>The configuration file loaded from the string</returns>
-    private static ConfigurationFileStore load(string fileContents) {
-      using(var reader = new StringReader(fileContents)) {
-        return ConfigurationFileStore.Parse(reader);
-      }
-    }
 
     /// <summary>
     ///   Verifies that loading an empty file doesn't lead to an exception
@@ -210,6 +202,23 @@ namespace Nuclex.Support.Settings {
     }
 
     /// <summary>
+    ///   Verifies that text placed after the closing quote will also be part of
+    ///   an option's value
+    /// </summary>
+    [Test]
+    public void OptionValuesCanBeChanged() {
+      string fileContents = "test = 123 ; comment";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      configurationFile.Set(null, "test", "hello world");
+
+      Assert.That(
+        save(configurationFile),
+        Contains.Substring("hello world").And.ContainsSubstring("comment")
+      );
+    }
+
+    /// <summary>
     ///   Verifies that options can be added to the configuration file
     /// </summary>
     [Test]
@@ -218,6 +227,44 @@ namespace Nuclex.Support.Settings {
 
       configurationFile.Set<string>(null, "test", "123");
       Assert.That(configurationFile.Get<string>(null, "test"), Is.EqualTo("123"));
+    }
+
+    /// <summary>
+    ///   Verifies that options can be added to the configuration file
+    /// </summary>
+    [Test]
+    public void CategoriesCanBeAdded() {
+      var configurationFile = new ConfigurationFileStore();
+
+      configurationFile.Set<string>("general", "sol", "42");
+
+      Assert.That(
+        configurationFile.EnumerateCategories(), Is.EquivalentTo(new string[] { "general" })
+      );
+      Assert.That(save(configurationFile), Contains.Substring("[general]"));
+    }
+
+    /// <summary>Loads a configuration file from a string</summary>
+    /// <param name="fileContents">Contents of the configuration file</param>
+    /// <returns>The configuration file loaded from the string</returns>
+    private static ConfigurationFileStore load(string fileContents) {
+      using(var reader = new StringReader(fileContents)) {
+        return ConfigurationFileStore.Parse(reader);
+      }
+    }
+
+    /// <summary>Saves a configuration file into a string</summary>
+    /// <param name="configurationFile">Configuration file that will be saved</param>
+    /// <returns>Contents of the configuration file</returns>
+    private static string save(ConfigurationFileStore configurationFile) {
+      var builder = new StringBuilder();
+
+      using(var writer = new StringWriter(builder)) {
+        configurationFile.Save(writer);
+        writer.Flush();
+      }
+
+      return builder.ToString();
     }
 
   }

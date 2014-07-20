@@ -19,11 +19,11 @@ License along with this library
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
 using Nuclex.Support.Parsing;
-using System.Collections.Generic;
 
 namespace Nuclex.Support.Settings {
 
@@ -160,7 +160,7 @@ namespace Nuclex.Support.Settings {
 
       // We have enough information to know that this is an assignment of some kind
       Option option = new Option() {
-        LineIndex = state.Category.Lines.Count - 1,
+        LineIndex = state.Category.Lines.Count,
         OptionName = new StringSegment(
           line, firstCharacterIndex, nameEndIndex - firstCharacterIndex + 1
         )

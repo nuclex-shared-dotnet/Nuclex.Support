@@ -20,6 +20,7 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -176,17 +177,20 @@ namespace Nuclex.Support.Settings {
         optionMightExist = false;
       }
 
+      string valueAsString = (string)Convert.ChangeType(
+        value, typeof(string), CultureInfo.InvariantCulture
+      );
 
       Option targetOption;
       if(optionMightExist) {
         if(targetCategory.OptionLookup.TryGetValue(optionName, out targetOption)) {
-          return;
+          changeOption(targetCategory, targetOption, valueAsString);
+        } else {
+          createOption(targetCategory, optionName, valueAsString);
         }
+      } else {
+        createOption(targetCategory, optionName, valueAsString);
       }
-
-      // Append at bottom of category
-
-
     }
 
     /// <summary>Removes the option with the specified name</summary>
