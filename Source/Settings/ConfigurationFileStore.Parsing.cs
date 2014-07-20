@@ -116,7 +116,7 @@ namespace Nuclex.Support.Settings {
       if(nameStartIndex >= lastCharacterIndex) {
         return; // No space left for closing brace
       }
-      
+
       int nameEndIndex = line.IndexOf(']', nameStartIndex);
       if(nameEndIndex == -1) {
         return; // No closing brace in line
@@ -163,15 +163,10 @@ namespace Nuclex.Support.Settings {
         LineIndex = state.Store.lines.Count - 1,
         OptionName = new StringSegment(
           line, firstCharacterIndex, nameEndIndex - firstCharacterIndex + 1
-        ),
+        )
       };
 
-      // If there is a value in this assignment, parse it too
-      int valueStartIndex = assignmentIndex + 1;
-      ParserHelper.SkipSpaces(line, ref valueStartIndex);
-      if(valueStartIndex < line.Length) {
-        parseOptionValue(option, line, valueStartIndex);
-      }
+      parseOptionValue(option, line, assignmentIndex + 1);
 
       // We've got the option assignment, either with an empty or proper value
       state.Store.options.Add(option);
@@ -181,9 +176,54 @@ namespace Nuclex.Support.Settings {
     /// <summary>Parses the value assigned to an option</summary>
     /// <param name="option">Option to which a value is being assigned</param>
     /// <param name="line">Line containing the option assignment</param>
-    /// <param name="valueStartIndex">Index of the value's first character</param>
-    private static void parseOptionValue(Option option, string line, int valueStartIndex) {
-      
+    /// <param name="assignmentEndIndex">Index one after the assignment character</param>
+    private static void parseOptionValue(Option option, string line, int assignmentEndIndex) {
+      int firstCharacterIndex = assignmentEndIndex;
+      ParserHelper.SkipSpaces(line, ref firstCharacterIndex);
+
+      // Just for beauty, when the option value is empty but padded with spaces,
+      // leave one space between the equals sign and the value.
+      if(firstCharacterIndex > assignmentEndIndex) {
+        ++assignmentEndIndex;
+      }
+
+      // If the line consists of only whitespace, create an empty value
+      if(firstCharacterIndex == line.Length) {
+        option.OptionValue = new StringSegment(line, assignmentEndIndex, 0);
+        return;
+      }
+
+      char firstCharacter = line[firstCharacterIndex];
+
+      // Values can be quoted to allow for comments characters appearing in them
+      int lastCharacterIndex;
+      if(firstCharacter == '"') {
+        lastCharacterIndex = line.LastIndexOf('"');
+      } else {
+        lastCharacterIndex = firstCharacterIndex;
+      }
+
+      int commentStartIndex = line.IndexOf(';', lastCharacterIndex);
+      if(commentStartIndex == -1) {
+        commentStartIndex = line.IndexOf('#', lastCharacterIndex);
+      }
+      if(commentStartIndex == -1) {
+        lastCharacterIndex = line.Length - 1;
+      } else {
+        lastCharacterIndex = commentStartIndex - 1;
+      }
+
+      while(lastCharacterIndex > firstCharacterIndex) {
+        if(char.IsWhiteSpace(line, lastCharacterIndex)) {
+          --lastCharacterIndex;
+        } else {
+          break;
+        }
+      }
+
+      option.OptionValue = new StringSegment(
+        line, firstCharacterIndex, lastCharacterIndex - firstCharacterIndex + 1
+      );
     }
 
     /// <summary>Determines the best matching type for an option value</summary>

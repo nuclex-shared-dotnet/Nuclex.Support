@@ -21,10 +21,10 @@ License along with this library
 #if UNITTEST
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace Nuclex.Support.Settings {
 
@@ -32,6 +32,9 @@ namespace Nuclex.Support.Settings {
   [TestFixture]
   internal class ConfigurationFileStoreTest {
 
+    /// <summary>Loads a configuration file from a string</summary>
+    /// <param name="fileContents">Contents of the configuration file</param>
+    /// <returns>The configuration file loaded from the string</returns>
     private static ConfigurationFileStore load(string fileContents) {
       using(var reader = new StringReader(fileContents)) {
         return ConfigurationFileStore.Parse(reader);
@@ -128,9 +131,82 @@ namespace Nuclex.Support.Settings {
 
       for(int index = 0; index < options.Count; ++index) {
         Assert.That(
-          configurationFile.Get<string>(null, options[index].Name), Is.Null
+          configurationFile.Get<string>(null, options[index].Name), Is.Null.Or.Empty
         );
       }
+    }
+
+    /// <summary>
+    ///   Verifies that values assigned to options can contain space charcters
+    /// </summary>
+    [Test]
+    public void OptionValuesCanContainSpaces() {
+      string fileContents =
+        "test = hello world";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(configurationFile.Get<string>(null, "test"), Is.EqualTo("hello world"));
+    }
+
+    /// <summary>
+    ///   Verifies that values enclosed in quotes can embed comment characters
+    /// </summary>
+    [Test]
+    public void OptionValuesWithQuotesCanEmbedComments() {
+      string fileContents =
+        "test = \"This ; is # not a comment\" # but this is";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(
+        configurationFile.Get<string>(null, "test"),
+        Is.EqualTo("\"This ; is # not a comment\"")
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that values can end on a quote without causing trouble
+    /// </summary>
+    [Test]
+    public void CommentsCanEndWithAQuote() {
+      string fileContents =
+        "test = \"This value ends with a quote\"";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(
+        configurationFile.Get<string>(null, "test"),
+        Is.EqualTo("\"This value ends with a quote\"")
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that values can forget the closing quote without causing trouble
+    /// </summary>
+    [Test]
+    public void ClosingQuoteCanBeOmmitted() {
+      string fileContents =
+        "test = \"No closing quote";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(
+        configurationFile.Get<string>(null, "test"),
+        Is.EqualTo("\"No closing quote")
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that text placed after the closing quote will also be part of
+    ///   an option's value
+    /// </summary>
+    [Test]
+    public void TextAfterClosingQuoteBecomesPartOfValue() {
+      string fileContents =
+        "test = \"Begins here\" end ends here";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(
+        configurationFile.Get<string>(null, "test"),
+        Is.EqualTo("\"Begins here\" end ends here")
+      );
     }
 
   }

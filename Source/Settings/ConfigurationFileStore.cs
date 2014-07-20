@@ -21,8 +21,6 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-using Nuclex.Support.Parsing;
 using System.Text;
 
 namespace Nuclex.Support.Settings {
