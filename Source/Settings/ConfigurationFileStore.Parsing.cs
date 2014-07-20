@@ -70,7 +70,6 @@ namespace Nuclex.Support.Settings {
     /// <param name="state">Current parser state</param>
     /// <param name="line">Line that has been read</param>
     private static void parseLine(ParserState state, string line) {
-      state.Store.lines.Add(line);
 
       // If the line is empty, ignore it
       int length = line.Length;
@@ -98,6 +97,8 @@ namespace Nuclex.Support.Settings {
       } else {
         parseOption(state, line, firstCharacterIndex);
       }
+      state.Category.Lines.Add(line);
+
     }
 
     /// <summary>Parses a category definition encountered on a line</summary>
@@ -130,13 +131,12 @@ namespace Nuclex.Support.Settings {
       // Now we know that the line holds a category definition and where exactly in
       // the line the category name is located. Create the category.
       state.Category = new Category() {
-        LineIndex = state.Store.lines.Count - 1,
         CategoryName = new StringSegment(
           line, nameStartIndex, nameEndIndex - nameStartIndex + 1
         ),
-        OptionLookup = new Dictionary<string, Option>()
+        OptionLookup = new Dictionary<string, Option>(),
+        Lines = new List<string>()
       };
-      state.Store.categories.Add(state.Category);
       state.Store.categoryLookup.Add(state.Category.CategoryName.ToString(), state.Category);
     }
 
@@ -160,7 +160,7 @@ namespace Nuclex.Support.Settings {
 
       // We have enough information to know that this is an assignment of some kind
       Option option = new Option() {
-        LineIndex = state.Store.lines.Count - 1,
+        LineIndex = state.Category.Lines.Count - 1,
         OptionName = new StringSegment(
           line, firstCharacterIndex, nameEndIndex - firstCharacterIndex + 1
         )

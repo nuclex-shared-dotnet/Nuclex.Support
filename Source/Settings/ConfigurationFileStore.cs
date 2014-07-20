@@ -37,14 +37,14 @@ namespace Nuclex.Support.Settings {
     /// <summary>Stores informations about a category found in the configuration file</summary>
     private class Category {
 
-      /// <summary>Index of the line the category is defined in</summary>
-      public int LineIndex;
-
       /// <summary>Name of the category as a string</summary>
       public StringSegment CategoryName;
 
       /// <summary>Lookup table for the options in this category</summary>
       public IDictionary<string, Option> OptionLookup;
+
+      /// <summary>Lines this category and its options consist of</summary>
+      public IList<string> Lines;
 
     }
 
@@ -70,30 +70,31 @@ namespace Nuclex.Support.Settings {
 
     /// <summary>Initializes a new, empty configuration file</summary>
     public ConfigurationFileStore() {
-      this.lines = new List<string>();
-      this.categories = new List<Category>();
       this.options = new List<Option>();
       this.categoryLookup = new Dictionary<string, Category>();
       this.RootCategory = new Category() {
-        LineIndex = -1,
-        OptionLookup = new Dictionary<string, Option>()
+        OptionLookup = new Dictionary<string, Option>(),
+        Lines = new List<string>()
       };
     }
 
     /// <summary>Saves the configuration file into the specified writer</summary>
     /// <param name="writer">Writer the configuration file will be saved into</param>
     public void Save(TextWriter writer) {
-      for(int index = 0; index < this.lines.Count; ++index) {
-        writer.WriteLine(this.lines[index]);
+      for(int index = 0; index < this.RootCategory.Lines.Count; ++index) {
+        writer.WriteLine(this.RootCategory.Lines[index]);
+      }
+      foreach(Category category in this.categoryLookup.Values) {
+        for(int index = 0; index < category.Lines.Count; ++index) {
+          writer.WriteLine(category.Lines[index]);
+        }
       }
     }
 
     /// <summary>Enumerates the categories defined in the configuration</summary>
     /// <returns>An enumerable list of all used categories</returns>
     public IEnumerable<string> EnumerateCategories() {
-      for(int index = 0; index < this.categories.Count; ++index) {
-        yield return this.categories[index].CategoryName.ToString();
-      }
+      return this.categoryLookup.Keys;
     }
 
     /// <summary>Enumerates the options stored under the specified category</summary>
@@ -242,18 +243,29 @@ namespace Nuclex.Support.Settings {
       }
 
       Option newOption = new Option() {
-        LineIndex = this.lines.Count,
         OptionName = new StringSegment(line, 0, name.Length),
         OptionValue = new StringSegment(line, name.Length + 3, valueLength)
       };
 
-      // TODO: Find end line of category and add line
+      // Figure out which line the new option should be put in
+      int lastLineIndex = category.Lines.Count - 1;
+      if((lastLineIndex > 0) && (category.Lines[lastLineIndex].Length == 0)) {
+        newOption.LineIndex = lastLineIndex;
+        category.Lines.Insert(lastLineIndex, line);
+      } else {
+        newOption.LineIndex = category.Lines.Count;
+        category.Lines.Add(line);
+        category.Lines.Add(string.Empty);
+      }
+
+      category.OptionLookup.Add(name, newOption);
     }
 
     /// <summary>Changes the value of an option</summary>
+    /// <param name="category">Category that holds the option</param>
     /// <param name="option">Option whose value will be changed</param>
     /// <param name="newValue">New value that will be assigned to the option</param>
-    private void changeOption(Option option, string newValue) {
+    private void changeOption(Category category, Option option, string newValue) {
       int newValueLength;
       if(newValue == null) {
         newValueLength = 0;
@@ -287,8 +299,8 @@ namespace Nuclex.Support.Settings {
         line = builder.ToString();
       }
 
-      this.lines[option.LineIndex] = line;
       option.OptionValue = new StringSegment(line, option.OptionValue.Offset, newValueLength);
+      category.Lines[option.LineIndex] = line;
     }
 
     /// <summary>Creates a new category in the configuration file</summary>
@@ -304,26 +316,20 @@ namespace Nuclex.Support.Settings {
         categoryDefinition = builder.ToString();
       }
 
-      // An empty line before the category definition for better readability
-      this.lines.Add(string.Empty);
-
       Category newCategory = new Category() {
-        LineIndex = this.lines.Count,
         CategoryName = new StringSegment(categoryDefinition, 1, category.Length),
-        OptionLookup = new Dictionary<string, Option>()
+        OptionLookup = new Dictionary<string, Option>(),
+        Lines = new List<string>()
       };
-      this.lines.Add(categoryDefinition);
+
+      newCategory.Lines.Add(categoryDefinition);
+      newCategory.Lines.Add(string.Empty);
 
       this.categoryLookup.Add(category, newCategory);
 
       return newCategory;
     }
 
-    /// <summary>Lines contained in the configuration file</summary>
-    private IList<string> lines;
-
-    /// <summary>Records where categories are stored in the configuration file</summary>
-    private IList<Category> categories;
     /// <summary>Records where options are stored in the configuration file</summary>
     private IList<Option> options;
 

@@ -209,6 +209,17 @@ namespace Nuclex.Support.Settings {
       );
     }
 
+    /// <summary>
+    ///   Verifies that options can be added to the configuration file
+    /// </summary>
+    [Test]
+    public void OptionsCanBeAdded() {
+      var configurationFile = new ConfigurationFileStore();
+
+      configurationFile.Set<string>(null, "test", "123");
+      Assert.That(configurationFile.Get<string>(null, "test"), Is.EqualTo("123"));
+    }
+
   }
 
 } // namespace Nuclex.Support.Settings
