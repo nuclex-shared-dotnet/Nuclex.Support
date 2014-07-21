@@ -15,8 +15,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
+    <OutputPath>bin\mono-3.5\Debug\</OutputPath>
+    <DefineConstants>DEBUG;NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS;NO_SETS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -24,11 +24,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>bin\mono-3.5\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <DefineConstants>NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS</DefineConstants>
+    <DefineConstants>NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS;NO_SETS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

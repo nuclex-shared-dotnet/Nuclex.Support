@@ -1,3 +1,5 @@
+#if !NO_CONCURRENT_COLLECTIONS
+
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -322,3 +324,5 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
+
+#endif // !NO_CONCURRENT_COLLECTIONS

@@ -22,7 +22,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-#if !(WINDOWS_PHONE || XBOX360)
+#if !NO_SETS
 
 namespace Nuclex.Support.Collections {
 
@@ -213,4 +213,4 @@ namespace Nuclex.Support.Collections {
 
 } // namespace Nuclex.Support.Collections
 
-#endif // !(WINDOWS_PHONE || XBOX360)
+#endif // !NO_SETS
