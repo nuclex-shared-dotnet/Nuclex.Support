@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if !NO_NMOCK
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -495,3 +497,5 @@ namespace Nuclex.Support.Collections {
 } // namespace Nuclex.Support.Collections
 
 #endif // UNITTEST
+
+#endif // !NO_NMOCK

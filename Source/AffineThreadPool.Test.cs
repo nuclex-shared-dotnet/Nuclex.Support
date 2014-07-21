@@ -230,6 +230,8 @@ namespace Nuclex.Support {
       Assert.AreEqual(Environment.ProcessorCount, AffineThreadPool.MaxThreads);
     }
 
+#if WINDOWS
+
     /// <summary>
     ///   Verifies that the ProcessThread instance for a system thread id can
     ///   be determined using the GetProcessThread() method
@@ -249,6 +251,8 @@ namespace Nuclex.Support {
         }
       }
     }
+
+#endif // WINDOWS
 
     /// <summary>
     ///   Tests whether the afine thread pool's default exception handler works

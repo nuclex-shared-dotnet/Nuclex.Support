@@ -31,6 +31,8 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   internal class ConstantsTest {
 
+#if !NO_SPECIALIZED_COLLECTIONS
+
     /// <summary>
     ///   Verifies that the collection reset event arguments have 'reset' specified as
     ///   their action
@@ -41,6 +43,8 @@ namespace Nuclex.Support.Collections {
         NotifyCollectionChangedAction.Reset, Constants.NotifyCollectionResetEventArgs.Action
       );
     }
+
+#endif // !NO_SPECIALIZED_COLLECTIONS
 
   }
 

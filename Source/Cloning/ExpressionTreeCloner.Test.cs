@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if !NO_SETS
+
 #if UNITTEST
 
 using System;
@@ -220,3 +222,5 @@ namespace Nuclex.Support.Cloning {
 } // namespace Nuclex.Support.Cloning
 
 #endif // UNITTEST
+
+#endif // !NO_SETS

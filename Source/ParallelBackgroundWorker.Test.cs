@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if !NO_CONCURRENT_COLLECTIONS
+
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -250,3 +252,5 @@ namespace Nuclex.Support {
 } // namespace Nuclex.Support
 
 #endif // UNITTEST
+
+#endif // !NO_CONCURRENT_COLLECTIONS

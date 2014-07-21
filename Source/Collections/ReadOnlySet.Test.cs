@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if !NO_SETS
+
 #if UNITTEST
 
 using System;
@@ -202,3 +204,5 @@ namespace Nuclex.Support.Collections {
 } // namespace Nuclex.Support.Collections
 
 #endif // UNITTEST
+
+#endif // !NO_SETS
