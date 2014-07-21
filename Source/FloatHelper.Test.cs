@@ -29,7 +29,7 @@ namespace Nuclex.Support {
 
   /// <summary>Unit Test for the FloatHelper class</summary>
   [TestFixture]
-  public class FloatHelperTest {
+  internal class FloatHelperTest {
 
     /// <summary>Tests the floating point value comparison helper</summary>
     [Test]
