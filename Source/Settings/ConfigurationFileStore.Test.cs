@@ -305,7 +305,7 @@ namespace Nuclex.Support.Settings {
     }
 
     /// <summary>
-    ///   Verifies that it's possible to assign an empty value to an option
+    ///   Verifies that it's possible to remove options from the configuration file
     /// </summary>
     [Test]
     public void OptionsCanBeRemoved() {
@@ -313,6 +313,9 @@ namespace Nuclex.Support.Settings {
       configurationFile.Set<string>(null, "test", null);
 
       Assert.That(configurationFile.Remove(null, "test"), Is.True);
+      
+      string value;
+      Assert.That(configurationFile.TryGet<string>(null, "test", out value), Is.False);
     }
 
     /// <summary>
@@ -383,6 +386,19 @@ namespace Nuclex.Support.Settings {
       }
 
       Assert.That(info.OptionType, Is.EqualTo(expectedType));
+    }
+
+    /// <summary>
+    ///   Verifies that configuration files containing duplicate option names can not
+    ///   be used with the configuration file store
+    /// </summary>
+    [Test]
+    public void FilesWithDuplicateOptionNamesCannotBeProcessed() {
+      string fileContents =
+        "duplicate name = 1\r\n" +
+        "duplicate name = 2";
+
+      Assert.That(() => load(fileContents), Throws.Exception);
     }
 
     /// <summary>Loads a configuration file from a string</summary>

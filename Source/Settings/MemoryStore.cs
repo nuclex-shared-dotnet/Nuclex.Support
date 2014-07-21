@@ -91,7 +91,17 @@ namespace Nuclex.Support.Settings {
     ///   parameter, false otherwise
     /// </returns>
     public bool TryGet<TValue>(string category, string optionName, out TValue value) {
-      throw new NotImplementedException();
+      IDictionary<string, object> categoryOptions = getCategoryByName(category);
+      if(categoryOptions != null) {
+        object valueAsObject;
+        if(categoryOptions.TryGetValue(optionName, out valueAsObject)) {
+          value = (TValue)Convert.ChangeType(valueAsObject, typeof(TValue));
+          return true;
+        }
+      }
+
+      value = default(TValue);
+      return false;
     }
 
     /// <summary>Saves an option in the settings store</summary>
@@ -100,7 +110,18 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be saved</param>
     /// <param name="value">The value under which the option will be saved</param>
     public void Set<TValue>(string category, string optionName, TValue value) {
-      throw new NotImplementedException();
+      IDictionary<string, object> targetCategory;
+
+      if(string.IsNullOrEmpty(category)) {
+        targetCategory = this.rootOptions;
+      } else if(!this.options.TryGetValue(category, out targetCategory)) {
+        targetCategory = new Dictionary<string, object>();
+        this.options.Add(category, targetCategory);
+        targetCategory.Add(optionName, value);
+        return;
+      }
+
+      targetCategory[optionName] = value;
     }
 
     /// <summary>Removes the option with the specified name</summary>
@@ -108,7 +129,27 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be removed</param>
     /// <returns>True if the option was found and removed</returns>
     public bool Remove(string category, string optionName) {
-      throw new NotImplementedException();
+      IDictionary<string, object> targetCategory = getCategoryByName(category);
+      if(targetCategory == null) {
+        return false;
+      }
+
+      return targetCategory.Remove(optionName);
+    }
+
+    /// <summary>Looks up a category by its name</summary>
+    /// <param name="name">Name of the category that will be looked up</param>
+    /// <returns>The category with the specified name if found, null otherwise</returns>
+    private IDictionary<string, object> getCategoryByName(string name) {
+      IDictionary<string, object> category;
+
+      if(string.IsNullOrEmpty(name)) {
+        category = this.rootOptions;
+      } else if(!this.options.TryGetValue(name, out category)) {
+        return null;
+      }
+
+      return category;
     }
 
     /// <summary>Categories and the options stored in them</summary>
