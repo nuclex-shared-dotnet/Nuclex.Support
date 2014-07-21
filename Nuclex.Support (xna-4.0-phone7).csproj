@@ -228,6 +228,23 @@
     <Compile Include="Source\Collections\WeakCollection.Test.cs">
       <DependentUpon>WeakCollection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Settings\ConfigurationFileStore.cs" />
+    <Compile Include="Source\Settings\ConfigurationFileStore.Parsing.cs">
+      <DependentUpon>ConfigurationFileStore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Settings\ConfigurationFileStore.Test.cs">
+      <DependentUpon>ConfigurationFileStore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Settings\ISettingsStore.cs" />
+    <Compile Include="Source\Settings\MemoryStore.cs" />
+    <Compile Include="Source\Settings\MemoryStore.Test.cs">
+      <DependentUpon>MemoryStore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Settings\OptionInfo.cs" />
+    <Compile Include="Source\Settings\WindowsRegistryStore.cs" />
+    <Compile Include="Source\Settings\WindowsRegistryStore.Test.cs">
+      <DependentUpon>WindowsRegistryStore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\GarbagePolicy.cs" />
     <Compile Include="Source\IO\PartialStream.cs" />
     <Compile Include="Source\IO\PartialStream.Test.cs">
@@ -245,6 +262,7 @@
     <Compile Include="Source\Licensing\LicenseKey.Test.cs">
       <DependentUpon>LicenseKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Parsing\CommandLine.cs" />
     <Compile Include="Source\Parsing\CommandLine.Argument.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
@@ -254,9 +272,12 @@
     <Compile Include="Source\Parsing\CommandLine.Test.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Parsing\CommandLine.cs" />
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\ParallelBackgroundWorker.cs" />
+    <Compile Include="Source\ParallelBackgroundWorker.Test.cs">
+      <DependentUpon>ParallelBackgroundWorker.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Parsing\ParserHelper.cs" />
     <Compile Include="Source\Parsing\ParserHelper.Test.cs">
@@ -336,7 +357,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Documents\CommandLine.txt" />
     <Content Include="Documents\DoubleConverter.txt" />
     <Content Include="Documents\Nuclex.Support.txt" />
     <Content Include="Documents\Request Framework.txt" />
