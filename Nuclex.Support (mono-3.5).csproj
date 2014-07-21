@@ -20,6 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\mono-3.5\Debug\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -29,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <DefineConstants>UNITTEST;NO_SPECIALIZED_COLLECTIONS;NO_CONCURRENT_COLLECTIONS;NO_SETS;NO_NMOCK</DefineConstants>
+    <DocumentationFile>bin\mono-3.5\Release\Nuclex.Support.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
