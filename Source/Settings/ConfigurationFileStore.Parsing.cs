@@ -239,18 +239,15 @@ namespace Nuclex.Support.Settings {
       if(value.Count >= 2) {
         int index = value.Offset;
         if(ParserHelper.SkipInteger(value.Text, ref index)) {
-          if(index < value.Offset + value.Count) {
-            if(value.Text[index] == '.') {
-              return typeof(float);
-            }
+          if(index >= value.Offset + value.Count) {
+            return typeof(int);
           }
-
-          return typeof(int);
+          if(value.Text[index] == '.') {
+            return typeof(float);
+          }
         }
-      } else if(value.Count >= 1) { // If it's at least one character, it may be a number
-        int index = value.Offset;
-        ParserHelper.SkipNumericals(value.Text, ref index);
-        if(index > value.Offset) {
+      } else { // If it's just a single character, it may be a number
+        if(char.IsNumber(value.Text, value.Offset)) {
           return typeof(int);
         }
       }

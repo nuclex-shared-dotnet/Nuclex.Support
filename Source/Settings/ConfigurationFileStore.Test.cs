@@ -356,10 +356,13 @@ namespace Nuclex.Support.Settings {
     /// </summary>
     [
       Test,
+      TestCase("nothing=", typeof(string)),
       TestCase("text = world", typeof(string)),
       TestCase("short=9", typeof(int)),
       TestCase("integer = 123", typeof(int)),
       TestCase("integer = 123  ", typeof(int)),
+      TestCase("string=x", typeof(string)),
+      TestCase("string = 123s", typeof(string)),
       TestCase("float = 123.45", typeof(float)),
       TestCase("float = 123.45  ", typeof(float)),
       TestCase("boolean = true", typeof(bool)),
