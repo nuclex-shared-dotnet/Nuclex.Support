@@ -244,6 +244,144 @@ namespace Nuclex.Support.Settings {
       Assert.That(save(configurationFile), Contains.Substring("[general]"));
     }
 
+    /// <summary>
+    ///   Verifies that accessing an option that doesn't exist throws an exception
+    /// </summary>
+    [Test]
+    public void AccessingNonExistingOptionThrowsException() {
+      var configurationFile = new ConfigurationFileStore();
+
+      Assert.That(
+        () => configurationFile.Get<string>(null, "doesn't exist"),
+        Throws.Exception.AssignableTo<KeyNotFoundException>()
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that accessing a category that doesn't exist throws an exception
+    /// </summary>
+    [Test]
+    public void AccessingNonExistingCategoryThrowsException() {
+      var configurationFile = new ConfigurationFileStore();
+      configurationFile.Set<string>(null, "test", "123");
+
+      Assert.That(
+        () => configurationFile.Get<string>("doesn't exist", "test"),
+        Throws.Exception.AssignableTo<KeyNotFoundException>()
+      );
+    }
+
+    /// <summary>
+    ///   Verifies that it's possible to enumerate a category that doesn't exist
+    /// </summary>
+    [Test]
+    public void NonExistingCategoryCanBeEnumerated() {
+      var configurationFile = new ConfigurationFileStore();
+
+      Assert.That(configurationFile.EnumerateOptions("doesn't exist"), Is.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that it's possible to create an option without a value
+    /// </summary>
+    [Test]
+    public void ValuelessOptionsCanBeCreated() {
+      var configurationFile = new ConfigurationFileStore();
+
+      configurationFile.Set<string>(null, "test", null);
+      Assert.That(configurationFile.Get<string>(null, "test"), Is.Null.Or.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that it's possible to assign an empty value to an option
+    /// </summary>
+    [Test]
+    public void OptionValueCanBeCleared() {
+      string fileContents = "test = 123 ; comment";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      configurationFile.Set<string>(null, "test", null);
+      Assert.That(configurationFile.Get<string>(null, "test"), Is.Null.Or.Empty);
+    }
+
+    /// <summary>
+    ///   Verifies that it's possible to assign an empty value to an option
+    /// </summary>
+    [Test]
+    public void OptionsCanBeRemoved() {
+      var configurationFile = new ConfigurationFileStore();
+      configurationFile.Set<string>(null, "test", null);
+
+      Assert.That(configurationFile.Remove(null, "test"), Is.True);
+    }
+
+    /// <summary>
+    ///   Verifies that it's possible to assign an empty value to an option
+    /// </summary>
+    [Test]
+    public void RemovingOptionShiftsFollowingOptionsUp() {
+      string fileContents =
+        "first = 1\r\n" +
+        "second = 2";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(configurationFile.Remove(null, "first"), Is.True);
+      configurationFile.Set<string>(null, "second", "yay! first!");
+
+      Assert.That(save(configurationFile), Has.No.ContainsSubstring("1"));
+      Assert.That(save(configurationFile), Contains.Substring("second"));
+      Assert.That(save(configurationFile), Contains.Substring("yay! first!"));
+    }
+
+    /// <summary>
+    ///   Verifies that it's not an error to remove an option from a non-existing category
+    /// </summary>
+    [Test]
+    public void CanRemoveOptionFromNonExistingCategory() {
+      var configurationFile = new ConfigurationFileStore();
+      Assert.That(configurationFile.Remove("nothing", "first"), Is.False);
+    }
+
+    /// <summary>
+    ///   Verifies that it's not an error to remove a non-existing option
+    /// </summary>
+    [Test]
+    public void CanRemoveNonExistingOption() {
+      var configurationFile = new ConfigurationFileStore();
+      Assert.That(configurationFile.Remove(null, "first"), Is.False);
+    }
+
+    /// <summary>
+    ///   Verifies that it's not an error to remove a non-existing option
+    /// </summary>
+    [
+      Test,
+      TestCase("text = world", typeof(string)),
+      TestCase("short=9", typeof(int)),
+      TestCase("integer = 123", typeof(int)),
+      TestCase("integer = 123  ", typeof(int)),
+      TestCase("float = 123.45", typeof(float)),
+      TestCase("float = 123.45  ", typeof(float)),
+      TestCase("boolean = true", typeof(bool)),
+      TestCase("boolean = false", typeof(bool)),
+      TestCase("boolean = yes", typeof(bool)),
+      TestCase("boolean = no", typeof(bool))
+    ]
+    public void OptionTypeCanBeIdentified(string assignment, Type expectedType) {
+      ConfigurationFileStore configurationFile = load(assignment);
+
+      OptionInfo info;
+      using(
+        IEnumerator<OptionInfo> enumerator = configurationFile.EnumerateOptions().GetEnumerator()
+      ) {
+        Assert.That(enumerator.MoveNext(), Is.True);
+        info = enumerator.Current;
+        Assert.That(enumerator.MoveNext(), Is.False);
+      }
+
+      Assert.That(info.OptionType, Is.EqualTo(expectedType));
+    }
+
     /// <summary>Loads a configuration file from a string</summary>
     /// <param name="fileContents">Contents of the configuration file</param>
     /// <returns>The configuration file loaded from the string</returns>

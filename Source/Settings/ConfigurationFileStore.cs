@@ -103,6 +103,9 @@ namespace Nuclex.Support.Settings {
     /// <returns>An enumerable list of all options in the category</returns>
     public IEnumerable<OptionInfo> EnumerateOptions(string category = null) {
       Category enumeratedCategory = getCategoryByName(category);
+      if(enumeratedCategory == null) {
+        yield break;
+      }
 
       foreach(Option option in this.RootCategory.OptionLookup.Values) {
         OptionInfo optionInfo = new OptionInfo() {
@@ -147,15 +150,16 @@ namespace Nuclex.Support.Settings {
     /// </returns>
     public bool TryGet<TValue>(string category, string optionName, out TValue value) {
       Category containingCategory = getCategoryByName(category);
-
-      Option option;
-      if(containingCategory.OptionLookup.TryGetValue(optionName, out option)) {
-        value = (TValue)Convert.ChangeType(option.OptionValue.ToString(), typeof(TValue));
-        return true;
-      } else {
-        value = default(TValue);
-        return false;
+      if(containingCategory != null) {
+        Option option;
+        if(containingCategory.OptionLookup.TryGetValue(optionName, out option)) {
+          value = (TValue)Convert.ChangeType(option.OptionValue.ToString(), typeof(TValue));
+          return true;
+        }
       }
+
+      value = default(TValue);
+      return false;
     }
 
     /// <summary>Saves an option in the settings store</summary>
@@ -164,30 +168,22 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be saved</param>
     /// <param name="value">The value under which the option will be saved</param>
     public void Set<TValue>(string category, string optionName, TValue value) {
-      Category targetCategory;
-      bool optionMightExist;
-
-      if(string.IsNullOrEmpty(category)) {
-        targetCategory = this.RootCategory;
-        optionMightExist = true;
-      } else if(this.categoryLookup.TryGetValue(category, out targetCategory)) {
-        optionMightExist = true;
-      } else {
-        targetCategory = createCategory(category);
-        optionMightExist = false;
-      }
-
       string valueAsString = (string)Convert.ChangeType(
         value, typeof(string), CultureInfo.InvariantCulture
       );
 
+      Category targetCategory;
+      if(string.IsNullOrEmpty(category)) {
+        targetCategory = this.RootCategory;
+      } else if(!this.categoryLookup.TryGetValue(category, out targetCategory)) {
+        targetCategory = createCategory(category);
+        createOption(targetCategory, optionName, valueAsString);
+        return;
+      }
+
       Option targetOption;
-      if(optionMightExist) {
-        if(targetCategory.OptionLookup.TryGetValue(optionName, out targetOption)) {
-          changeOption(targetCategory, targetOption, valueAsString);
-        } else {
-          createOption(targetCategory, optionName, valueAsString);
-        }
+      if(targetCategory.OptionLookup.TryGetValue(optionName, out targetOption)) {
+        changeOption(targetCategory, targetOption, valueAsString);
       } else {
         createOption(targetCategory, optionName, valueAsString);
       }
@@ -198,7 +194,26 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be removed</param>
     /// <returns>True if the option was found and removed</returns>
     public bool Remove(string category, string optionName) {
-      throw new NotImplementedException();
+      Category sourceCategory = getCategoryByName(category);
+      if(sourceCategory == null) {
+        return false;
+      }
+
+      Option option;
+      if(!sourceCategory.OptionLookup.TryGetValue(optionName, out option)) {
+        return false;
+      }
+
+      sourceCategory.Lines.RemoveAt(option.LineIndex);
+      sourceCategory.OptionLookup.Remove(optionName);
+
+      foreach(Option shiftedOption in sourceCategory.OptionLookup.Values) {
+        if(shiftedOption.LineIndex > option.LineIndex) {
+          --shiftedOption.LineIndex;
+        }
+      }
+
+      return true;
     }
 
     /// <summary>Looks a category up by its name</summary>
@@ -212,9 +227,7 @@ namespace Nuclex.Support.Settings {
       if(string.IsNullOrEmpty(categoryName)) {
         category = this.RootCategory;
       } else if(!this.categoryLookup.TryGetValue(categoryName, out category)) {
-        throw new KeyNotFoundException(
-          "There is no category named '" + categoryName + "' in the configuration file"
-        );
+        return null;
       }
 
       return category;
@@ -281,7 +294,7 @@ namespace Nuclex.Support.Settings {
       string line = option.OptionValue.Text;
       {
         StringBuilder builder = new StringBuilder(
-          line.Length - option.OptionValue.Count + newValue.Length
+          line.Length - option.OptionValue.Count + newValueLength
         );
 
         // Stuff before the value
