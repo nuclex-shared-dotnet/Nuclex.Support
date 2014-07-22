@@ -156,7 +156,7 @@ namespace Nuclex.Support.Settings {
         Option option;
         if(containingCategory.OptionLookup.TryGetValue(optionName, out option)) {
           if(typeof(TValue) == typeof(bool)) {
-            bool? boolean = ParserHelper.ParseBooleanLiteral(ref option.OptionValue);
+            bool? boolean = parseBooleanLiteral(ref option.OptionValue);
             if(boolean.HasValue) {
               value = (TValue)(object)boolean.Value;
               return true;

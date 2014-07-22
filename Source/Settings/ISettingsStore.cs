@@ -24,6 +24,27 @@ using System.Collections.Generic;
 namespace Nuclex.Support.Settings {
 
   /// <summary>Interface by which settings and configuration data can be accessed</summary>
+  /// <remarks>
+  ///   <para>
+  ///     The intended usage pattern for options is for your application to simply read and
+  ///     write whatever options it needs using the type it expects them to be.
+  ///   </para>
+  ///   <para>
+  ///     When you enumerate the options appearing under a category, the settings store will
+  ///     try to guess the likely type of an option, but this is not always accurate. For
+  ///     example, assigning the text 'true' to an option in a .cfg or .ini file could mean
+  ///     that the option is a boolean or it could simply be a coincidence. When you read
+  ///     this value as a boolean, the settings store will correctly convert it to a boolean,
+  ///     when you read it as a string, you will get back "true" in plain text.
+  ///   </para>
+  ///   <para>
+  ///     Which types of values a settings store can accept can also change between different
+  ///     settings store implementations. The windows registry supports string and byte
+  ///     arrays whereas configuration files have no standardized way of holding these.
+  ///     Any property store must support a minimal subset including booleans, integers,
+  ///     floating point values and strings.
+  ///   </para>
+  /// </remarks>
   public interface ISettingsStore {
 
     /// <summary>Enumerates the categories defined in the configuration</summary>

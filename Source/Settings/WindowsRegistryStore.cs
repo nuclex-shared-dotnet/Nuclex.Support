@@ -131,8 +131,13 @@ namespace Nuclex.Support.Settings {
       if(string.IsNullOrEmpty(category)) {
         return tryGetValueFromKey(this.rootKey, optionName, out value);
       } else {
-        using(RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable)) {
-          return tryGetValueFromKey(this.rootKey, optionName, out value);
+				RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
+				if(categoryKey == null) {
+					value = default(TValue);
+					return false;
+				}
+        using(categoryKey) {
+          return tryGetValueFromKey(categoryKey, optionName, out value);
         }
       }
     }
@@ -143,7 +148,43 @@ namespace Nuclex.Support.Settings {
     /// <param name="optionName">Name of the option that will be saved</param>
     /// <param name="value">The value under which the option will be saved</param>
     public void Set<TValue>(string category, string optionName, TValue value) {
-      throw new NotImplementedException();
+      if(string.IsNullOrEmpty(category)) {
+        setValue(this.rootKey, optionName, value);
+      } else {
+				RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
+				if(categoryKey == null) {
+					categoryKey = this.rootKey.CreateSubKey(category);
+				}
+        using(categoryKey) {
+          setValue(categoryKey, optionName, value);
+        }
+      }
+    }
+
+    /// <summary>Writes a setting to the registry</summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="registryKey"></param>
+    /// <param name="optionName"></param>
+    /// <param name="value"></param>
+    private void setValue<TValue>(RegistryKey registryKey, string optionName, TValue value) {
+      if(typeof(TValue) == typeof(int)) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.DWord);
+      } else if(typeof(TValue) == typeof(long)) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.QWord);
+      } else if(typeof(TValue) == typeof(bool)) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.DWord);
+      } else if(typeof(TValue) == typeof(string)) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.String);
+      } else if(typeof(TValue) == typeof(string[])) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.MultiString);
+      } else if(typeof(TValue) == typeof(byte[])) {
+        registryKey.SetValue(optionName, value, RegistryValueKind.Binary);
+      } else {
+        string valueAsString = (string)Convert.ChangeType(
+          value, typeof(string), CultureInfo.InvariantCulture
+        );
+        registryKey.SetValue(optionName, valueAsString, RegistryValueKind.String);
+      }
     }
 
     /// <summary>Removes the option with the specified name</summary>
@@ -167,22 +208,6 @@ namespace Nuclex.Support.Settings {
       if(valueAsObject == null) {
         value = default(TValue);
         return false;
-      }
-
-      if(typeof(TValue) == typeof(bool)) {
-        string valueAsString = (string)Convert.ChangeType(
-          valueAsObject, typeof(string), CultureInfo.InvariantCulture
-        );
-
-        bool? boolean = ParserHelper.ParseBooleanLiteral(valueAsString);
-        if(boolean.HasValue) {
-          value = (TValue)(object)boolean.Value;
-          return true;
-        } else {
-          throw new FormatException(
-            "The value '" + valueAsString + "' can not be intepreted as a boolean"
-          );
-        }
       } else {
         value = (TValue)Convert.ChangeType(
           valueAsObject, typeof(TValue), CultureInfo.InvariantCulture
@@ -225,11 +250,6 @@ namespace Nuclex.Support.Settings {
             if(char.IsNumber(value, 0)) {
               return typeof(int);
             }
-          }
-
-          // If it parses as a boolean literal, then it must be a boolean
-          if(ParserHelper.ParseBooleanLiteral(value) != null) {
-            return typeof(bool);
           }
 
           return typeof(string);
