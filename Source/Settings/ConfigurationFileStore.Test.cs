@@ -313,7 +313,7 @@ namespace Nuclex.Support.Settings {
       configurationFile.Set<string>(null, "test", null);
 
       Assert.That(configurationFile.Remove(null, "test"), Is.True);
-      
+
       string value;
       Assert.That(configurationFile.TryGet<string>(null, "test", out value), Is.False);
     }
@@ -402,6 +402,21 @@ namespace Nuclex.Support.Settings {
     }
 
     /// <summary>
+    ///   Verifies that attempting to cast a value to an incompatible data type causes
+    ///   a FormatException to be thrown
+    /// </summary>
+    [Test]
+    public void ImpossibleCastCausesFormatException() {
+      string fileContents = "fail = yesnomaybe";
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      Assert.That(
+        () => configurationFile.Get<bool>(null, "fail"),
+        Throws.Exception.AssignableTo<FormatException>()
+      );
+    }
+
+    /// <summary>
     ///   Verifies that configuration files containing duplicate option names can not
     ///   be used with the configuration file store
     /// </summary>
@@ -415,7 +430,7 @@ namespace Nuclex.Support.Settings {
     public void BooleanLiteralsAreUnderstood(string fileContents, bool expectedValue) {
       ConfigurationFileStore configurationFile = load(fileContents);
 
-      if(expectedValue) { 
+      if(expectedValue) {
         Assert.That(configurationFile.Get<bool>(null, "value"), Is.True);
       } else {
         Assert.That(configurationFile.Get<bool>(null, "value"), Is.False);

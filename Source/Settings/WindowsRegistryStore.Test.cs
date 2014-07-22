@@ -86,6 +86,21 @@ namespace Nuclex.Support.Settings {
       );
     }
 
+    /// <summary>Verifies that new instances of the registry store can be created</summary>
+    [Test]
+    public void RegistryHivesCanBeOpened() {
+      Assert.That(
+        () => {
+          using(
+            var store = new WindowsRegistryStore(
+              RegistryHive.LocalMachine, "SOFTWARE", writable: false
+            )
+          ) { }
+        },
+        Throws.Nothing
+      );
+    }
+
     /// <summary>Verifies that booleans can be stored in the registry</summary>
     [Test]
     public void BooleansCanBeStored() {
@@ -135,6 +150,60 @@ namespace Nuclex.Support.Settings {
 
         context.Store.Set(null, "test", "world hello");
         Assert.That(context.Store.Get<string>(null, "test"), Is.EqualTo("world hello"));
+      }
+    }
+
+    /// <summary>Verifies that long integers can be stored in the registry</summary>
+    [Test]
+    public void LongIntegersCanBeStored() {
+      using(var context = new TestContext()) {
+        context.Store.Set(null, "test", long.MaxValue);
+        Assert.That(context.Store.Get<long>(null, "test"), Is.EqualTo(long.MaxValue));
+
+        context.Store.Set(null, "test", long.MinValue);
+        Assert.That(context.Store.Get<long>(null, "test"), Is.EqualTo(long.MinValue));
+      }
+    }
+
+    /// <summary>Verifies that string arrays can be stored in the registry</summary>
+    [Test]
+    public void StringArraysCanBeStored() {
+      string[] english = new string[] { "one", "two", "three" };
+      string[] german = new string[] { "eins", "zwei", "drei" };
+
+      using(var context = new TestContext()) {
+        context.Store.Set(null, "test", english);
+        Assert.That(context.Store.Get<string[]>(null, "test"), Is.EquivalentTo(english));
+
+        context.Store.Set(null, "test", german);
+        Assert.That(context.Store.Get<string[]>(null, "test"), Is.EquivalentTo(german));
+      }
+    }
+
+    /// <summary>Verifies that byte arrays can be stored in the registry</summary>
+    [Test]
+    public void ByteArraysCanBeStored() {
+      byte[] ascending = new byte[] { 1, 2, 3 };
+      byte[] descending = new byte[] { 9, 8, 7 };
+
+      using(var context = new TestContext()) {
+        context.Store.Set(null, "test", ascending);
+        Assert.That(context.Store.Get<byte[]>(null, "test"), Is.EquivalentTo(ascending));
+
+        context.Store.Set(null, "test", descending);
+        Assert.That(context.Store.Get<byte[]>(null, "test"), Is.EquivalentTo(descending));
+      }
+    }
+
+    /// <summary>Verifies that strings can be stored in the registry</summary>
+    [Test]
+    public void ValuesCanBeStoredInCategories() {
+      using(var context = new TestContext()) {
+        context.Store.Set("main", "test", "hello world");
+
+        string value;
+        Assert.That(context.Store.TryGet<string>(null, "test", out value), Is.False);
+        Assert.That(context.Store.Get<string>("main", "test"), Is.EqualTo("hello world"));
       }
     }
 
@@ -249,6 +318,34 @@ namespace Nuclex.Support.Settings {
     public void RemovingValueFromNonExistingCategoryCanBeHandled() {
       using(var context = new TestContext()) {
         Assert.That(context.Store.Remove("empty", "nothing"), Is.False);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that the store identifies the types of values stored in
+    ///   a registry when they are enumerated
+    /// </summary>
+    [Test]
+    public void ValueTypesAreIdentifiedWhenEnumerating() {
+      Type[] types = new Type[] {
+        typeof(int),
+        typeof(long),
+        typeof(byte[]),
+        typeof(string),
+        typeof(string[])
+      };
+      using(var context = new TestContext()) {
+        context.Store.Set<int>(null, "0", 123);
+        context.Store.Set<long>(null, "1", 456L);
+        context.Store.Set<byte[]>(null, "2", new byte[] { 7, 8, 9 });
+        context.Store.Set<string>(null, "3", "text");
+        context.Store.Set<string[]>(null, "4", new string[] { "many", "words" });
+
+        var optionInfos = new List<OptionInfo>(context.Store.EnumerateOptions());
+        for(int index = 0; index < optionInfos.Count; ++index) {
+          int typeIndex = int.Parse(optionInfos[index].Name);
+          Assert.That(optionInfos[index].OptionType, Is.EqualTo(types[typeIndex]));
+        }
       }
     }
 

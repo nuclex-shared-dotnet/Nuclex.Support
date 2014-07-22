@@ -26,8 +26,6 @@ using System.Globalization;
 
 using Microsoft.Win32;
 
-using Nuclex.Support.Parsing;
-
 namespace Nuclex.Support.Settings {
 
   /// <summary>Stores settings in the registry on Windows operating systems</summary>
@@ -242,7 +240,7 @@ namespace Nuclex.Support.Settings {
         case RegistryValueKind.QWord: { return typeof(long); }
         case RegistryValueKind.MultiString: { return typeof(string[]); }
         case RegistryValueKind.ExpandString:
-        case RegistryValueKind.String: { return typeof(string); }
+        case RegistryValueKind.String:
         case RegistryValueKind.Unknown:
         case RegistryValueKind.None:
         default: { return typeof(string); }

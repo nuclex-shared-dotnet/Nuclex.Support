@@ -24,8 +24,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-using Nuclex.Support.Parsing;
-
 namespace Nuclex.Support.Settings {
 
   /// <summary>Represents an ini- or cfg-like configuration file</summary>
