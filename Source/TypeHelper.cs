@@ -58,65 +58,6 @@ namespace Nuclex.Support {
 
     #endregion // class MemberInfoComparer
 
-#if WINRT
-
-    /// <summary>
-    ///   Returns all the fields of a type, including those defined in the type's base classes
-    /// </summary>
-    /// <param name="type">Type whose fields will be returned</param>
-    /// <param name="bindingFlags">Binding flags to use when querying the fields</param>
-    /// <returns>All of the type's fields, including its base types</returns>
-    public static FieldInfo[] GetFieldInfosIncludingBaseClasses(this Type type) {
-      var fieldInfoSet = new HashSet<FieldInfo>(fieldInfos, FieldInfoComparer.Default);
-
-      while(type != typeof(object)) {
-        TypeInfo typeInfo = type.GetTypeInfo();
-
-        foreach(FieldInfo fieldInfo in typeInfo.DeclaredFields) {
-          fieldInfoSet.Add(fieldInfo);
-        }
-
-        type = typeInfo.BaseType;
-      }
-
-      FieldInfo[] fieldInfos = new FieldInfo[fieldInfoSet.Count];
-      fieldInfoSet.CopyTo(fieldInfos, 0);
-      return fieldInfos;
-    }
-
-#elif !(XBOX360 || WINDOWS_PHONE)
-
-    /// <summary>
-    ///   Returns all the fields of a type, including those defined in the type's base classes
-    /// </summary>
-    /// <param name="type">Type whose fields will be returned</param>
-    /// <param name="bindingFlags">Binding flags to use when querying the fields</param>
-    /// <returns>All of the type's fields, including its base types</returns>
-    public static FieldInfo[] GetFieldInfosIncludingBaseClasses(
-      this Type type, BindingFlags bindingFlags
-    ) {
-      FieldInfo[] fieldInfos = type.GetFields(bindingFlags);
-
-      // If this class doesn't have a base, don't waste any time
-      if(type.BaseType != typeof(object)) {
-        var fieldInfoSet = new HashSet<FieldInfo>(fieldInfos, FieldInfoComparer.Default);
-        while(type.BaseType != typeof(object)) {
-          type = type.BaseType;
-          fieldInfos = type.GetFields(bindingFlags);
-          for(int index = 0; index < fieldInfos.Length; ++index) {
-            fieldInfoSet.Add(fieldInfos[index]);
-          }
-        }
-
-        fieldInfos = new FieldInfo[fieldInfoSet.Count];
-        fieldInfoSet.CopyTo(fieldInfos);
-      }
-
-      return fieldInfos;
-    }
-
-#else // !(XBOX360 || WINDOWS_PHONE)
-
     /// <summary>
     ///   Returns all the fields of a type, including those defined in the type's base classes
     /// </summary>
@@ -164,25 +105,6 @@ namespace Nuclex.Support {
       }
     }
 
-#endif // !(XBOX360 || WINDOWS_PHONE)
-
-#if WINRT
-
-    /// <summary>Determines whether the given type has a default constructor</summary>
-    /// <param name="type">Type which is to be checked</param>
-    /// <returns>True if the type has a default constructor</returns>
-    public static bool HasDefaultConstructor(this Type type) {
-      foreach(ConstructorInfo constructorInfo in type.GetTypeInfo().DeclaredConstructors) {
-        if(constructorInfo.IsPublic && (constructorInfo.GetParameters().Length == 0)) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-#else
-
     /// <summary>Determines whether the given type has a default constructor</summary>
     /// <param name="type">Type which is to be checked</param>
     /// <returns>True if the type has a default constructor</returns>
@@ -199,8 +121,6 @@ namespace Nuclex.Support {
       return false;
     }
 
-#endif
-
     /// <summary>Determines whether the type has the specified attribute</summary>
     /// <typeparam name="TAttribute">Attribute the type will be checked for</typeparam>
     /// <param name="type">
@@ -210,20 +130,6 @@ namespace Nuclex.Support {
     public static bool HasAttribute<TAttribute>(this Type type) {
       return type.HasAttribute(typeof(TAttribute));
     }
-
-#if WINRT
-
-    /// <summary>Determines whether the type has the specified attribute</summary>
-    /// <param name="type">
-    ///   Type that will be checked for presence of the specified attribute
-    /// </param>
-    /// <param name="attributeType">Attribute the type will be checked for</typeparam>
-    /// <returns>True if the type has the specified attribute, otherwise false</returns>
-    public static bool HasAttribute(this Type type, Type attributeType) {
-      return (type.GetTypeInfo().GetCustomAttribute(attributeType) != null);
-    }
-
-#else
 
     /// <summary>Determines whether the type has the specified attribute</summary>
     /// <param name="type">
@@ -235,8 +141,6 @@ namespace Nuclex.Support {
       object[] attributes = type.GetCustomAttributes(attributeType, true);
       return (attributes != null) && (attributes.Length > 0);
     }
-
-#endif
 
   }
 

@@ -24,8 +24,6 @@ using System.Runtime.Serialization;
 
 namespace Nuclex.Support {
 
-#if !WINDOWS_PHONE
-
   /// <summary>
   ///   Type-safe weak reference, referencing an object while still allowing
   ///   that object to be garbage collected.
@@ -97,7 +95,5 @@ namespace Nuclex.Support {
     }
 
   }
-
-#endif // !WINDOWS_PHONE
 
 } // namespace Nuclex.Support

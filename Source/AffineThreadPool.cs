@@ -49,11 +49,7 @@ namespace Nuclex.Support {
   public static class AffineThreadPool {
 
     /// <summary>Number of CPU cores available on the system</summary>
-#if XBOX360
-    public static readonly int Processors = 4;
-#else
     public static readonly int Processors = Environment.ProcessorCount;
-#endif
 
     /// <summary>Delegate used by the thread pool to report unhandled exceptions</summary>
     /// <param name="exception">Exception that has not been handled</param>
@@ -88,25 +84,16 @@ namespace Nuclex.Support {
       // as we may run into situations where multiple operations need to be atomic.
       // We keep track of the threads we've created just for good measure; not actually
       // needed for any core functionality.
-#if XBOX360 || WINDOWS_PHONE
-      workAvailable = new Semaphore();
-#else
       workAvailable = new System.Threading.Semaphore(0, int.MaxValue);
-#endif
       userWorkItems = new Queue<UserWorkItem>(Processors * 4);
       workerThreads = new List<Thread>(Processors);
       inUseThreads = 0;
 
-#if XBOX360
-      // We can only use these hardware thread indices on the XBox 360
-      hardwareThreads = new Queue<int>(new int[] { 5, 4, 3, 1 });
-#else
       // We can use all cores on a PC, starting from index 1
       hardwareThreads = new Queue<int>(Processors);
       for(int core = Processors; core >= 1; --core) {
         hardwareThreads.Enqueue(core);
       }
-#endif
 
       // Create all of the worker threads
       for(int index = 0; index < Processors; index++) {
@@ -211,12 +198,7 @@ namespace Nuclex.Support {
         hardwareThreadIndex = hardwareThreads.Dequeue();
       }
 
-#if XBOX360
-      // On the XBox 360, the only way to get a thread to run on another core is to
-      // explicitly move it to that core. MSDN states that SetProcessorAffinity() should
-      // be called from the thread whose affinity is being changed.
-      Thread.CurrentThread.SetProcessorAffinity(new int[] { hardwareThreadIndex });
-#elif WINDOWS
+#if WINDOWS
       if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
         // Prevent this managed thread from impersonating another system thread.
         // In .NET, managed threads can supposedly be moved to different system threads
@@ -303,11 +285,7 @@ namespace Nuclex.Support {
     /// <summary>
     ///   Used to let the threads in the thread pool wait for new work to appear.
     /// </summary>
-#if XBOX360 || WINDOWS_PHONE
-    private static Semaphore workAvailable;
-#else
     private static System.Threading.Semaphore workAvailable;
-#endif
     /// <summary>List of all worker threads at the disposal of the thread pool.</summary>
     private static List<Thread> workerThreads;
     /// <summary>Number of threads currently active.</summary>

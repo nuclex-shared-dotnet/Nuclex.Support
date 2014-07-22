@@ -18,8 +18,6 @@ License along with this library
 */
 #endregion
 
-#if !(XBOX360 || WINDOWS_PHONE)
-
 using System;
 using System.IO;
 using System.Reflection;
@@ -328,5 +326,3 @@ namespace Nuclex.Support.Cloning {
   }
 
 } // namespace Nuclex.Support.Cloning
-
-#endif // !(XBOX360 || WINDOWS_PHONE)
