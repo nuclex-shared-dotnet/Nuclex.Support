@@ -18,15 +18,15 @@ License along with this library
 */
 #endregion
 
-#if UNITTEST
+#if UNITTEST && WINDOWS
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+using Microsoft.Win32;
 
 using NUnit.Framework;
-using System.IO;
-using Microsoft.Win32;
-using System.Globalization;
-using System.Collections.Generic;
 
 namespace Nuclex.Support.Settings {
 
@@ -179,6 +179,76 @@ namespace Nuclex.Support.Settings {
 
         var optionInfos = new List<OptionInfo>(context.Store.EnumerateOptions(null));
         Assert.That(optionInfos.Count, Is.EqualTo(3));
+
+        string[] actualNames = new string[] {
+          optionInfos[0].Name, optionInfos[1].Name, optionInfos[2].Name
+        };
+        Assert.That(actualNames, Is.EquivalentTo(names));
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that accessing an option that doesn't exist throws an exception
+    /// </summary>
+    [Test]
+    public void AccessingNonExistingOptionThrowsException() {
+      using(var context = new TestContext()) {
+        Assert.That(
+          () => context.Store.Get<string>(null, "doesn't exist"),
+          Throws.Exception.AssignableTo<KeyNotFoundException>()
+        );
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that accessing a category that doesn't exist throws an exception
+    /// </summary>
+    [Test]
+    public void AccessingNonExistingCategoryThrowsException() {
+      using(var context = new TestContext()) {
+        Assert.That(
+          () => context.Store.Get<string>("doesn't exist", "test"),
+          Throws.Exception.AssignableTo<KeyNotFoundException>()
+        );
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that values can be removed from a registry key
+    /// </summary>
+    [Test]
+    public void ValuesCanBeRemovedFromRoot() {
+      using(var context = new TestContext()) {
+        context.Store.Set(null, "nothing", "short-lived");
+        Assert.That(context.Store.Remove(null, "nothing"), Is.True);
+        Assert.That(context.Store.Remove(null, "nothing"), Is.False);
+
+        Assert.That(context.Store.EnumerateOptions(), Is.Empty);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that values can be removed from the subkey of a registry key
+    /// </summary>
+    [Test]
+    public void ValuesCanBeRemovedFromCategory() {
+      using(var context = new TestContext()) {
+        context.Store.Set("limbo", "nothing", "short-lived");
+        Assert.That(context.Store.Remove("limbo", "nothing"), Is.True);
+        Assert.That(context.Store.Remove("limbo", "nothing"), Is.False);
+
+        Assert.That(context.Store.EnumerateOptions("limbo"), Is.Empty);
+      }
+    }
+
+    /// <summary>
+    ///   Verifies that values can be removed from a non-existing subkey without
+    ///   causing an error
+    /// </summary>
+    [Test]
+    public void RemovingValueFromNonExistingCategoryCanBeHandled() {
+      using(var context = new TestContext()) {
+        Assert.That(context.Store.Remove("empty", "nothing"), Is.False);
       }
     }
 

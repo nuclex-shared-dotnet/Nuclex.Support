@@ -131,11 +131,11 @@ namespace Nuclex.Support.Settings {
       if(string.IsNullOrEmpty(category)) {
         return tryGetValueFromKey(this.rootKey, optionName, out value);
       } else {
-				RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
-				if(categoryKey == null) {
-					value = default(TValue);
-					return false;
-				}
+        RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
+        if(categoryKey == null) {
+          value = default(TValue);
+          return false;
+        }
         using(categoryKey) {
           return tryGetValueFromKey(categoryKey, optionName, out value);
         }
@@ -151,12 +151,34 @@ namespace Nuclex.Support.Settings {
       if(string.IsNullOrEmpty(category)) {
         setValue(this.rootKey, optionName, value);
       } else {
-				RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
-				if(categoryKey == null) {
-					categoryKey = this.rootKey.CreateSubKey(category);
-				}
+        RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
+        if(categoryKey == null) {
+          categoryKey = this.rootKey.CreateSubKey(category);
+        }
         using(categoryKey) {
           setValue(categoryKey, optionName, value);
+        }
+      }
+    }
+
+    /// <summary>Removes the option with the specified name</summary>
+    /// <param name="category">Category the option is found in. Can be null.</param>
+    /// <param name="optionName">Name of the option that will be removed</param>
+    /// <returns>True if the option was found and removed</returns>
+    public bool Remove(string category, string optionName) {
+      if(string.IsNullOrEmpty(category)) {
+        object value = this.rootKey.GetValue(optionName);
+        this.rootKey.DeleteValue(optionName, throwOnMissingValue: false);
+        return (value != null);
+      } else {
+        RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable);
+        if(categoryKey == null) {
+          return false;
+        }
+        using(categoryKey) {
+          object value = categoryKey.GetValue(optionName);
+          categoryKey.DeleteValue(optionName, throwOnMissingValue: false);
+          return (value != null);
         }
       }
     }
@@ -185,14 +207,6 @@ namespace Nuclex.Support.Settings {
         );
         registryKey.SetValue(optionName, valueAsString, RegistryValueKind.String);
       }
-    }
-
-    /// <summary>Removes the option with the specified name</summary>
-    /// <param name="category">Category the option is found in. Can be null.</param>
-    /// <param name="optionName">Name of the option that will be removed</param>
-    /// <returns>True if the option was found and removed</returns>
-    public bool Remove(string category, string optionName) {
-      throw new NotImplementedException();
     }
 
     /// <summary>Tries to retrieve the value of a registry key if it exists</summary>
@@ -228,33 +242,7 @@ namespace Nuclex.Support.Settings {
         case RegistryValueKind.QWord: { return typeof(long); }
         case RegistryValueKind.MultiString: { return typeof(string[]); }
         case RegistryValueKind.ExpandString:
-        case RegistryValueKind.String: {
-          string value = (string)categoryKey.GetValue(optionName);
-          if(value.Length == 0) {
-            return typeof(string);
-          }
-
-          // If there are at least two characters, it may be an integer with
-          // a sign in front of it
-          if(value.Length >= 2) {
-            int index = 0;
-            if(ParserHelper.SkipInteger(value, ref index)) {
-              if(index >= value.Length) {
-                return typeof(int);
-              }
-              if(value[index] == '.') {
-                return typeof(float);
-              }
-            }
-          } else { // If it's just a single character, it may be a number
-            if(char.IsNumber(value, 0)) {
-              return typeof(int);
-            }
-          }
-
-          return typeof(string);
-        }
-
+        case RegistryValueKind.String: { return typeof(string); }
         case RegistryValueKind.Unknown:
         case RegistryValueKind.None:
         default: { return typeof(string); }
