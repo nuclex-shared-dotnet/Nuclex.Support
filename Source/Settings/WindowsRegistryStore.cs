@@ -18,6 +18,8 @@ License along with this library
 */
 #endregion
 
+#if WINDOWS
+
 using System;
 using System.Collections.Generic;
 
@@ -25,6 +27,8 @@ namespace Nuclex.Support.Settings {
 
   /// <summary>Stores settings in the registry on Windows operating systems</summary>
   public class WindowsRegistryStore : ISettingsStore, IDisposable {
+
+    
 
     /// <summary>Immediately releases all resources owned by the instance</summary>
     public void Dispose() {
@@ -99,3 +103,5 @@ namespace Nuclex.Support.Settings {
   }
 
 } // namespace Nuclex.Support.Settings
+
+#endif // WINDOWS

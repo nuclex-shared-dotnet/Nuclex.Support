@@ -92,39 +92,7 @@ namespace Nuclex.Support {
     ///   and cache the result.
     /// </remarks>
     public static TEnum[] GetValues<TEnum>() {
-#if XBOX360 || WINDOWS_PHONE
-      return GetValuesXbox360<TEnum>();
-#else
       return (TEnum[])Enum.GetValues(typeof(TEnum));
-#endif
-    }
-
-    /// <summary>Retrieves a list of all values contained in an enumeration</summary>
-    /// <typeparam name="TEnum">
-    ///   Type of the enumeration whose values will be returned
-    /// </typeparam>
-    /// <returns>All values contained in the specified enumeration</returns>
-    internal static TEnum[] GetValuesXbox360<TEnum>() {
-      Type enumType = typeof(TEnum);
-      if(!enumType.IsEnum) {
-        throw new ArgumentException(
-          "The provided type needs to be an enumeration", "EnumType"
-        );
-      }
-      
-      // Use reflection to get all fields in the enumeration      
-      FieldInfo[] fieldInfos = enumType.GetFields(
-        BindingFlags.Public | BindingFlags.Static
-      );
-
-      // Create an array to hold the enumeration values and copy them over from
-      // the fields we just retrieved
-      TEnum[] values = new TEnum[fieldInfos.Length];
-      for(int index = 0; index < fieldInfos.Length; ++index) {
-        values[index] = (TEnum)fieldInfos[index].GetValue(null);
-      }
-
-      return values;
     }
 
   }

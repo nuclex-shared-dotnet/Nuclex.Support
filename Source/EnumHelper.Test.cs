@@ -53,20 +53,6 @@ namespace Nuclex.Support {
 
     /// <summary>
     ///   Verifies that the enum helper can list the members of an enumeration
-    ///   manually (as it needs to be done on the XBox 360)
-    /// </summary>
-    [Test]
-    public void TestGetValuesXbox360() {
-      CollectionAssert.AreEquivalent(
-        new TestEnumeration[] {
-          TestEnumeration.One, TestEnumeration.Two, TestEnumeration.Three
-        },
-        EnumHelper.GetValuesXbox360<TestEnumeration>()
-      );
-    }
-
-    /// <summary>
-    ///   Verifies that the enum helper can list the members of an enumeration
     /// </summary>
     [Test]
     public void TestGetValues() {
@@ -95,17 +81,6 @@ namespace Nuclex.Support {
     public void TestGetLowestValue() {
       Assert.AreEqual(
         TestEnumeration.One, EnumHelper.GetLowestValue<TestEnumeration>()
-      );
-    }
-
-    /// <summary>
-    ///   Tests whether an exception is thrown if the GetValuesXbox360() method is
-    ///   used on a non-enumeration type
-    /// </summary>
-    [Test]
-    public void TestThrowOnNonEnumTypeXbox360() {
-      Assert.Throws<ArgumentException>(
-        delegate() { EnumHelper.GetValuesXbox360<int>(); }
       );
     }
 
