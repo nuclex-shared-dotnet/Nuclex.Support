@@ -82,6 +82,9 @@ namespace Nuclex.Support.Settings {
         }
       } else {
         using(RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable)) {
+          if(categoryKey == null) {
+            yield break;
+          }
           string[] valueNames = categoryKey.GetValueNames();
           for(int index = 0; index < valueNames.Length; ++index) {
             yield return new OptionInfo() {

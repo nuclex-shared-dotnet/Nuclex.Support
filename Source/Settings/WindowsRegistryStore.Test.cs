@@ -180,6 +180,16 @@ namespace Nuclex.Support.Settings {
       }
     }
 
+    /// <summary>
+    ///   Verifies that it's possible to enumerate a category that doesn't exist
+    /// </summary>
+    [Test]
+    public void NonExistingCategoryCanBeEnumerated() {
+      using(var context = new TestContext()) {
+        Assert.That(context.Store.EnumerateOptions("doesn't exist"), Is.Empty);
+      }
+    }
+
     /// <summary>Verifies that byte arrays can be stored in the registry</summary>
     [Test]
     public void ByteArraysCanBeStored() {

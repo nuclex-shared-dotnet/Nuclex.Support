@@ -319,7 +319,7 @@ namespace Nuclex.Support.Settings {
     }
 
     /// <summary>
-    ///   Verifies that it's possible to assign an empty value to an option
+    ///   Verifies that options are removed from the configuration file correctly
     /// </summary>
     [Test]
     public void RemovingOptionShiftsFollowingOptionsUp() {
@@ -355,7 +355,7 @@ namespace Nuclex.Support.Settings {
     }
 
     /// <summary>
-    ///   Verifies that it's not an error to remove a non-existing option
+    ///   Verifies that the configuration file store can identify various types of values
     /// </summary>
     [
       Test,
