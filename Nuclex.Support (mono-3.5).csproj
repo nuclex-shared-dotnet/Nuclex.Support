@@ -267,10 +267,6 @@
     <Compile Include="Source\TypeHelper.Test.cs">
       <DependentUpon>TypeHelper.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\Semaphore.cs" />
-    <Compile Include="Source\Semaphore.Test.cs">
-      <DependentUpon>Semaphore.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\FloatHelper.cs" />
     <Compile Include="Source\FloatHelper.Test.cs">
       <DependentUpon>FloatHelper.cs</DependentUpon>
@@ -300,9 +296,6 @@
       <DependentUpon>StringSegment.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\WeakReference.cs" />
-    <Compile Include="Source\WeakReference.Phone7.cs">
-      <DependentUpon>WeakReference.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\WeakReference.Test.cs">
       <DependentUpon>WeakReference.cs</DependentUpon>
     </Compile>

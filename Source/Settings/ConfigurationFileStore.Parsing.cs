@@ -253,65 +253,11 @@ namespace Nuclex.Support.Settings {
       }
 
       // If it parses as a boolean literal, then it must be a boolean
-      if(parseBooleanLiteral(ref value) != null) {
+      if(ParserHelper.ParseBooleanLiteral(ref value) != null) {
         return typeof(bool);
       }
 
       return typeof(string);
-    }
-
-    /// <summary>Tried to parse a boolean literal</summary>
-    /// <param name="value">Value that will be parsed as a boolean literal</param>
-    /// <returns>
-    ///   True or false if the value was a boolean literal, null if it wasn't
-    /// </returns>
-    private static bool? parseBooleanLiteral(ref StringSegment value) {
-      switch(value.Count) {
-
-        // If the string spells 'no', it is considered a boolean
-        case 2: {
-          bool isSpellingNo =
-            ((value.Text[value.Offset + 0] == 'n') || (value.Text[value.Offset + 0] == 'N')) &&
-            ((value.Text[value.Offset + 1] == 'o') || (value.Text[value.Offset + 1] == 'O'));
-          return isSpellingNo ? new Nullable<bool>(false) : null;
-        }
-
-        // If the string spells 'yes', it is considered a boolean
-        case 3: {
-          bool isSpellingYes =
-            ((value.Text[value.Offset + 0] == 'y') || (value.Text[value.Offset + 0] == 'Y')) &&
-            ((value.Text[value.Offset + 1] == 'e') || (value.Text[value.Offset + 1] == 'E')) &&
-            ((value.Text[value.Offset + 2] == 's') || (value.Text[value.Offset + 2] == 'S'));
-          return isSpellingYes ? new Nullable<bool>(true) : null;
-        }
-
-        // If the string spells 'true', it is considered a boolean
-        case 4: {
-          bool isSpellingTrue =
-            ((value.Text[value.Offset + 0] == 't') || (value.Text[value.Offset + 0] == 'T')) &&
-            ((value.Text[value.Offset + 1] == 'r') || (value.Text[value.Offset + 1] == 'R')) &&
-            ((value.Text[value.Offset + 2] == 'u') || (value.Text[value.Offset + 2] == 'U')) &&
-            ((value.Text[value.Offset + 3] == 'e') || (value.Text[value.Offset + 3] == 'E'));
-          return isSpellingTrue ? new Nullable<bool>(true) : null;
-        }
-
-        // If the string spells 'false', it is considered a boolean
-        case 5: {
-          bool isSpellingFalse =
-            ((value.Text[value.Offset + 0] == 'f') || (value.Text[value.Offset + 0] == 'F')) &&
-            ((value.Text[value.Offset + 1] == 'a') || (value.Text[value.Offset + 1] == 'A')) &&
-            ((value.Text[value.Offset + 2] == 'l') || (value.Text[value.Offset + 2] == 'L')) &&
-            ((value.Text[value.Offset + 3] == 's') || (value.Text[value.Offset + 3] == 'S')) &&
-            ((value.Text[value.Offset + 4] == 'e') || (value.Text[value.Offset + 4] == 'E'));
-          return isSpellingFalse ? new Nullable<bool>(false) : null;
-        }
-
-        // Anything else is not considered a boolean
-        default: {
-          return null;
-        }
-
-      }
     }
 
   }

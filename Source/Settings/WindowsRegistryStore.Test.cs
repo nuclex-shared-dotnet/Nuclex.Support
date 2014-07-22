@@ -29,6 +29,9 @@ namespace Nuclex.Support.Settings {
   /// <summary>Unit tests for the windows registry settings store</summary>
   [TestFixture]
   internal class WindowsRegistryStoreTest {
+
+    
+
   }
 
 } // namespace Nuclex.Support.Settings

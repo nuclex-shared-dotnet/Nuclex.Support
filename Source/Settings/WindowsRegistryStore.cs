@@ -23,28 +23,74 @@ License along with this library
 using System;
 using System.Collections.Generic;
 
+using Microsoft.Win32;
+using Nuclex.Support.Parsing;
+
 namespace Nuclex.Support.Settings {
 
   /// <summary>Stores settings in the registry on Windows operating systems</summary>
   public class WindowsRegistryStore : ISettingsStore, IDisposable {
 
-    
+    /// <summary>Initializes a new settings store on the specified registry path</summary>
+    /// <param name="hive">Hive in which to look</param>
+    /// <param name="directory">Base path of the settings in the specified hive</param>
+    /// <param name="writable">Whether to open the registry in writable mode</param>
+    public WindowsRegistryStore(RegistryHive hive, string directory, bool writable = true) {
+      using(RegistryKey hiveKey = RegistryKey.OpenBaseKey(hive, RegistryView.Default)) {
+        this.rootKey = hiveKey.OpenSubKey(directory, writable);
+      }
+      this.writable = writable;
+    }
+
+    /// <summary>Initializes a new settings store on the specified registry key</summary>
+    /// <param name="rootKey">Registry key the settings are stored under</param>
+    /// <param name="writable">Whether the registry was opened in writable mode</param>
+    /// <remarks>
+    ///   This constructor takes ownership of the registry key. It will be disposed when
+    ///   the settings store is disposed.
+    /// </remarks>
+    public WindowsRegistryStore(RegistryKey rootKey, bool writable = true) {
+      this.rootKey = rootKey;
+      this.writable = writable;
+    }
 
     /// <summary>Immediately releases all resources owned by the instance</summary>
     public void Dispose() {
+      if(this.rootKey != null) {
+        this.rootKey.Dispose();
+        this.rootKey = null;
+      }
     }
 
     /// <summary>Enumerates the categories defined in the configuration</summary>
     /// <returns>An enumerable list of all used categories</returns>
     public IEnumerable<string> EnumerateCategories() {
-      throw new NotImplementedException();
+      return this.rootKey.GetSubKeyNames();
     }
 
     /// <summary>Enumerates the options stored under the specified category</summary>
     /// <param name="category">Category whose options will be enumerated</param>
     /// <returns>An enumerable list of all options in the category</returns>
     public IEnumerable<OptionInfo> EnumerateOptions(string category = null) {
-      throw new NotImplementedException();
+      if(string.IsNullOrEmpty(category)) {
+        string[] valueNames = this.rootKey.GetValueNames();
+        for(int index = 0; index < valueNames.Length; ++index) {
+          yield return new OptionInfo() {
+            Name = valueNames[index],
+            OptionType = getBestMatchingType(this.rootKey, valueNames[index])
+          };
+        }
+      } else {
+        using(RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable)) {
+          string[] valueNames = categoryKey.GetValueNames();
+          for(int index = 0; index < valueNames.Length; ++index) {
+            yield return new OptionInfo() {
+              Name = valueNames[index],
+              OptionType = getBestMatchingType(categoryKey, valueNames[index])
+            };
+          }
+        }
+      }
     }
 
     /// <summary>Retrieves the value of the specified option</summary>
@@ -81,6 +127,15 @@ namespace Nuclex.Support.Settings {
     /// </returns>
     public bool TryGet<TValue>(string category, string optionName, out TValue value) {
       throw new NotImplementedException();
+      if(string.IsNullOrEmpty(category)) {
+        object valueAsObject = this.rootKey.GetValue(optionName);
+        value = (TValue)Convert.ChangeType(valueAsObject, typeof(TValue));
+      } else {
+        using(RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable)) {
+          object valueAsObject = this.rootKey.GetValue(optionName);
+          value = (TValue)Convert.ChangeType(valueAsObject, typeof(TValue));
+        }
+      }
     }
 
     /// <summary>Saves an option in the settings store</summary>
@@ -99,6 +154,61 @@ namespace Nuclex.Support.Settings {
     public bool Remove(string category, string optionName) {
       throw new NotImplementedException();
     }
+
+    /// <summary>Figures out which .NET type best matches the registry value</summary>
+    /// <param name="categoryKey">Registry key the key is stored in</param>
+    /// <param name="optionName">Name of the option that will be retrieved</param>
+    /// <returns>The best matching .NET type for the registry key's value</returns>
+    private static Type getBestMatchingType(RegistryKey categoryKey, string optionName) {
+      RegistryValueKind valueKind = categoryKey.GetValueKind(optionName);
+      switch(valueKind) {
+        case RegistryValueKind.Binary: { return typeof(byte[]); }
+        case RegistryValueKind.DWord: { return typeof(int); }
+        case RegistryValueKind.QWord: { return typeof(long); }
+        case RegistryValueKind.MultiString: { return typeof(string[]); }
+        case RegistryValueKind.ExpandString:
+        case RegistryValueKind.String: {
+          string value = (string)categoryKey.GetValue(optionName);
+          if(value.Length == 0) {
+            return typeof(string);
+          }
+
+          // If there are at least two characters, it may be an integer with
+          // a sign in front of it
+          if(value.Length >= 2) {
+            int index = 0;
+            if(ParserHelper.SkipInteger(value, ref index)) {
+              if(index >= value.Length) {
+                return typeof(int);
+              }
+              if(value[index] == '.') {
+                return typeof(float);
+              }
+            }
+          } else { // If it's just a single character, it may be a number
+            if(char.IsNumber(value, 0)) {
+              return typeof(int);
+            }
+          }
+
+          // If it parses as a boolean literal, then it must be a boolean
+          if(ParserHelper.ParseBooleanLiteral(value) != null) {
+            return typeof(bool);
+          }
+
+          return typeof(string);
+        }
+
+        case RegistryValueKind.Unknown:
+        case RegistryValueKind.None:
+        default: { return typeof(string); }
+      }
+    }
+
+    /// <summary>Key on which the registry store is operating</summary>
+    private RegistryKey rootKey;
+    /// <summary>Whether the user can write to the registry key</summary>
+    private bool writable;
 
   }
 

@@ -31,15 +31,15 @@ namespace Nuclex.Support {
 #if !NO_SERIALIZATION
   [Serializable]
 #endif
-  public class WeakReference<ReferencedType> : WeakReference
-    where ReferencedType : class {
+  public class WeakReference<TReferenced> : WeakReference
+    where TReferenced : class {
 
     /// <summary>
     ///   Initializes a new instance of the WeakReference class, referencing
     ///   the specified object.
     /// </summary>
     /// <param name="target">The object to track or null.</param>
-    public WeakReference(ReferencedType target) :
+    public WeakReference(TReferenced target) :
       base(target) { }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace Nuclex.Support {
     ///   Indicates when to stop tracking the object. If true, the object is tracked
     ///   after finalization; if false, the object is only tracked until finalization.
     /// </param>
-    public WeakReference(ReferencedType target, bool trackResurrection) :
+    public WeakReference(TReferenced target, bool trackResurrection) :
       base(target, trackResurrection) { }
 
 #if !NO_SERIALIZATION
@@ -89,8 +89,8 @@ namespace Nuclex.Support {
     ///   The reference to the target object is invalid. This can occur if the current
     ///   System.WeakReference object has been finalized
     /// </exception>
-    public new ReferencedType Target {
-      get { return (base.Target as ReferencedType); }
+    public new TReferenced Target {
+      get { return (base.Target as TReferenced); }
       set { base.Target = value; }
     }
 
