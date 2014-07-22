@@ -22,8 +22,10 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 using Microsoft.Win32;
+
 using Nuclex.Support.Parsing;
 
 namespace Nuclex.Support.Settings {
@@ -126,14 +128,11 @@ namespace Nuclex.Support.Settings {
     ///   parameter, false otherwise
     /// </returns>
     public bool TryGet<TValue>(string category, string optionName, out TValue value) {
-      throw new NotImplementedException();
       if(string.IsNullOrEmpty(category)) {
-        object valueAsObject = this.rootKey.GetValue(optionName);
-        value = (TValue)Convert.ChangeType(valueAsObject, typeof(TValue));
+        return tryGetValueFromKey(this.rootKey, optionName, out value);
       } else {
         using(RegistryKey categoryKey = this.rootKey.OpenSubKey(category, this.writable)) {
-          object valueAsObject = this.rootKey.GetValue(optionName);
-          value = (TValue)Convert.ChangeType(valueAsObject, typeof(TValue));
+          return tryGetValueFromKey(this.rootKey, optionName, out value);
         }
       }
     }
@@ -153,6 +152,43 @@ namespace Nuclex.Support.Settings {
     /// <returns>True if the option was found and removed</returns>
     public bool Remove(string category, string optionName) {
       throw new NotImplementedException();
+    }
+
+    /// <summary>Tries to retrieve the value of a registry key if it exists</summary>
+    /// <typeparam name="TValue">Type of value the registry key is expected to have</typeparam>
+    /// <param name="categoryKey">Registry key the value is stored under</param>
+    /// <param name="optionName">Name of the option in the registry</param>
+    /// <param name="value">Will receive the value read from the registry</param>
+    /// <returns>True if the value was found, false otherwise</returns>
+    private bool tryGetValueFromKey<TValue>(
+      RegistryKey categoryKey, string optionName, out TValue value
+    ) {
+      object valueAsObject = categoryKey.GetValue(optionName);
+      if(valueAsObject == null) {
+        value = default(TValue);
+        return false;
+      }
+
+      if(typeof(TValue) == typeof(bool)) {
+        string valueAsString = (string)Convert.ChangeType(
+          valueAsObject, typeof(string), CultureInfo.InvariantCulture
+        );
+
+        bool? boolean = ParserHelper.ParseBooleanLiteral(valueAsString);
+        if(boolean.HasValue) {
+          value = (TValue)(object)boolean.Value;
+          return true;
+        } else {
+          throw new FormatException(
+            "The value '" + valueAsString + "' can not be intepreted as a boolean"
+          );
+        }
+      } else {
+        value = (TValue)Convert.ChangeType(
+          valueAsObject, typeof(TValue), CultureInfo.InvariantCulture
+        );
+        return true;
+      }
     }
 
     /// <summary>Figures out which .NET type best matches the registry value</summary>

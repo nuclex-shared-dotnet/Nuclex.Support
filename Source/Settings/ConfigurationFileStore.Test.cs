@@ -401,6 +401,27 @@ namespace Nuclex.Support.Settings {
       Assert.That(() => load(fileContents), Throws.Exception);
     }
 
+    /// <summary>
+    ///   Verifies that configuration files containing duplicate option names can not
+    ///   be used with the configuration file store
+    /// </summary>
+    [
+      Test,
+      TestCase("value = yes", true),
+      TestCase("value = true", true),
+      TestCase("value = no", false),
+      TestCase("value = false", false)
+    ]
+    public void BooleanLiteralsAreUnderstood(string fileContents, bool expectedValue) {
+      ConfigurationFileStore configurationFile = load(fileContents);
+
+      if(expectedValue) { 
+        Assert.That(configurationFile.Get<bool>(null, "value"), Is.True);
+      } else {
+        Assert.That(configurationFile.Get<bool>(null, "value"), Is.False);
+      }
+    }
+
     /// <summary>Loads a configuration file from a string</summary>
     /// <param name="fileContents">Contents of the configuration file</param>
     /// <returns>The configuration file loaded from the string</returns>

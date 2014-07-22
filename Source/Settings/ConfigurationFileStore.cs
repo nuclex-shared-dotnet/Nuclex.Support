@@ -24,6 +24,8 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
+using Nuclex.Support.Parsing;
+
 namespace Nuclex.Support.Settings {
 
   /// <summary>Represents an ini- or cfg-like configuration file</summary>
@@ -153,8 +155,20 @@ namespace Nuclex.Support.Settings {
       if(containingCategory != null) {
         Option option;
         if(containingCategory.OptionLookup.TryGetValue(optionName, out option)) {
-          value = (TValue)Convert.ChangeType(option.OptionValue.ToString(), typeof(TValue));
-          return true;
+          if(typeof(TValue) == typeof(bool)) {
+            bool? boolean = ParserHelper.ParseBooleanLiteral(ref option.OptionValue);
+            if(boolean.HasValue) {
+              value = (TValue)(object)boolean.Value;
+              return true;
+            } else {
+              throw new FormatException(
+                "The value '" + option.OptionValue.ToString() + "' is not a boolean"
+              );
+            }
+          } else {
+            value = (TValue)Convert.ChangeType(option.OptionValue.ToString(), typeof(TValue));
+            return true;
+          }
         }
       }
 
