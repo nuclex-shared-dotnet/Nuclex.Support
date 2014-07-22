@@ -93,7 +93,7 @@ namespace Nuclex.Support.Settings {
         () => {
           using(
             var store = new WindowsRegistryStore(
-              RegistryHive.LocalMachine, "SOFTWARE", writable: false
+              RegistryHive.CurrentUser, "", writable: false
             )
           ) { }
         },
