@@ -260,7 +260,7 @@ namespace Nuclex.Support.Settings {
       return typeof(string);
     }
 
-    /// <summary>Tried to parse a boolean literal</summary>
+    /// <summary>Tries to parse a boolean literal</summary>
     /// <param name="value">Value that will be parsed as a boolean literal</param>
     /// <returns>
     ///   True or false if the value was a boolean literal, null if it wasn't
