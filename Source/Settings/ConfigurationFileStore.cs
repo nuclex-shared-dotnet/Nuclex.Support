@@ -73,7 +73,7 @@ namespace Nuclex.Support.Settings {
     public ConfigurationFileStore() {
       this.options = new List<Option>();
       this.categoryLookup = new Dictionary<string, Category>();
-      this.RootCategory = new Category() {
+      this.rootCategory = new Category() {
         OptionLookup = new Dictionary<string, Option>(),
         Lines = new List<string>()
       };
@@ -82,8 +82,8 @@ namespace Nuclex.Support.Settings {
     /// <summary>Saves the configuration file into the specified writer</summary>
     /// <param name="writer">Writer the configuration file will be saved into</param>
     public void Save(TextWriter writer) {
-      for(int index = 0; index < this.RootCategory.Lines.Count; ++index) {
-        writer.WriteLine(this.RootCategory.Lines[index]);
+      for(int index = 0; index < this.rootCategory.Lines.Count; ++index) {
+        writer.WriteLine(this.rootCategory.Lines[index]);
       }
       foreach(Category category in this.categoryLookup.Values) {
         for(int index = 0; index < category.Lines.Count; ++index) {
@@ -107,7 +107,7 @@ namespace Nuclex.Support.Settings {
         yield break;
       }
 
-      foreach(Option option in this.RootCategory.OptionLookup.Values) {
+      foreach(Option option in this.rootCategory.OptionLookup.Values) {
         OptionInfo optionInfo = new OptionInfo() {
           Name = option.OptionName.ToString(),
           OptionType = getBestMatchingType(ref option.OptionValue)
@@ -186,7 +186,7 @@ namespace Nuclex.Support.Settings {
 
       Category targetCategory;
       if(string.IsNullOrEmpty(category)) {
-        targetCategory = this.RootCategory;
+        targetCategory = this.rootCategory;
       } else if(!this.categoryLookup.TryGetValue(category, out targetCategory)) {
         targetCategory = createCategory(category);
         createOption(targetCategory, optionName, valueAsString);
@@ -237,7 +237,7 @@ namespace Nuclex.Support.Settings {
       Category category;
 
       if(string.IsNullOrEmpty(categoryName)) {
-        category = this.RootCategory;
+        category = this.rootCategory;
       } else if(!this.categoryLookup.TryGetValue(categoryName, out category)) {
         return null;
       }
@@ -363,7 +363,7 @@ namespace Nuclex.Support.Settings {
     private IList<Option> options;
 
     /// <summary>Root category where options above any category definition go</summary>
-    private Category RootCategory;
+    private Category rootCategory;
     /// <summary>Lookup table for all categories by their name</summary>
     private IDictionary<string, Category> categoryLookup;
 

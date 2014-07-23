@@ -51,7 +51,7 @@ namespace Nuclex.Support.Settings {
       var store = new ConfigurationFileStore();
       var state = new ParserState() {
         Store = store,
-        Category = store.RootCategory
+        Category = store.rootCategory
       };
 
       for(; ; ) {
