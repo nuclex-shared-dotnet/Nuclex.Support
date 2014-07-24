@@ -28,8 +28,67 @@ namespace Nuclex.Support.Settings {
 
   /// <summary>Represents an ini- or cfg-like configuration file</summary>
   /// <remarks>
-  ///   This class tries its best to preserve the formatting of configuration files.
-  ///   Changing a value will keep the line it appears in intact.
+  ///   <para>
+  ///     This class tries its best to preserve the formatting of configuration files.
+  ///     Changing a value will keep the line it appears in intact. The parser also takes
+  ///     as much data from a line as it can - anything to the left of an equals sign
+  ///     becomes the name, anything to the right (excluding comments) becomes the value.
+  ///   </para>
+  ///   <para>
+  ///     To access the contents of a configuration file, simply parse it and use it like
+  ///     you would any other settings store:
+  ///   </para>
+  ///   <example>
+  ///     <code>
+  ///       // # Settings.ini
+  ///       // message = hello world      ; the usual...
+  ///       // show message = true
+  ///       ISettingsStore settings;
+  ///       using(var reader = new StreamReader("settings.ini")) {
+  ///         settings = ConfigurationFile.Parse(reader);
+  ///       }
+  ///
+  ///       if(settings.Get&lt;bool&gt;(null, "show message")) {
+  ///         Console.WriteLine(settings.Get&lt;string&gt;(null, "message"));
+  ///       }
+  ///     </code>
+  ///   </example>
+  ///   <para>
+  ///     It's usually a good idea to keep an application and all of its required files
+  ///     together, whether it's code or data, but platforms often have their own conventions:
+  ///   </para>
+  ///   <list type="bullet">
+  ///     <listheader>
+  ///       <term>Operating System</term>
+  ///       <description>Convention</description>
+  ///     </listheader>
+  ///     <item>
+  ///       <term>Linux</term>
+  ///       <description>
+  ///         System-wide configuration goes into /etc/&lt;appname&gt;/, user-specific
+  ///         configuration goes into ~/.&lt;appname&gt;/ while static configuration that is
+  ///         known at build time resides with the application in /opt/&lt;appname&gt;/
+  ///       </description>
+  ///     </item>
+  ///     <item>
+  ///       <term>Windows</term>
+  ///       <description>
+  ///         System-wide configuration goes into %ProgramData%, user-specific configuration
+  ///         has no real place (try %AppData%/&lt;appname&gt;/ if you want to hide it from
+  ///         the user, %UserProfile%/Documents/&lt;appname&gt; if the user should see it)
+  ///         and static configuration resides with your application
+  ///         in %ProgramFiles%/&lt;appname&gt;/.
+  ///       </description>
+  ///     </item>
+  ///     <item>
+  ///       <term>MacOS</term>
+  ///       <description>
+  ///         System-wide configuration goes into /etc/&lt;appname&gt;/, user-specific
+  ///         configuration goes into /Users/&lt;username&gt;/.&lt;appname&gt;/ while static
+  ///         configuration resides with the application in /Applications/&lt;appname&gt;/
+  ///       </description>
+  ///     </item>
+  ///   </list>
   /// </remarks>
   public partial class ConfigurationFileStore : ISettingsStore {
 

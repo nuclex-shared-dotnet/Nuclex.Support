@@ -29,6 +29,24 @@ using Microsoft.Win32;
 namespace Nuclex.Support.Settings {
 
   /// <summary>Stores settings in the registry on Windows operating systems</summary>
+  /// <remarks>
+  ///   <para>
+  ///     For the cases when you must use the Windows registry, the windows registry store
+  ///     lets you map a registry key as a settings store. Its direct subkeys will become
+  ///     categories and all registry values are made available as options.
+  ///   </para>
+  ///   <para>
+  ///     Use of the registry is strongly discouraged. It binds you to Microsoft's silly
+  ///     technology stack and fragments your application by storing some of its data in
+  ///     the file system while storing other data in an opaque, globally-shared settings
+  ///     manager that is filled with megabytes on unrelated things. Xcopy deployment
+  ///     and portability will be out of the question when relying on the registry.
+  ///   </para>
+  ///   <para>
+  ///     Instead of using this, consider querying for the platform's appropriate location
+  ///     to store settings in.
+  ///   </para>
+  /// </remarks>
   public class WindowsRegistryStore : ISettingsStore, IDisposable {
 
     /// <summary>Initializes a new settings store on the specified registry path</summary>
