@@ -40,11 +40,7 @@ namespace Nuclex.Support.Collections {
     IDeserializationCallback,
 #endif
     IDictionary<TKey, TValue>,
-#if WINRT
-    ICollection,
-#else
     IDictionary,
-#endif
 #if !NO_SPECIALIZED_COLLECTIONS
     INotifyCollectionChanged,
 #endif
@@ -333,8 +329,6 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
-#if !WINRT
-
     /// <summary>Adds an item into the Dictionary</summary>
     /// <param name="key">Key under which the item will be added</param>
     /// <param name="value">Item that will be added</param>
@@ -395,21 +389,15 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-#endif // !WINRT
-
     #endregion // IDictionary implementation
 
     #region IDictionaryEnumerator implementation
-
-#if !WINRT
 
     /// <summary>Returns a new entry enumerator for the dictionary</summary>
     /// <returns>The new entry enumerator</returns>
     IDictionaryEnumerator IDictionary.GetEnumerator() {
       return this.objectDictionary.GetEnumerator();
     }
-
-#endif // !WINRT
 
     #endregion // IDictionaryEnumerator implementation
 
@@ -493,10 +481,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<TKey, TValue> typedDictionary;
-#if !WINRT
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
-#endif
 
   }
 

@@ -102,7 +102,6 @@ namespace Nuclex.Support.Collections {
       this.objectDictionary = (this.typedDictionary as IDictionary);
     }
 
-
     /// <summary>Whether the directory is write-protected</summary>
     public bool IsReadOnly {
       get { return true; }
@@ -237,8 +236,6 @@ namespace Nuclex.Support.Collections {
 
     #region IDictionary implementation
 
-#if !WINRT
-
     /// <summary>Removes all items from the Dictionary</summary>
     void IDictionary.Clear() {
       throw new NotSupportedException(
@@ -313,21 +310,15 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-#endif // !WINRT
-
     #endregion // IDictionary implementation
 
     #region IDictionaryEnumerator implementation
-
-#if !WINRT
 
     /// <summary>Returns a new entry enumerator for the dictionary</summary>
     /// <returns>The new entry enumerator</returns>
     IDictionaryEnumerator IDictionary.GetEnumerator() {
       return this.objectDictionary.GetEnumerator();
     }
-
-#endif // !WINRT
 
     #endregion // IDictionaryEnumerator implementation
 
@@ -410,10 +401,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<KeyType, ValueType> typedDictionary;
-#if !WINRT
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
-#endif
     /// <summary>ReadOnly wrapper for the keys collection of the Dictionary</summary>
     private ReadOnlyCollection<KeyType> readonlyKeyCollection;
     /// <summary>ReadOnly wrapper for the values collection of the Dictionary</summary>

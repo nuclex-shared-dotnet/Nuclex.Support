@@ -31,11 +31,7 @@ namespace Nuclex.Support.Collections {
   /// <typeparam name="TValue">Type of values stored in the dictionary</typeparam>
   public interface IMultiDictionary<TKey, TValue> :
     IDictionary<TKey, ICollection<TValue>>,
-#if WINRT
-    ICollection,
-#else
     IDictionary,
-#endif
     ICollection<KeyValuePair<TKey, TValue>>,
     IEnumerable<KeyValuePair<TKey, TValue>>,
     IEnumerable {

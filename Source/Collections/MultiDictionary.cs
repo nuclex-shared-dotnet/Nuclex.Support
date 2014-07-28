@@ -34,9 +34,7 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>Enumerates the values stored in a multi dictionary</summary>
     private class Enumerator :
-#if !WINRT
       IDictionaryEnumerator,
-#endif
       IEnumerator<KeyValuePair<TKey, TValue>> {
 
       /// <summary>Initializes a new multi dictionary enumerator</summary>
@@ -128,8 +126,6 @@ namespace Nuclex.Support.Collections {
 
       #region IDictionaryEnumerator implementation
 
-#if !WINRT
-
       /// <summary>The current entry the enumerator is pointing to</summary>
       DictionaryEntry IDictionaryEnumerator.Entry {
         get {
@@ -156,8 +152,6 @@ namespace Nuclex.Support.Collections {
           return this.currentValue.Current;
         }
       }
-
-#endif // !WINRT
 
       #endregion // IDictionaryEnumerator implementation
 
@@ -227,9 +221,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="dictionary">Dictionary the multi dictionary will be based on</param>
     internal MultiDictionary(IDictionary<TKey, ICollection<TValue>> dictionary) {
       this.typedDictionary = dictionary;
-#if !WINRT
       this.objectDictionary = (this.typedDictionary as IDictionary);
-#endif
 
       foreach(ICollection<TValue> values in dictionary.Values) {
         this.count += values.Count;
@@ -411,10 +403,8 @@ namespace Nuclex.Support.Collections {
 
     /// <summary>The wrapped Dictionary under its type-safe interface</summary>
     private IDictionary<TKey, ICollection<TValue>> typedDictionary;
-#if !WINRT
     /// <summary>The wrapped Dictionary under its object interface</summary>
     private IDictionary objectDictionary;
-#endif
     /// <summary>The number of items currently in the multi dictionary</summary>
     private int count;
     /// <summary>Provides the values stores in the dictionary in sequence</summary>
