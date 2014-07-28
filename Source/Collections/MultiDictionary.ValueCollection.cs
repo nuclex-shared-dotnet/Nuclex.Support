@@ -252,7 +252,7 @@ namespace Nuclex.Support.Collections {
       ///   The synchronization root used by the dictionary for thread synchronization
       /// </summary>
       object ICollection.SyncRoot {
-        get { return this.dictionaryAsICollection.IsSynchronized; }
+        get { return this.dictionaryAsICollection.SyncRoot; }
       }
 
       #endregion // ICollection implementation
