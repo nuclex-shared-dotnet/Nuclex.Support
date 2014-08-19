@@ -295,12 +295,7 @@ namespace Nuclex.Support.Collections {
       }
 
       index += this.firstBlockStartIndex;
-#if WINDOWS
       blockIndex = Math.DivRem(index, this.blockSize, out subIndex);
-#else
-      blockIndex = index / this.blockSize;
-      subIndex = index % this.blockSize;
-#endif
     }
 
     /// <summary>
@@ -309,11 +304,7 @@ namespace Nuclex.Support.Collections {
     /// <param name="value">Value that will be checked for compatibility</param>
     /// <returns>True if the value can be placed in the deque</returns>
     private static bool isCompatibleObject(object value) {
-#if WINRT
-      return ((value is TItem) || ((value == null) && !typeof(TItem).GetTypeInfo().IsValueType));
-#else
       return ((value is TItem) || ((value == null) && !typeof(TItem).IsValueType));
-#endif
     }
 
     /// <summary>Verifies that the provided object matches the deque's type</summary>

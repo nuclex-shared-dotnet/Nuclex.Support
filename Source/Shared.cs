@@ -32,9 +32,7 @@ namespace Nuclex.Support {
     /// <summary>Returns the global instance of the class</summary>
     public static TShared Instance {
       [DebuggerStepThrough]
-      get {
-        return instance;
-      }
+      get { return instance; }
     }
 
     /// <summary>Stored the globally shared instance</summary>

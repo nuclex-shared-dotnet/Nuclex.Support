@@ -33,7 +33,7 @@ namespace Nuclex.Support {
   public abstract class ParallelBackgroundWorker<TTask> : IDisposable {
 
     /// <summary>Number of CPU cores available on the system</summary>
-    public static readonly int Processors = Environment.ProcessorCount;
+    public static readonly int ProcessorCount = Environment.ProcessorCount;
 
     /// <summary>
     ///   Timeout after which Dispose() will stop waiting for unfinished tasks and
@@ -61,7 +61,7 @@ namespace Nuclex.Support {
       if(threadCount > 0) {
         this.threadCount = threadCount;
       } else {
-        threadCount = Math.Max(1, Processors + threadCount);
+        threadCount = Math.Max(1, ProcessorCount + threadCount);
       }
 
       this.queueSynchronizationRoot = new object();

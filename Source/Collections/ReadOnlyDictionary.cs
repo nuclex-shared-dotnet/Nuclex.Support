@@ -37,11 +37,7 @@ namespace Nuclex.Support.Collections {
     ISerializable,
     IDeserializationCallback,
 #endif
-#if WINRT
-    ICollection,
-#else
     IDictionary,
-#endif
     IDictionary<KeyType, ValueType> {
 
 #if !NO_SERIALIZATION
