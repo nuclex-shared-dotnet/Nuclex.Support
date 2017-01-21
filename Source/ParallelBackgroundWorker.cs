@@ -20,7 +20,7 @@ License along with this library
 
 #if !NO_CONCURRENT_COLLECTIONS
 
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;

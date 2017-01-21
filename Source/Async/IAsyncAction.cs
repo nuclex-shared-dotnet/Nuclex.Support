@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Threading;
 
 namespace Nuclex.Support.Async {
 
@@ -28,11 +29,9 @@ namespace Nuclex.Support.Async {
     /// <summary>Executes the action</summary>
     void Run();
 
-#if false
     /// <summary>Executes the action allowing cancellation via a cancellation token</summary>
     /// <param name="cancellationToken">Cancellation token that can cancel the action</param>
     void Run(CancellationToken cancellationToken);
-#endif
 
   }
 

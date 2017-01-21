@@ -23,8 +23,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using Nuclex.Support.Collections;
-
 namespace Nuclex.Support.Parsing {
 
   /// <summary>Parses and stores an application's command line parameters</summary>

@@ -19,9 +19,7 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Xml;
 #if !USE_XMLDOCUMENT
 using System.Xml.Linq;

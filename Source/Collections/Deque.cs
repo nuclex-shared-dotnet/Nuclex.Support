@@ -21,7 +21,6 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Reflection;
 
 namespace Nuclex.Support.Collections {
 

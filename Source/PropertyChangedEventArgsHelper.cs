@@ -72,6 +72,7 @@ namespace Nuclex.Support {
     ///     </code>
     ///   </example>
     /// </remarks>
+    [Obsolete("Prefer the C# 'nameof()' operator to using a Linq expression")]
     public static PropertyChangedEventArgs GetArgumentsFor<TValue>(
       Expression<Func<TValue>> property
     ) {
@@ -160,6 +161,7 @@ namespace Nuclex.Support {
     ///     </code>
     ///   </example>
     /// </remarks>
+    [Obsolete("Prefer the C# 'nameof()' operator to using a Linq expression")]
     public static bool AreAffecting<TValue>(
       this PropertyChangedEventArgs arguments, Expression<Func<TValue>> property
     ) {

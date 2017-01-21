@@ -20,8 +20,6 @@ License along with this library
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 
 namespace Nuclex.Support.Parsing {
 

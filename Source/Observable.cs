@@ -64,6 +64,7 @@ namespace Nuclex.Support {
     ///     </code>
     ///   </example>
     /// </remarks>
+    [Obsolete("Prefer the C# 'nameof()' operator to using a Linq expression")]
     protected void OnPropertyChanged<TProperty>(Expression<Func<TProperty>> property) {
       PropertyChangedEventHandler copy = PropertyChanged;
       if(copy != null) {

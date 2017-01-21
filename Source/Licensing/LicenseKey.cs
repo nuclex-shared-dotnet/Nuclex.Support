@@ -20,7 +20,6 @@ License along with this library
 
 using System;
 using System.Collections;
-using System.IO;
 using System.Text;
 
 namespace Nuclex.Support.Licensing {

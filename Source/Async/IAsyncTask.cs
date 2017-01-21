@@ -25,14 +25,11 @@ namespace Nuclex.Support.Async {
   /// <summary>Task that runs in the background or externally</summary>
   public interface IAsyncTask {
 
-    /// <summary>Triggered when the process starts running</summary>
-    event EventHandler Started;
+    /// <summary>Triggered when the status of the task changes</summary>
+    event EventHandler<AsyncStatusEventArgs> StatusChanged;
 
-    /// <summary>Triggered when the action finishes for any reason</summary>
-    event EventHandler Finished;
-
-    /// <summary>Whether the action is currently running</summary>
-    bool IsRunning { get;  }
+    /// <summary>Current status of the asynchronous task</summary>
+    AsyncStatus Status { get; }
 
   }
 

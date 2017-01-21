@@ -19,9 +19,6 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace Nuclex.Support {
 

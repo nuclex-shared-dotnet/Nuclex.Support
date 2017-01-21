@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("Nuclex.Support")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("Nuclex Development Labs")]
-[assembly: AssemblyCopyright("Copyright © Nuclex Development Labs 2008-2013")]
+[assembly: AssemblyCopyright("Copyright © Nuclex Development Labs 2008-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -21,7 +21,6 @@ License along with this library
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 
 namespace Nuclex.Support.Collections {

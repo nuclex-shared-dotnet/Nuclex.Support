@@ -19,6 +19,7 @@ License along with this library
 #endregion
 
 using System;
+using System.Threading;
 
 namespace Nuclex.Support.Async {
 
@@ -30,14 +31,12 @@ namespace Nuclex.Support.Async {
     /// <param name="option">Option or configuration to switch to</param>
     void Switch(TOptions option);
 
-#if false
     /// <summary>Switches to a different option or configuration</summary>
     /// <param name="option">Option or configuration to switch to</param>
     /// <param name="cancellationToken">
     ///   Cancellation token by which the switch can be cancelled
     /// </param>
     void Switch(TOptions option, CancellationToken cancellationToken);
-#endif
 
     /// <summary>Current target option or configuration being switched to</summary>
     TOptions Target { get; }
