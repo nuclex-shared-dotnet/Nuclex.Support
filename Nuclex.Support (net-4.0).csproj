@@ -57,6 +57,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Async\AsyncStatus.cs" />
+    <Compile Include="Source\Async\AsyncStatusEventArgs.cs" />
+    <Compile Include="Source\Async\IAsyncAction.cs" />
+    <Compile Include="Source\Async\IAsyncSwitch.cs" />
+    <Compile Include="Source\Async\IAsyncTask.cs" />
+    <Compile Include="Source\Async\ICancellable.cs" />
+    <Compile Include="Source\Async\IProgressSource.cs" />
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.FieldBased.cs">

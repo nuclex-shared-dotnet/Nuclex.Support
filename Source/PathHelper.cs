@@ -1,7 +1,7 @@
 #region CPL License
 /*
 Nuclex Framework
-Copyright (C) 2002-2014 Nuclex Development Labs
+Copyright (C) 2002-2017 Nuclex Development Labs
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the IBM Common Public License as
@@ -19,7 +19,6 @@ License along with this library
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
@@ -44,31 +43,35 @@ namespace Nuclex.Support {
       int lastCommonRoot = -1;
       int commonLength = Math.Min(baseDirectories.Length, absoluteDirectories.Length);
       for(int index = 0; index < commonLength; ++index) {
-        if(absoluteDirectories[index] == baseDirectories[index])
+        if(absoluteDirectories[index] == baseDirectories[index]) {
           lastCommonRoot = index;
-        else
+        } else {
           break;
+        }
       }
 
       // If the paths don't share a common root, we have to use an absolute path.
       // Should the absolutePath parameter actually be a relative path, this will
       // also trigger the return of the absolutePath as-is.
-      if(lastCommonRoot == -1)
+      if(lastCommonRoot == -1) {
         return absolutePath;
+      }
 
       // Calculate the required length for the StringBuilder in order to be slightly
       // more friendly in terms of memory usage.
       int requiredLength = (baseDirectories.Length - (lastCommonRoot + 1)) * 3;
-      for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; ++index)
+      for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; ++index) {
         requiredLength += absoluteDirectories[index].Length + 1;
+      }
 
       StringBuilder relativePath = new StringBuilder(requiredLength);
 
       // Go to the common path by adding .. until we're where we want to be
       for(int index = lastCommonRoot + 1; index < baseDirectories.Length; ++index) {
         if(baseDirectories[index].Length > 0) {
-          if(relativePath.Length > 0) // We don't want the path to start with a slash
+          if(relativePath.Length > 0) { // We don't want the path to start with a slash
             relativePath.Append(Path.DirectorySeparatorChar);
+          }
 
           relativePath.Append("..");
         }
@@ -77,8 +80,9 @@ namespace Nuclex.Support {
       // Now that we're in the common root folder, enter the folders that
       // the absolute target path has in addition to the root folder.
       for(int index = lastCommonRoot + 1; index < absoluteDirectories.Length; index++) {
-        if(relativePath.Length > 0) // We don't want the path to start with a slash
+        if(relativePath.Length > 0) { // We don't want the path to start with a slash
           relativePath.Append(Path.DirectorySeparatorChar);
+        }
 
         relativePath.Append(absoluteDirectories[index]);
       }
