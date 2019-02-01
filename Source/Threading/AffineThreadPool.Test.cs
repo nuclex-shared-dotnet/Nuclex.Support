@@ -26,7 +26,7 @@ using System.Threading;
 
 using NUnit.Framework;
 
-namespace Nuclex.Support {
+namespace Nuclex.Support.Threading {
 
   /// <summary>Unit Test for the CPU core-affine thread pool</summary>
   [TestFixture]
@@ -351,6 +351,6 @@ namespace Nuclex.Support {
 
   }
 
-} // namespace Nuclex.Support
+} // namespace Nuclex.Support.Threading
 
 #endif // UNITTEST

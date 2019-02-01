@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nuclex.Support {
+namespace Nuclex.Support.Threading {
 
   /// <summary>Processes tasks in parallel using many threads</summary>
   /// <typeparam name="TTask">Type of tasks the class will process</typeparam>
@@ -339,6 +339,6 @@ namespace Nuclex.Support {
 
   }
 
-} // namespace Nuclex.Support
+} // namespace Nuclex.Support.Threading
 
 #endif // !NO_CONCURRENT_COLLECTIONS

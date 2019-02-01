@@ -24,7 +24,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Nuclex.Support {
+namespace Nuclex.Support.Threading {
 
   /// <summary>Alternative Thread pool providing one thread for each core</summary>
   /// <remarks>
@@ -293,4 +293,4 @@ namespace Nuclex.Support {
 
   }
 
-} // namespace Nuclex.Support
+} // namespace Nuclex.Support.Threading

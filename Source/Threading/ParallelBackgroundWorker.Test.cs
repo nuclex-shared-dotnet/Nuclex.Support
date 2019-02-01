@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
-namespace Nuclex.Support {
+namespace Nuclex.Support.Threading {
 
   /// <summary>Unit Test for the parallel background worker class</summary>
   [TestFixture]
@@ -249,7 +249,7 @@ namespace Nuclex.Support {
 
   }
 
-} // namespace Nuclex.Support
+} // namespace Nuclex.Support.Threading
 
 #endif // UNITTEST
 

@@ -50,7 +50,9 @@ namespace Nuclex.Support {
     [Test]
     public void MatchingPropertyChangeNotificationIsRecognized() {
       var arguments = new PropertyChangedEventArgs("SomeProperty");
+      #pragma warning disable 0618
       Assert.IsTrue(arguments.AreAffecting(() => ViewModel.SomeProperty));
+      #pragma warning restore 0618
       Assert.IsTrue(arguments.AreAffecting("SomeProperty"));
     }
 
@@ -61,7 +63,9 @@ namespace Nuclex.Support {
     [Test]
     public void MismatchingPropertyIsReportedAsUnaffected() {
       var arguments = new PropertyChangedEventArgs("AnotherProperty");
+      #pragma warning disable 0618
       Assert.IsFalse(arguments.AreAffecting(() => ViewModel.SomeProperty));
+      #pragma warning restore 0618
       Assert.IsFalse(arguments.AreAffecting("SomeProperty"));
     }
 
@@ -72,7 +76,9 @@ namespace Nuclex.Support {
     [Test]
     public void SpecificPropertyIsAffectedByNullWildcard() {
       var nullArguments = new PropertyChangedEventArgs(null);
+      #pragma warning disable 0618
       Assert.IsTrue(nullArguments.AreAffecting(() => ViewModel.SomeProperty));
+      #pragma warning restore 0618
       Assert.IsTrue(nullArguments.AreAffecting("SomeProperty"));
     }
 
@@ -83,7 +89,9 @@ namespace Nuclex.Support {
     [Test]
     public void SpecificPropertyIsAffectedByEmptyWildcard() {
       var emptyArguments = new PropertyChangedEventArgs(string.Empty);
+      #pragma warning disable 0618
       Assert.IsTrue(emptyArguments.AreAffecting(() => ViewModel.SomeProperty));
+      #pragma warning disable 0618
       Assert.IsTrue(emptyArguments.AreAffecting("SomeProperty"));
     }
 

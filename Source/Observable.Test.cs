@@ -47,7 +47,9 @@ namespace Nuclex.Support {
 
       /// <summary>Fires the property changed event for the 'SomePropety' property</summary>
       public void FireSomePropertyChanged() {
+        #pragma warning disable 0618
         OnPropertyChanged(() => SomeProperty);
+        #pragma warning restore 0618
       }
 
       /// <summary>Example property that will be reported to have changed</summary>
