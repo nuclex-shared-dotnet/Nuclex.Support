@@ -48,6 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Async\AsyncStatus.cs" />
+    <Compile Include="Source\Async\AsyncStatusEventArgs.cs" />
+    <Compile Include="Source\Async\IAsyncAction.cs" />
+    <Compile Include="Source\Async\IAsyncSwitch.cs" />
+    <Compile Include="Source\Async\IAsyncTask.cs" />
+    <Compile Include="Source\Async\ICancellable.cs" />
+    <Compile Include="Source\Async\IProgressSource.cs" />
     <Compile Include="Source\Cloning\CloneFactoryTest.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.cs" />
     <Compile Include="Source\Cloning\ExpressionTreeCloner.FieldBased.cs">
@@ -235,10 +242,6 @@
     <Compile Include="Source\Parsing\CommandLine.Parser.cs">
       <DependentUpon>CommandLine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Source\ParallelBackgroundWorker.cs" />
-    <Compile Include="Source\ParallelBackgroundWorker.Test.cs">
-      <DependentUpon>ParallelBackgroundWorker.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Parsing\ParserHelper.cs" />
     <Compile Include="Source\Parsing\ParserHelper.Test.cs">
       <DependentUpon>ParserHelper.cs</DependentUpon>
@@ -246,10 +249,6 @@
     <Compile Include="Source\PropertyChangedEventArgsHelper.cs" />
     <Compile Include="Source\PropertyChangedEventArgsHelper.Test.cs">
       <DependentUpon>PropertyChangedEventArgsHelper.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Source\AffineThreadPool.cs" />
-    <Compile Include="Source\AffineThreadPool.Test.cs">
-      <DependentUpon>AffineThreadPool.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\EnumHelper.cs" />
     <Compile Include="Source\EnumHelper.Test.cs">
@@ -262,6 +261,19 @@
     <Compile Include="Source\ObservableHelper.cs" />
     <Compile Include="Source\ObservableHelper.Test.cs">
       <DependentUpon>ObservableHelper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Threading\AffineThreadPool.cs" />
+    <Compile Include="Source\Threading\AffineThreadPool.Test.cs">
+      <DependentUpon>AffineThreadPool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Threading\CancellableAction.cs" />
+    <Compile Include="Source\Threading\ParallelBackgroundWorker.cs" />
+    <Compile Include="Source\Threading\ParallelBackgroundWorker.Test.cs">
+      <DependentUpon>ParallelBackgroundWorker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Source\Threading\ThreadRunner.cs" />
+    <Compile Include="Source\Threading\ThreadRunner.Test.cs">
+      <DependentUpon>ThreadRunner.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\TypeHelper.cs" />
     <Compile Include="Source\TypeHelper.Test.cs">
