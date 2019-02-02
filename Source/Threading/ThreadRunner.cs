@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 namespace Nuclex.Support.Threading {
 
 	/// <summary>Executes actions in a threads</summary>
-	internal abstract class ThreadRunner : IDisposable {
+	public abstract class ThreadRunner : IDisposable {
 
 		#region interface IRunner
 

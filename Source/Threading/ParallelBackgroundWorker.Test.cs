@@ -37,7 +37,9 @@ namespace Nuclex.Support.Threading {
     #region class TestWorker
 
     /// <summary>Implementation of a background worker used for unit testing</summary>
+    #pragma warning disable 0618
     private class TestWorker : ParallelBackgroundWorker<object> {
+    #pragma warning restore 0618
 
       /// <summary>Initializes a new parallel background worker with unlimited threads</summary>
       public TestWorker() : base() { }

@@ -47,8 +47,10 @@ namespace Nuclex.Support {
     /// </summary>
     [Test]
     public void TestSameInstance() {
+      #pragma warning disable 0618
       Dummy dummyInstance = Shared<Dummy>.Instance;
       Dummy otherDummyInstance = Shared<Dummy>.Instance;
+      #pragma warning restore 0618
       
       // Make sure they're the same instance. We could have put an instance counter in
       // the dummy class, but this might or might not work well across multiple tests

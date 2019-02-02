@@ -165,7 +165,7 @@ namespace Nuclex.Support {
       XmlReaderSettings settings = new XmlReaderSettings();
       settings.Schemas.Add(schema);
 
-      using (XmlReader reader = XmlReader.Create(documentStream, settings)) {
+      using(XmlReader reader = XmlReader.Create(documentStream, settings)) {
         var document = XDocument.Load(reader, LoadOptions.None);
 
         // Create a schema set because the Validate() method only accepts

@@ -30,6 +30,7 @@ namespace Nuclex.Support {
   public static class Shared<TShared> where TShared : new() {
 
     /// <summary>Returns the global instance of the class</summary>
+    [Obsolete("Avoid singletons at all costs. Consider a dependency injector instead.")]
     public static TShared Instance {
       [DebuggerStepThrough]
       get { return instance; }

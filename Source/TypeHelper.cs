@@ -92,19 +92,6 @@ namespace Nuclex.Support {
       return fieldInfos;
     }
 
-    /// <summary>
-    ///   Adds field informations to a list if they're not already contained in it
-    /// </summary>
-    /// <param name="fieldInfos">List the field informations will be added to</param>
-    /// <param name="fieldInfo">Field informations that will be added to the list</param>
-    private static void addIfNotExists(
-      IDictionary<FieldInfo, object> fieldInfos, FieldInfo fieldInfo
-    ) {
-      if(!fieldInfos.ContainsKey(fieldInfo)) {
-        fieldInfos.Add(fieldInfo, null);
-      }
-    }
-
     /// <summary>Determines whether the given type has a default constructor</summary>
     /// <param name="type">Type which is to be checked</param>
     /// <returns>True if the type has a default constructor</returns>
@@ -140,6 +127,19 @@ namespace Nuclex.Support {
     public static bool HasAttribute(this Type type, Type attributeType) {
       object[] attributes = type.GetCustomAttributes(attributeType, true);
       return (attributes != null) && (attributes.Length > 0);
+    }
+
+    /// <summary>
+    ///   Adds field informations to a list if they're not already contained in it
+    /// </summary>
+    /// <param name="fieldInfos">List the field informations will be added to</param>
+    /// <param name="fieldInfo">Field informations that will be added to the list</param>
+    private static void addIfNotExists(
+      IDictionary<FieldInfo, object> fieldInfos, FieldInfo fieldInfo
+    ) {
+      if(!fieldInfos.ContainsKey(fieldInfo)) {
+        fieldInfos.Add(fieldInfo, null);
+      }
     }
 
   }

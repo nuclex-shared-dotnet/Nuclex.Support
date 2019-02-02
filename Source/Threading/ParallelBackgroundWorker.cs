@@ -30,6 +30,7 @@ namespace Nuclex.Support.Threading {
 
   /// <summary>Processes tasks in parallel using many threads</summary>
   /// <typeparam name="TTask">Type of tasks the class will process</typeparam>
+  [Obsolete("Use ThreadRunner instead; UI view models should inherit ThreadedViewModel")]
   public abstract class ParallelBackgroundWorker<TTask> : IDisposable {
 
     /// <summary>Number of CPU cores available on the system</summary>
@@ -61,7 +62,7 @@ namespace Nuclex.Support.Threading {
       if(threadCount > 0) {
         this.threadCount = threadCount;
       } else {
-        threadCount = Math.Max(1, ProcessorCount + threadCount);
+        this.threadCount = Math.Max(1, ProcessorCount + threadCount);
       }
 
       this.queueSynchronizationRoot = new object();
@@ -79,7 +80,7 @@ namespace Nuclex.Support.Threading {
     /// <param name="name">Name that will be assigned to the worker threads</param>
     public ParallelBackgroundWorker(string name) :
       this(int.MaxValue) {
-      threadName = name;
+      this.threadName = name;
     }
 
     /// <summary>
@@ -98,7 +99,7 @@ namespace Nuclex.Support.Threading {
     /// </remarks>
     public ParallelBackgroundWorker(string name, int threadCount) :
       this(threadCount) {
-      threadName = name;
+      this.threadName = name;
     }
 
     /// <summary>Immediately releases all resources owned by the instance</summary>
@@ -317,7 +318,6 @@ namespace Nuclex.Support.Threading {
     ///     use this method of synchronization!
     ///   </para>
     /// </remarks>
-    /// 
     private object queueSynchronizationRoot;
 
     /// <summary>Delegate for the runQueuedTasksInThread() method</summary>
