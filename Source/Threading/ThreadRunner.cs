@@ -395,7 +395,10 @@ namespace Nuclex.Support.Threading {
     public void ThrowIfBackgroundOperationCancelled() {
       IRunner currentRunner = this.currentRunner;
       if(currentRunner != null) {
-        currentRunner.CancellationTokenSource.Token.ThrowIfCancellationRequested();
+        CancellationTokenSource source = currentRunner.CancellationTokenSource;
+        if(source != null) {
+          source.Token.ThrowIfCancellationRequested();
+        }
       }
     }
 
