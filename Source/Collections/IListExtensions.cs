@@ -27,6 +27,32 @@ namespace Nuclex.Support.Collections {
   /// <summary>Extension methods for the IList interface</summary>
   public static class ListExtensions {
 
+    #region struct Partition
+
+    /// <summary>
+    ///   Stores the left and right index of a partition for the quicksort algorithm
+    /// </summary>
+    private struct Partition {
+
+      /// <summary>
+      ///   Initializes a new partition using the specified left and right index
+      /// </summary>
+      /// <param name="leftmostIndex">Index of the leftmost element in the partition</param>
+      /// <param name="rightmostIndex">Index of the rightmost element in the partition</param>
+      public Partition(int leftmostIndex, int rightmostIndex) {
+        this.LeftmostIndex = leftmostIndex;
+        this.RightmostIndex = rightmostIndex;
+      }
+
+      /// <summary>Index of the leftmost element in the partition</summary>
+      public int LeftmostIndex;
+      /// <summary>Index of the rightmost element in the partition</summary>
+      public int RightmostIndex;
+
+    }
+
+    #endregion // struct Partition
+
     /// <summary>
     ///   Sorts a subset of the elements in an IList&lt;T&gt; using the insertion sort algorithm
     /// </summary>
@@ -91,17 +117,15 @@ namespace Nuclex.Support.Collections {
     ) {
       int rightIndex = list.Count - 1;
 
-      var spans = new Stack<int>();
-      spans.Push(0);
-      spans.Push(rightIndex);
+      var remainingPartitions = new Stack<Partition>();
+      remainingPartitions.Push(new Partition(0, rightIndex));
 
-      while(spans.Count > 0) {
-        int partitionRightEndIndex = spans.Pop();
-        int partitionLeftEndIndex = spans.Pop();
+      while(remainingPartitions.Count > 0) {
+        Partition currentPartition = remainingPartitions.Pop();
 
-        int leftIndex = partitionLeftEndIndex + 1;
-        int pivotIndex = partitionLeftEndIndex;
-        rightIndex = partitionRightEndIndex;
+        int leftIndex = currentPartition.LeftmostIndex + 1;
+        int pivotIndex = currentPartition.LeftmostIndex;
+        rightIndex = currentPartition.RightmostIndex;
 
         TElement pivot = list[pivotIndex];
 
@@ -141,14 +165,12 @@ namespace Nuclex.Support.Collections {
           }
         }
 
-        if(partitionLeftEndIndex < rightIndex) {
-          spans.Push(partitionLeftEndIndex);
-          spans.Push(rightIndex - 1);
+        if(currentPartition.LeftmostIndex < rightIndex) {
+          remainingPartitions.Push(new Partition(currentPartition.LeftmostIndex, rightIndex - 1));
         }
 
-        if(partitionRightEndIndex > rightIndex) {
-          spans.Push(rightIndex + 1);
-          spans.Push(partitionRightEndIndex);
+        if(currentPartition.RightmostIndex > rightIndex) {
+          remainingPartitions.Push(new Partition(rightIndex + 1, currentPartition.RightmostIndex));
         }
       }
     }
