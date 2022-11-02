@@ -116,6 +116,8 @@
     <Compile Include="Source\Collections\ItemReplaceEventArgs.Test.cs">
       <DependentUpon>ItemReplaceEventArgs.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\ListSegment.cs" />
+    <Compile Include="Source\Collections\ListSegment.Test.cs" />
     <Compile Include="Source\Collections\MultiDictionary.cs" />
     <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
       <DependentUpon>MultiDictionary.cs</DependentUpon>

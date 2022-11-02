@@ -27,7 +27,7 @@ using NUnit.Framework;
 
 namespace Nuclex.Support {
 
-  /// <summary>Unit Test for the strign segment class</summary>
+  /// <summary>Unit Test for the string segment class</summary>
   [TestFixture]
   internal class StringSegmentTest {
 
@@ -36,7 +36,7 @@ namespace Nuclex.Support {
     ///   right exception when being passed 'null' instead of a string
     /// </summary>
     [Test]
-    public void TestNullStringInSimpleConstructor() {
+    public void SimpleConstructorThrowsWhenStringIsNull() {
       Assert.Throws<ArgumentNullException>(
         delegate() { new StringSegment(null); }
       );
@@ -47,7 +47,7 @@ namespace Nuclex.Support {
     ///   an empty string
     /// </summary>
     [Test]
-    public void TestEmptyStringInSimpleConstructor() {
+    public void SimpleConstructorAcceptsEmptyString() {
       new StringSegment(string.Empty);
     }
 
@@ -56,7 +56,7 @@ namespace Nuclex.Support {
     ///   right exception when being passed 'null' instead of a string
     /// </summary>
     [Test]
-    public void TestNullStringInFullConstructor() {
+    public void ConstructorThrowsWhenStringIsNull() {
       Assert.Throws<ArgumentNullException>(
         delegate() { new StringSegment(null, 0, 0); }
       );
@@ -67,7 +67,7 @@ namespace Nuclex.Support {
     ///   an empty string
     /// </summary>
     [Test]
-    public void TestEmptyStringInFullConstructor() {
+    public void ConstructorAcceptsEmptyString() {
       new StringSegment(string.Empty, 0, 0);
     }
 
@@ -76,7 +76,7 @@ namespace Nuclex.Support {
     ///   right exception when being passed an invalid start offset
     /// </summary>
     [Test]
-    public void TestInvalidOffsetInConstructor() {
+    public void ConstructorThrowsOnInvalidOffset() {
       Assert.Throws<ArgumentOutOfRangeException>(
         delegate() { new StringSegment(string.Empty, -1, 0); }
       );
@@ -87,7 +87,7 @@ namespace Nuclex.Support {
     ///   right exception when being passed an invalid string length
     /// </summary>
     [Test]
-    public void TestInvalidLengthInConstructor() {
+    public void ConstructorThrowsOnInvalidLength() {
       Assert.Throws<ArgumentOutOfRangeException>(
         delegate() { new StringSegment(string.Empty, 0, -1); }
       );
@@ -98,7 +98,7 @@ namespace Nuclex.Support {
     ///   right exception when being passed a string length that's too large
     /// </summary>
     [Test]
-    public void TestExcessiveLengthInConstructor() {
+    public void ConstructorThrowsOnLengthOverrun() {
       Assert.Throws<ArgumentException>(
         delegate() { new StringSegment("hello", 3, 3); }
       );
@@ -106,21 +106,21 @@ namespace Nuclex.Support {
 
     /// <summary>Tests whether the 'Text' property works as expected</summary>
     [Test]
-    public void TestTextProperty() {
+    public void TextPropertyStoresOriginalString() {
       StringSegment testSegment = new StringSegment("hello", 1, 3);
       Assert.AreEqual("hello", testSegment.Text);
     }
 
     /// <summary>Tests whether the 'Offset' property works as expected</summary>
     [Test]
-    public void TestOffsetProperty() {
+    public void OffsetPropertyIsStored() {
       StringSegment testSegment = new StringSegment("hello", 1, 3);
       Assert.AreEqual(1, testSegment.Offset);
     }
 
     /// <summary>Tests whether the 'Count' property works as expected</summary>
     [Test]
-    public void TestCountProperty() {
+    public void CountPropertyIsStored() {
       StringSegment testSegment = new StringSegment("hello", 1, 3);
       Assert.AreEqual(3, testSegment.Count);
     }
@@ -129,7 +129,7 @@ namespace Nuclex.Support {
     ///   Tests whether two differing instances produce different hash codes
     /// </summary>
     [Test]
-    public void TestHashCodeOnDifferingInstances() {
+    public void DifferentInstancesHaveDifferentHashCodes_Usually() {
       StringSegment helloWorldSegment = new StringSegment("hello world", 2, 7);
       StringSegment howAreYouSegment = new StringSegment("how are you", 1, 9);
 
@@ -142,7 +142,7 @@ namespace Nuclex.Support {
     ///   Tests whether two equivalent instances produce an identical hash code
     /// </summary>
     [Test]
-    public void TestHashCodeOnEquivalentInstances() {
+    public void EquivalentInstancesHaveSameHashcode() {
       StringSegment helloWorld1Segment = new StringSegment("hello world", 2, 7);
       StringSegment helloWorld2Segment = new StringSegment("hello world", 2, 7);
 
@@ -153,7 +153,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the equals method performing a comparison against null</summary>
     [Test]
-    public void TestEqualsOnNull() {
+    public void EqualsAgainstNullIsAlwaysFalse() {
       StringSegment helloWorldSegment = new StringSegment("hello world", 2, 7);
 
       Assert.IsFalse(
@@ -163,7 +163,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the equality operator with differing instances</summary>
     [Test]
-    public void TestEqualityOnDifferingInstances() {
+    public void DifferingInstancesAreNotEqual() {
       StringSegment helloWorldSegment = new StringSegment("hello world", 2, 7);
       StringSegment howAreYouSegment = new StringSegment("how are you", 1, 9);
 
@@ -172,7 +172,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the equality operator with equivalent instances</summary>
     [Test]
-    public void TestEqualityOnEquivalentInstances() {
+    public void EquivalentInstancesAreEqual() {
       StringSegment helloWorld1Segment = new StringSegment("hello world", 2, 7);
       StringSegment helloWorld2Segment = new StringSegment("hello world", 2, 7);
 
@@ -181,7 +181,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the inequality operator with differing instances</summary>
     [Test]
-    public void TestInequalityOnDifferingInstances() {
+    public void DifferingInstancesAreUnequal() {
       StringSegment helloWorldSegment = new StringSegment("hello world", 2, 7);
       StringSegment howAreYouSegment = new StringSegment("how are you", 1, 9);
 
@@ -190,7 +190,7 @@ namespace Nuclex.Support {
 
     /// <summary>Tests the inequality operator with equivalent instances</summary>
     [Test]
-    public void TestInequalityOnEquivalentInstances() {
+    public void EquivalentInstancesAreNotUnequal() {
       StringSegment helloWorld1Segment = new StringSegment("hello world", 2, 7);
       StringSegment helloWorld2Segment = new StringSegment("hello world", 2, 7);
 
@@ -203,36 +203,6 @@ namespace Nuclex.Support {
       StringSegment helloWorldSegment = new StringSegment("hello world", 4, 3);
 
       Assert.AreEqual("o w", helloWorldSegment.ToString());
-    }
-
-    /// <summary>
-    ///   Tests the ToString() method of the string segment with an invalid string
-    /// </summary>
-    [Test]
-    public void TestToStringWithInvalidString() {
-      Assert.Throws<ArgumentNullException>(
-        delegate() { new StringSegment(null, 4, 3); }
-      );
-    }
-
-    /// <summary>
-    ///   Tests the ToString() method of the string segment with an invalid offset
-    /// </summary>
-    [Test]
-    public void TestToStringWithInvalidOffset() {
-      Assert.Throws<ArgumentOutOfRangeException>(
-        delegate() { new StringSegment("hello world", -4, 3); }
-      );
-    }
-
-    /// <summary>
-    ///   Tests the ToString() method of the string segment with an invalid count
-    /// </summary>
-    [Test]
-    public void TestToStringWithInvalidCount() {
-      Assert.Throws<ArgumentOutOfRangeException>(
-        delegate() { new StringSegment("hello world", 4, -3); }
-      );
     }
 
   }

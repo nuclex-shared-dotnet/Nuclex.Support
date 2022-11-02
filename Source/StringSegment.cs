@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 
 namespace Nuclex.Support {
 
-  /// <summary>Delimits a section of a string</summary>
+  /// <summary>View into a section of a string without copying said string</summary>
   /// <remarks>
   ///   <para>
   ///     The design of this class pretty much mirrors that of the
@@ -32,10 +32,10 @@ namespace Nuclex.Support {
   ///     share a lot of the characteristics of an array.
   ///   </para>
   ///   <para>
-  ///     In certain situations, passing a StringSegment instead of the the actual
-  ///     section from a string is useful. For example, the caller might want to know
-  ///     from which index of the original string the substring was taken. Used internally
-  ///     in parsers, it can also prevent needless string copying and garbage generation.
+  ///     In certain situations, passing a StringSegment instead of the actual copied
+  ///     substring is useful. For example, the caller might want to know from which
+  ///     index of the original string the substring was taken. Used internally in parsers,
+  ///     it can also prevent needless string copying and garbage generation.
   ///   </para>
   /// </remarks>
 #if !NO_SERIALIZATION
@@ -103,7 +103,7 @@ namespace Nuclex.Support {
     ///   segment delimits
     /// </summary>
     /// <returns>
-    ///   The original array that was passed to the constructor, and that contains the range
+    ///   The original string that was passed to the constructor, and that contains the range
     ///   delimited by the <see cref="StringSegment" />
     /// </returns>
     public string Text {
@@ -111,19 +111,19 @@ namespace Nuclex.Support {
     }
 
     /// <summary>
-    ///   Gets the position of the first element in the range delimited by the array segment,
-    ///   relative to the start of the original array
+    ///   Gets the position of the first element in the range delimited by the string segment,
+    ///   relative to the start of the original string
     /// </summary>
     /// <returns>
     ///   The position of the first element in the range delimited by the
-    ///   <see cref="StringSegment" />, relative to the start of the original array
+    ///   <see cref="StringSegment" />, relative to the start of the original string
     /// </returns>
     public int Offset {
       get { return this.offset; }
     }
 
     /// <summary>
-    ///   Gets the number of elements in the range delimited by the array segment
+    ///   Gets the number of elements in the range delimited by the string segment
     /// </summary>
     /// <returns>
     ///   The number of elements in the range delimited by the <see cref="StringSegment" />
