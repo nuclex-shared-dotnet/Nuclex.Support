@@ -105,6 +105,8 @@
     <Compile Include="Source\Collections\Deque.Test.cs">
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\IListExtensions.cs" />
+    <Compile Include="Source\Collections\IListExtensions.Test.cs" />
     <Compile Include="Source\Collections\IMultiDictionary.cs" />
     <Compile Include="Source\Collections\IObservableCollection.cs" />
     <Compile Include="Source\Collections\IRecyclable.cs" />
