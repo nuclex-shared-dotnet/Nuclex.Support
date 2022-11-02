@@ -60,6 +60,21 @@ namespace Nuclex.Support.Collections {
       );
     }
 
+    /// <summary>Tests whether the insertion sort algorithm can be applied to 'Text' property works as expected</summary>
+    [Test]
+    public void QuickSortCanSortWholeList() {
+      var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
+      var testListAsIList = (IList<int>)testList;
+      
+      testListAsIList.QuickSort(Comparer<int>.Default);
+
+      CollectionAssert.AreEqual(
+        new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
+        testList
+      );
+    }
+
+
   }
 
 } // namespace Nuclex.Support.Collections
