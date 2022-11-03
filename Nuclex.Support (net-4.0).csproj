@@ -194,6 +194,10 @@
     <Compile Include="Source\Collections\ReverseComparer.Test.cs">
       <DependentUpon>ReverseComparer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Source\Collections\SortableBindingList.cs" />
+    <Compile Include="Source\Collections\SortableBindingList.Test.cs">
+      <DependentUpon>SortableBindingList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.cs" />
     <Compile Include="Source\Collections\TransformingReadOnlyCollection.Interfaces.cs">
       <DependentUpon>TransformingReadOnlyCollection.cs</DependentUpon>

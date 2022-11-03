@@ -32,6 +32,20 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   internal class IListExtensionsTest {
 
+    /// <summary>Tests whether the insertion sort algorithm sorts a list correctly</summary>
+    [Test]
+    public void InsertionSortCanSortWholeList() {
+      var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
+      var testListAsIList = (IList<int>)testList;
+
+      testListAsIList.InsertionSort();
+
+      CollectionAssert.AreEqual(
+        new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
+        testList
+      );
+    }
+
     /// <summary>Tests whether the insertion sort algorithm works on big lists</summary>
     [Test]
     public void InsertionSortCanSortBigList() {
@@ -53,30 +67,30 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Tests whether the insertion sort algorithm can be applied to 'Text' property works as expected</summary>
-    [Test]
-    public void InsertionSortCanSortWholeList() {
-      var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
-      var testListAsIList = (IList<int>)testList;
-      
-      testListAsIList.InsertionSort();
-
-      CollectionAssert.AreEqual(
-        new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
-        testList
-      );
-    }
-
-    /// <summary>Tests whether the 'Text' property works as expected</summary>
+    /// <summary>Tests whether the insertion sort algorithm respects custom boundaries</summary>
     [Test]
     public void InsertionSortCanSortListSegment() {
       var testList = new List<int>(capacity: 7) { 9, 1, 5, 2, 4, 3, 0 };
       var testListAsIList = (IList<int>)testList;
-      
+
       testListAsIList.InsertionSort(1, 5, Comparer<int>.Default);
 
       CollectionAssert.AreEqual(
         new List<int>(capacity: 7) { 9, 1, 2, 3, 4, 5, 0 },
+        testList
+      );
+    }
+
+    /// <summary>Tests whether the quicksort algorithm sorts a list correctly</summary>
+    [Test]
+    public void QuickSortCanSortWholeList() {
+      var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
+      var testListAsIList = (IList<int>)testList;
+
+      testListAsIList.QuickSort();
+
+      CollectionAssert.AreEqual(
+        new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
         testList
       );
     }
@@ -102,20 +116,19 @@ namespace Nuclex.Support.Collections {
       }
     }
 
-    /// <summary>Tests whether the insertion sort algorithm can be applied to 'Text' property works as expected</summary>
+    /// <summary>Tests whether the quicksort algorithm respects custom boundaries</summary>
     [Test]
-    public void QuickSortCanSortWholeList() {
-      var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
+    public void QuickSortCanSortListSegment() {
+      var testList = new List<int>(capacity: 7) { 9, 1, 5, 2, 4, 3, 0 };
       var testListAsIList = (IList<int>)testList;
-      
-      testListAsIList.QuickSort();
+
+      testListAsIList.QuickSort(1, 5, Comparer<int>.Default);
 
       CollectionAssert.AreEqual(
-        new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
+        new List<int>(capacity: 7) { 9, 1, 2, 3, 4, 5, 0 },
         testList
       );
     }
-
 
   }
 
