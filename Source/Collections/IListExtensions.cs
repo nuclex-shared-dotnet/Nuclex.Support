@@ -118,21 +118,38 @@ namespace Nuclex.Support.Collections {
       this IList<TElement> list, int startIndex, int count, IComparer<TElement> comparer
     ) {
       var remainingPartitions = new Stack<Partition>();
-      remainingPartitions.Push(new Partition(startIndex, startIndex + count - 1));
 
-      while(remainingPartitions.Count > 0) {
-        Partition current = remainingPartitions.Pop();
-        int leftEnd = current.LeftmostIndex;
-        int rightEnd = current.RightmostIndex;
+      int lastIndex = startIndex + count - 1;
+      for(; ; ) {
+        int pivotIndex = quicksortPartition(list, startIndex, lastIndex, comparer);
 
-        int pivotIndex = quicksortPartition(list, leftEnd, rightEnd, comparer);
-        if(pivotIndex - 1 > leftEnd) {
-          remainingPartitions.Push(new Partition(leftEnd, pivotIndex - 1));
-        }
-        if(pivotIndex + 1 < rightEnd) {
-          remainingPartitions.Push(new Partition(pivotIndex + 1, rightEnd));
-        }
-      }
+        // This block just queues the next partitions left of the pivot point and right
+        // of the pivot point (if they contain at least 2 elements). It's fattened up
+        // a bit by trying to forego the stack and adjusting the startIndex/lastIndex
+        // directly where it's clear the next loop can process these partitions.
+        if(pivotIndex - 1 > startIndex) { // Are the elements to sort right of the pivot?
+          if(pivotIndex + 1 < lastIndex) {  // Are the elements left of the pivot as well?
+            remainingPartitions.Push(new Partition(startIndex, pivotIndex - 1));
+            startIndex = pivotIndex + 1;
+          } else { // Elements to sort are only right of the pivot
+            lastIndex = pivotIndex - 1;
+          }
+        } else if(pivotIndex + 1 < lastIndex) { // Are elements to sort only left of the pivot?
+          startIndex = pivotIndex + 1;
+        } else { // Partition was fully sorted
+
+          // Did we process all queued partitions? If so, the list is sorted
+          if(remainingPartitions.Count == 0) {
+            return;
+          }
+
+          // Pull the next partition that needs to be sorted from the stack
+          Partition current = remainingPartitions.Pop();
+          startIndex = current.LeftmostIndex;
+          lastIndex = current.RightmostIndex;
+
+        } // if sortable sub-partitions exist left/right/nowhere
+      } // for ever (termination inside loop)
     }
 
     /// <summary>
@@ -156,32 +173,45 @@ namespace Nuclex.Support.Collections {
       QuickSort(list, 0, list.Count, Comparer<TElement>.Default);
     }
 
+    /// <summary>
+    ///   Moves an element downward over all elements that precede it in the sort order
+    /// </summary>
+    /// <typeparam name="TElement">Type of elements stored in the sorted list</typeparam>
+    /// <param name="list">List that is being sorted</param>
+    /// <param name="firstIndex">Index of the first element in the partition</param>
+    /// <param name="lastIndex">Index of hte last element in the partition</param>
+    /// <param name="comparer">
+    ///   Comparison function that decides the ordering of elements
+    /// </param>
+    /// <returns>The index of the next pivot element</returns>
     private static int quicksortPartition<TElement>(
       IList<TElement> list, int firstIndex, int lastIndex, IComparer<TElement> comparer
     ) {
-      TElement pivot = list[lastIndex];
-      
-      // Set the high index element to its proper sorted position
-      int nextIndex = firstIndex;
+
+      // Step through all elements in the partition and accumulate those that are smaller
+      // than the last element on the left (by swapping). At the end 'firstIndex' will be
+      // the new pivot point, left of which are all elements smaller than the element at
+      // 'lastIndex' and right of it will be all elements which are larger.
       for(int index = firstIndex; index < lastIndex; ++index) {
-        if(comparer.Compare(list[index], pivot) < 0) {
-          TElement temp = list[nextIndex];
-          list[nextIndex] = list[index];
+        if(comparer.Compare(list[index], list[lastIndex]) < 0) {
+          TElement temp = list[firstIndex];
+          list[firstIndex] = list[index];
           list[index] = temp;
 
-          ++nextIndex;
+          ++firstIndex;
         }
       }
-    
-      // Set the high index value to its sorted position
+
+      // The element at 'lastIndex' as a sort value that's in the middle of the two sides,
+      // so we'll have to swap it, too, putting it in the middle and making it the new pivot.
       {
-        TElement temp = list[nextIndex];
-        list[nextIndex] = list[lastIndex];
+        TElement temp = list[firstIndex];
+        list[firstIndex] = list[lastIndex];
         list[lastIndex] = temp;
       }
 
-      // Returns the next sorting  element location
-      return nextIndex;
+      // Return the index of the new pivot position
+      return firstIndex;
 
     }
 

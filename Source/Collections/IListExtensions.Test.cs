@@ -32,6 +32,27 @@ namespace Nuclex.Support.Collections {
   [TestFixture]
   internal class IListExtensionsTest {
 
+    /// <summary>Tests whether the insertion sort algorithm works on big lists</summary>
+    [Test]
+    public void InsertionSortCanSortBigList() {
+      const int ListSize = 16384;
+
+      var testList = new List<int>(capacity: ListSize);
+      {
+        var random = new Random();
+        for(int index = 0; index < ListSize; ++index) {
+          testList.Add(random.Next());
+        }
+      }
+
+      var testListAsIList = (IList<int>)testList;
+      testListAsIList.InsertionSort();
+
+      for(int index = 1; index < ListSize; ++index) {
+        Assert.LessOrEqual(testListAsIList[index - 1], testListAsIList[index]);
+      }
+    }
+
     /// <summary>Tests whether the insertion sort algorithm can be applied to 'Text' property works as expected</summary>
     [Test]
     public void InsertionSortCanSortWholeList() {
@@ -58,6 +79,27 @@ namespace Nuclex.Support.Collections {
         new List<int>(capacity: 7) { 9, 1, 2, 3, 4, 5, 0 },
         testList
       );
+    }
+
+    /// <summary>Tests whether the quicksort algorithm works on big lists</summary>
+    [Test]
+    public void QuickSortCanSortBigList() {
+      const int ListSize = 16384;
+
+      var testList = new List<int>(capacity: ListSize);
+      {
+        var random = new Random();
+        for(int index = 0; index < ListSize; ++index) {
+          testList.Add(random.Next());
+        }
+      }
+
+      var testListAsIList = (IList<int>)testList;
+      testListAsIList.QuickSort();
+
+      for(int index = 1; index < ListSize; ++index) {
+        Assert.LessOrEqual(testListAsIList[index - 1], testListAsIList[index]);
+      }
     }
 
     /// <summary>Tests whether the insertion sort algorithm can be applied to 'Text' property works as expected</summary>
