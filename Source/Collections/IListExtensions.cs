@@ -103,7 +103,7 @@ namespace Nuclex.Support.Collections {
     /// <typeparam name="TElement">Type of elements the list contains</typeparam>
     /// <param name="list">List in which a subset will be sorted</param>
     public static void InsertionSort<TElement>(this IList<TElement> list) {
-      InsertionSort(list, Comparer<TElement>.Default);
+      InsertionSort(list, 0, list.Count, Comparer<TElement>.Default);
     }
 
     /// <summary>
@@ -111,68 +111,78 @@ namespace Nuclex.Support.Collections {
     /// </summary>
     /// <typeparam name="TElement">Type of elements the list contains</typeparam>
     /// <param name="list">List in which a subset will be sorted</param>
+    /// <param name="startIndex">Index at which the sorting process will begin</param>
+    /// <param name="count">Index one past the last element that will be sorted</param>
+    /// <param name="comparer">Comparison function to use for comparing list elements</param>
+    public static void QuickSort<TElement>(
+      this IList<TElement> list, int startIndex, int count, IComparer<TElement> comparer
+    ) {
+      var remainingPartitions = new Stack<Partition>();
+      remainingPartitions.Push(new Partition(startIndex, startIndex + count - 1));
+
+      while(remainingPartitions.Count > 0) {
+        Partition current = remainingPartitions.Pop();
+        int leftEnd = current.LeftmostIndex;
+        int rightEnd = current.RightmostIndex;
+
+        int pivotIndex = quicksortPartition(list, leftEnd, rightEnd, comparer);
+        if(pivotIndex - 1 > leftEnd) {
+          remainingPartitions.Push(new Partition(leftEnd, pivotIndex - 1));
+        }
+        if(pivotIndex + 1 < rightEnd) {
+          remainingPartitions.Push(new Partition(pivotIndex + 1, rightEnd));
+        }
+      }
+    }
+
+    /// <summary>
+    ///   Sorts all the elements in an IList&lt;T&gt; using the insertion sort algorithm
+    /// </summary>
+    /// <typeparam name="TElement">Type of elements the list contains</typeparam>
+    /// <param name="list">List in which a subset will be sorted</param>
     /// <param name="comparer">Comparison function to use for comparing list elements</param>
     public static void QuickSort<TElement>(
       this IList<TElement> list, IComparer<TElement> comparer
     ) {
-      int rightIndex = list.Count - 1;
+      QuickSort(list, 0, list.Count, comparer);
+    }
 
-      var remainingPartitions = new Stack<Partition>();
-      remainingPartitions.Push(new Partition(0, rightIndex));
+    /// <summary>
+    ///   Sorts all the elements in an IList&lt;T&gt; using the insertion sort algorithm
+    /// </summary>
+    /// <typeparam name="TElement">Type of elements the list contains</typeparam>
+    /// <param name="list">List in which a subset will be sorted</param>
+    public static void QuickSort<TElement>(this IList<TElement> list) {
+      QuickSort(list, 0, list.Count, Comparer<TElement>.Default);
+    }
 
-      while(remainingPartitions.Count > 0) {
-        Partition currentPartition = remainingPartitions.Pop();
+    private static int quicksortPartition<TElement>(
+      IList<TElement> list, int firstIndex, int lastIndex, IComparer<TElement> comparer
+    ) {
+      TElement pivot = list[lastIndex];
+      
+      // Set the high index element to its proper sorted position
+      int nextIndex = firstIndex;
+      for(int index = firstIndex; index < lastIndex; ++index) {
+        if(comparer.Compare(list[index], pivot) < 0) {
+          TElement temp = list[nextIndex];
+          list[nextIndex] = list[index];
+          list[index] = temp;
 
-        int leftIndex = currentPartition.LeftmostIndex + 1;
-        int pivotIndex = currentPartition.LeftmostIndex;
-        rightIndex = currentPartition.RightmostIndex;
-
-        TElement pivot = list[pivotIndex];
-
-        if(leftIndex > rightIndex)
-          continue;
-
-        while(leftIndex < rightIndex) {
-
-          while(leftIndex <= rightIndex) {
-            if(comparer.Compare(list[leftIndex], pivot) > 0) {
-              break;
-            }
-            ++leftIndex;
-          }
-
-          while(leftIndex <= rightIndex) {
-            if(comparer.Compare(list[rightIndex], pivot) < 0) {
-              break;
-            }
-
-            --rightIndex;
-          }
-
-          if(rightIndex >= leftIndex) {
-            TElement temp = list[leftIndex];
-            list[leftIndex] = list[rightIndex];
-            list[rightIndex] = temp;
-          }
-
-        }
-
-        if(pivotIndex <= rightIndex) {
-          if(comparer.Compare(list[pivotIndex], list[rightIndex]) > 0) {
-            TElement temp = list[pivotIndex];
-            list[pivotIndex] = list[rightIndex];
-            list[rightIndex] = temp;
-          }
-        }
-
-        if(currentPartition.LeftmostIndex < rightIndex) {
-          remainingPartitions.Push(new Partition(currentPartition.LeftmostIndex, rightIndex - 1));
-        }
-
-        if(currentPartition.RightmostIndex > rightIndex) {
-          remainingPartitions.Push(new Partition(rightIndex + 1, currentPartition.RightmostIndex));
+          ++nextIndex;
         }
       }
+    
+      // Set the high index value to its sorted position
+      {
+        TElement temp = list[nextIndex];
+        list[nextIndex] = list[lastIndex];
+        list[lastIndex] = temp;
+      }
+
+      // Returns the next sorting  element location
+      return nextIndex;
+
     }
 
   }

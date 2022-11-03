@@ -106,7 +106,9 @@
       <DependentUpon>Deque.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\IListExtensions.cs" />
-    <Compile Include="Source\Collections\IListExtensions.Test.cs" />
+    <Compile Include="Source\Collections\IListExtensions.Test.cs">
+      <DependentUpon>IListExtensions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\IMultiDictionary.cs" />
     <Compile Include="Source\Collections\IObservableCollection.cs" />
     <Compile Include="Source\Collections\IRecyclable.cs" />
@@ -119,7 +121,9 @@
       <DependentUpon>ItemReplaceEventArgs.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Collections\ListSegment.cs" />
-    <Compile Include="Source\Collections\ListSegment.Test.cs" />
+    <Compile Include="Source\Collections\ListSegment.Test.cs">
+      <DependentUpon>ListSegment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\Collections\MultiDictionary.cs" />
     <Compile Include="Source\Collections\MultiDictionary.ValueCollection.cs">
       <DependentUpon>MultiDictionary.cs</DependentUpon>

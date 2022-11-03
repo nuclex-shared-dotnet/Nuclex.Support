@@ -66,7 +66,7 @@ namespace Nuclex.Support.Collections {
       var testList = new List<int>(capacity: 5) { 1, 5, 2, 4, 3 };
       var testListAsIList = (IList<int>)testList;
       
-      testListAsIList.QuickSort(Comparer<int>.Default);
+      testListAsIList.QuickSort();
 
       CollectionAssert.AreEqual(
         new List<int>(capacity: 5) { 1, 2, 3, 4, 5 },
