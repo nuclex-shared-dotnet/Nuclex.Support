@@ -28,7 +28,7 @@ namespace Nuclex.Support.Collections {
 
   /// <summary>Variant of BindingList that supports sorting</summary>
   /// <typeparam name="TElement">Type of items the binding list will contain</typeparam>
-  internal class SortableBindingList<TElement> : BindingList<TElement> {
+  public class SortableBindingList<TElement> : BindingList<TElement> {
 
     #region class PropertyComparer
 
