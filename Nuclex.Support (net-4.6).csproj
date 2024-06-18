@@ -346,7 +346,11 @@
     <None Include="..\Foundation.snk">
       <Link>Foundation.snk</Link>
     </None>
+    <None Include="Dependencies.md" />
+    <None Include="License.md" />
+    <None Include="Notice.md" />
     <None Include="packages.config" />
+    <None Include="ReadMe.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documents\DoubleConverter.txt" />
