@@ -17,8 +17,6 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.Collections.Generic;
 
@@ -194,5 +192,3 @@ namespace Nuclex.Support.Cloning {
   }
 
 } // namespace Nuclex.Support.Cloning
-
-#endif // UNITTEST

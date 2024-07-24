@@ -19,8 +19,6 @@ limitations under the License.
 
 using System;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
 namespace Nuclex.Support.Parsing {
@@ -653,5 +651,3 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif // UNITTEST

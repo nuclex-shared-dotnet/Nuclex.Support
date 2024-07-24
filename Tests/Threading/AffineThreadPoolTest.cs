@@ -17,8 +17,6 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -351,5 +349,3 @@ namespace Nuclex.Support.Threading {
   }
 
 } // namespace Nuclex.Support.Threading
-
-#endif // UNITTEST

@@ -21,8 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
 namespace Nuclex.Support.Collections {
@@ -132,5 +130,3 @@ namespace Nuclex.Support.Collections {
   }
 
 } // namespace Nuclex.Support.Collections
-
-#endif // UNITTEST

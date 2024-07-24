@@ -23,8 +23,6 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
 namespace Nuclex.Support.Threading {
@@ -251,7 +249,5 @@ namespace Nuclex.Support.Threading {
   }
 
 } // namespace Nuclex.Support.Threading
-
-#endif // UNITTEST
 
 #endif // !NO_CONCURRENT_COLLECTIONS

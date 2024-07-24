@@ -19,8 +19,6 @@ limitations under the License.
 
 #if !NO_SETS
 
-#if UNITTEST
-
 using System;
 using System.Collections.Generic;
 
@@ -219,7 +217,5 @@ namespace Nuclex.Support.Cloning {
   }
 
 } // namespace Nuclex.Support.Cloning
-
-#endif // UNITTEST
 
 #endif // !NO_SETS

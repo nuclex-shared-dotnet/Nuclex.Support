@@ -17,8 +17,6 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -228,5 +226,3 @@ namespace Nuclex.Support.Parsing {
   }
 
 } // namespace Nuclex.Support.Parsing
-
-#endif // UNITTEST

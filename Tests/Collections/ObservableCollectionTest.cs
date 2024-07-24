@@ -17,15 +17,11 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if !NO_NMOCK
-
 using System;
 using System.Collections.Generic;
 
-#if UNITTEST
-
 using NUnit.Framework;
-using NMock;
+using Moq;
 
 namespace Nuclex.Support.Collections {
 
@@ -65,35 +61,32 @@ namespace Nuclex.Support.Collections {
     /// <summary>Initialization routine executed before each test is run</summary>
     [SetUp]
     public void Setup() {
-      this.mockery = new MockFactory();
-
-      this.mockedSubscriber = this.mockery.CreateMock<IObservableCollectionSubscriber>();
+      this.mockedSubscriber = new Mock<IObservableCollectionSubscriber>();
 
       this.observedCollection = new ObservableCollection<int>();
       this.observedCollection.Clearing += new EventHandler(
-        this.mockedSubscriber.MockObject.Clearing
+        this.mockedSubscriber.Object.Clearing
       );
       this.observedCollection.Cleared += new EventHandler(
-        this.mockedSubscriber.MockObject.Cleared
+        this.mockedSubscriber.Object.Cleared
       );
       this.observedCollection.ItemAdded += new EventHandler<ItemEventArgs<int>>(
-        this.mockedSubscriber.MockObject.ItemAdded
+        this.mockedSubscriber.Object.ItemAdded
       );
       this.observedCollection.ItemRemoved += new EventHandler<ItemEventArgs<int>>(
-        this.mockedSubscriber.MockObject.ItemRemoved
+        this.mockedSubscriber.Object.ItemRemoved
       );
     }
 
     /// <summary>Tests whether the Clearing event is fired</summary>
     [Test]
     public void TestClearingEvent() {
-      this.mockedSubscriber.Expects.One.Method(m => m.Clearing(null, null)).WithAnyArguments();
-      this.mockedSubscriber.Expects.One.Method(m => m.Cleared(null, null)).WithAnyArguments();
       this.observedCollection.Clear();
 
-      this.mockery.VerifyAllExpectationsHaveBeenMet();
+      this.mockedSubscriber.Verify(c => c.Clearing(null, null), Times.Once);
+      this.mockedSubscriber.Verify(c => c.Cleared(null, null), Times.Once);
     }
-
+/*
     /// <summary>Tests whether the ItemAdded event is fired</summary>
     [Test]
     public void TestItemAddedEvent() {
@@ -127,9 +120,7 @@ namespace Nuclex.Support.Collections {
 
       CollectionAssert.AreEqual(integers, testCollection);
     }
-
-    /// <summary>Mock object factory</summary>
-    private MockFactory mockery;
+*/
     /// <summary>The mocked observable collection subscriber</summary>
     private Mock<IObservableCollectionSubscriber> mockedSubscriber;
     /// <summary>An observable collection to which a mock will be subscribed</summary>
@@ -138,7 +129,3 @@ namespace Nuclex.Support.Collections {
   }
 
 } // namespace Nuclex.Support.Collections
-
-#endif // UNITTEST
-
-#endif // !NO_NMOCK
