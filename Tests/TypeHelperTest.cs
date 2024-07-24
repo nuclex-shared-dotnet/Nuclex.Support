@@ -17,8 +17,6 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.Reflection;
 
@@ -88,7 +86,7 @@ namespace Nuclex.Support {
     #region class HasIgnoreAttribute
 
     /// <summary>Class that carries an IgnoreAttribute</summary>
-    [Ignore]
+    [Ignore("Just misusing NUnit's IgnoreAttribute to have an attribute to test against")]
     private class HasIgnoreAttribute { }
 
     #endregion // class HasIgnoreAttribute
@@ -137,5 +135,3 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
-
-#endif // UNITTEST

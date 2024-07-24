@@ -17,8 +17,6 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.ComponentModel;
 
@@ -120,5 +118,3 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
-
-#endif // UNITTEST
