@@ -17,13 +17,10 @@ limitations under the License.
 */
 #endregion // Apache License 2.0
 
-#if UNITTEST
-
 using System;
 using System.ComponentModel;
 
 using NUnit.Framework;
-using NMock;
 
 namespace Nuclex.Support {
 
@@ -167,5 +164,3 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
-
-#endif // UNITTEST

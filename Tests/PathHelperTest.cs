@@ -20,8 +20,6 @@ limitations under the License.
 using System;
 using System.IO;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
 namespace Nuclex.Support {
@@ -242,5 +240,3 @@ namespace Nuclex.Support {
   }
 
 } // namespace Nuclex.Support
-
-#endif // UNITTEST

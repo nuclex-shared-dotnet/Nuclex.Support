@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <AssemblyName>Nuclex.Support.Tests</AssemblyName>
+    <RootNamespace>Nuclex.Support.Tests</RootNamespace>
+    <IntermediateOutputPath>obj\tests</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Source\**" />
+    <EmbeddedResource Remove="Source\**" />
+    <None Remove="Source\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove=".git" />
+    <None Remove="packages.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Nuclex.Support (netstandard-2.0).csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\third-party\castle.core-5.1.1\netstandard-2.0\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\third-party\nsubstitute-5.1.0\netstandard-2.0\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\third-party\nunit-3.14.0\netstandard-2.0\nunit.framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
