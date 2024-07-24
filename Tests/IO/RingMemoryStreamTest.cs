@@ -20,8 +20,6 @@ limitations under the License.
 using System;
 using System.IO;
 
-#if UNITTEST
-
 using NUnit.Framework;
 
 namespace Nuclex.Support.IO {
@@ -31,7 +29,7 @@ namespace Nuclex.Support.IO {
   internal class RingMemoryStreamTest {
 
     /// <summary>Prepares some test data for the units test methods</summary>
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Setup() {
       this.testBytes = new byte[20];
       for(int i = 0; i < 20; ++i)
@@ -325,5 +323,3 @@ namespace Nuclex.Support.IO {
   }
 
 } // namespace Nuclex.Support.IO
-
-#endif // UNITTEST
