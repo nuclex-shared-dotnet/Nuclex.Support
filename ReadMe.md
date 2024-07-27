@@ -52,17 +52,17 @@ replicate all the data of a class - any private field and hidden state.
 ```csharp
 class Example {
   public Example(Example child = null) {
-  	Child = child;
+    Child = child;
   }
   public Example Child { get; private set; }
 }
 
 class Test {
   public static void CloneSomething() {
-  	var test = new Example(new Example());
+    var test = new Example(new Example());
 
-  	var reflectionCloner = new ReflectionCloner();
-  	var clone = reflectionCloner.DeepFieldClone(test);
+    var reflectionCloner = new ReflectionCloner();
+    var clone = reflectionCloner.DeepFieldClone(test);
 
     // Clone is now a complete copy of test, including the child object
   }
@@ -100,18 +100,18 @@ void saveSettingsToIni() {
   saveSettings(iniStore);
 
   using(var writer = new StreamWriteR("awesome-app.ini")) {
-  	iniStore.Save(writer);
-  	writer.Flush()
+    iniStore.Save(writer);
+    writer.Flush()
   }
 }
 
 void saveSettingsToRegistry() {
   using(
-  	var registryStore = new WindowsRegistryStore(
-  	  RegistryHive.HKCU, "AwesomeApplication"
+    var registryStore = new WindowsRegistryStore(
+      RegistryHive.HKCU, "AwesomeApplication"
     )
   ) {
-  	saveSettings(registryStore);
+    saveSettings(registryStore);
   }
 }
 ```
@@ -131,13 +131,13 @@ more pleasant to use:
 class CreateUserViewModel : Observable {
 
   public string FirstName {
-  	get { return this.firstName; }
-  	set {
-  	  if(value != this.firstName) {
-  	  	this.firstName = value;
-  	  	OnPropertyChanged(nameof(FirstName));
-  	  }
-  	}
+    get { return this.firstName; }
+    set {
+      if(value != this.firstName) {
+        this.firstName = value;
+        OnPropertyChanged(nameof(FirstName));
+      }
+    }
   }
 
   private string firstName;
@@ -153,7 +153,7 @@ CreateUserViewModel ViewModel { get; set; }
 
 void onPropertyChanged(object sender, PropertyChangedEventArgs arguments) {
   if(arguments.AreAffecting(nameof(ViewModel.FirstName))) {
-  	this.firstNameLine.Text = ViewModel.FirstName;
+    this.firstNameLine.Text = ViewModel.FirstName;
   }
 }
 ```
