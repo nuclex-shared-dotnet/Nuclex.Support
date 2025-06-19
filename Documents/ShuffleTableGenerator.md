@@ -1,5 +1,15 @@
-  #if DEBUG
-  
+Shuffle Table Generator
+=======================
+
+The `LicenseKey` class converts a GUID (or any 128 bits of data) into a license key similar
+to the ones used by Microsoft products (5 groups of 5 alphanumeric characters).
+
+For additional obfuscation, bits can be mapped in a random order. That will offer some
+protection when you have, for example, a running serial number. With shuffling, each
+increment will result in likely several alphanumeric characters changing in seemingly
+unpredictable ways (base-2 to base-36 conversion pretty much guarantees that any small
+change affects many following alphanumeric "digits").
+
     /// <summary>Generates a new random shuffle table</summary>
     /// <param name="iterationCount">
     ///   Number of iterations in which to randomize the shuffle table
@@ -23,6 +33,3 @@
 
       return shuffleTable;      
     }
-  
-  #endif
-
